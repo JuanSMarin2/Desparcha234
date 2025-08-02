@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Tejo.unity
     guid: c83850414e3631645a488212e257f0e8
+  - enabled: 1
+    path: Assets/Scenes/ResultadosMinijuego.unity
+    guid: 55f9d15c94d51a04f8708faacb2a828d
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

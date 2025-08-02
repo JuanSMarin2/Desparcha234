@@ -232,7 +232,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 249595775}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 308694105}
+        m_TargetAssemblyTypeName: GameRoundManager, Assembly-CSharp
+        m_MethodName: PlayerWin
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &249595775
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,6 +291,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 991743340426723893, guid: 1db1722f532bbc6478e7712b5d8f7aa9, type: 3}
+      propertyPath: numPlayers
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 2401113022653695755, guid: 1db1722f532bbc6478e7712b5d8f7aa9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1794.0886
@@ -328,6 +344,53 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1db1722f532bbc6478e7712b5d8f7aa9, type: 3}
+--- !u!1 &308694104
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 308694106}
+  - component: {fileID: 308694105}
+  m_Layer: 0
+  m_Name: GameRoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &308694105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 308694104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6d4766cb7cb84b4d9d5674ee838186c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  winners: 
+  losers: 
+  finalPositions: 
+--- !u!4 &308694106
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 308694104}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1297.2292, y: 543.1641, z: -5.7153573}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &501367100
 GameObject:
   m_ObjectHideFlags: 0
@@ -682,7 +745,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 929540267}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 308694105}
+        m_TargetAssemblyTypeName: GameRoundManager, Assembly-CSharp
+        m_MethodName: PlayerWin
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &929540267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -803,7 +878,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 947265971}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 308694105}
+        m_TargetAssemblyTypeName: GameRoundManager, Assembly-CSharp
+        m_MethodName: PlayerWin
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &947265971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1252,7 +1339,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc61da3f7a3da5a4bace93bb710a131a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentPlayerTurn: 0
+  activePlayerIndices: 
   turnText: {fileID: 855944479}
 --- !u!4 &1136800916
 Transform:
@@ -2516,7 +2603,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2131863671}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 308694105}
+        m_TargetAssemblyTypeName: GameRoundManager, Assembly-CSharp
+        m_MethodName: PlayerWin
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2131863671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2591,3 +2690,4 @@ SceneRoots:
   - {fileID: 1048118533}
   - {fileID: 294934318}
   - {fileID: 1136800916}
+  - {fileID: 308694106}

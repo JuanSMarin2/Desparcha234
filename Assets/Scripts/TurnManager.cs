@@ -1,19 +1,18 @@
-using TMPro;
 using UnityEngine;
+using System.Collections.Generic;
+using TMPro;
 
 public class TurnManager : MonoBehaviour
 {
-    [Header("Configuración del Turno")]
     public static TurnManager instance;
 
-    [Header("El turno del jugador actual (0, 1, 2, 3). J1 = 0, J2 = 1, J3 = 2, J4 = 3")] //Chat Gpt me rogó que lo haga desde 0
-    [Tooltip("El turno del jugador actual (0, 1, 2, 3). J1 = 0, J2 = 1, J3 = 2, J4 = 3")]
-    [SerializeField] private int currentPlayerTurn;
+    [Tooltip("Índices de los jugadores que aún están en la partida.")]
+    [SerializeField] private List<int> activePlayerIndices = new List<int>();
 
-    private int numberOfPlayers;
+    private int activePlayerListIndex;
+    private int totalPlayers;
 
-    [Header("UI")]
-    [SerializeField] private TextMeshProUGUI turnText; 
+    [SerializeField] private TextMeshProUGUI turnText;
 
     void Awake()
     {
@@ -29,44 +28,93 @@ public class TurnManager : MonoBehaviour
 
     void Start()
     {
-        if (RoundData.instance == null)
+        totalPlayers = RoundData.instance.numPlayers;
+
+        for (int i = 0; i < totalPlayers; i++)
         {
-            Debug.LogError("RoundData.instance no está inicializado.");
-            return;
+            activePlayerIndices.Add(i);
         }
 
-        numberOfPlayers = RoundData.instance.numPlayers;
-        currentPlayerTurn = Random.Range(0, numberOfPlayers);
-
-        Debug.Log("Empieza el jugador: Jugador " + (currentPlayerTurn + 1));
-
-        UpdateTurnText();
-    }
-
-    public int GetCurrentPlayerTurn()
-    {
-        return currentPlayerTurn;
-    }
-
-    public void NextTurn()
-    {
-        currentPlayerTurn++;
-
-        if (currentPlayerTurn >= numberOfPlayers)
+        // Verificamos si hay jugadores activos antes de asignar el turno inicial.
+        if (activePlayerIndices.Count > 0)
         {
-            currentPlayerTurn = 0;
+            activePlayerListIndex = Random.Range(0, activePlayerIndices.Count);
+            Debug.Log("Juego iniciado con " + totalPlayers + " jugadores.");
+            Debug.Log("El turno inicial es para el Jugador " + (GetCurrentPlayerIndex() + 1));
         }
+        else
+        {
+            Debug.LogError("No hay jugadores activos para iniciar la partida.");
+        }
+    }
 
-        Debug.Log("Siguiente turno. Ahora le toca al Jugador " + (currentPlayerTurn + 1));
+    void Update()
+    {
         UpdateTurnText();
     }
 
     private void UpdateTurnText()
     {
-        if (turnText != null)
+        if (turnText != null && activePlayerIndices.Count > 0) // Añadimos una verificación aquí
         {
-            turnText.text = "Turno del jugador: " + (currentPlayerTurn + 1);
+            int playerNumber = GetCurrentPlayerIndex() + 1;
+            turnText.text = "Turno del jugador: " + playerNumber.ToString();
+        }
+        else if (turnText != null)
+        {
+            // Si no hay jugadores, mostramos un mensaje por defecto.
+            turnText.text = "Partida finalizada.";
         }
     }
-} 
-      
+
+    /// <summary>
+    /// Devuelve el índice del jugador actual (0-based) para su lógica de juego.
+    /// </summary>
+    public int GetCurrentPlayerIndex()
+    {
+        // VERIFICACIÓN CLAVE: Nos aseguramos de que haya jugadores activos.
+        if (activePlayerIndices.Count > 0)
+        {
+            return activePlayerIndices[activePlayerListIndex];
+        }
+        return -1; // Devolvemos -1 o un valor que indique que no hay jugadores.
+    }
+
+    public List<int> GetActivePlayerIndices()
+    {
+        return activePlayerIndices;
+    }
+
+    public int GetActivePlayerCount()
+    {
+        return activePlayerIndices.Count;
+    }
+
+    public void NextTurn()
+    {
+        // Añadimos una verificación para evitar el error si solo queda un jugador.
+        if (activePlayerIndices.Count <= 1)
+        {
+            Debug.Log("No hay más turnos. Partida finalizada.");
+            return;
+        }
+
+        activePlayerListIndex++;
+        if (activePlayerListIndex >= activePlayerIndices.Count)
+        {
+            activePlayerListIndex = 0;
+        }
+    }
+
+    public void RemovePlayerFromTurn(int playerIndexToRemove)
+    {
+        activePlayerIndices.Remove(playerIndexToRemove);
+
+        if (activePlayerListIndex >= activePlayerIndices.Count)
+        {
+            activePlayerListIndex = 0;
+        }
+
+        NextTurn();
+    }
+}

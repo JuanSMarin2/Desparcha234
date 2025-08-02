@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 public class MainMenuManager : MonoBehaviour
 {
     [SerializeField] private GameObject PlayersPanel;
-    [SerializeField] private RoundData roundData;
     [SerializeField] private MinigameChooser minigameChooser;
 
     public void TogglePlayersPanel()
@@ -17,8 +16,9 @@ public class MainMenuManager : MonoBehaviour
 
     public void HowManyPlayers(int players)
     {
-        roundData = new RoundData(); //Esto resetea todo lo que hay en round data para una ronda nueva
-        roundData.numPlayers = players;
+        Debug.Log(players);
+        RoundData.instance.ResetData();
+        RoundData.instance.GetNumberOfPlayers(players);
 
         minigameChooser.RandomGameChooser();
     }
