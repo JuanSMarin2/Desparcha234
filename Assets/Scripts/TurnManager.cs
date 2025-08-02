@@ -68,4 +68,5 @@ public class TurnManager : MonoBehaviour
             turnText.text = "Turno del jugador: " + (currentPlayerTurn + 1);
         }
     }
-}
+} 
+ 
