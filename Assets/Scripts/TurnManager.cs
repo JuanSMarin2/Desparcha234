@@ -14,6 +14,25 @@ public class TurnManager : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI turnText;
 
+
+    public int CurrentTurn() => GetCurrentPlayerIndex() + 1; //Devuelve el numero del jugador que tiene el turno
+
+    public void NextTurn()
+    {
+        // Añadimos una verificación para evitar el error si solo queda un jugador.
+        if (activePlayerIndices.Count <= 1)
+        {
+            Debug.Log("No hay más turnos. Partida finalizada.");
+            return;
+        }
+
+        activePlayerListIndex++;
+        if (activePlayerListIndex >= activePlayerIndices.Count)
+        {
+            activePlayerListIndex = 0;
+        }
+    }
+
     void Awake()
     {
         if (instance == null)
@@ -67,6 +86,8 @@ public class TurnManager : MonoBehaviour
         }
     }
 
+  
+
     /// <summary>
     /// Devuelve el índice del jugador actual (0-based) para su lógica de juego.
     /// </summary>
@@ -90,21 +111,7 @@ public class TurnManager : MonoBehaviour
         return activePlayerIndices.Count;
     }
 
-    public void NextTurn()
-    {
-        // Añadimos una verificación para evitar el error si solo queda un jugador.
-        if (activePlayerIndices.Count <= 1)
-        {
-            Debug.Log("No hay más turnos. Partida finalizada.");
-            return;
-        }
-
-        activePlayerListIndex++;
-        if (activePlayerListIndex >= activePlayerIndices.Count)
-        {
-            activePlayerListIndex = 0;
-        }
-    }
+ 
 
     public void RemovePlayerFromTurn(int playerIndexToRemove)
     {
