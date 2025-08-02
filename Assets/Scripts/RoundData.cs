@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class RoundData : MonoBehaviour
 {
     public static RoundData instance;
     public int numPlayers = 4;
-    public List<string> availableGames = new List<string> { "Canicas", "Catapis", "Tejo" };
+    public List<string> availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos" };
     public List<int> finalPositions = new List<int>();
     public int[] currentPoints;
     public int[] totalPoints;
@@ -41,7 +42,7 @@ public class RoundData : MonoBehaviour
     public void ResetData()
     {
         numPlayers = 0;
-        availableGames = new List<string> { "Canicas", "Catapis", "Tejo" };
+        availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos" };
         finalPositions.Clear();
         currentPoints = new int[numPlayers];
         totalPoints = new int[numPlayers];
@@ -64,6 +65,5 @@ public class RoundData : MonoBehaviour
 
         Debug.Log("TotalPoints actualizado.");
 
-        // Aquí puedes notificar a otros scripts si es necesario
     }
 }
