@@ -80,3 +80,4 @@ public class MarbleShooter2D : MonoBehaviour
         marble.AddForce(direction * fuerza * forceMultiplier, ForceMode2D.Impulse);
     }
 }
+ 
