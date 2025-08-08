@@ -24,5 +24,6 @@ EditorBuildSettings:
     path: Assets/Scenes/ResultadosMinijuego.unity
     guid: 55f9d15c94d51a04f8708faacb2a828d
   m_configObjects:
+    com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 5b11bfba892242d448bcad3c75d4f481, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
