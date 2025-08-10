@@ -2,28 +2,24 @@ using UnityEngine;
 
 public class JackSpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject normalJackPrefab;
-    [SerializeField] private GameObject specialJackPrefab;
-    [SerializeField] private GameObject bombJackPrefab; // corregido SerializeField
-    [SerializeField] private int numberOfJacks = 10;    // corregido SerializeField
 
-    [SerializeField] private Transform spawnPoint;
-    [SerializeField] private GameObject SpawnArea;
+    // corregido SerializeField
 
- [Header("Prefabs")]
+
+    [Header("Prefabs")]
     [SerializeField] private GameObject normalJackPrefab;
     [SerializeField] private GameObject specialJackPrefab;
     [SerializeField] private GameObject bombJackPrefab;
 
     [Header("Spawn")]
-    
+
     [SerializeField] private BoxCollider2D spawnArea; // Asigna un GameObject con BoxCollider2D (Is Trigger)
 
     [SerializeField] private bool randomRotation = true;
 
+    [SerializeField] private int numberOfJacks = 10;
 
-
-    private void SpawnJacks(int numberOfJacks = 10)
+    private void SpawnJacks()
     {
         if (spawnArea == null)
         {
@@ -59,4 +55,15 @@ public class JackSpawner : MonoBehaviour
         if (r < 0.75f) return specialJackPrefab;  // 25%
         return bombJackPrefab;                    // 25%
     }
+    #if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        if (spawnArea != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(spawnArea.bounds.center, spawnArea.bounds.size);
+        }
+    }
+#endif
+
 }
