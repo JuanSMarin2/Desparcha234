@@ -2,13 +2,17 @@ using UnityEngine;
 
 public class BarraFuerza : MonoBehaviour
 {
-[Header("Referencias UI")]
+    [Header("Referencias UI")]
     [SerializeField] private RectTransform marcador; // Objeto que se mueve
     [SerializeField] private RectTransform barra;    // Barra con gradiente
 
     [Header("Configuración")]
-    [SerializeField] private float velocidad = 200f;   // Velocidad de movimiento (px/seg)
+    [SerializeField] private float velocidad = 200f;   // Velocidad base (px/seg)
     [SerializeField] private float fuerzaMaxima = 100f; // Fuerza máxima posible
+    [Tooltip("Fracción mínima de la velocidad (0-1) para que nunca se detenga del todo")] 
+    [SerializeField] private float factorMinVelocidad = 0.2f; 
+    [Tooltip("Mayor que 1 para que suba lento y luego rápido; y baje rápido y luego lento")]
+    [SerializeField] private float exponenteAceleracion = 2f;
 
     [Header("Objetivo")]
     [SerializeField] private Bolita bolita; // Referencia a la bolita con Rigidbody2D
@@ -31,7 +35,7 @@ public class BarraFuerza : MonoBehaviour
             Debug.Log($"Fuerza calculada: {fuerzaActual}");
             if (bolita != null)
             {
-                bolita.DarVelocidadHaciaAbajo(fuerzaActual);
+                bolita.DarVelocidadHaciaArriba(fuerzaActual);
             }
             // Aquí puedes llamar al método de lanzamiento con fuerzaActual
         }
@@ -40,14 +44,24 @@ public class BarraFuerza : MonoBehaviour
     /// Mueve el marcador arriba y abajo dentro de los límites de la barra.
     private void MoverMarcador()
     {
-        float paso = velocidad * Time.deltaTime;
-        Vector2 nuevaPos = marcador.anchoredPosition;
-
-        nuevaPos.y += subiendo ? paso : -paso;
-
         // Verificar límites superior e inferior
         float limiteSuperior = barra.rect.height / 2f;
         float limiteInferior = -barra.rect.height / 2f;
+
+        Vector2 nuevaPos = marcador.anchoredPosition;
+
+        // Normaliza la altura actual a [0,1] (0 = abajo, 1 = arriba)
+        float yNorm = Mathf.InverseLerp(limiteInferior, limiteSuperior, nuevaPos.y);
+
+        // Calcula un factor de velocidad no lineal para pasar más tiempo abajo SOLO al subir.
+        // Al bajar, mantenemos velocidad constante para que no desacelere.
+        float baseFactor = Mathf.Clamp01(factorMinVelocidad);
+        float accel = Mathf.Max(1f, exponenteAceleracion);
+        float curvaSubida = Mathf.Pow(yNorm, accel);
+        float factor = subiendo ? Mathf.Lerp(baseFactor, 1f, curvaSubida) : 1f;
+
+        float paso = velocidad * factor * Time.deltaTime;
+        nuevaPos.y += subiendo ? paso : -paso;
 
         if (nuevaPos.y >= limiteSuperior)
         {

@@ -16,7 +16,6 @@ public class Bolita : MonoBehaviour
     [SerializeField] private Transform puntoReinicio;    // Opcional: posición para reiniciar
 
     private Rigidbody2D _rb;
-    private int _toquesSuelo;
     private EstadoLanzamiento _estado = EstadoLanzamiento.PendienteDeLanzar;
 
     // Notifica cuando cambia el estado (útil para UI Manager)
@@ -42,40 +41,34 @@ public class Bolita : MonoBehaviour
         
     }
 
-    // Recibe una "fuerza" (magnitud) y se traduce a velocidad vertical hacia abajo.
-    // Mantiene la velocidad horizontal actual para que el rebote/arrastre del material de física funcione normalmente.
-    public void DarVelocidadHaciaAbajo(float fuerza)
+    // Nuevo: lanzar hacia ARRIBA.
+    public void DarVelocidadHaciaArriba(float fuerza)
     {
         if (_rb == null) return;
 
-        _toquesSuelo = 0; // Reiniciar conteo de rebotes al lanzar
         CambiarEstado(EstadoLanzamiento.EnElAire);
-
         _rb.gravityScale = 1f; // Activar gravedad al lanzar
-        // Interpretamos "fuerza" como velocidad objetivo en m/s.
-        // Si prefieres impulso físico, usa: _rb.AddForce(Vector2.down * fuerza, ForceMode2D.Impulse);
+
+        // Interpretamos "fuerza" como velocidad objetivo en m/s hacia arriba
         Vector2 v = _rb.linearVelocity;
-        v.y = -Mathf.Abs(fuerza);
+        v.y = Mathf.Abs(fuerza);
         _rb.linearVelocity = v;
+    }
+
+    // Obsoleto: mantener por compatibilidad, pero ahora lanza hacia arriba internamente.
+    [Obsolete("Usa DarVelocidadHaciaArriba(float fuerza)")]
+    public void DarVelocidadHaciaAbajo(float fuerza)
+    {
+        DarVelocidadHaciaArriba(fuerza);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Solo nos interesan los contactos con el suelo mientras está en el aire
+        // Primer contacto con el suelo mientras está en el aire -> Terminado
         if (_estado != EstadoLanzamiento.EnElAire) return;
         if (!collision.collider.CompareTag(tagSuelo)) return;
 
-        _toquesSuelo++;
-        if (_toquesSuelo >= 2)
-        {
-            // Segundo contacto con el suelo -> fin del turno
-            CambiarEstado(EstadoLanzamiento.Terminado);
-        }
-        else
-        {
-            // Primer contacto: se considera rebote, mantenemos estado EnElAire.
-            // No cambiamos el estado para que el conteo continúe hasta el segundo toque.
-        }
+        CambiarEstado(EstadoLanzamiento.Terminado);
     }
 
     public void ReiniciarTurno()
@@ -84,7 +77,6 @@ public class Bolita : MonoBehaviour
         _rb.linearVelocity = Vector2.zero;
         _rb.angularVelocity = 0f;
         _rb.gravityScale = 0f;
-        _toquesSuelo = 0;
         if (puntoReinicio != null)
         {
             transform.position = puntoReinicio.position;
