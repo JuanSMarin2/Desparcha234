@@ -11,11 +11,28 @@ public class MarbleShooter2D : MonoBehaviour
     [SerializeField] private float linearDamping = 3f;
     [SerializeField] private float angularDamping = 1.0f;
 
+ 
+
     private float startLinearDamping;
     private float startAngularDamping;
 
     private bool isWaitingToEndTurn = false;
     private float stopThreshold = 0.05f;
+
+    [SerializeField] private float speed;
+
+   [ SerializeField] private float maxSpeed = 30f; // velocidad máxima en unidades/segundo
+
+    void FixedUpdate()
+    {
+      
+        // Limitar velocidad máxima
+        if (marble.linearVelocity.magnitude > maxSpeed)
+        {
+            speed = marble.linearVelocity.magnitude;
+            marble.linearVelocity = Vector2.zero;
+        }
+    }
 
     void Start()
     {
@@ -24,6 +41,7 @@ public class MarbleShooter2D : MonoBehaviour
         forceCharger.OnReleaseForce += TryShoot;
 
     }
+  
 
     void Update()
     {
@@ -78,6 +96,16 @@ public class MarbleShooter2D : MonoBehaviour
         marble.angularDamping = angularDamping;
 
         marble.AddForce(direction * fuerza * forceMultiplier, ForceMode2D.Impulse);
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("SafeZone")) 
+        {
+            GameRoundManager.instance.PlayerLose(playerIndex);
+            this.gameObject.SetActive(false);
+
+        }
     }
 }
   
