@@ -9,6 +9,12 @@ public class UiManager : MonoBehaviour
     [SerializeField] private TMP_Text estadoLabel; // Arrastra un TextMeshProUGUI o TMP_Text
     [SerializeField] private TMP_Text cronometroLabel; // Texto del cronómetro
 
+    [Header("Puntajes (Jugadores 1-4)")]
+    [SerializeField] private TMP_Text puntosJugador1;
+    [SerializeField] private TMP_Text puntosJugador2;
+    [SerializeField] private TMP_Text puntosJugador3;
+    [SerializeField] private TMP_Text puntosJugador4;
+
     private bool _cronometroActivo;
     private float _tiempo;
 
@@ -102,5 +108,43 @@ public class UiManager : MonoBehaviour
                 estadoLabel.text = string.Empty;
                 break;
         }
+    }
+
+    // Método público para actualizar los 4 textos de puntaje.
+    // Pasa el arreglo de puntos (por ejemplo RoundData.instance.currentPoints)
+    public void ActualizarPuntos(int playernum,long puntos)
+    {
+        switch (playernum)
+        {
+            case 1:
+                SetTextoPuntos(puntosJugador1, puntos);
+                break;
+            case 2:
+                SetTextoPuntos(puntosJugador2, puntos);
+                break;
+            case 3:
+                SetTextoPuntos(puntosJugador3, puntos);
+                break;
+            case 4:
+                SetTextoPuntos(puntosJugador4, puntos);
+                break;
+            default:
+                Debug.LogWarning("UiManager: Número de jugador no válido: " + playernum);
+                return;
+       }
+     
+            SetTextoPuntos(puntosJugador1, 0);
+            
+            return;
+        
+
+      
+    }
+
+ 
+
+    private static void SetTextoPuntos(TMP_Text label, long valor)
+    {
+        if (label != null) label.text = valor.ToString();
     }
 }

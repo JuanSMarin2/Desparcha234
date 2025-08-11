@@ -69,6 +69,13 @@ public class Bolita : MonoBehaviour
         if (!collision.collider.CompareTag(tagSuelo)) return;
 
         CambiarEstado(EstadoLanzamiento.Terminado);
+
+        // Notificar a Progression cuando la bolita toca el suelo (fin del turno)
+        Progression progression = FindAnyObjectByType<Progression>();
+        if (progression != null)
+        {
+            progression.NotificarBolitaTocada();
+        }
     }
 
     public void ReiniciarTurno()

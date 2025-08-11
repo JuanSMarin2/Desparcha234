@@ -9,7 +9,10 @@ public class Jack : MonoBehaviour
     [SerializeField] private int puntos;
     [SerializeField] enum tipo { Normal, Especial, bomba };
     [SerializeField] private tipo tipoJack = tipo.Normal; // tipo de este Jack
-    [SerializeField] private Progression progression;     // Referencia a Progression
+    [SerializeField] private Progression progression;   
+    
+    [SerializeField] private float alphaTransparente = 0.6f; // Alpha para el estado deshabilitado
+      // Referencia a Progression
 
     public int Puntos => puntos; // Exponer puntos para Progression
 
@@ -28,7 +31,10 @@ public class Jack : MonoBehaviour
     {
         if (_sr != null) enable(); // Habilitar al inicio
         if (_col2D != null) _col2D.enabled = true; // Asegurar que el collider esté activo
-        updateColor(TurnManager.instance.CurrentTurn()); // Actualizar color al inicio
+        if (TurnManager.instance != null)
+        {
+            updateColor(TurnManager.instance.CurrentTurn()); // Actualizar color al inicio
+        }
     }
     private void OnMouseDown()
     {
@@ -41,7 +47,7 @@ public class Jack : MonoBehaviour
         if (progression != null)
         {
             // Llama al método en Progression cuando exista
-            // progression.NotificarJackTocado(this);
+            progression.NotificarJackTocado(this);
         }
         disable();
     }
@@ -62,7 +68,7 @@ public class Jack : MonoBehaviour
         if (_sr != null)
         {
             var c = _sr.color;
-            c.a = 0.6f; // alpha 60%
+            c.a = alphaTransparente; // alpha 60%
             _sr.color = c;
         }
         if (_col2D != null) _col2D.enabled = false; // desactivar collider

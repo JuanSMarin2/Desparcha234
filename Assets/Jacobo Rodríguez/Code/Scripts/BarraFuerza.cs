@@ -93,11 +93,16 @@ public class BarraFuerza : MonoBehaviour
     }
 
     /// Reinicia el marcador para un nuevo intento.
-    
+
     public void Reiniciar()
     {
         detenido = false;
         marcador.anchoredPosition = new Vector2(marcador.anchoredPosition.x, -barra.rect.height / 2f);
         subiendo = true;
+        Bolita bolita = FindAnyObjectByType<Bolita>(); //OJO CON ESTO
+        if (bolita != null)
+        {
+            bolita.ReiniciarTurno(); // Reinicia la bolita al inicio del turno
+        }
     }
 }
