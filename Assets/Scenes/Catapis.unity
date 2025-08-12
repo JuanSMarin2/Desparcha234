@@ -2703,9 +2703,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1136800915}
-        m_TargetAssemblyTypeName: TurnManager, Assembly-CSharp
-        m_MethodName: NextTurn
+      - m_Target: {fileID: 44222857}
+        m_TargetAssemblyTypeName: Progression, Assembly-CSharp
+        m_MethodName: TerminarTurno
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2807,7 +2807,7 @@ MonoBehaviour:
   marcador: {fileID: 1015094082}
   barra: {fileID: 1411591156}
   velocidad: 400
-  fuerzaMaxima: 20
+  fuerzaMaxima: 13
   factorMinVelocidad: 0.2
   exponenteAceleracion: 2
   bolita: {fileID: 1592149800}

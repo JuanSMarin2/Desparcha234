@@ -22,6 +22,10 @@ public class UiManager : MonoBehaviour
     void Start()
     {
         if (cronometroLabel != null) cronometroLabel.gameObject.SetActive(false);
+        puntosJugador1.text = "0";
+        puntosJugador2.text = "0";
+        puntosJugador3.text = "0";
+        puntosJugador4.text = "0";
     }
 
     // Update is called once per frame

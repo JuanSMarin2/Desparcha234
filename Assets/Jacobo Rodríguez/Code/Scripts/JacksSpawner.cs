@@ -45,6 +45,10 @@ public class JackSpawner : MonoBehaviour
             {
                 Destroy(child.gameObject);
             }
+            else
+            {
+                Debug.LogWarning($"Child {child.name} does not have a Jack component. Skipping.");
+            }
         }
 
         for (int i = 0; i < numberOfJacks; i++)
@@ -69,6 +73,16 @@ public class JackSpawner : MonoBehaviour
                     jack.updateColor(turno);
                 }
             }
+        }
+    }
+
+    public void DisableAll()
+    {
+        // Deshabilita todos los Jacks que estén bajo este spawner
+        var jacks = GetComponentsInChildren<Jack>(true);
+        foreach (var jack in jacks)
+        {
+            jack.disable();
         }
     }
 

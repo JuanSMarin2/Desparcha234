@@ -41,6 +41,17 @@ public class Progression : MonoBehaviour
         {
             _ui.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
         }
+
+        // Si ya alcanzó los jacks necesarios para la etapa actual, deshabilitar todos los jacks
+        if (jacksCounter == neededJacks)
+        {
+            JackSpawner spawner = Object.FindFirstObjectByType<JackSpawner>();
+            if (spawner != null)
+            {
+                spawner.DisableAll();
+                Debug.Log("Se alcanzó la cantidad necesaria de jacks. Todos los jacks han sido deshabilitados.");
+            }
+        }
     }
 
     public void NotificarBolitaTocada()
@@ -85,6 +96,7 @@ public class Progression : MonoBehaviour
         if (barra != null)
         {
             barra.Reiniciar();
+            Debug.Log("Barra de fuerza reiniciada.");
         }
         TurnManager.instance.NextTurn();
         JackSpawner spawner = Object.FindFirstObjectByType<JackSpawner>();
