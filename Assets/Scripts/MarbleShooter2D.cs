@@ -104,6 +104,7 @@ public class MarbleShooter2D : MonoBehaviour
         {
             GameRoundManager.instance.PlayerLose(playerIndex);
             this.gameObject.SetActive(false);
+            this.gameObject.transform.position = Vector3.zero;
 
         }
     }

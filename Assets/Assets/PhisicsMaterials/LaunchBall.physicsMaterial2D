@@ -9,6 +9,6 @@ PhysicsMaterial2D:
   m_Name: LaunchBall
   serializedVersion: 2
   friction: 0.5
-  bounciness: 1.5
+  bounciness: 1.3
   m_FrictionCombine: 4
   m_BounceCombine: 0
