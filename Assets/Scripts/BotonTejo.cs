@@ -12,12 +12,28 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     [SerializeField] private Transform wheel2;
     [SerializeField] private Transform wheel3;
 
+    [Header("Flechas de ángulo")]
+    public GameObject flechaHorizontalObj;
+    public GameObject flechaVerticalObj;
+
+    private FlechaTejo flechaHorizontal;
+    private FlechaTejo flechaVertical;
+
+    private bool enModoVertical = false;
     private int previusTurn;
 
     void Start()
     {
         if (blocker != null)
             blocker.SetActive(false);
+
+        // Obtenemos scripts de rotación
+        flechaHorizontal = flechaHorizontalObj.GetComponent<FlechaTejo>();
+        flechaVertical = flechaVerticalObj.GetComponent<FlechaTejo>();
+
+        // Al inicio, solo mostramos la flecha horizontal
+        flechaHorizontalObj.SetActive(true);
+        flechaVerticalObj.SetActive(false);
     }
 
     void Update()
@@ -27,7 +43,6 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         if (previusTurn != currentTurn)
             DisableBlocker();
 
-        // Cambiar posición y color según turno
         switch (currentTurn)
         {
             case 1:
@@ -46,9 +61,6 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 transform.position = wheel3.position;
                 imageBoton.color = Color.green;
                 break;
-            default:
-                Debug.LogWarning("Turno no válido: " + currentTurn);
-                break;
         }
 
         previusTurn = currentTurn;
@@ -56,15 +68,33 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        Debug.Log("Botón presionado");
-        // Aquí va la lógica para lanzar el tejo o iniciar la acción
+        if (!enModoVertical)
+        {
+            // Guardamos ángulo horizontal y cambiamos a vertical
+            float anguloH = flechaHorizontal.GetAngle();
+            Debug.Log("Ángulo horizontal seleccionado: " + anguloH);
+
+            flechaHorizontalObj.SetActive(false);
+            flechaVerticalObj.SetActive(true);
+
+            enModoVertical = true;
+        }
+        else
+        {
+            // Guardamos ángulo vertical
+            float anguloV = flechaVertical.GetAngle();
+            Debug.Log("Ángulo vertical seleccionado: " + anguloV);
+
+            if (blocker != null)
+                blocker.SetActive(true);
+
+            // Aquí después lanzaremos el tejo usando anguloH y anguloV
+        }
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        Debug.Log("Botón soltado");
-        if (blocker != null)
-            blocker.SetActive(true);
+        // No necesitamos nada especial aquí por ahora
     }
 
     public void DisableBlocker()
