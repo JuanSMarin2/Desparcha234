@@ -6,7 +6,7 @@ public class TurnManager : MonoBehaviour
 {
     public static TurnManager instance;
 
-    [Tooltip("Índices de los jugadores que aún están en la partida.")]
+    [Tooltip("ï¿½ndices de los jugadores que aï¿½n estï¿½n en la partida.")]
     [SerializeField] private List<int> activePlayerIndices = new List<int>();
 
     private int activePlayerListIndex;
@@ -19,10 +19,10 @@ public class TurnManager : MonoBehaviour
 
     public void NextTurn()
     {
-        // Añadimos una verificación para evitar el error si solo queda un jugador.
+        // Aï¿½adimos una verificaciï¿½n para evitar el error si solo queda un jugador.
         if (activePlayerIndices.Count <= 1)
         {
-            Debug.Log("No hay más turnos. Partida finalizada.");
+            Debug.Log("No hay mï¿½s turnos. Partida finalizada.");
             return;
         }
 
@@ -74,7 +74,7 @@ public class TurnManager : MonoBehaviour
 
     private void UpdateTurnText()
     {
-        if (turnText != null && activePlayerIndices.Count > 0) // Añadimos una verificación aquí
+        if (turnText != null && activePlayerIndices.Count > 0) // Aï¿½adimos una verificaciï¿½n aquï¿½
         {
             int playerNumber = GetCurrentPlayerIndex() + 1;
             turnText.text = "Turno del jugador: " + playerNumber.ToString();
@@ -89,14 +89,16 @@ public class TurnManager : MonoBehaviour
   
 
     /// <summary>
-    /// Devuelve el índice del jugador actual (0-based) para su lógica de juego.
+    /// Devuelve el ï¿½ndice del jugador actual (0-based) para su lï¿½gica de juego.
     /// </summary>
     public int GetCurrentPlayerIndex()
     {
-        // VERIFICACIÓN CLAVE: Nos aseguramos de que haya jugadores activos.
+        // VERIFICACIï¿½N CLAVE: Nos aseguramos de que haya jugadores activos.
         if (activePlayerIndices.Count > 0)
         {
+            
             return activePlayerIndices[activePlayerListIndex];
+           
         }
         return -1; // Devolvemos -1 o un valor que indique que no hay jugadores.
     }

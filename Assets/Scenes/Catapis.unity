@@ -1193,7 +1193,7 @@ Transform:
   m_GameObject: {fileID: 897167363}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: -3.9, z: 0.047425877}
+  m_LocalPosition: {x: 1, y: -4.69, z: 0.047425877}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2862,7 +2862,7 @@ GameObject:
   - component: {fileID: 1418225377}
   m_Layer: 6
   m_Name: SpawnArea
-  m_TagString: Suelo
+  m_TagString: Untagged
   m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3203,8 +3203,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Offset: {x: 0, y: 0.0024117231}
+  m_Radius: 0.6326407
 --- !u!50 &1592149799
 Rigidbody2D:
   serializedVersion: 5
@@ -3246,6 +3246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tagSuelo: Suelo
   puntoReinicio: {fileID: 542914545}
+  _sprite: {fileID: 0}
 --- !u!212 &1592149801
 SpriteRenderer:
   m_ObjectHideFlags: 0

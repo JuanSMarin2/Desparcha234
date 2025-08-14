@@ -8,7 +8,8 @@ public class Bolita : MonoBehaviour
     {
         PendienteDeLanzar, // "pendiente de lanzar"
         EnElAire,          // "en el aire"
-        Terminado          // "terminado"
+        TocadaPorJugador,  // "tocada por el jugador"
+        Fallado             // "fallado"
     }
 
     [Header("Física")]
@@ -21,11 +22,14 @@ public class Bolita : MonoBehaviour
     // Notifica cuando cambia el estado (útil para UI Manager)
     public event Action<EstadoLanzamiento> OnEstadoCambio;
 
+    
     public EstadoLanzamiento Estado => _estado;
+    [SerializeField] private SpriteRenderer _sprite;
 
     void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        if (_sprite == null) _sprite = GetComponent<SpriteRenderer>();
     }
 
     void Start()
@@ -64,29 +68,42 @@ public class Bolita : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Primer contacto con el suelo mientras está en el aire -> Terminado
         if (_estado != EstadoLanzamiento.EnElAire) return;
         if (!collision.collider.CompareTag(tagSuelo)) return;
 
-        CambiarEstado(EstadoLanzamiento.Terminado);
-        // Ya no notificamos a Progression aquí; ahora se hace al hacer click sobre la bolita.
+        // Toca suelo -> pierde turno
+        CambiarEstado(EstadoLanzamiento.Fallado);
+
+        Progression progression = FindAnyObjectByType<Progression>();
+        if (progression != null)
+        {
+            progression.PerderPorTocarSuelo();
+        }
     }
 
     private void OnMouseDown()
     {
-        // Notificar a Progression al hacer click sobre la bolita
-        if (_estado == EstadoLanzamiento.PendienteDeLanzar) return; // Evitar notificar si aún no se ha lanzado
+        // Click del jugador: solo válido si ya fue lanzada
+        if (_estado == EstadoLanzamiento.PendienteDeLanzar) return;
+        if (_estado != EstadoLanzamiento.EnElAire) return;
+
+        CambiarEstado(EstadoLanzamiento.TocadaPorJugador);
 
         Progression progression = FindAnyObjectByType<Progression>();
         if (progression != null)
         {
             progression.NotificarBolitaTocada();
         }
+
+        if (_sprite != null)
+        {
+            _sprite.color = new Color(_sprite.color.r, _sprite.color.g, _sprite.color.b, 0.5f);
+        }
     }
 
     public void ReiniciarTurno()
     {
-        // Deja la bolita lista para un nuevo lanzamiento
+        
         _rb.linearVelocity = Vector2.zero;
         _rb.angularVelocity = 0f;
         _rb.gravityScale = 0f;
@@ -94,6 +111,10 @@ public class Bolita : MonoBehaviour
         {
             transform.position = puntoReinicio.position;
             transform.rotation = puntoReinicio.rotation;
+        }
+        if (_sprite != null)
+        {
+            _sprite.color = new Color(_sprite.color.r, _sprite.color.g, _sprite.color.b, 1f); // Restaurar opacidad completa
         }
         CambiarEstado(EstadoLanzamiento.PendienteDeLanzar);
     }

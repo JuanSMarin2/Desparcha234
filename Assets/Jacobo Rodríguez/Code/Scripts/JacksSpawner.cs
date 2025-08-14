@@ -86,6 +86,15 @@ public class JackSpawner : MonoBehaviour
         }
     }
 
+    public void EnableAll()
+    {
+        var jacks = GetComponentsInChildren<Jack>(true);
+        foreach (var jack in jacks)
+        {
+            jack.enable();
+        }
+    }
+
     private static Vector3 RandomPointInArea(BoxCollider2D area)
     {
         Bounds b = area.bounds;

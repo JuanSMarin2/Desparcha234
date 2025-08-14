@@ -6,7 +6,7 @@ public class Progression : MonoBehaviour
     public int stage = 0;
     public int neededJacks = 0;
     private const int MaxStage = 5;
-
+    
     public int jacksCounter = 0;
     public long currentScore = 0;
 
@@ -24,6 +24,7 @@ public class Progression : MonoBehaviour
     private void ActualizarNeededJacks()
     {
         // En este diseño, los neededJacks son iguales al número de etapa (clamp 1..5)
+        jacksCounter = 0; // Reiniciar conteo de jacks al cambiar etapa
         neededJacks = Mathf.Clamp(stage, 1, MaxStage);
     }
 
@@ -65,11 +66,8 @@ public class Progression : MonoBehaviour
         {
             if (stage < MaxStage)
             {
-                stage++; // Avanza a la siguiente etapa
-                ActualizarNeededJacks();
-                Debug.Log($"Etapa superada. Nueva etapa: {stage} (neededJacks = {neededJacks})");
-                // Preparar conteo para la siguiente etapa
-                jacksCounter = 0;
+                Avanzaretapa();
+                Debug.Log($"Etapa {stage} completada. Avanzando a la siguiente etapa.");
             }
             else
             {
@@ -103,5 +101,45 @@ public class Progression : MonoBehaviour
         spawner?.SpawnJacks(); // Reiniciar jacks para el nuevo turno
         currentScore = 0; // Reiniciar puntaje actual
         Debug.Log("Turno terminado. Puntaje actual reiniciado. El nuevo turno es para el jugador " + TurnManager.instance.CurrentTurn());
+    }
+
+    public void Avanzaretapa()
+    {
+        stage++;
+        if (stage > MaxStage) stage = MaxStage; // Asegurarse de no superar la etapa máxima
+        ActualizarNeededJacks();
+
+        // Reiniciar conteo de jacks para la nueva etapa
+        jacksCounter = 0;
+
+        Debug.Log($"Avanzando a la etapa {stage}. Jacks necesarios: {neededJacks}");
+
+        // Volver a mover la barra de fuerza y reiniciar la bolita
+        BarraFuerza barra = FindAnyObjectByType<BarraFuerza>();
+        barra?.Reiniciar();
+
+        // Reponer jacks para la nueva etapa
+        JackSpawner spawner = FindFirstObjectByType<JackSpawner>();
+        if (spawner == null)
+        {
+            Debug.LogWarning("No se encontró un JackSpawner. No se pueden reiniciar los jacks.");
+        }
+        else
+        {
+            spawner.EnableAll();
+        }
+    }
+    public void PerderPorTocarSuelo()
+    {
+        // El jugador falló por tocar el suelo: no se cuentan puntos finales
+        jacksCounter = 0;
+        currentScore = 0;
+        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
+        if (_ui != null)
+        {
+            _ui.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
+        }
+        Debug.Log("Falló por tocar el suelo. Se reinicia puntaje y se pasa al siguiente turno.");
+        TerminarTurno();
     }
 }

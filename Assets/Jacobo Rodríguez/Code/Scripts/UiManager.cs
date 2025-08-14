@@ -75,7 +75,7 @@ public class UiManager : MonoBehaviour
                 if (cronometroLabel != null) cronometroLabel.gameObject.SetActive(true);
                 ActualizarCronometroVisual();
                 break;
-            case Bolita.EstadoLanzamiento.Terminado:
+            case Bolita.EstadoLanzamiento.Fallado:
                 _cronometroActivo = false; // se detiene pero queda visible el tiempo final
                 if (cronometroLabel != null) cronometroLabel.gameObject.SetActive(true);
                 break;
@@ -105,7 +105,7 @@ public class UiManager : MonoBehaviour
             case Bolita.EstadoLanzamiento.EnElAire:
                 estadoLabel.text = "atrapa las fichas";
                 break;
-            case Bolita.EstadoLanzamiento.Terminado:
+            case Bolita.EstadoLanzamiento.Fallado:
                 estadoLabel.text = "perdiste";
                 break;
             default:

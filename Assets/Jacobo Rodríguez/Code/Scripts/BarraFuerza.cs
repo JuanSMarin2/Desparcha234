@@ -104,5 +104,6 @@ public class BarraFuerza : MonoBehaviour
         {
             bolita.ReiniciarTurno(); // Reinicia la bolita al inicio del turno
         }
+        Debug.Log("Barra de fuerza reiniciada.");
     }
 }
