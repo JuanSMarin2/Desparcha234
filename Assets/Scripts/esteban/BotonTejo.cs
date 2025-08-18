@@ -20,6 +20,14 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private FlechaTejo flechaVertical;
 
     private bool enModoVertical = false;
+    private bool listoParaFuerza = false;
+
+    private float anguloHorizontal;
+    private float anguloVertical;
+
+    [Header("Barra de fuerza (futuro)")]
+    public GameObject barraFuerzaObj; // se activará después del vertical
+
     private int previusTurn;
 
     void Start()
@@ -34,6 +42,9 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         // Al inicio, solo mostramos la flecha horizontal
         flechaHorizontalObj.SetActive(true);
         flechaVerticalObj.SetActive(false);
+
+        if (barraFuerzaObj != null)
+            barraFuerzaObj.SetActive(false);
     }
 
     void Update()
@@ -68,27 +79,36 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+
         if (!enModoVertical)
         {
-            // Guardamos ángulo horizontal y cambiamos a vertical
-            float anguloH = flechaHorizontal.GetAngle();
-            Debug.Log("Ángulo horizontal seleccionado: " + anguloH);
+            // Primer click guardamos horizontal
+            anguloHorizontal = flechaHorizontal.GetAngle();
+            Debug.Log("Ángulo Horizontal seleccionado: " + anguloHorizontal);
 
             flechaHorizontalObj.SetActive(false);
             flechaVerticalObj.SetActive(true);
 
             enModoVertical = true;
         }
+        else if (!listoParaFuerza)
+        {
+            // Segundo click guardamos vertical
+            anguloVertical = flechaVertical.GetAngle();
+            Debug.Log("Ángulo Vertical seleccionado: " + anguloVertical);
+
+            flechaVerticalObj.SetActive(false);
+
+            // Activamos la barra de fuerza (aún no implementada)
+            if (barraFuerzaObj != null)
+                barraFuerzaObj.SetActive(true);
+
+            listoParaFuerza = true;
+        }
         else
         {
-            // Guardamos ángulo vertical
-            float anguloV = flechaVertical.GetAngle();
-            Debug.Log("Ángulo vertical seleccionado: " + anguloV);
-
-            if (blocker != null)
-                blocker.SetActive(true);
-
-            // Aquí después lanzaremos el tejo usando anguloH y anguloV
+            // Aquí, cuando la barra de fuerza esté lista, se confirmará el lanzamiento
+            Debug.Log("Listo para lanzar con ángulos H:" + anguloHorizontal + " V:" + anguloVertical);
         }
     }
 
@@ -101,5 +121,15 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (blocker != null)
             blocker.SetActive(false);
+
+        // Reset al estado inicial en cada turno nuevo
+        enModoVertical = false;
+        listoParaFuerza = false;
+
+        flechaHorizontalObj.SetActive(true);
+        flechaVerticalObj.SetActive(false);
+
+        if (barraFuerzaObj != null)
+            barraFuerzaObj.SetActive(false);
     }
 }

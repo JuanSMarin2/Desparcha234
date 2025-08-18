@@ -935,7 +935,7 @@ GameObject:
   m_Component:
   - component: {fileID: 623045686}
   - component: {fileID: 623045685}
-  - component: {fileID: 623045684}
+  - component: {fileID: 623045687}
   m_Layer: 0
   m_Name: ArrowH
   m_TagString: Untagged
@@ -943,20 +943,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &623045684
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 623045683}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 500b225f3ffb6bc4b8cbc3c70811f98b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rotationSpeed: 100
-  pivotPoint: {fileID: 623045686}
 --- !u!212 &623045685
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1029,6 +1015,23 @@ Transform:
   - {fileID: 1507138279}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &623045687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 623045683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33e91b1886752c943a8b56438da30032, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationMode: 0
+  pivotPoint: {fileID: 623045686}
+  rotationSpeed: 50
+  maxAngle: 70
+  minAngle: -70
 --- !u!1 &855944478
 GameObject:
   m_ObjectHideFlags: 0
@@ -1992,11 +1995,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1103608200}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 364a10ceec9fef143ae4b6424b35d6c6, type: 3}
+  m_Script: {fileID: 11500000, guid: 33e91b1886752c943a8b56438da30032, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 100
+  rotationMode: 1
   pivotPoint: {fileID: 1103608202}
+  rotationSpeed: 50
+  maxAngle: 70
+  minAngle: -70
 --- !u!1 &1136800914
 GameObject:
   m_ObjectHideFlags: 0
@@ -3040,6 +3046,8 @@ MonoBehaviour:
   wheel1: {fileID: 861186391}
   wheel2: {fileID: 1180633335}
   wheel3: {fileID: 286465835}
+  flechaHorizontalObj: {fileID: 623045683}
+  flechaVerticalObj: {fileID: 1103608200}
 --- !u!114 &1511727197
 MonoBehaviour:
   m_ObjectHideFlags: 0
