@@ -33,6 +33,9 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private float valorFuerza = 0f;
     private float velocidadOscilacion = 2f; // controla la velocidad de subida/bajada
 
+    [Header("Lanzador")]
+    public Lanzador lanzador; // referencia al script Lanzador
+
     private int previusTurn;
 
     void Start()
@@ -131,7 +134,14 @@ public class BotonTejo : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             if (barraFuerzaObj != null)
                 barraFuerzaObj.SetActive(false);
 
-            // aquí más adelante llamaremos al método para lanzar el tejo
+            //  Lanzar el objeto con los valores
+            if (lanzador != null)
+            {
+                lanzador.anguloHorizontal = anguloHorizontal;
+                lanzador.anguloVertical = anguloVertical;
+                lanzador.fuerza = fuerza;
+                lanzador.Lanzar();
+            }
         }
     }
 
