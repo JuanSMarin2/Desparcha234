@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - SafeZone
+  - Marble
   layers:
   - Default
   - TransparentFX
@@ -15,10 +16,10 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Wall
   - Blocker
-  - 
-  - 
+  - GhostMarble
+  - Marble
   - 
   - 
   - 
