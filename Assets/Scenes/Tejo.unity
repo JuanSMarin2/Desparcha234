@@ -354,6 +354,7 @@ GameObject:
   - component: {fileID: 163818390}
   - component: {fileID: 163818389}
   - component: {fileID: 163818391}
+  - component: {fileID: 163818392}
   m_Layer: 26
   m_Name: Papeleta3
   m_TagString: Untagged
@@ -425,7 +426,7 @@ Transform:
   m_GameObject: {fileID: 163818388}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 2.2012267, y: -0.53030074, z: -2.8}
+  m_LocalPosition: {x: 2.2012267, y: -0.53030074, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -481,6 +482,19 @@ PolygonCollider2D:
       - {x: -0.5, y: -0.28866667}
       - {x: 0.5, y: -0.28866667}
   m_UseDelaunayMesh: 0
+--- !u!114 &163818392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 163818388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tipo: 2
 --- !u!1 &249595772
 GameObject:
   m_ObjectHideFlags: 0
@@ -761,6 +775,7 @@ GameObject:
   - component: {fileID: 306076947}
   - component: {fileID: 306076946}
   - component: {fileID: 306076948}
+  - component: {fileID: 306076949}
   m_Layer: 26
   m_Name: Papeleta2
   m_TagString: Untagged
@@ -832,7 +847,7 @@ Transform:
   m_GameObject: {fileID: 306076945}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 1, w: 0}
-  m_LocalPosition: {x: 1.0952268, y: -1.6513008, z: -2.8}
+  m_LocalPosition: {x: 1.0952268, y: -1.6513008, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -888,6 +903,19 @@ PolygonCollider2D:
       - {x: -0.5, y: -0.28866667}
       - {x: 0.5, y: -0.28866667}
   m_UseDelaunayMesh: 0
+--- !u!114 &306076949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 306076945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tipo: 2
 --- !u!1 &308694104
 GameObject:
   m_ObjectHideFlags: 0
@@ -1257,7 +1285,7 @@ Transform:
   m_GameObject: {fileID: 620540982}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.5152267, y: 0.60730076, z: 2.7093601}
+  m_LocalPosition: {x: -0.5152267, y: 0.60730076, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1464,6 +1492,7 @@ GameObject:
   - component: {fileID: 813114423}
   - component: {fileID: 813114425}
   - component: {fileID: 813114424}
+  - component: {fileID: 813114426}
   m_Layer: 26
   m_Name: Centro
   m_TagString: Untagged
@@ -1480,7 +1509,7 @@ Transform:
   m_GameObject: {fileID: 813114422}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.0652268, y: -0.5273008, z: -2.7093601}
+  m_LocalPosition: {x: 1.0652268, y: -0.5273008, z: 30}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1577,6 +1606,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &813114426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 813114422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tipo: 1
 --- !u!1 &842674728
 GameObject:
   m_ObjectHideFlags: 0
@@ -3053,6 +3095,7 @@ GameObject:
   - component: {fileID: 1346445821}
   - component: {fileID: 1346445823}
   - component: {fileID: 1346445822}
+  - component: {fileID: 1346445824}
   m_Layer: 26
   m_Name: RecTablero
   m_TagString: Untagged
@@ -3069,7 +3112,7 @@ Transform:
   m_GameObject: {fileID: 1346445820}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.9452267, y: -0.6189, z: -2.6893601}
+  m_LocalPosition: {x: 0.9452267, y: -0.6189, z: 30}
   m_LocalScale: {x: 8.137931, y: 9.700901, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3176,6 +3219,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1346445824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1346445820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tipo: 0
 --- !u!1 &1351345713
 GameObject:
   m_ObjectHideFlags: 0
@@ -3613,6 +3669,7 @@ GameObject:
   - component: {fileID: 1539571648}
   - component: {fileID: 1539571647}
   - component: {fileID: 1539571649}
+  - component: {fileID: 1539571650}
   m_Layer: 26
   m_Name: Papeleta4
   m_TagString: Untagged
@@ -3684,7 +3741,7 @@ Transform:
   m_GameObject: {fileID: 1539571646}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -0.07277328, y: -0.5453008, z: -2.8}
+  m_LocalPosition: {x: -0.07277328, y: -0.5453008, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3740,6 +3797,19 @@ PolygonCollider2D:
       - {x: -0.5, y: -0.28866667}
       - {x: 0.5, y: -0.28866667}
   m_UseDelaunayMesh: 0
+--- !u!114 &1539571650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1539571646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tipo: 2
 --- !u!1 &1611045255
 GameObject:
   m_ObjectHideFlags: 0
@@ -3751,6 +3821,7 @@ GameObject:
   - component: {fileID: 1611045257}
   - component: {fileID: 1611045256}
   - component: {fileID: 1611045258}
+  - component: {fileID: 1611045259}
   m_Layer: 26
   m_Name: Papeleta1
   m_TagString: Untagged
@@ -3822,7 +3893,7 @@ Transform:
   m_GameObject: {fileID: 1611045255}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.0952268, y: 0.5526992, z: -2.8}
+  m_LocalPosition: {x: 1.0952268, y: 0.5526992, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3878,6 +3949,19 @@ PolygonCollider2D:
       - {x: -0.5, y: -0.28866667}
       - {x: 0.5, y: -0.28866667}
   m_UseDelaunayMesh: 0
+--- !u!114 &1611045259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1611045255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tipo: 2
 --- !u!1 &1666297652
 GameObject:
   m_ObjectHideFlags: 0
