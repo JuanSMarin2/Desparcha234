@@ -1,25 +1,17 @@
+using System.Linq;
 using UnityEngine;
-
-// PowerUpRegistry.cs
-
 
 public static class PowerUpRegistry
 {
-    // Cuántos power-ups hay activos en escena
     public static int ActiveCount = 0;
-
-    // Candado simple para evitar carreras de spawn en el mismo frame
     public static bool SpawnLock = false;
 }
-
-
 
 public class PowerUpSpawner : MonoBehaviour
 {
     [Header("Spawn")]
     [SerializeField, Range(0f, 1f)] private float spawnChance = 0.5f;
     [SerializeField] private Transform[] spawnPoints;
-    [Tooltip("Exactamente 3 prefabs, uno por poder.")]
     [SerializeField] private GameObject[] powerUpPrefabs = new GameObject[3];
 
     [Header("Control")]
@@ -47,7 +39,7 @@ public class PowerUpSpawner : MonoBehaviour
         int currentTurnIndex = TurnManager.instance.GetCurrentPlayerIndex();
         if (currentTurnIndex != lastTurnIndex)
         {
-            spawnedThisTurn = false; // nuevo turno
+            spawnedThisTurn = false;
             TrySpawn();
             lastTurnIndex = currentTurnIndex;
         }
@@ -56,29 +48,35 @@ public class PowerUpSpawner : MonoBehaviour
     private void TrySpawn()
     {
         if (onePerTurn && spawnedThisTurn) return;
-
-        // Si ya hay alguno, no spawnear
         if (PowerUpRegistry.ActiveCount > 0) return;
-
-        // Evitar carrera si hay varios spawners en el mismo frame
         if (PowerUpRegistry.SpawnLock) return;
 
         PowerUpRegistry.SpawnLock = true;
         try
         {
-            // Rechequeo por si otro alcanzó a instanciar en este frame
             if (PowerUpRegistry.ActiveCount > 0) return;
 
             if (Random.value <= spawnChance)
             {
-                Transform p = spawnPoints[Random.Range(0, spawnPoints.Length)];
+                var activeSpawnPoints = spawnPoints.Where(p => p.gameObject.activeInHierarchy).ToArray();
+                if (activeSpawnPoints.Length == 0) return;
+
+                Transform p = activeSpawnPoints[Random.Range(0, activeSpawnPoints.Length)];
                 if (!p) return;
 
-                int prefabIdx = Random.Range(0, powerUpPrefabs.Length); // 0..2
+                int prefabIdx = Random.Range(0, powerUpPrefabs.Length);
                 GameObject prefab = powerUpPrefabs[prefabIdx];
                 if (!prefab) return;
 
-                Instantiate(prefab, p.position, p.rotation);
+                GameObject powerUp = Instantiate(prefab, p.position, p.rotation);
+
+                // AÑADE ESTO: Configura el power-up para que actualice el registro
+                PowerUpController powerUpController = powerUp.GetComponent<PowerUpController>();
+                if (powerUpController == null)
+                {
+                    powerUpController = powerUp.AddComponent<PowerUpController>();
+                }
+
                 spawnedThisTurn = true;
             }
         }

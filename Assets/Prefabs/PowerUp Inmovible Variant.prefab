@@ -14,11 +14,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3914972018576478580, guid: 7983cd23f9d8fc24bae95a5f8378374c, type: 3}
       propertyPath: m_Color.b
-      value: 0.2588235
+      value: 0.44277322
       objectReference: {fileID: 0}
     - target: {fileID: 3914972018576478580, guid: 7983cd23f9d8fc24bae95a5f8378374c, type: 3}
       propertyPath: m_Color.g
-      value: 0.798778
+      value: 0.46389297
+      objectReference: {fileID: 0}
+    - target: {fileID: 3914972018576478580, guid: 7983cd23f9d8fc24bae95a5f8378374c, type: 3}
+      propertyPath: m_Color.r
+      value: 0.4716981
+      objectReference: {fileID: 0}
+    - target: {fileID: 3914972018576478580, guid: 7983cd23f9d8fc24bae95a5f8378374c, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3968307270893134633, guid: 7983cd23f9d8fc24bae95a5f8378374c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -67,5 +75,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 19688064320265139, guid: 7983cd23f9d8fc24bae95a5f8378374c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2560631379642729154}
   m_SourcePrefab: {fileID: 100100000, guid: 7983cd23f9d8fc24bae95a5f8378374c, type: 3}
+--- !u!1 &1747324351239676001 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 19688064320265139, guid: 7983cd23f9d8fc24bae95a5f8378374c, type: 3}
+  m_PrefabInstance: {fileID: 1763805826798599122}
+  m_PrefabAsset: {fileID: 0}
+--- !u!50 &2560631379642729154
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1747324351239676001}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0

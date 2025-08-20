@@ -6,6 +6,7 @@ TagManager:
   tags:
   - SafeZone
   - Marble
+  - PowerUp
   layers:
   - Default
   - TransparentFX
