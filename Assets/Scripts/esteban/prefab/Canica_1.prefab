@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1506450064566689385}
   - component: {fileID: 4358698389692409753}
-  - component: {fileID: 4251641018654499365}
+  - component: {fileID: 7600764465838264157}
   m_Layer: 0
   m_Name: Canica_1
   m_TagString: Untagged
@@ -88,7 +88,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!54 &4251641018654499365
+--- !u!54 &7600764465838264157
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -110,7 +110,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
