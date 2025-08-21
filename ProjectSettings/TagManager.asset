@@ -4,10 +4,9 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Player_1
-  - Player_2
-  - Player_3
-  - Player_4
+  - SafeZone
+  - Marble
+  - PowerUp
   layers:
   - Default
   - TransparentFX
@@ -18,10 +17,10 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
+  - Wall
+  - Blocker
+  - GhostMarble
+  - Marble
   - 
   - 
   - 

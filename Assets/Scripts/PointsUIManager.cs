@@ -11,24 +11,21 @@ public class PointsUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI player4Text;
 
     [SerializeField] private int delayToChangeScene = 5;
-
     [SerializeField] private MinigameChooser minigameChooser;
 
     private TextMeshProUGUI[] playerTexts;
 
     void Awake()
     {
-        // Guardamos los textos en un array para accederlos con índice
         playerTexts = new TextMeshProUGUI[] { player1Text, player2Text, player3Text, player4Text };
-
-      
     }
+
     private void Start()
     {
         RoundData.instance.GetTotalPoints();
-      
-      StartCoroutine(SceneChangeTimer());
+        StartCoroutine(SceneChangeTimer());
     }
+
     private void Update()
     {
         UpdatePointsUI();
@@ -47,7 +44,6 @@ public class PointsUIManager : MonoBehaviour
             }
         }
 
-        // Oculta los textos de jugadores que no están en esta ronda
         for (int i = numPlayers; i < playerTexts.Length; i++)
         {
             if (playerTexts[i] != null)
@@ -57,10 +53,10 @@ public class PointsUIManager : MonoBehaviour
         }
     }
 
-
     private IEnumerator SceneChangeTimer()
     {
         yield return new WaitForSeconds(delayToChangeScene);
-        minigameChooser.RandomGameChooser();
+        // ?? En torneo/single: avanzar en la agenda
+        minigameChooser.LoadNextScheduledOrFinish();
     }
 }
