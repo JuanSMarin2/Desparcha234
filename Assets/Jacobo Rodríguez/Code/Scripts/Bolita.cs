@@ -59,12 +59,7 @@ public class Bolita : MonoBehaviour
         _rb.linearVelocity = v;
     }
 
-    // Obsoleto: mantener por compatibilidad, pero ahora lanza hacia arriba internamente.
-    [Obsolete("Usa DarVelocidadHaciaArriba(float fuerza)")]
-    public void DarVelocidadHaciaAbajo(float fuerza)
-    {
-        DarVelocidadHaciaArriba(fuerza);
-    }
+   
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -101,12 +96,17 @@ public class Bolita : MonoBehaviour
         }
     }
 
-    public void ReiniciarTurno()
+    public void ReiniciarBola()
     {
-        
+        if (_rb == null)
+        {
+            _rb = GetComponent<Rigidbody2D>();
+            if (_rb == null) return;
+        }
         _rb.linearVelocity = Vector2.zero;
         _rb.angularVelocity = 0f;
-        _rb.gravityScale = 0f;
+        _rb.gravityScale = 0f; // asegurar desactivación
+        Debug.Log($"Bolita reiniciada. gravityScale={_rb.gravityScale}");
         if (puntoReinicio != null)
         {
             transform.position = puntoReinicio.position;
@@ -114,7 +114,7 @@ public class Bolita : MonoBehaviour
         }
         if (_sprite != null)
         {
-            _sprite.color = new Color(_sprite.color.r, _sprite.color.g, _sprite.color.b, 1f); // Restaurar opacidad completa
+            _sprite.color = new Color(_sprite.color.r, _sprite.color.g, _sprite.color.b, 1f);
         }
         CambiarEstado(EstadoLanzamiento.PendienteDeLanzar);
     }

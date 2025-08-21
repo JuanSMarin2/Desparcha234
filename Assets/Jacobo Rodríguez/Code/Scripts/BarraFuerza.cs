@@ -17,27 +17,48 @@ public class BarraFuerza : MonoBehaviour
     [Header("Objetivo")]
     [SerializeField] private Bolita bolita; // Referencia a la bolita con Rigidbody2D
 
+    [Header("Shake (Móvil)")]
+    [SerializeField] private bool usarShakeParaLanzar = true;
+    [SerializeField] private float shakeThreshold = 2.2f;      // Intensidad aproximada (g) para disparar
+    [SerializeField] private float shakeCooldown = 0.8f;       // Segundos entre lanzamientos por sacudida
+    [SerializeField] private float lowPassFactor = 0.15f;      // 0-1 (menor = más suavizado)
+    private Vector3 _lowPassAccel;
+    private float _ultimoShakeTime;
+
     private bool subiendo = true;   // Dirección del marcador
     private bool detenido = false;  // Estado de movimiento
     private float fuerzaActual;     // Fuerza calculada en el momento del click
 
+    private void Awake()
+    {
+        if (bolita == null)
+            bolita = FindAnyObjectByType<Bolita>();
+        _lowPassAccel = Input.acceleration; // inicial para filtro
+    }
+
     private void Update()
     {
         if (detenido) return; // No procesar si ya se detuvo
+        if (marcador == null || barra == null) return;
 
         MoverMarcador();
+        DetectarShakeYLanzar(); // soporte móvil
 
-        // Detectar click para detener y calcular fuerza
         if (Input.GetMouseButtonDown(0))
         {
-            detenido = true;
-            CalcularFuerza();
-            Debug.Log($"Fuerza calculada: {fuerzaActual}");
-            if (bolita != null)
+            Debug.Log("Click presionado");
+            // Solo consideramos el click para lanzar si la bolita está lista para ser lanzada
+            if (bolita != null && bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar)
             {
+                detenido = true; // ahora sí detenemos la barra
+                CalcularFuerza();
                 bolita.DarVelocidadHaciaArriba(fuerzaActual);
             }
-            // Aquí puedes llamar al método de lanzamiento con fuerzaActual
+            else
+            {
+                // Ignorar el click (por ejemplo fue para tocar la bolita en el aire o un jack)
+                // Importante: NO detenemos la barra aquí
+            }
         }
     }
 
@@ -84,26 +105,49 @@ public class BarraFuerza : MonoBehaviour
         fuerzaActual = alturaNormalizada * fuerzaMaxima;
     }
 
-   
+    private void DetectarShakeYLanzar()
+    {
+        if (!usarShakeParaLanzar) return;
+        if (bolita == null) return;
+        if (bolita.Estado != Bolita.EstadoLanzamiento.PendienteDeLanzar) return;
+        if (Time.time - _ultimoShakeTime < shakeCooldown) return;
+
+        // Filtro pasa-bajos para separar aceleración lenta de cambios bruscos
+        _lowPassAccel = Vector3.Lerp(_lowPassAccel, Input.acceleration, lowPassFactor);
+        Vector3 delta = Input.acceleration - _lowPassAccel;
+
+        float sqrMag = delta.sqrMagnitude;                // magnitud al cuadrado
+        float thresholdSqr = shakeThreshold * shakeThreshold;
+
+        if (sqrMag > thresholdSqr)
+        {
+            _ultimoShakeTime = Time.time;
+            detenido = true;
+            CalcularFuerza();
+            bolita.DarVelocidadHaciaArriba(fuerzaActual);
+            Debug.Log($"Shake detectado (magnitud≈{Mathf.Sqrt(sqrMag):F2}) fuerza={fuerzaActual:F1}");
+        }
+    }
+
     /// Devuelve la última fuerza calculada.
-    
     public float ObtenerFuerza()
     {
         return fuerzaActual;
     }
 
     /// Reinicia el marcador para un nuevo intento.
-
     public void Reiniciar()
     {
         detenido = false;
-        marcador.anchoredPosition = new Vector2(marcador.anchoredPosition.x, -barra.rect.height / 2f);
+        if (marcador != null && barra != null)
+            marcador.anchoredPosition = new Vector2(marcador.anchoredPosition.x, -barra.rect.height / 2f);
         subiendo = true;
-        Bolita bolita = FindAnyObjectByType<Bolita>(); //OJO CON ESTO
-        if (bolita != null)
+        if (bolita == null) bolita = FindAnyObjectByType<Bolita>();
+        if (bolita != null && bolita.Estado != Bolita.EstadoLanzamiento.EnElAire)
         {
-            bolita.ReiniciarTurno(); // Reinicia la bolita al inicio del turno
+            bolita.ReiniciarBola();
         }
+        fuerzaActual = 0f; // Reiniciar fuerza
         Debug.Log("Barra de fuerza reiniciada.");
     }
 }

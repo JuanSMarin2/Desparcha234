@@ -103,10 +103,13 @@ public class UiManager : MonoBehaviour
                 estadoLabel.text = "Lanza la bola";
                 break;
             case Bolita.EstadoLanzamiento.EnElAire:
-                estadoLabel.text = "atrapa las fichas";
+                estadoLabel.text = "Atrapa las fichas";
+                break;
+            case Bolita.EstadoLanzamiento.TocadaPorJugador:
+                estadoLabel.text = "Decidiendo etapa"; // estado intermedio
                 break;
             case Bolita.EstadoLanzamiento.Fallado:
-                estadoLabel.text = "perdiste";
+                estadoLabel.text = "Perdiste";
                 break;
             default:
                 estadoLabel.text = string.Empty;
@@ -120,32 +123,15 @@ public class UiManager : MonoBehaviour
     {
         switch (playernum)
         {
-            case 1:
-                SetTextoPuntos(puntosJugador1, puntos);
-                break;
-            case 2:
-                SetTextoPuntos(puntosJugador2, puntos);
-                break;
-            case 3:
-                SetTextoPuntos(puntosJugador3, puntos);
-                break;
-            case 4:
-                SetTextoPuntos(puntosJugador4, puntos);
-                break;
+            case 1: SetTextoPuntos(puntosJugador1, puntos); break;
+            case 2: SetTextoPuntos(puntosJugador2, puntos); break;
+            case 3: SetTextoPuntos(puntosJugador3, puntos); break;
+            case 4: SetTextoPuntos(puntosJugador4, puntos); break;
             default:
                 Debug.LogWarning("UiManager: Número de jugador no válido: " + playernum);
                 return;
-       }
-     
-            SetTextoPuntos(puntosJugador1, 0);
-            
-            return;
-        
-
-      
+        }
     }
-
- 
 
     private static void SetTextoPuntos(TMP_Text label, long valor)
     {
