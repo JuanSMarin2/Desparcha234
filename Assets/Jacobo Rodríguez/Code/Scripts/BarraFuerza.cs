@@ -44,22 +44,22 @@ public class BarraFuerza : MonoBehaviour
         MoverMarcador();
         DetectarShakeYLanzar(); // soporte móvil
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.Log("Click presionado");
-            // Solo consideramos el click para lanzar si la bolita está lista para ser lanzada
-            if (bolita != null && bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar)
-            {
-                detenido = true; // ahora sí detenemos la barra
-                CalcularFuerza();
-                bolita.DarVelocidadHaciaArriba(fuerzaActual);
-            }
-            else
-            {
-                // Ignorar el click (por ejemplo fue para tocar la bolita en el aire o un jack)
-                // Importante: NO detenemos la barra aquí
-            }
-        }
+        // if (Input.GetMouseButtonDown(0))
+        // {
+        //     Debug.Log("Click presionado");
+        //     // Solo consideramos el click para lanzar si la bolita está lista para ser lanzada
+        //     if (bolita != null && bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar)
+        //     {
+        //         detenido = true; // ahora sí detenemos la barra
+        //         CalcularFuerza();
+        //         bolita.DarVelocidadHaciaArriba(fuerzaActual);
+        //     }
+        //     else
+        //     {
+        //         // Ignorar el click (por ejemplo fue para tocar la bolita en el aire o un jack)
+        //         // Importante: NO detenemos la barra aquí
+        //     }
+        // }
     }
 
     /// Mueve el marcador arriba y abajo dentro de los límites de la barra.
