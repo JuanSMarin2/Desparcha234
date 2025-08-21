@@ -231,6 +231,9 @@ public class MarblePower : MonoBehaviour
             ctx.SetIgnoreWalls(false);
             ctx.SetBodyKinematic(false);
             ctx.SetMarbleColor(ctx.colorNone);
+
+            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.None);
+
         }
 
         public virtual void OnExit() { }
@@ -270,10 +273,15 @@ public class MarblePower : MonoBehaviour
         {
             base.OnEnter();
             ctx.SetMarbleColor(ctx.colorMorePow);
+
+            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.MorePower);
+
         }
         public override void OnExit()
         {
             ctx.SetMarbleColor(ctx.colorNone);
+            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.None);
+
         }
     }
 
@@ -296,11 +304,16 @@ public class MarblePower : MonoBehaviour
             ctx.SetMarbleColor(ctx.colorUnmov);
             bool isMyTurn = (TurnManager.instance && TurnManager.instance.GetCurrentPlayerIndex() == ctx.playerIndex);
             ctx.SetBodyKinematic(!isMyTurn, zeroVelocity: !isMyTurn);
+
+            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.Unmovable);
         }
         public override void OnExit()
         {
             ctx.SetBodyKinematic(false);
             ctx.SetMarbleColor(ctx.colorNone);
+
+            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.None);
+
         }
 
         public override void OnTurnBecameCurrent(bool isCurrentTurn)
@@ -353,6 +366,9 @@ public class MarblePower : MonoBehaviour
             bool isMyTurn = (TurnManager.instance &&
                              TurnManager.instance.GetCurrentPlayerIndex() == ctx.playerIndex);
             ctx.SetIgnoreWalls(isMyTurn);
+
+            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.Ghost);
+
         }
 
         public override void OnTurnBecameCurrent(bool isCurrentTurn)
@@ -380,6 +396,9 @@ public class MarblePower : MonoBehaviour
         {
             ctx.SetIgnoreWalls(false);
             ctx.SetMarbleColor(ctx.colorNone);
+
+            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.None);
+
         }
     }
 }

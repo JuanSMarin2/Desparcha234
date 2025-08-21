@@ -107,6 +107,9 @@ public class MarbleShooter2D : MonoBehaviour
         if (collision.CompareTag("SafeZone"))
         {
             GameRoundManager.instance.PlayerLose(playerIndex);
+
+            marblePower?.ApplyPower(MarblePowerType.None);
+
             this.gameObject.SetActive(false);
             this.gameObject.transform.position = Vector3.zero;
         }
