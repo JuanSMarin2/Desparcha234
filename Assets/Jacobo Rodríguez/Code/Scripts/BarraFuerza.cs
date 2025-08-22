@@ -1,4 +1,7 @@
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 public class BarraFuerza : MonoBehaviour
 {
@@ -33,7 +36,21 @@ public class BarraFuerza : MonoBehaviour
     {
         if (bolita == null)
             bolita = FindAnyObjectByType<Bolita>();
-        _lowPassAccel = Input.acceleration; // inicial para filtro
+        // Inicial del filtro de acelerómetro usando el nuevo Input System si está disponible
+#if ENABLE_INPUT_SYSTEM
+        if (UnityEngine.InputSystem.Accelerometer.current != null)
+        {
+            if (!UnityEngine.InputSystem.Accelerometer.current.enabled)
+                InputSystem.EnableDevice(UnityEngine.InputSystem.Accelerometer.current);
+            _lowPassAccel = UnityEngine.InputSystem.Accelerometer.current.acceleration.ReadValue();
+        }
+        else
+        {
+            _lowPassAccel = Vector3.zero;
+        }
+#else
+        _lowPassAccel = Input.acceleration; // fallback al Input antiguo
+#endif
     }
 
     private void Update()
@@ -44,22 +61,32 @@ public class BarraFuerza : MonoBehaviour
         MoverMarcador();
         DetectarShakeYLanzar(); // soporte móvil
 
-        // if (Input.GetMouseButtonDown(0))
-        // {
-        //     Debug.Log("Click presionado");
-        //     // Solo consideramos el click para lanzar si la bolita está lista para ser lanzada
-        //     if (bolita != null && bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar)
-        //     {
-        //         detenido = true; // ahora sí detenemos la barra
-        //         CalcularFuerza();
-        //         bolita.DarVelocidadHaciaArriba(fuerzaActual);
-        //     }
-        //     else
-        //     {
-        //         // Ignorar el click (por ejemplo fue para tocar la bolita en el aire o un jack)
-        //         // Importante: NO detenemos la barra aquí
-        //     }
-        // }
+        // Lanzar con teclado (ESPACIO o W) usando el nuevo Input System
+#if ENABLE_INPUT_SYSTEM
+        var kb = Keyboard.current;
+        if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.wKey.wasPressedThisFrame))
+        {
+            Debug.Log("Lanzamiento manual con teclado (Input System)");
+            if (bolita != null && bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar)
+            {
+                detenido = true;
+                CalcularFuerza();
+                bolita.DarVelocidadHaciaArriba(fuerzaActual);
+            }
+        }
+#else
+        // Fallback si no está el nuevo sistema compilado
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W))
+        {
+            Debug.Log("Lanzamiento manual con teclado (Legacy Input)");
+            if (bolita != null && bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar)
+            {
+                detenido = true;
+                CalcularFuerza();
+                bolita.DarVelocidadHaciaArriba(fuerzaActual);
+            }
+        }
+#endif
     }
 
     /// Mueve el marcador arriba y abajo dentro de los límites de la barra.
@@ -112,9 +139,17 @@ public class BarraFuerza : MonoBehaviour
         if (bolita.Estado != Bolita.EstadoLanzamiento.PendienteDeLanzar) return;
         if (Time.time - _ultimoShakeTime < shakeCooldown) return;
 
-        // Filtro pasa-bajos para separar aceleración lenta de cambios bruscos
+#if ENABLE_INPUT_SYSTEM
+        if (UnityEngine.InputSystem.Accelerometer.current == null) return; // no hay acelerómetro
+        // Filtro pasa-bajos para separar aceleración lenta de cambios bruscos usando nuevo Input System
+        Vector3 accelNow = UnityEngine.InputSystem.Accelerometer.current.acceleration.ReadValue();
+        _lowPassAccel = Vector3.Lerp(_lowPassAccel, accelNow, lowPassFactor);
+        Vector3 delta = accelNow - _lowPassAccel;
+#else
+        // Fallback al sistema antiguo
         _lowPassAccel = Vector3.Lerp(_lowPassAccel, Input.acceleration, lowPassFactor);
         Vector3 delta = Input.acceleration - _lowPassAccel;
+#endif
 
         float sqrMag = delta.sqrMagnitude;                // magnitud al cuadrado
         float thresholdSqr = shakeThreshold * shakeThreshold;

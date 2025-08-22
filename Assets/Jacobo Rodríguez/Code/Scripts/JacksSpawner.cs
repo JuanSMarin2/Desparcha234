@@ -27,7 +27,8 @@ public class JackSpawner : MonoBehaviour
             return;
         }
 
-        SpawnJacks();
+        // Spawn is now triggered when the ball is thrown.
+        // SpawnJacks();
     }
     public void SpawnJacks()
     {

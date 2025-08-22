@@ -51,12 +51,16 @@ public class Bolita : MonoBehaviour
         if (_rb == null) return;
 
         CambiarEstado(EstadoLanzamiento.EnElAire);
-        _rb.gravityScale = 1f; // Activar gravedad al lanzar
+        _rb.gravityScale = 0.65f; // Activar gravedad al lanzar
 
         // Interpretamos "fuerza" como velocidad objetivo en m/s hacia arriba
         Vector2 v = _rb.linearVelocity;
         v.y = Mathf.Abs(fuerza);
         _rb.linearVelocity = v;
+
+        // Nuevo: notificar a Progression que la bola fue lanzada para que spawnee Jacks
+        var progression = FindAnyObjectByType<Progression>();
+        progression?.OnBallLaunched();
     }
 
    

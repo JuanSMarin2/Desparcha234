@@ -22,10 +22,29 @@ public class UiManager : MonoBehaviour
     void Start()
     {
         if (cronometroLabel != null) cronometroLabel.gameObject.SetActive(false);
-        puntosJugador1.text = "0";
-        puntosJugador2.text = "0";
-        puntosJugador3.text = "0";
-        puntosJugador4.text = "0";
+
+        // Inicializar puntajes desde RoundData (persistentes)
+        if (RoundData.instance != null)
+        {
+            SetTextoPuntos(puntosJugador1, GetSafe(RoundData.instance.currentPoints, 0));
+            SetTextoPuntos(puntosJugador2, GetSafe(RoundData.instance.currentPoints, 1));
+            SetTextoPuntos(puntosJugador3, GetSafe(RoundData.instance.currentPoints, 2));
+            SetTextoPuntos(puntosJugador4, GetSafe(RoundData.instance.currentPoints, 3));
+        }
+        else
+        {
+            // Fallback si no existe RoundData aún
+            SetTextoPuntos(puntosJugador1, 0);
+            SetTextoPuntos(puntosJugador2, 0);
+            SetTextoPuntos(puntosJugador3, 0);
+            SetTextoPuntos(puntosJugador4, 0);
+        }
+    }
+
+    private static int GetSafe(int[] arr, int idx)
+    {
+        if (arr == null) return 0;
+        return (idx >= 0 && idx < arr.Length) ? arr[idx] : 0;
     }
 
     // Update is called once per frame
