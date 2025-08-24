@@ -8,6 +8,7 @@ TagManager:
   - Player_2
   - Player_3
   - Player_4
+  - Tejo
   layers:
   - Default
   - TransparentFX

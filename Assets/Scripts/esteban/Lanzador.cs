@@ -1,9 +1,9 @@
 using UnityEngine;
-
+using System.Collections;
 public class Lanzador : MonoBehaviour
 {
     [Header("Prefabs de cada jugador (esferas o fichas)")]
-    public Rigidbody[] jugadorPrefabs; // tamaño 4 en el inspector
+    public GameObject[] jugadorPrefabs; // ahora son GameObject, no Rigidbody
 
     [Header("Punto de lanzamiento")]
     public Transform puntoLanzamiento;
@@ -12,29 +12,63 @@ public class Lanzador : MonoBehaviour
     [HideInInspector] public float anguloHorizontal;
     [HideInInspector] public float anguloVertical;
 
+    
+
     public void Lanzar()
     {
         // Obtener el índice de turno actual (0-3)
         int turnoActual = TurnManager.instance.CurrentTurn() - 1;
-        
 
         // Elegir el prefab correcto
-        Rigidbody prefabJugador = jugadorPrefabs[turnoActual];
+        GameObject prefabJugador = jugadorPrefabs[turnoActual];
 
-        // Instanciarlo
-        Rigidbody esfera = Instantiate(prefabJugador, puntoLanzamiento.position, Quaternion.identity);
+        // Instanciar el prefab
+        GameObject esfera = Instantiate(prefabJugador, puntoLanzamiento.position, Quaternion.identity);
 
-        // Calcular dirección según ángulos
-        Vector3 direccion = CalcularDireccion();
-
-        // Aplicar fuerza
-        esfera.AddForce(direccion * fuerza, ForceMode.Impulse);
+        // Iniciar el movimiento simulado
+        StartCoroutine(MoverTejo(esfera.transform));
     }
 
-    private Vector3 CalcularDireccion()
+    // Corutina para simular movimiento "falso"
+    private IEnumerator MoverTejo(Transform tejo)
     {
-        // Ángulo vertical controla la inclinación (X), horizontal controla la dirección (Y)
-        Quaternion rotacion = Quaternion.Euler(-anguloVertical, anguloHorizontal, 0);
-        return rotacion * Vector3.forward;
+        Vector3 start = puntoLanzamiento.position;
+        Vector3 dir = CalcularDestino(); // usa tus ángulos
+        Vector3 end = start + dir * (fuerza * 5f); // 5 = factor de distancia, puedes ajustar
+
+        float duracion = 1.5f; // tiempo de trayecto
+        float t = 0f;
+
+        Vector3 escalaInicial = tejo.localScale;
+        Vector3 escalaFinal = escalaInicial * 0.5f; // se hace más pequeño al alejarse
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / duracion;
+
+            // mover posición
+            tejo.position = Vector3.Lerp(start, end, t);
+
+            // reducir escala
+            tejo.localScale = Vector3.Lerp(escalaInicial, escalaFinal, t);
+
+            yield return null;
+        }
+
+        // Aquí el tejo ya "llegó" -> podrías avisar a ZonaTejo si quieres
+    }
+
+    private Vector3 CalcularDestino()
+    {
+        // Convertimos ángulos y fuerza en un desplazamiento X-Y
+        float radH = anguloHorizontal * Mathf.Deg2Rad;
+        float radV = anguloVertical * Mathf.Deg2Rad;
+
+        float distancia = fuerza * 5f; // factor de escala ajustable
+
+        float dx = Mathf.Cos(radH) * distancia;
+        float dy = Mathf.Sin(radV) * distancia;
+
+        return puntoLanzamiento.position + new Vector3(dx, dy, 0);
     }
 }
