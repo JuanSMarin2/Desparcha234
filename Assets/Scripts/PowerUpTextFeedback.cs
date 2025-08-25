@@ -3,17 +3,16 @@ using TMPro;
 
 public class PowerUpTextFeedback : MonoBehaviour
 {
-    [SerializeField] private TMP_Text textMeshPro1;
-    [SerializeField] private TMP_Text textMeshPro2;
-
+    [SerializeField] private TMP_Text textTMP;                         // único TMP
+    [SerializeField] private RectTransform[] playerAnchors = new RectTransform[4]; // anclajes UI para J1..J4
     [Header("Settings")]
-    [SerializeField] private float displayDuration = 2f;
+    [SerializeField] private float displayDuration = 5f;
 
     // Colores para cada tipo de power-up
     [Header("Colors")]
     [SerializeField] private Color morePowerColor = new Color(1f, 0.5f, 0f); // Naranja
-    [SerializeField] private Color unmovableColor = Color.black; // Negro
-    [SerializeField] private Color ghostColor = new Color(0.5f, 0f, 0.5f); // Morado
+    [SerializeField] private Color unmovableColor = Color.black;             // Negro
+    [SerializeField] private Color ghostColor = new Color(0.5f, 0f, 0.5f);   // Morado
 
     public static PowerUpTextFeedback instance;
 
@@ -21,91 +20,63 @@ public class PowerUpTextFeedback : MonoBehaviour
     private float timer = 0f;
     private bool isDisplaying = false;
 
+    // Rotaciones Z por jugador (index 0..3 ? Jugador 1..4)
+    private readonly float[] playerAngles = new float[4] { -55f, 130f, -130f, 55f };
+
     void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (instance == null) instance = this; else { Destroy(gameObject); return; }
 
-        // Inicializa el diccionario con texto y color para cada poder
         powerUpData = new System.Collections.Generic.Dictionary<MarblePowerType, (string, Color)>()
         {
             { MarblePowerType.MorePower, ("¡Ahora tienes más potencia!", morePowerColor) },
-            { MarblePowerType.Unmovable, ("¡Ahora Eres Inamovible!", unmovableColor) },
-            { MarblePowerType.Ghost, ("¡Ahora Puedes atravesar paredes!", ghostColor) }
+            { MarblePowerType.Unmovable, ("¡Ahora eres Inamovible!",    unmovableColor) },
+            { MarblePowerType.Ghost,     ("¡Ahora puedes atravesar paredes!", ghostColor) }
         };
 
-        SetTextVisibility(false);
+        SetVisible(false);
     }
 
     void Update()
     {
-        if (isDisplaying)
+        if (!isDisplaying) return;
+
+        timer -= Time.deltaTime;
+        if (timer <= 0f)
         {
-            timer -= Time.deltaTime;
-            if (timer <= 0)
-            {
-                SetTextVisibility(false);
-                isDisplaying = false;
-            }
-        }
-    }
-
-    public void TextFeedback(MarblePowerType type)
-    {
-        if (powerUpData.ContainsKey(type))
-        {
-            var (feedbackText, textColor) = powerUpData[type];
-
-            // Configura texto y color para ambos TextMeshPro
-            SetTextProperties(textMeshPro1, feedbackText, textColor);
-            SetTextProperties(textMeshPro2, feedbackText, textColor);
-
-            SetTextVisibility(true);
-
-            timer = displayDuration;
-            isDisplaying = true;
-        }
-        else
-        {
-            SetTextVisibility(false);
+            SetVisible(false);
             isDisplaying = false;
         }
     }
 
-    private void SetTextProperties(TMP_Text textComponent, string text, Color color)
+    // NUEVO: recibe también el playerIndex (0..3)
+    public void TextFeedback(MarblePowerType type, int playerIndex)
     {
-        if (textComponent != null)
+        if (!powerUpData.TryGetValue(type, out var data)) { SetVisible(false); isDisplaying = false; return; }
+        if (!textTMP) return;
+        if (playerIndex < 0 || playerIndex >= playerAnchors.Length) return;
+
+        // Texto + color
+        textTMP.text = data.text;
+        textTMP.color = data.color;
+
+        // Posicionar y rotar en el anclaje del jugador
+        RectTransform self = textTMP.rectTransform;
+        RectTransform anchor = playerAnchors[playerIndex];
+        if (anchor != null && self != null)
         {
-            textComponent.text = text;
-            textComponent.color = color;
+            self.position = anchor.position; // ambos deben estar en el mismo Canvas
+            float z = playerAngles[playerIndex];
+            self.rotation = Quaternion.Euler(0f, 0f, z);
         }
+
+        SetVisible(true);
+        timer = displayDuration;
+        isDisplaying = true;
     }
 
-    private void SetTextVisibility(bool isVisible)
+    private void SetVisible(bool v)
     {
-        if (textMeshPro1 != null)
-        {
-            textMeshPro1.gameObject.SetActive(isVisible);
-        }
-        if (textMeshPro2 != null)
-        {
-            textMeshPro2.gameObject.SetActive(isVisible);
-        }
-    }
-
-    // Método opcional para cambiar colores en tiempo de ejecución
-    public void SetPowerUpColor(MarblePowerType type, Color newColor)
-    {
-        if (powerUpData.ContainsKey(type))
-        {
-            var currentData = powerUpData[type];
-            powerUpData[type] = (currentData.text, newColor);
-        }
+        if (textTMP) textTMP.gameObject.SetActive(v);
     }
 }

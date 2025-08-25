@@ -35,7 +35,7 @@ public class PowerUpObject : MonoBehaviour
         else
         {
             Debug.Log("[PowerUpObject] Llamando a TextFeedback...");
-            PowerUpTextFeedback.instance.TextFeedback(powerType);
+            PowerUpTextFeedback.instance.TextFeedback(powerType, mp.PlayerIndex);
         }
 
         mp.ApplyPower(powerType);

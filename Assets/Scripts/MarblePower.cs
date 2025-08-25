@@ -10,6 +10,7 @@ public class MarblePower : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Collider2D col;
     [SerializeField] private int playerIndex; // Índice de jugador: 0..3
+    [SerializeField] private Vector3 originalScale;
 
     [Header("Ajustes de poderes")]
     [SerializeField] private float morePowerMultiplier = 1.5f;
@@ -33,7 +34,8 @@ public class MarblePower : MonoBehaviour
     [SerializeField] private Color colorGhost = new Color(0.5f, 0f, 0.7f); // morado
     [SerializeField, Range(0f, 1f)] private float ghostAlpha = 0.6f;
 
- 
+    public int PlayerIndex => playerIndex;
+
 
     // Estado actual (patrón State)
     private IMarblePowerState state;
@@ -53,15 +55,16 @@ public class MarblePower : MonoBehaviour
     {
         if (!rb) rb = GetComponent<Rigidbody2D>();
         if (!col) col = GetComponent<Collider2D>();
-
         if (!sr) sr = GetComponentInChildren<SpriteRenderer>();
-
 
         if (!allMarbleColliders.Contains(col))
             allMarbleColliders.Add(col);
 
+        originalScale = transform.localScale; 
+
         SetState(new NoneState(this));
     }
+
 
     private void SetMarbleColor(Color c, float? aOverride = null)
     {
@@ -274,15 +277,22 @@ public class MarblePower : MonoBehaviour
             base.OnEnter();
             ctx.SetMarbleColor(ctx.colorMorePow);
 
-            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.MorePower);
+            // Crece 1.5x
+            ctx.transform.localScale = ctx.originalScale * 1.5f;
 
+            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.MorePower);
         }
+
         public override void OnExit()
         {
             ctx.SetMarbleColor(ctx.colorNone);
-            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.None);
 
+            // Volver al tamaño original
+            ctx.transform.localScale = ctx.originalScale;
+
+            PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.None);
         }
+
     }
 
     // ---- Inmovible (rebota pero no se mueve) ----
@@ -357,37 +367,31 @@ public class MarblePower : MonoBehaviour
         public override void OnEnter()
         {
             base.OnEnter();
-            // Por defecto, no fantasma fuera de turno
             ctx.SetMarbleColor(ctx.colorGhost, ctx.ghostAlpha);
 
-            ctx.SetIgnoreWalls(false);
-
-            // Si justo es mi turno al entrar, activo fantasma
-            bool isMyTurn = (TurnManager.instance &&
-                             TurnManager.instance.GetCurrentPlayerIndex() == ctx.playerIndex);
-            ctx.SetIgnoreWalls(isMyTurn);
+            // Fantasma siempre activo mientras dure
+            ctx.SetIgnoreWalls(true);
 
             PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.Ghost);
-
         }
 
         public override void OnTurnBecameCurrent(bool isCurrentTurn)
         {
-            // Solo en mi turno atravieso muros
-            ctx.SetIgnoreWalls(isCurrentTurn);
-
+            // Mantener siempre fantasma, no importa el turno
+            ctx.SetIgnoreWalls(true);
             ctx.SetMarbleColor(ctx.colorGhost, ctx.ghostAlpha);
         }
 
         public override void OnTurnEnded()
         {
             turns--;
-            // Al terminar mi turno, desactivo fantasma y me “desencajo” si quedé en pared
-            ctx.SetIgnoreWalls(false);
-            ctx.UnstickFromWallsIfNeeded();
 
+            // Al terminar, si aún quedan turnos sigo siendo fantasma.
+            // Si se acaban, vuelvo a None y me desencajo si estoy en pared
             if (turns <= 0)
             {
+                ctx.SetIgnoreWalls(false);
+                ctx.UnstickFromWallsIfNeeded();
                 ctx.SetState(new NoneState(ctx));
             }
         }
@@ -396,9 +400,8 @@ public class MarblePower : MonoBehaviour
         {
             ctx.SetIgnoreWalls(false);
             ctx.SetMarbleColor(ctx.colorNone);
-
             PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.None);
-
         }
+
     }
 }

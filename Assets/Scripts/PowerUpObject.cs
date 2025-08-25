@@ -13,12 +13,9 @@ public class PowerUpPower : MonoBehaviour
 
     private void Start()
     {
-        // Asegurarnos de tener el controlador
         powerUpController = GetComponent<PowerUpController>();
         if (powerUpController == null)
-        {
             powerUpController = gameObject.AddComponent<PowerUpController>();
-        }
     }
 
     private void Reset()
@@ -32,26 +29,16 @@ public class PowerUpPower : MonoBehaviour
         MarblePower mp = other.GetComponent<MarblePower>();
         if (mp == null) return;
 
-        // Aplica el poder
+        // Aplica poder
         mp.ApplyPower(powerType);
-        PowerUpTextFeedback.instance.TextFeedback(powerType);
 
-        Debug.Log($"[PowerUpPower] Power-up {powerType} recogido por {other.name}");
+        // Feedback con playerIndex (0..3)
+        PowerUpTextFeedback.instance?.TextFeedback(powerType, mp.PlayerIndex);
 
-        // Notifica al controlador primero
-        if (powerUpController != null)
-        {
-            powerUpController.HandleCollection();
-        }
+        // Notifica y desaparece
+        powerUpController?.HandleCollection();
 
-        // Luego desaparece el pickup
-        if (destroyOnPick)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            gameObject.SetActive(false);
-        }
+        if (destroyOnPick) Destroy(gameObject);
+        else gameObject.SetActive(false);
     }
 }
