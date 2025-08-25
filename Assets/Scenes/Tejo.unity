@@ -645,7 +645,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &267917453
 Transform:
   m_ObjectHideFlags: 0
@@ -723,7 +723,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 267917452}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -1419,7 +1419,7 @@ Transform:
   m_GameObject: {fileID: 620540982}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.5152267, y: 0.60730076, z: 0}
+  m_LocalPosition: {x: -0.5152267, y: 0.28, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2512,7 +2512,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!50 &1091253075
+--- !u!50 &1091253078
 Rigidbody2D:
   serializedVersion: 5
   m_ObjectHideFlags: 0
@@ -2527,7 +2527,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -2757,7 +2757,7 @@ Transform:
   m_GameObject: {fileID: 1103608200}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.58, y: -4.46, z: -0.0029938417}
+  m_LocalPosition: {x: 0.58, y: -4.46, z: -4.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3311,7 +3311,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.9452267, y: -0.6189, z: 0}
-  m_LocalScale: {x: 8.137931, y: 9.700901, z: 1}
+  m_LocalScale: {x: 8.137931, y: 9.07, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 620540983}
@@ -3683,7 +3683,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!50 &1495881619
+--- !u!50 &1495881622
 Rigidbody2D:
   serializedVersion: 5
   m_ObjectHideFlags: 0
@@ -3698,7 +3698,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -5033,7 +5033,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7313416076324168251, guid: 675d7d341b4ee7c4bb1252b18ea24f72, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 763549046197167581}
+      addedObject: {fileID: 763549046197167584}
     - targetCorrespondingSourceObject: {fileID: 7313416076324168251, guid: 675d7d341b4ee7c4bb1252b18ea24f72, type: 3}
       insertIndex: -1
       addedObject: {fileID: 763549046197167580}
@@ -5079,7 +5079,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!50 &763549046197167581
+--- !u!50 &763549046197167584
 Rigidbody2D:
   serializedVersion: 5
   m_ObjectHideFlags: 0
@@ -5094,7 +5094,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -5177,7 +5177,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8813173649776728923, guid: 8cabcad2a5b308c4cbf91a0129c7caf6, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2369425650430004668}
+      addedObject: {fileID: 2369425650430004671}
     - targetCorrespondingSourceObject: {fileID: 8813173649776728923, guid: 8cabcad2a5b308c4cbf91a0129c7caf6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2369425650430004667}
@@ -5223,7 +5223,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!50 &2369425650430004668
+--- !u!50 &2369425650430004671
 Rigidbody2D:
   serializedVersion: 5
   m_ObjectHideFlags: 0
@@ -5238,7 +5238,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -5321,7 +5321,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6299952750750084014, guid: ec8bbfab90204744aa6ca4378f984839, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1091253075}
+      addedObject: {fileID: 1091253078}
     - targetCorrespondingSourceObject: {fileID: 6299952750750084014, guid: ec8bbfab90204744aa6ca4378f984839, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1091253074}
@@ -5397,7 +5397,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7876540876605622203, guid: 3d09fcb970877d5448cca389ba69440b, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1495881619}
+      addedObject: {fileID: 1495881622}
     - targetCorrespondingSourceObject: {fileID: 7876540876605622203, guid: 3d09fcb970877d5448cca389ba69440b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1495881618}

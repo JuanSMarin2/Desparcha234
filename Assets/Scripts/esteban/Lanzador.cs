@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+
 public class Lanzador : MonoBehaviour
 {
     [Header("Prefabs de cada jugador (esferas o fichas)")]
@@ -11,8 +12,6 @@ public class Lanzador : MonoBehaviour
     [HideInInspector] public float fuerza;
     [HideInInspector] public float anguloHorizontal;
     [HideInInspector] public float anguloVertical;
-
-    
 
     public void Lanzar()
     {
@@ -33,42 +32,43 @@ public class Lanzador : MonoBehaviour
     private IEnumerator MoverTejo(Transform tejo)
     {
         Vector3 start = puntoLanzamiento.position;
-        Vector3 dir = CalcularDestino(); // usa tus ángulos
-        Vector3 end = start + dir * (fuerza * 5f); // 5 = factor de distancia, puedes ajustar
+        Vector3 dir = CalcularDestino();
+        Vector3 end = start + dir * (fuerza * 5f); // usa fuerza + factor de escala
 
-        float duracion = 1.5f; // tiempo de trayecto
+        float duracion = 1.5f;
         float t = 0f;
 
         Vector3 escalaInicial = tejo.localScale;
-        Vector3 escalaFinal = escalaInicial * 0.5f; // se hace más pequeño al alejarse
+        Vector3 escalaFinal = escalaInicial * 0.5f;
 
         while (t < 1f)
         {
             t += Time.deltaTime / duracion;
 
-            // mover posición
+            // Movimiento interpolado
             tejo.position = Vector3.Lerp(start, end, t);
 
-            // reducir escala
+            //  fijar en el plano 2D (Z=0)
+            Vector3 pos = tejo.position;
+            pos.z = 0f;
+            tejo.position = pos;
+
+            // Simular que se aleja con escala
             tejo.localScale = Vector3.Lerp(escalaInicial, escalaFinal, t);
 
             yield return null;
         }
-
-        // Aquí el tejo ya "llegó" -> podrías avisar a ZonaTejo si quieres
     }
 
     private Vector3 CalcularDestino()
     {
-        // Convertimos ángulos y fuerza en un desplazamiento X-Y
         float radH = anguloHorizontal * Mathf.Deg2Rad;
-        float radV = anguloVertical * Mathf.Deg2Rad;
 
-        float distancia = fuerza * 5f; // factor de escala ajustable
+        // Invertimos el eje X para que coincida con la flecha
+        Vector3 dir = new Vector3(-Mathf.Sin(radH), 0, Mathf.Cos(radH));
 
-        float dx = Mathf.Cos(radH) * distancia;
-        float dy = Mathf.Sin(radV) * distancia;
+        dir.y = Mathf.Sin(anguloVertical * Mathf.Deg2Rad);
 
-        return puntoLanzamiento.position + new Vector3(dx, dy, 0);
+        return dir.normalized;
     }
 }
