@@ -33,7 +33,7 @@ public class Lanzador : MonoBehaviour
     {
         Vector3 start = puntoLanzamiento.position;
         Vector3 dir = CalcularDestino();
-        Vector3 end = start + dir * (fuerza * 5f); // usa fuerza + factor de escala
+        Vector3 end = start + dir * (fuerza * 10f); // usa fuerza + factor de escala
 
         float duracion = 1.5f;
         float t = 0f;
@@ -58,6 +58,8 @@ public class Lanzador : MonoBehaviour
 
             yield return null;
         }
+
+        TurnManager.instance.NextTurn();
     }
 
     private Vector3 CalcularDestino()
