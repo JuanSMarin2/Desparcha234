@@ -24,12 +24,17 @@ public class Lanzador : MonoBehaviour
         // Instanciar el prefab
         GameObject esfera = Instantiate(prefabJugador, puntoLanzamiento.position, Quaternion.identity);
 
+        // Desactivar colisión mientras está en el "vuelo"
+        Collider col = esfera.GetComponent<Collider>();
+        if (col != null)
+            col.enabled = false;
+
         // Iniciar el movimiento simulado
-        StartCoroutine(MoverTejo(esfera.transform));
+        StartCoroutine(MoverTejo(esfera.transform, col));
     }
 
     // Corutina para simular movimiento "falso"
-    private IEnumerator MoverTejo(Transform tejo)
+    private IEnumerator MoverTejo(Transform tejo, Collider col)
     {
         Vector3 start = puntoLanzamiento.position;
         Vector3 dir = CalcularDestino();
@@ -48,7 +53,7 @@ public class Lanzador : MonoBehaviour
             // Movimiento interpolado
             tejo.position = Vector3.Lerp(start, end, t);
 
-            //  fijar en el plano 2D (Z=0)
+            // fijar en el plano 2D (Z=0)
             Vector3 pos = tejo.position;
             pos.z = 0f;
             tejo.position = pos;
@@ -58,6 +63,10 @@ public class Lanzador : MonoBehaviour
 
             yield return null;
         }
+
+        // Reactivar la colisión al terminar el lanzamiento
+        if (col != null)
+            col.enabled = true;
 
         TurnManager.instance.NextTurn();
     }
