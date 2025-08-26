@@ -30,12 +30,19 @@ public class Lanzador : MonoBehaviour
             col.enabled = false;
 
         // Iniciar el movimiento simulado
-        StartCoroutine(MoverTejo(esfera.transform, col));
+        StartCoroutine(MoverTejo(esfera));
     }
 
     // Corutina para simular movimiento "falso"
-    private IEnumerator MoverTejo(Transform tejo, Collider col)
+    private IEnumerator MoverTejo(GameObject tejoObj)
     {
+        Transform tejo = tejoObj.transform;
+        CircleCollider2D collider = tejoObj.GetComponent<CircleCollider2D>();
+
+        //  Desactivar el collider durante el lanzamiento
+        if (collider != null)
+            collider.enabled = false;
+
         Vector3 start = puntoLanzamiento.position;
         Vector3 dir = CalcularDestino();
         Vector3 end = start + dir * (fuerza * 10f); // usa fuerza + factor de escala
@@ -64,9 +71,9 @@ public class Lanzador : MonoBehaviour
             yield return null;
         }
 
-        // Reactivar la colisión al terminar el lanzamiento
-        if (col != null)
-            col.enabled = true;
+        //  Reactivar el collider al terminar el movimiento
+        if (collider != null)
+            collider.enabled = true;
 
         TurnManager.instance.NextTurn();
     }
