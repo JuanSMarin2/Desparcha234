@@ -11,7 +11,7 @@ public class Jack : MonoBehaviour
     [SerializeField] private tipo tipoJack = tipo.Normal; // tipo de este Jack
     [SerializeField] private Progression progression;   
     
-    [SerializeField] private float alphaTransparente = 0.6f; // Alpha para el estado deshabilitado
+    [SerializeField] private float alphaTransparente = 0f; // Alpha para el estado deshabilitado (ya no se usa para volver transparente)
       // Referencia a Progression
 
     public int Puntos => puntos; // Exponer puntos para Progression
@@ -29,7 +29,7 @@ public class Jack : MonoBehaviour
 
     private void Start()
     {
-        if (_sr != null) enable(); // Habilitar al inicio
+        // Ya no usamos enable(); los Jacks inician activos por defecto
         if (_col2D != null) _col2D.enabled = true; // Asegurar que el collider esté activo
         if (TurnManager.instance != null)
         {
@@ -52,26 +52,13 @@ public class Jack : MonoBehaviour
         disable();
     }
 
-    public void enable()
-    {
-        if (_sr != null)
-        {
-            var c = _sr.color;
-            c.a = 1f; // alpha 100%
-            _sr.color = c;
-        }
-        if (_col2D != null) _col2D.enabled = true; // activar collider
-    }
+    // public void enable() { ... }  // Eliminado: ya no existe lógica de reactivación
 
     public void disable()
     {
-        if (_sr != null)
-        {
-            var c = _sr.color;
-            c.a = alphaTransparente; // alpha 60%
-            _sr.color = c;
-        }
-        if (_col2D != null) _col2D.enabled = false; // desactivar collider
+        // Nueva lógica: destruir el Jack al deshabilitar
+        // No modificamos alpha, eliminamos el objeto para limpiar la escena
+        Destroy(gameObject);
     }
 
     public void updateColor(int numJugador)
@@ -89,7 +76,7 @@ public class Jack : MonoBehaviour
             default: color = Color.white; break;
         }
 
-        // Mantener el alpha actual (para respetar enable/disable)
+        // Mantener el alpha actual (si existiera) aunque ya no se usa para deshabilitar
         color.a = _sr.color.a;
         _sr.color = color;
     }

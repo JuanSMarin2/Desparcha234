@@ -79,21 +79,18 @@ public class JackSpawner : MonoBehaviour
 
     public void DisableAll()
     {
-        // Deshabilita todos los Jacks que estén bajo este spawner
+        // Deshabilita (ahora destruye) todos los Jacks que estén bajo este spawner
         var jacks = GetComponentsInChildren<Jack>(true);
         foreach (var jack in jacks)
         {
-            jack.disable();
+            jack.disable(); // Destroy(gameObject)
         }
     }
 
     public void EnableAll()
     {
-        var jacks = GetComponentsInChildren<Jack>(true);
-        foreach (var jack in jacks)
-        {
-            jack.enable();
-        }
+        // Ya no existe "enable" en Jack; restaurar = respawnear
+        SpawnJacks();
     }
 
     private static Vector3 RandomPointInArea(BoxCollider2D area)

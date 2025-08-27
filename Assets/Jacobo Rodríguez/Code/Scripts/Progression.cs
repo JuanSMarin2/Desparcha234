@@ -123,6 +123,7 @@ public class Progression : MonoBehaviour
     {
         _barra?.Reiniciar();
         _bolita?.ReiniciarBola();
+        _spawner?.DisableAll();
 
         if (TurnManager.instance != null)
         {
