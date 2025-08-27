@@ -17,18 +17,16 @@ public class GameManagerTejo : MonoBehaviour
         if (instance == null) instance = this;
     }
 
-    public void SumarPuntos(int jugador, int puntos)
+    public void SumarPuntos(int jugadorID, int puntos)
     {
-        puntajes[jugador] += puntos;
+        puntajes[jugadorID] += puntos;
+        puntajeTextos[jugadorID].text = $"J{jugadorID + 1}: {puntajes[jugadorID]}";
 
-        // Actualizar UI
-        puntajeTextos[jugador].text = "J" + (jugador + 1) + ": " + puntajes[jugador];
-
-        // Revisar si llegó al puntaje máximo
-        if (puntajes[jugador] >= puntajeMaximo)
+        // Chequear si este jugador llegó a 21
+        if (puntajes[jugadorID] >= 21)
         {
-            Debug.Log(" Ganador: Jugador " + (jugador + 1));
-            // Aquí puedes poner pantalla de victoria
+            // Mandar el número del ganador a GameRoundManager
+            GameRoundManager.instance.PlayerWin(jugadorID);
         }
     }
 
