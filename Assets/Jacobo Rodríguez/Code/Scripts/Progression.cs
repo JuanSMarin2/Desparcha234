@@ -1,5 +1,7 @@
 using TMPro;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 public class Progression : MonoBehaviour
 {
@@ -7,16 +9,19 @@ public class Progression : MonoBehaviour
     public int stage = 0;
     public int neededJacks = 0;
     private const int MaxStage = 3;
-    
+
     public int jacksCounter = 0;
-    public long currentScore = 0; // Puntaje mostrado (base + intento)
-    private long _baseScore = 0;   // Puntaje consolidado del jugador (persistente)
-    private long _attemptScore = 0; // Puntaje del intento actual (se descarta si toca suelo)
+    public long currentScore = 0; // base + intento
+    private long _baseScore = 0;   // consolidado del jugador
+    private long _attemptScore = 0; // puntaje del intento actual
+    private long[] _playerCurrentScores; // puntaje actual por jugador (para ranking)
 
-    [Header("Configuración Etapas")] 
-    [SerializeField] private bool respawnJacksEachStage = false; // true = respawnear; false = re‑habilitar existentes
+    [Header("Configuración Etapas / Intentos")]
+    [SerializeField] private bool respawnJacksEachStage = false;
+    [SerializeField] private int attemptsPerPlayer = 2;
+    private int[] _attemptsLeft;
 
-    // Cached refs
+    [Header("Referencias")]
     private UiManager _ui;
     private BarraFuerza _barra;
     private JackSpawner _spawner;
@@ -30,32 +35,34 @@ public class Progression : MonoBehaviour
         _ui = FindAnyObjectByType<UiManager>();
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // Inicializa el sistema de 5 etapas: etapa 1 requiere 1 jack, ... etapa 5 requiere 5 jacks
         if (stage < 1) stage = 1;
         if (stage > MaxStage) stage = MaxStage;
         ActualizarNeededJacks();
 
-        // Sincronizar el score base con el acumulado del jugador actual en RoundData
-        if (RoundData.instance != null && TurnManager.instance != null)
+        int n = RoundData.instance != null ? Mathf.Max(0, RoundData.instance.numPlayers) : 0;
+        if (n > 0)
         {
-            int idx0 = TurnManager.instance.GetCurrentPlayerIndex();
-            if (idx0 >= 0 && idx0 < RoundData.instance.currentPoints.Length)
-            {
-                _baseScore = RoundData.instance.currentPoints[idx0];
-            }
+            _attemptsLeft = new int[n];
+            for (int i = 0; i < n; i++) _attemptsLeft[i] = Mathf.Max(1, attemptsPerPlayer);
+            _playerCurrentScores = new long[n]; // iniciar en 0; no escribir en RoundData.currentPoints
         }
+
+        int idx0 = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : 0;
         _attemptScore = 0;
+        _baseScore = (idx0 >= 0 && _playerCurrentScores != null && idx0 < _playerCurrentScores.Length) ? _playerCurrentScores[idx0] : 0;
         currentScore = _baseScore;
-        _ui?.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
+        if (_playerCurrentScores != null && idx0 >= 0 && idx0 < _playerCurrentScores.Length)
+            _playerCurrentScores[idx0] = currentScore;
+
+        _ui?.ActualizarPuntos(TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1, currentScore);
+        ActualizarUiIntentos(true);
     }
 
     private void ActualizarNeededJacks()
     {
-        // En este diseño, los neededJacks son iguales al número de etapa (clamp 1..5)
-        jacksCounter = 0; // Reiniciar conteo de jacks al cambiar etapa
+        jacksCounter = 0;
         neededJacks = Mathf.Clamp(stage, 1, MaxStage);
     }
 
@@ -64,21 +71,21 @@ public class Progression : MonoBehaviour
         if (jack != null)
         {
             jacksCounter++;
-            // Sumar puntos SOLO al intento; se consolidan al finalizar intento si no toca suelo
             _attemptScore += jack.Puntos;
             currentScore = _baseScore + _attemptScore;
-            Debug.Log($"Jack recolectado (+{jack.Puntos}). Total jacks: {jacksCounter}, Puntaje intento: {_attemptScore}, Puntaje mostrado: {currentScore}");
+            if (TurnManager.instance != null && _playerCurrentScores != null)
+            {
+                int idx0 = TurnManager.instance.GetCurrentPlayerIndex();
+                if (idx0 >= 0 && idx0 < _playerCurrentScores.Length) _playerCurrentScores[idx0] = currentScore;
+            }
         }
-
         if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
         if (_ui != null && TurnManager.instance != null)
         {
             _ui.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
         }
-        // Ya no se deshabilitan los jacks al alcanzar la cuota.
     }
 
-    // Puede ser llamado cuando la bolita se lanza por primera vez o en cada etapa
     public void OnBallLaunched()
     {
         if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
@@ -88,141 +95,138 @@ public class Progression : MonoBehaviour
     public void NotificarBolitaTocada()
     {
         touchedBall = true;
-        Debug.Log("Bolita tocada");
-
-        // Cierre de intento por toque de bolita: consolidar puntaje del intento
         ConsolidarIntento();
-
-        // Al tocar la bolita (fin del lanzamiento), validar progreso de etapa
-        bool completoEtapa = jacksCounter == neededJacks;
-        Debug.Log($"Validando etapa {stage}: jacks recolectados {jacksCounter}/{neededJacks} - Completo: {completoEtapa}");
-        if (completoEtapa)
-        {
-            if (stage < MaxStage)
-            {
-                Avanzaretapa();
-                Debug.Log($"Etapa {stage} completada. Avanzando a la siguiente etapa.");
-            }
-            else
-            {
-                // Pasó la última etapa -> terminar turno
-                Debug.Log("Se completó la última etapa. Terminar turno.");
-                jacksCounter = 0;
-                TerminarTurno();
-            }
-        }
-        else
-        {
-            // No consiguió los jacks necesarios -> terminar turno (pero el puntaje del intento ya fue consolidado)
-            Debug.Log($"No se alcanzaron los jacks necesarios ({jacksCounter}/{neededJacks}). Terminar turno.");
-            jacksCounter = 0;
-            TerminarTurno();
-        }
-
+        TerminarTurno();
         touchedBall = false;
     }
-
+    public void OnballePendingThrow()
+    {
+        if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
+        _spawner.DisableAll();
+        Debug.Log("Disabling jacks because ball is pending throw");
+    }
     private void ConsolidarIntento()
     {
         if (_attemptScore <= 0) return;
         _baseScore += _attemptScore;
         _attemptScore = 0;
         currentScore = _baseScore;
-        // Persistir en RoundData
-        if (RoundData.instance != null && TurnManager.instance != null)
+        if (TurnManager.instance != null && _playerCurrentScores != null)
         {
             int idx0 = TurnManager.instance.GetCurrentPlayerIndex();
-            if (idx0 >= 0 && idx0 < RoundData.instance.currentPoints.Length)
-            {
-                long nuevo = _baseScore;
-                int nuevoInt = nuevo > int.MaxValue ? int.MaxValue : (nuevo < int.MinValue ? int.MinValue : (int)nuevo);
-                RoundData.instance.currentPoints[idx0] = nuevoInt;
-            }
+            if (idx0 >= 0 && idx0 < _playerCurrentScores.Length) _playerCurrentScores[idx0] = currentScore;
         }
-        // Refrescar UI
         _ui?.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
-        Debug.Log($"Puntaje consolidado del jugador: {currentScore}");
     }
 
     public void TerminarTurno()
     {
-        if (_barra != null)
-        {
-            _barra.Reiniciar();
-            Debug.Log("Barra de fuerza reiniciada.");
-        }
-        if (_bolita != null)
-        {
-            _bolita.ReiniciarBola();
-            Debug.Log("Bolita reiniciada.");
-        }
-        TurnManager.instance.NextTurn();
+        _barra?.Reiniciar();
+        _bolita?.ReiniciarBola();
 
-        // Resetear etapa para el siguiente jugador
-        stage = 1;
-        ActualizarNeededJacks();
-
-        if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
-        if (_spawner != null)
-        {
-            _spawner.SpawnJacks();
-        }
-
-        // Al cambiar de jugador, sincronizar y mostrar su puntaje acumulado (base)
-        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
         if (TurnManager.instance != null)
         {
             int idx0 = TurnManager.instance.GetCurrentPlayerIndex();
-            _attemptScore = 0;
-            _baseScore = 0;
-            if (RoundData.instance != null && idx0 >= 0 && idx0 < RoundData.instance.currentPoints.Length)
+            if (_attemptsLeft != null && idx0 >= 0 && idx0 < _attemptsLeft.Length)
             {
-                _baseScore = RoundData.instance.currentPoints[idx0];
+                _attemptsLeft[idx0] = Mathf.Max(0, _attemptsLeft[idx0] - 1);
+                ActualizarUiIntentos();
+
+                int totalRestantes = 0;
+                for (int i = 0; i < _attemptsLeft.Length; i++) totalRestantes += _attemptsLeft[i];
+                if (totalRestantes <= 0)
+                {
+                    FinalizarMinijuegoPorPuntaje();
+                    return;
+                }
+
+                int safety = _attemptsLeft.Length;
+                do
+                {
+                    TurnManager.instance.NextTurn();
+                    safety--;
+                } while (safety > 0 && _attemptsLeft[TurnManager.instance.GetCurrentPlayerIndex()] <= 0);
             }
+            else
+            {
+                TurnManager.instance.NextTurn();
+            }
+        }
+
+        stage = 1;
+        ActualizarNeededJacks();
+
+        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
+        if (TurnManager.instance != null)
+        {
+            int idxNuevo = TurnManager.instance.GetCurrentPlayerIndex();
+            _attemptScore = 0;
+            _baseScore = (_playerCurrentScores != null && idxNuevo >= 0 && idxNuevo < _playerCurrentScores.Length) ? _playerCurrentScores[idxNuevo] : 0;
             currentScore = _baseScore;
             _ui?.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
+            ActualizarUiIntentos();
         }
-        Debug.Log("Turno terminado. Reiniciando a etapa 1 para jugador " + TurnManager.instance.CurrentTurn());
+    }
+
+    private void FinalizarMinijuegoPorPuntaje()
+    {
+        int n = _playerCurrentScores != null ? _playerCurrentScores.Length : (RoundData.instance != null ? RoundData.instance.numPlayers : 0);
+        if (n <= 0) return;
+
+        // Pasar scores directamente al GameRoundManager para que asigne puntos con empates
+        var grm = GameRoundManager.instance != null ? GameRoundManager.instance : FindAnyObjectByType<GameRoundManager>();
+        if (grm != null)
+        {
+            long[] scores = new long[n];
+            for (int i = 0; i < n; i++) scores[i] = _playerCurrentScores[i];
+            grm.FinalizeRoundFromScores(scores);
+        }
     }
 
     public void Avanzaretapa()
     {
         stage++;
         if (stage > MaxStage) stage = MaxStage;
-        ActualizarNeededJacks(); // ya pone jacksCounter = 0
-        Debug.Log($"Avanzando a la etapa {stage}. Jacks necesarios: {neededJacks}");
-
-        // Reiniciar barra (internamente reinicia bolita también)
-        if (_barra == null) _barra = FindAnyObjectByType<BarraFuerza>();
+        ActualizarNeededJacks();
         _barra?.Reiniciar();
-
-        // Manejo de jacks
-        if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
         if (_spawner != null)
         {
-            if (respawnJacksEachStage)
-                _spawner.SpawnJacks();
-            else
-                _spawner.EnableAll();
+            if (respawnJacksEachStage) _spawner.SpawnJacks(); else _spawner.EnableAll();
         }
-        else
-        {
-            Debug.LogWarning("No se encontró JackSpawner para preparar la nueva etapa.");
-        }
-        // Ya no llamamos bolita.ReiniciarTurno() aquí porque Reiniciar() de la barra ya lo hace.
     }
 
     public void PerderPorTocarSuelo()
     {
-        // Falló por tocar el suelo: descartar puntaje del intento y mantener el acumulado base
         _attemptScore = 0;
-        currentScore = _baseScore; // mostrar solo lo consolidado previo
+        currentScore = _baseScore;
         if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
         if (_ui != null && TurnManager.instance != null)
         {
             _ui.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
         }
-        Debug.Log("Falló por tocar el suelo. Puntaje del intento = 0. Se mantiene el acumulado base y se pasa al siguiente turno.");
+        if (TurnManager.instance != null && _playerCurrentScores != null)
+        {
+            int idx0 = TurnManager.instance.GetCurrentPlayerIndex();
+            if (idx0 >= 0 && idx0 < _playerCurrentScores.Length) _playerCurrentScores[idx0] = currentScore;
+        }
         TerminarTurno();
+    }
+
+    private void ActualizarUiIntentos()
+    {
+        if (_attemptsLeft == null || TurnManager.instance == null) return;
+        int idx = TurnManager.instance.GetCurrentPlayerIndex();
+        if (idx < 0 || idx >= _attemptsLeft.Length) return;
+        _ui?.ActualizarIntentosJugador(idx, _attemptsLeft[idx]);
+    }
+
+    private void ActualizarUiIntentos(bool inicializarTodos)
+    {
+        if (!inicializarTodos) { ActualizarUiIntentos(); return; }
+        if (_attemptsLeft == null || _ui == null) return;
+        for (int i = 0; i < _attemptsLeft.Length && i < 4; i++)
+        {
+            _ui.ActualizarIntentosJugador(i, _attemptsLeft[i]);
+        }
     }
 }

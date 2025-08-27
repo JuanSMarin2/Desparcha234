@@ -15,6 +15,18 @@ public class UiManager : MonoBehaviour
     [SerializeField] private TMP_Text puntosJugador3;
     [SerializeField] private TMP_Text puntosJugador4;
 
+    [Header("Intentos restantes (opcional)")]
+    [SerializeField] private TMP_Text intentosJugador1;
+    [SerializeField] private TMP_Text intentosJugador2;
+    [SerializeField] private TMP_Text intentosJugador3;
+    [SerializeField] private TMP_Text intentosJugador4;
+
+    [Header("Botones de jugador")]
+    [SerializeField] private GameObject botonJugador1;
+    [SerializeField] private GameObject botonJugador2;
+    [SerializeField] private GameObject botonJugador3;
+    [SerializeField] private GameObject botonJugador4;
+
     private bool _cronometroActivo;
     private float _tiempo;
 
@@ -101,13 +113,47 @@ public class UiManager : MonoBehaviour
         }
     }
 
-    private void ActualizarCronometroVisual()
+    private void ActualizarCronometroVisual() //Se removerá después
+
     {
         if (cronometroLabel == null) return;
         TimeSpan t = TimeSpan.FromSeconds(_tiempo);
         cronometroLabel.text = string.Format("{0:00}:{1:00}.{2:00}", t.Minutes, t.Seconds, t.Milliseconds / 10);
     }
 
+    public void MostrarBotonJugadorActivo(int turnoActual)
+    {
+        // Ocultar todos primero
+        OcultarTodosBotonesJugadores();
+
+        // Mostrar solo el del jugador actual (1-4)
+        switch (turnoActual)
+        {
+            case 1:
+                if (botonJugador1 != null) botonJugador1.SetActive(true);
+                break;
+            case 2:
+                if (botonJugador2 != null) botonJugador2.SetActive(true);
+                break;
+            case 3:
+                if (botonJugador3 != null) botonJugador3.SetActive(true);
+                break;
+            case 4:
+                if (botonJugador4 != null) botonJugador4.SetActive(true);
+                break;
+            default:
+                // No hacer nada si el número es inválido
+                break;
+        }
+    }
+    public void OcultarTodosBotonesJugadores()
+    {
+        if (botonJugador1 != null) botonJugador1.SetActive(false);
+        if (botonJugador2 != null) botonJugador2.SetActive(false);
+        if (botonJugador3 != null) botonJugador3.SetActive(false);
+        if (botonJugador4 != null) botonJugador4.SetActive(false);
+    }
+    
     public void ActualizarTexto(Bolita.EstadoLanzamiento estado)
     {
         if (estadoLabel == null)
@@ -150,6 +196,21 @@ public class UiManager : MonoBehaviour
                 Debug.LogWarning("UiManager: Número de jugador no válido: " + playernum);
                 return;
         }
+    }
+
+    // Nuevo: actualizar intentos para un jugador (índice 0-based)
+    public void ActualizarIntentosJugador(int playerIndexZeroBased, int intentosRestantes)
+    {
+        TMP_Text target = null;
+        switch (playerIndexZeroBased)
+        {
+            case 0: target = intentosJugador1; break;
+            case 1: target = intentosJugador2; break;
+            case 2: target = intentosJugador3; break;
+            case 3: target = intentosJugador4; break;
+        }
+        if (target == null) return; // opcional, no hay UI asignada
+        target.text = "x" + Mathf.Max(0, intentosRestantes);
     }
 
     private static void SetTextoPuntos(TMP_Text label, long valor)

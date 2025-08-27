@@ -8,15 +8,27 @@ public class TurnManager : MonoBehaviour
 
     [Tooltip("�ndices de los jugadores que a�n est�n en la partida.")]
     [SerializeField] private List<int> activePlayerIndices = new List<int>();
-
+    
     private int activePlayerListIndex;
     private int totalPlayers;
 
     [SerializeField] private TextMeshProUGUI turnText;
-
-
+    UiManager uiManager;
+  
     public int CurrentTurn() => GetCurrentPlayerIndex() + 1; //Devuelve el numero del jugador que tiene el turno
 
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+          uiManager = FindAnyObjectByType<UiManager>();
+    }
     public void NextTurn()
     {
         // A�adimos una verificaci�n para evitar el error si solo queda un jugador.
@@ -31,20 +43,8 @@ public class TurnManager : MonoBehaviour
         {
             activePlayerListIndex = 0;
         }
+        uiManager?.MostrarBotonJugadorActivo(GetCurrentPlayerIndex() + 1);
     }
-
-    void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
     void Start()
     {
         totalPlayers = RoundData.instance.numPlayers;
@@ -60,6 +60,8 @@ public class TurnManager : MonoBehaviour
             activePlayerListIndex = Random.Range(0, activePlayerIndices.Count);
             Debug.Log("Juego iniciado con " + totalPlayers + " jugadores.");
             Debug.Log("El turno inicial es para el Jugador " + (GetCurrentPlayerIndex() + 1));
+            
+            uiManager?.MostrarBotonJugadorActivo(GetCurrentPlayerIndex() + 1);
         }
         else
         {
@@ -68,9 +70,9 @@ public class TurnManager : MonoBehaviour
     }
 
     void Update()
-    {
-        UpdateTurnText();
-    }
+        {
+            UpdateTurnText();
+        }
 
     private void UpdateTurnText()
     {
@@ -78,8 +80,10 @@ public class TurnManager : MonoBehaviour
         {
             int playerNumber = GetCurrentPlayerIndex() + 1;
             turnText.text = "Turno del jugador: " + playerNumber.ToString();
+        
+            
         }
-        else if (turnText != null)
+        else if (turnText != null )
         {
             // Si no hay jugadores, mostramos un mensaje por defecto.
             turnText.text = "Partida finalizada.";
