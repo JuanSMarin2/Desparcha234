@@ -24,6 +24,11 @@ public class Lanzador : MonoBehaviour
         // Instanciar el prefab
         GameObject esfera = Instantiate(prefabJugador, puntoLanzamiento.position, Quaternion.identity);
 
+        //  Guardar quién lanzó en el Tejo
+        Tejo tejo = esfera.GetComponent<Tejo>();
+        if (tejo != null)
+            tejo.jugadorID = turnoActual;
+
         // Desactivar colisión mientras está en el "vuelo"
         Collider col = esfera.GetComponent<Collider>();
         if (col != null)

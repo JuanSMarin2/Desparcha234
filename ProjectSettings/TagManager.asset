@@ -9,6 +9,8 @@ TagManager:
   - Player_3
   - Player_4
   - Tejo
+  - Centro
+  - Papeleta
   layers:
   - Default
   - TransparentFX
