@@ -405,7 +405,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
   m_Color: {r: 0.9750864, g: 0.97735846, b: 0, a: 1}
   m_FlipX: 0
@@ -1111,7 +1111,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
   m_Color: {r: 0.9750864, g: 0.97735846, b: 0, a: 1}
   m_FlipX: 0
@@ -3763,7 +3763,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -2
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.5396226, g: 0.23891997, b: 0.06414379, a: 1}
   m_FlipX: 0
@@ -4376,7 +4376,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
   m_Color: {r: 0.9750864, g: 0.97735846, b: 0, a: 1}
   m_FlipX: 0
@@ -4528,7 +4528,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
   m_Color: {r: 0.9750864, g: 0.97735846, b: 0, a: 1}
   m_FlipX: 0
@@ -5787,6 +5787,10 @@ PrefabInstance:
       propertyPath: m_UseGravity
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4358698389692409753, guid: 675d7d341b4ee7c4bb1252b18ea24f72, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7313416076324168251, guid: 675d7d341b4ee7c4bb1252b18ea24f72, type: 3}
       propertyPath: m_Name
       value: Canica_1
@@ -5951,6 +5955,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5152376395303513120, guid: 8cabcad2a5b308c4cbf91a0129c7caf6, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8813173649776728923, guid: 8cabcad2a5b308c4cbf91a0129c7caf6, type: 3}
       propertyPath: m_Name
       value: Canica_2
@@ -6067,6 +6075,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1671867066795792942, guid: ec8bbfab90204744aa6ca4378f984839, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4941399081474436332, guid: ec8bbfab90204744aa6ca4378f984839, type: 3}
       propertyPath: m_UseGravity
       value: 0
@@ -6146,6 +6158,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 901350151730438875, guid: 3d09fcb970877d5448cca389ba69440b, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2555735880006048893, guid: 3d09fcb970877d5448cca389ba69440b, type: 3}
       propertyPath: m_UseGravity
       value: 0
