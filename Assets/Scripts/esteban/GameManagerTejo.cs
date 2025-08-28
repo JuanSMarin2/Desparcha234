@@ -19,6 +19,9 @@ public class GameManagerTejo : MonoBehaviour
 
     public void SumarPuntos(int jugadorID, int puntos)
     {
+
+        Debug.Log($"Jugador {jugadorID} gana {puntos} puntos");
+
         puntajes[jugadorID] += puntos;
         puntajeTextos[jugadorID].text = $"J{jugadorID + 1}: {puntajes[jugadorID]}";
 

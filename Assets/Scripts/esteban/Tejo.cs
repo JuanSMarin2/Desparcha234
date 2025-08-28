@@ -15,6 +15,7 @@ public class Tejo : MonoBehaviour
         // Si golpea papeleta
         if (other.CompareTag("Papeleta"))
         {
+            Debug.Log($"Jugador {jugadorID} golpeó papeleta");
             GameManagerTejo.instance.SumarPuntos(jugadorID, 3);
             Destroy(other.gameObject); // desaparece la papeleta
         }
