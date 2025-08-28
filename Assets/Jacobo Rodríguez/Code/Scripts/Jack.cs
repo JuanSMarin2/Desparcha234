@@ -49,6 +49,12 @@ public class Jack : MonoBehaviour
             // Llama al método en Progression cuando exista
             progression.NotificarJackTocado(this);
         }
+        // SFX de jack tocado (sin dependencia de tipo)
+        var sm = GameObject.Find("SoundManager");
+        if (sm != null)
+        {
+            sm.SendMessage("SonidoJackTocado", SendMessageOptions.DontRequireReceiver);
+        }
         disable();
     }
 

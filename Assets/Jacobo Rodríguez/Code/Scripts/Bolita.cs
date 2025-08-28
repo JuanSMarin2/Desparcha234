@@ -73,6 +73,13 @@ public class Bolita : MonoBehaviour
         // Toca suelo -> pierde turno
         CambiarEstado(EstadoLanzamiento.Fallado);
 
+        // SFX: error/caída
+        var sm = GameObject.Find("SoundManager");
+        if (sm != null)
+        {
+            sm.SendMessage("SonidoError", SendMessageOptions.DontRequireReceiver);
+        }
+
         Progression progression = FindAnyObjectByType<Progression>();
         if (progression != null)
         {
@@ -92,6 +99,13 @@ public class Bolita : MonoBehaviour
         if (progression != null)
         {
             progression.NotificarBolitaTocada();
+        }
+
+        // SFX: bolita tocada
+        var sm = GameObject.Find("SoundManager");
+        if (sm != null)
+        {
+            sm.SendMessage("SonidoBolitaTocada", SendMessageOptions.DontRequireReceiver);
         }
     }
 

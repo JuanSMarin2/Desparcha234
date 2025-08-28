@@ -6,14 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Catapis.unity
+    guid: 9d4faaf816d35a74ebd47814fa9468ee
+  - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
     path: Assets/Scenes/Canicas.unity
     guid: 7369993eec98b0e4a892690a23d6ea75
-  - enabled: 1
-    path: Assets/Scenes/Catapis.unity
-    guid: 9d4faaf816d35a74ebd47814fa9468ee
   - enabled: 1
     path: Assets/Scenes/Tejo.unity
     guid: 1d56873dc9b918a41b109007e88a7dda
@@ -25,6 +25,7 @@ EditorBuildSettings:
     guid: 55f9d15c94d51a04f8708faacb2a828d
   m_configObjects:
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: a03c86737b3581246a35c7a98c31e898, type: 2}
+    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: d1868e0e4b670844ca3bff0c15221bdb, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: a6201f7fd997bfc49b990d06a0f72eda, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
