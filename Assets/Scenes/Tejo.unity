@@ -5056,6 +5056,59 @@ MonoBehaviour:
   fuerza: 0
   anguloHorizontal: 0
   anguloVertical: 0
+--- !u!1 &1925767611
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1925767613}
+  - component: {fileID: 1925767612}
+  m_Layer: 0
+  m_Name: ArrowManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1925767612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925767611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f5bccd573b9e2442a8efc30ce4c3596, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  horizontalSquare: {fileID: 1507138280}
+  horizontalTriangle: {fileID: 163810903}
+  verticalSquare: {fileID: 310921666}
+  verticalTriangle: {fileID: 2051157330}
+  playerColors:
+  - {r: 0.9607844, g: 0, b: 0.050980397, a: 0}
+  - {r: 0, g: 0.19607845, b: 0.95294124, a: 0}
+  - {r: 0.9607844, g: 0.9568628, b: 0, a: 0}
+  - {r: 0.14509805, g: 0.9607844, b: 0.019607844, a: 0}
+--- !u!4 &1925767613
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925767611}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 409.35953, y: 165.8081, z: -0.21656644}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1950145470
 GameObject:
   m_ObjectHideFlags: 0
@@ -6255,3 +6308,4 @@ SceneRoots:
   - {fileID: 1895205441}
   - {fileID: 620540983}
   - {fileID: 2074584137}
+  - {fileID: 1925767613}
