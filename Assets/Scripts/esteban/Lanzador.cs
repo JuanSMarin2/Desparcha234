@@ -9,7 +9,7 @@ public class Lanzador : MonoBehaviour
     [Header("Punto de lanzamiento")]
     public Transform puntoLanzamiento;
 
-    [HideInInspector] public float fuerza;
+    public float fuerza;
     [HideInInspector] public float anguloHorizontal;
     [HideInInspector] public float anguloVertical;
 
@@ -46,7 +46,7 @@ public class Lanzador : MonoBehaviour
 
         Vector3 start = puntoLanzamiento.position;
         Vector3 dir = CalcularDestino();
-        Vector3 end = start + dir * (fuerza * 10f);
+        Vector3 end = start + dir * (fuerza * 15f);
 
         float duracion = 1.5f;
         float t = 0f;
