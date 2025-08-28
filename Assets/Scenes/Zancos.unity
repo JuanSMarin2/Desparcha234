@@ -235,7 +235,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1091253076}
         m_TargetAssemblyTypeName: ZancoMove, Assembly-CSharp
-        m_MethodName: MoveZanco
+        m_MethodName: buttonGetsClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1099,9 +1099,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1264223780}
+      - m_Target: {fileID: 1091253076}
         m_TargetAssemblyTypeName: ZancoMove, Assembly-CSharp
-        m_MethodName: MoveZanco
+        m_MethodName: buttonGetsClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1232,9 +1232,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1424594952}
+      - m_Target: {fileID: 1091253076}
         m_TargetAssemblyTypeName: ZancoMove, Assembly-CSharp
-        m_MethodName: MoveZanco
+        m_MethodName: buttonGetsClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1452,6 +1452,7 @@ GameObject:
   - component: {fileID: 1091253074}
   - component: {fileID: 1091253076}
   - component: {fileID: 1091253077}
+  - component: {fileID: 1091253078}
   m_Layer: 0
   m_Name: Zancos_3
   m_TagString: Player_3
@@ -1503,8 +1504,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0.99149597, b: 0, a: 1}
+  m_Sprite: {fileID: 3866974549642074184, guid: cf6d1b5dd37234647b48db5c769a7168, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1523,8 +1524,8 @@ Transform:
   m_GameObject: {fileID: 1091253073}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.64, y: -0.4, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 5.56, y: -0.41, z: 0}
+  m_LocalScale: {x: 0.4405, y: 0.4405, z: 0.4405}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1541,6 +1542,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 152dc15aaebd6094d8ac33e501e6cdac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numPer: 0
 --- !u!58 &1091253077
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1576,7 +1578,20 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 1.29
+--- !u!114 &1091253078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1091253073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf47081874657c34b81fadc3e5a63a75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blanco: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1094773918
 GameObject:
   m_ObjectHideFlags: 0
@@ -2075,6 +2090,7 @@ GameObject:
   - component: {fileID: 1264223778}
   - component: {fileID: 1264223780}
   - component: {fileID: 1264223781}
+  - component: {fileID: 1264223782}
   m_Layer: 0
   m_Name: Zancos_2
   m_TagString: Player_2
@@ -2126,8 +2142,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 0.2048912, b: 1, a: 1}
+  m_Sprite: {fileID: 7280312229301123427, guid: 24528b0b93c167940983b072e8cdd616, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2146,8 +2162,8 @@ Transform:
   m_GameObject: {fileID: 1264223777}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.64, y: 0.7, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 5.56, y: 0.67, z: 0}
+  m_LocalScale: {x: 0.4405, y: 0.4405, z: 0.4405}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2164,6 +2180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 152dc15aaebd6094d8ac33e501e6cdac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numPer: 0
 --- !u!58 &1264223781
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2199,7 +2216,20 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 1.29
+--- !u!114 &1264223782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1264223777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf47081874657c34b81fadc3e5a63a75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blanco: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1325425684
 GameObject:
   m_ObjectHideFlags: 0
@@ -2463,6 +2493,7 @@ GameObject:
   - component: {fileID: 1424594950}
   - component: {fileID: 1424594952}
   - component: {fileID: 1424594953}
+  - component: {fileID: 1424594954}
   m_Layer: 0
   m_Name: Zanco_1
   m_TagString: Player_1
@@ -2514,8 +2545,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Sprite: {fileID: 2347292293840878851, guid: 540778a296330a248a98e2fbb6072c0f, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2534,8 +2565,8 @@ Transform:
   m_GameObject: {fileID: 1424594949}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.64, y: 1.8, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 5.56, y: 1.84, z: 0}
+  m_LocalScale: {x: 0.4405, y: 0.4405, z: 0.4405}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2552,6 +2583,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 152dc15aaebd6094d8ac33e501e6cdac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numPer: 0
 --- !u!58 &1424594953
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2587,7 +2619,20 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 1.29
+--- !u!114 &1424594954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1424594949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf47081874657c34b81fadc3e5a63a75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blanco: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1478174084
 GameObject:
   m_ObjectHideFlags: 0
@@ -2679,6 +2724,7 @@ GameObject:
   - component: {fileID: 1495881618}
   - component: {fileID: 1495881620}
   - component: {fileID: 1495881621}
+  - component: {fileID: 1495881622}
   m_Layer: 0
   m_Name: Zancos_4
   m_TagString: Player_4
@@ -2730,8 +2776,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 1, b: 0.0543108, a: 1}
+  m_Sprite: {fileID: 7466070985540378945, guid: b972aa8e88a6edd47b66c57b80cdf720, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2750,8 +2796,8 @@ Transform:
   m_GameObject: {fileID: 1495881617}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.64, y: -1.5, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 5.56, y: -1.4637, z: 0}
+  m_LocalScale: {x: 0.4405, y: 0.4405, z: 0.4405}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2768,6 +2814,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 152dc15aaebd6094d8ac33e501e6cdac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numPer: 0
 --- !u!58 &1495881621
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2803,7 +2850,20 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 1.29
+--- !u!114 &1495881622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1495881617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf47081874657c34b81fadc3e5a63a75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blanco: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1496827124
 GameObject:
   m_ObjectHideFlags: 0
@@ -3398,9 +3458,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1495881620}
+      - m_Target: {fileID: 1091253076}
         m_TargetAssemblyTypeName: ZancoMove, Assembly-CSharp
-        m_MethodName: MoveZanco
+        m_MethodName: buttonGetsClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
