@@ -28,7 +28,7 @@ public class ArrowColorManager : MonoBehaviour
             currentColor.a = 1f; // aseguramos que sea opaco
 
             // Debug para ver que color se aplica
-            Debug.Log("Aplicando color: " + currentColor + " al jugador " + currentPlayer);
+            //Debug.Log("Aplicando color: " + currentColor + " al jugador " + currentPlayer);
 
             horizontalSquare.color = currentColor;
             horizontalTriangle.color = currentColor;
