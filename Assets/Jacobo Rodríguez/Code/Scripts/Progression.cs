@@ -84,29 +84,7 @@ public class Progression : MonoBehaviour
         if (_ui != null && TurnManager.instance != null)
         {
             _ui.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
-        }
-
-        if (jack.tipoJack == Jack.tipo.bomba)
-        {
-            var sm = GameObject.Find("SoundManager");
-            if (sm != null)
-            {
-                sm.SendMessage("SonidoBombaTocada", SendMessageOptions.DontRequireReceiver);
-            }
-          
-                
-            
-        }
-           else
-        {
-            var sm = GameObject.Find("SoundManager");
-            if (sm != null)
-            {
-                sm.SendMessage("SonidoJackTocado", SendMessageOptions.DontRequireReceiver);
-            }
-        }
-        
-          
+        }  
     }
 
     public void OnBallLaunched()

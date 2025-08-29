@@ -38,7 +38,6 @@ public class Jack : MonoBehaviour
     }
     private void OnMouseDown()
     {
-        // Llamado cuando se hace click sobre el collider del jack
         Recolectar();
     }
 
@@ -53,17 +52,19 @@ public class Jack : MonoBehaviour
         var sm = GameObject.Find("SoundManager");
         if (sm != null)
         {
+            if (tipoJack == tipo.bomba)
+            {
+                sm.SendMessage("SonidoBombaTocada", SendMessageOptions.DontRequireReceiver);
+            }
+            else
             sm.SendMessage("SonidoJackTocado", SendMessageOptions.DontRequireReceiver);
         }
         disable();
     }
 
-    // public void enable() { ... }  // Eliminado: ya no existe lógica de reactivación
 
     public void disable()
     {
-        // Nueva lógica: destruir el Jack al deshabilitar
-        // No modificamos alpha, eliminamos el objeto para limpiar la escena
         Destroy(gameObject);
     }
 
