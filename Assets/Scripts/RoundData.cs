@@ -8,7 +8,7 @@ public class RoundData : MonoBehaviour
 
     public int numPlayers = 4;
 
-    // Catálogo base disponible (nombres = nombres de escenas)
+    // Catï¿½logo base disponible (nombres = nombres de escenas)
     public List<string> availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos" };
 
     
