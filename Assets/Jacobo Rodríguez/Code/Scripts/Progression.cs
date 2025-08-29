@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 public class Progression : MonoBehaviour
 {
@@ -84,6 +85,28 @@ public class Progression : MonoBehaviour
         {
             _ui.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
         }
+
+        if (jack.tipoJack == Jack.tipo.bomba)
+        {
+            var sm = GameObject.Find("SoundManager");
+            if (sm != null)
+            {
+                sm.SendMessage("SonidoBombaTocada", SendMessageOptions.DontRequireReceiver);
+            }
+          
+                
+            
+        }
+           else
+        {
+            var sm = GameObject.Find("SoundManager");
+            if (sm != null)
+            {
+                sm.SendMessage("SonidoJackTocado", SendMessageOptions.DontRequireReceiver);
+            }
+        }
+        
+          
     }
 
     public void OnBallLaunched()

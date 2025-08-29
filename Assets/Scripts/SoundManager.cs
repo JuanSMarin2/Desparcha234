@@ -7,7 +7,9 @@ public class SoundManager : MonoBehaviour
     [Header("Clips")]
     [SerializeField] private AudioClip jackTocadoClip;
     [SerializeField] private AudioClip bolitaTocadaClip;
-    // Nuevo: clip de error cuando la bolita toca el suelo
+
+    [SerializeField] private AudioClip bombaTocadaClip;
+    
     [SerializeField] private AudioClip errorClip;
 
     [Header("Config")]
@@ -47,6 +49,10 @@ public class SoundManager : MonoBehaviour
         PlayOneShot(jackTocadoClip);
     }
 
+    public void SonidoBombaTocada()
+    {
+        PlayOneShot(bombaTocadaClip);
+    }
     public void SonidoBolitaTocada()
     {
         PlayOneShot(bolitaTocadaClip);

@@ -7,8 +7,8 @@ public class Jack : MonoBehaviour
 
     [SerializeField] Sprite jackSprite; // Sprite del Jack
     [SerializeField] private int puntos;
-    [SerializeField] enum tipo { Normal, Especial, bomba };
-    [SerializeField] private tipo tipoJack = tipo.Normal; // tipo de este Jack
+    [SerializeField] public enum tipo { Normal, Especial, bomba };
+    [SerializeField] public tipo tipoJack = tipo.Normal; // tipo de este Jack
     [SerializeField] private Progression progression;   
     
     [SerializeField] private float alphaTransparente = 0f; // Alpha para el estado deshabilitado (ya no se usa para volver transparente)
