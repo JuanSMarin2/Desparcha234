@@ -507,6 +507,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jackTocadoClip: {fileID: 8300000, guid: b9fdf2f73d477794ca691fa8b7255514, type: 3}
   bolitaTocadaClip: {fileID: 8300000, guid: 486ca3a5b2f10434ca52d9c0f1e35144, type: 3}
+  bombaTocadaClip: {fileID: 0}
   errorClip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
   volume: 1
 --- !u!1 &533845868
@@ -895,8 +896,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bolita: {fileID: 1592149800}
-  estadoLabel: {fileID: 0}
-  cronometroLabel: {fileID: 0}
   puntosJugador1: {fileID: 1617247907}
   puntosJugador2: {fileID: 927524282}
   puntosJugador3: {fileID: 1244694022}
@@ -2812,11 +2811,18 @@ MonoBehaviour:
   fuerzaMaxima: 13
   factorMinVelocidad: 0.2
   exponenteAceleracion: 2
+  lanzarConbarra: 1
   bolita: {fileID: 1592149800}
   usarShakeParaLanzar: 1
   shakeThreshold: 2.2
   shakeCooldown: 0.8
   lowPassFactor: 0.15
+  upShakeThreshold: 1.6
+  sideShakeThreshold: 2
+  lateralShakeDelay: 0.15
+  debugShakes: 1
+  debugShakeLogThreshold: 0.8
+  debugLogMinInterval: 0.1
 --- !u!114 &1411591158
 MonoBehaviour:
   m_ObjectHideFlags: 0

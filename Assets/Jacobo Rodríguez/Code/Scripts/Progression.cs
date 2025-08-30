@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using UnityEngine.SceneManagement;
 
 public class Progression : MonoBehaviour
 {
@@ -52,8 +53,8 @@ public class Progression : MonoBehaviour
 
         int idx0 = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : 0;
         _attemptScore = 0;
-        _baseScore = (idx0 >= 0 && _playerCurrentScores != null && idx0 < _playerCurrentScores.Length) ? _playerCurrentScores[idx0] : 0;
-        currentScore = _baseScore;
+        _baseScore = 0;
+        currentScore = 0;
         if (_playerCurrentScores != null && idx0 >= 0 && idx0 < _playerCurrentScores.Length)
             _playerCurrentScores[idx0] = currentScore;
 
@@ -96,6 +97,11 @@ public class Progression : MonoBehaviour
     public void NotificarBolitaTocada()
     {
         touchedBall = true;
+        var sm = GameObject.Find("SoundManager");
+        if (sm != null)
+        {
+            sm.SendMessage("SonidoBolitaTocada", SendMessageOptions.DontRequireReceiver);
+        }
         ConsolidarIntento();
         TerminarTurno();
         touchedBall = false;
@@ -138,7 +144,8 @@ public class Progression : MonoBehaviour
                 for (int i = 0; i < _attemptsLeft.Length; i++) totalRestantes += _attemptsLeft[i];
                 if (totalRestantes <= 0)
                 {
-                    FinalizarMinijuegoPorPuntaje();
+                    // DEBUG: en lugar de ir a Resultados, recargar esta misma escena
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                     return;
                 }
 
