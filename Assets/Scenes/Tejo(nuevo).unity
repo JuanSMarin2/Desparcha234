@@ -4100,10 +4100,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 377ac1ca730bc184a9965cd5b571f281, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minX: -4.5
-  maxX: 4
-  minY: -3
-  maxY: 3
+  minX: -3
+  maxX: 3.5
+  minY: -3.5
+  maxY: 2.5
   intervalo: 2
 --- !u!114 &1485851760
 MonoBehaviour:
@@ -4323,6 +4323,7 @@ GameObject:
   - component: {fileID: 1511727198}
   - component: {fileID: 1511727196}
   - component: {fileID: 1511727200}
+  - component: {fileID: 1511727201}
   m_Layer: 5
   m_Name: JoyStick
   m_TagString: Untagged
@@ -4418,7 +4419,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1511727194}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64bb99f1f7ae69b4b881a42abc089f9c, type: 3}
   m_Name: 
@@ -4432,6 +4433,32 @@ MonoBehaviour:
   wheel3: {fileID: 286465835}
   Image: {fileID: 1511727198}
   blocker: {fileID: 1666297652}
+--- !u!114 &1511727201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511727194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ca3285aad8522643a6743dc822907ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  joystickKnob: {fileID: 606609694}
+  targetObject: {fileID: 147015976}
+  minX: -3
+  maxX: 4
+  minY: -4.5
+  maxY: 4
+  moveRange: 3
+  wheel0: {fileID: 119216277}
+  wheel1: {fileID: 861186391}
+  wheel2: {fileID: 1180633335}
+  wheel3: {fileID: 286465835}
+  Image: {fileID: 1511727198}
+  blocker: {fileID: 1666297652}
+  boardCollider: {fileID: 1346445825}
 --- !u!1 &1539571646
 GameObject:
   m_ObjectHideFlags: 0
