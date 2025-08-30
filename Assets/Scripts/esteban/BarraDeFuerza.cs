@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BarraFuerza : MonoBehaviour
+public class BarraDeFuerza : MonoBehaviour
 {
     [Header("Config Barra de Fuerza")]
     public Image barraPoder; // Asigna aquí la imagen 'BarraFuerzaPoder'
