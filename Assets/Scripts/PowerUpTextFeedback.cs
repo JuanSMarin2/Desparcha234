@@ -31,7 +31,7 @@ public class PowerUpTextFeedback : MonoBehaviour
         {
             { MarblePowerType.MorePower, ("¡Ahora tienes más potencia!", morePowerColor) },
             { MarblePowerType.Unmovable, ("¡Ahora eres Inamovible!",    unmovableColor) },
-            { MarblePowerType.Ghost,     ("¡Ahora puedes atravesar paredes!", ghostColor) }
+            { MarblePowerType.Ghost,     ("¡Ahora puedes atravesar piedras!", ghostColor) }
         };
 
         SetVisible(false);
