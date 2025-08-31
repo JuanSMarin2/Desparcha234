@@ -1,100 +1,79 @@
 using UnityEngine;
+using System.Linq;
 
 public class MultiJoystickControl : MonoBehaviour
 {
-    [Header("Joysticks")]
-    [SerializeField] private JoystickControl joystick1;
-    [SerializeField] private JoystickControl joystick2;
-    [SerializeField] private JoystickControl joystick3;
-    [SerializeField] private JoystickControl joystick4;
+    [Header("Joystick units (ordenados 0..3)")]
+    public JoystickUnit[] units; // asigna en el inspector (cuatro)
 
-    [Header("Objetos a mover")]
-    [SerializeField] private Transform target1;
-    [SerializeField] private Transform target2;
-    [SerializeField] private Transform target3;
-    [SerializeField] private Transform target4;
+    [Header("Joystick principal (punto de lanzamiento)")]
+    public GameObject mainJoystickControlObject; // el GameObject con JoystickControl (se activará al final)
 
-    [Header("Configuración de movimiento")]
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float controlDuration = 3f; // Tiempo de control en segundos
+    public bool finished { get; private set; }
 
-    private float timer1 = 0f;
-    private float timer2 = 0f;
-    private float timer3 = 0f;
-    private float timer4 = 0f;
-
-    public bool finished = false; // Señal para JoystickControl
-
-    private int blockedJoystick; // el joystick que no se puede usar en esta ronda
-
-    private void Start()
+    void Start()
     {
-        
+        finished = false;
+
+        // determinamos qué joystick queda bloqueado según el turno (CurrentTurn devuelve 1..N)
+        int blockedIndex = Mathf.Clamp(TurnManager.instance.CurrentTurn() - 1, 0, units.Length - 1);
+
+        // subscribir y resetear unidades
+        for (int i = 0; i < units.Length; i++)
+        {
+            if (units[i] == null) continue;
+
+            units[i].OnFinished += HandleUnitFinished;
+
+            // si es el bloqueado lo dejamos inactivo, los demás activos
+            bool shouldBeActive = (i != blockedIndex);
+            units[i].ResetUnit(shouldBeActive);
+        }
+
+        // desactivar joystick principal hasta que terminen las unidades
+        if (mainJoystickControlObject != null)
+            mainJoystickControlObject.SetActive(false);
     }
 
-    private void Update()
+    void HandleUnitFinished(JoystickUnit unit)
     {
-        // Determinar qué joystick queda bloqueado según el turno actual
-        blockedJoystick = TurnManager.instance.CurrentTurn();
-        
-
-        // Desactivar el joystick en la UI
-        switch (blockedJoystick)
-        {
-            case 1: joystick1.gameObject.SetActive(false); target1.gameObject.SetActive(false); break;
-            case 2: joystick2.gameObject.SetActive(false); target2.gameObject.SetActive(false); break;
-            case 3: joystick3.gameObject.SetActive(false); target3.gameObject.SetActive(false); break;
-            case 4: joystick4.gameObject.SetActive(false); target4.gameObject.SetActive(false); break;
-        }
-
-        if (finished) return;
-
-        // --- Movimiento joystick 1 ---
-        if (blockedJoystick != 1 && joystick1.inputVector.magnitude > 0.1f && timer1 < controlDuration)
-        {
-            Vector3 move = new Vector3(joystick1.inputVector.x, joystick1.inputVector.y, 0) * moveSpeed * Time.deltaTime;
-            target1.position += move;
-            timer1 += Time.deltaTime;
-        }
-
-        // --- Movimiento joystick 2 ---
-        if (blockedJoystick != 2 && joystick2.inputVector.magnitude > 0.1f && timer2 < controlDuration)
-        {
-            Vector3 move = new Vector3(joystick2.inputVector.x, joystick2.inputVector.y, 0) * moveSpeed * Time.deltaTime;
-            target2.position += move;
-            timer2 += Time.deltaTime;
-        }
-
-        // --- Movimiento joystick 3 ---
-        if (blockedJoystick != 3 && joystick3.inputVector.magnitude > 0.1f && timer3 < controlDuration)
-        {
-            Vector3 move = new Vector3(joystick3.inputVector.x, joystick3.inputVector.y, 0) * moveSpeed * Time.deltaTime;
-            target3.position += move;
-            timer3 += Time.deltaTime;
-        }
-
-        // --- Movimiento joystick 4 ---
-        if (blockedJoystick != 4 && joystick4.inputVector.magnitude > 0.1f && timer4 < controlDuration)
-        {
-            Vector3 move = new Vector3(joystick4.inputVector.x, joystick4.inputVector.y, 0) * moveSpeed * Time.deltaTime;
-            target4.position += move;
-            timer4 += Time.deltaTime;
-        }
-
-        // Verificar si los 3 joysticks activos ya terminaron
-        if (HasFinishedAllActiveJoysticks())
+        // comprobamos si todas las unidades activas terminaron
+        if (AllActiveFinished())
         {
             finished = true;
-            Debug.Log("MultiJoystickControl terminado, ahora puede ejecutarse JoystickControl");
+            Debug.Log("MultiJoystickManager: todos los joysticks activos terminaron.");
+
+            // activamos joystick principal (punto de lanzamiento)
+            if (mainJoystickControlObject != null)
+                mainJoystickControlObject.SetActive(true);
         }
     }
 
-    private bool HasFinishedAllActiveJoysticks()
+    bool AllActiveFinished()
     {
-        return
-            (blockedJoystick == 1 || timer1 >= controlDuration) &&
-            (blockedJoystick == 2 || timer2 >= controlDuration) &&
-            (blockedJoystick == 3 || timer3 >= controlDuration) &&
-            (blockedJoystick == 4 || timer4 >= controlDuration);
+        // todas las unidades que estaban activadas (IsActive==true) deben tener IsFinished==true
+        foreach (var u in units)
+        {
+            if (u == null) continue;
+            // Si la unidad está activa y no terminó -> aún no
+            if (u.IsActive && !u.IsFinished) return false;
+        }
+        return true;
+    }
+
+    // --- utilidad: llamar al comenzar nueva ronda/turno ---
+    public void PrepareForNextRound()
+    {
+        finished = false;
+        // recalcular bloqueado y resetear: (usa Start() logic o personalízalo)
+        int blockedIndex = Mathf.Clamp(TurnManager.instance.CurrentTurn() - 1, 0, units.Length - 1);
+        for (int i = 0; i < units.Length; i++)
+        {
+            if (units[i] == null) continue;
+            bool shouldBeActive = (i != blockedIndex);
+            units[i].ResetUnit(shouldBeActive);
+        }
+        if (mainJoystickControlObject != null)
+            mainJoystickControlObject.SetActive(false);
     }
 }

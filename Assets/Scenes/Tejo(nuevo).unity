@@ -658,6 +658,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 179407604}
+  - component: {fileID: 179407605}
   m_Layer: 0
   m_Name: controljoystick
   m_TagString: Untagged
@@ -673,13 +674,31 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 179407603}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1325.8226, y: 629.14935, z: -3.7328472}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -18.193628, y: -3.7006905, z: -1.0749741}
+  m_LocalScale: {x: 0.28797698, y: 0.28797698, z: 0.28797698}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1074922606}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &179407605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179407603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36b49ca0853fb8f4e902febd6950fcd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  units:
+  - {fileID: 2108083851}
+  - {fileID: 2127454766}
+  - {fileID: 560638896}
+  - {fileID: 1082137406}
+  mainJoystickControlObject: {fileID: 1511727194}
 --- !u!1 &182633841
 GameObject:
   m_ObjectHideFlags: 0
@@ -1974,10 +1993,7 @@ GameObject:
   - component: {fileID: 560638889}
   - component: {fileID: 560638895}
   - component: {fileID: 560638894}
-  - component: {fileID: 560638893}
-  - component: {fileID: 560638892}
-  - component: {fileID: 560638891}
-  - component: {fileID: 560638890}
+  - component: {fileID: 560638896}
   m_Layer: 5
   m_Name: JoyStick (3)
   m_TagString: Untagged
@@ -2005,99 +2021,6 @@ RectTransform:
   m_AnchoredPosition: {x: 100.999985, y: 300}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &560638890
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 560638888}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36b49ca0853fb8f4e902febd6950fcd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystick1: {fileID: 0}
-  joystick2: {fileID: 0}
-  joystick3: {fileID: 0}
-  joystick4: {fileID: 0}
-  target1: {fileID: 1611045257}
-  target2: {fileID: 306076947}
-  target3: {fileID: 163818390}
-  target4: {fileID: 1539571648}
-  moveSpeed: 5
-  controlDuration: 3
-  finished: 0
---- !u!114 &560638891
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 560638888}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ca3285aad8522643a6743dc822907ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystickKnob: {fileID: 512571938}
-  targetObject: {fileID: 147015976}
-  minX: -3
-  maxX: 4
-  minY: -4.5
-  maxY: 4
-  moveRange: 3
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  Image: {fileID: 560638894}
-  blocker: {fileID: 1666297652}
-  boardCollider: {fileID: 1346445825}
---- !u!114 &560638892
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 560638888}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 64bb99f1f7ae69b4b881a42abc089f9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystickKnob: {fileID: 512571938}
-  arrowObject: {fileID: 623045683}
-  targetObject: {fileID: 1085446562}
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  Image: {fileID: 560638894}
-  blocker: {fileID: 1666297652}
---- !u!114 &560638893
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 560638888}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b35e82395cafcb24393b1b3c99118a08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  imageBoton: {fileID: 560638894}
-  blocker: {fileID: 1666297652}
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  flechaHorizontalObj: {fileID: 623045683}
-  flechaVerticalObj: {fileID: 1103608200}
-  barraFuerzaObj: {fileID: 761413276}
-  barraFuerzaFill: {fileID: 842674729}
-  lanzador: {fileID: 1895205442}
 --- !u!114 &560638894
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2136,6 +2059,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 560638888}
   m_CullTransparentMesh: 1
+--- !u!114 &560638896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 560638888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11b0e36994466c242aa6aefa022a8173, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  background: {fileID: 560638889}
+  handle: {fileID: 512571938}
+  targetObject: {fileID: 163818390}
+  moveRange: 3
+  controlDuration: 3
+  startActive: 1
 --- !u!1 &606609693
 GameObject:
   m_ObjectHideFlags: 0
@@ -3124,6 +3065,85 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947265968}
   m_CullTransparentMesh: 1
+--- !u!1 &972026167
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 972026168}
+  - component: {fileID: 972026170}
+  - component: {fileID: 972026169}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &972026168
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 972026167}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -400.00003, y: -184.88123, z: 0}
+  m_LocalScale: {x: 0.28797698, y: 0.28797698, z: 0.28797698}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1074922606}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &972026169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 972026167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
+  m_MoveRepeatDelay: 0.5
+  m_MoveRepeatRate: 0.1
+  m_XRTrackingOrigin: {fileID: 0}
+  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_DeselectOnBackgroundClick: 1
+  m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
+--- !u!114 &972026170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 972026167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
 --- !u!1 &1027554233
 GameObject:
   m_ObjectHideFlags: 0
@@ -3293,9 +3313,11 @@ RectTransform:
   - {fileID: 249595773}
   - {fileID: 2131863673}
   - {fileID: 1351345714}
+  - {fileID: 972026168}
+  - {fileID: 179407604}
   - {fileID: 1511727195}
-  - {fileID: 2127454759}
   - {fileID: 2108083844}
+  - {fileID: 2127454759}
   - {fileID: 560638889}
   - {fileID: 1082137399}
   - {fileID: 1666297653}
@@ -3384,10 +3406,7 @@ GameObject:
   - component: {fileID: 1082137399}
   - component: {fileID: 1082137405}
   - component: {fileID: 1082137404}
-  - component: {fileID: 1082137403}
-  - component: {fileID: 1082137402}
-  - component: {fileID: 1082137401}
-  - component: {fileID: 1082137400}
+  - component: {fileID: 1082137406}
   m_Layer: 5
   m_Name: JoyStick (4)
   m_TagString: Untagged
@@ -3415,99 +3434,6 @@ RectTransform:
   m_AnchoredPosition: {x: 714, y: 70.98499}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1082137400
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1082137398}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36b49ca0853fb8f4e902febd6950fcd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystick1: {fileID: 0}
-  joystick2: {fileID: 0}
-  joystick3: {fileID: 0}
-  joystick4: {fileID: 0}
-  target1: {fileID: 1611045257}
-  target2: {fileID: 306076947}
-  target3: {fileID: 163818390}
-  target4: {fileID: 1539571648}
-  moveSpeed: 5
-  controlDuration: 3
-  finished: 0
---- !u!114 &1082137401
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1082137398}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ca3285aad8522643a6743dc822907ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystickKnob: {fileID: 182633842}
-  targetObject: {fileID: 147015976}
-  minX: -3
-  maxX: 4
-  minY: -4.5
-  maxY: 4
-  moveRange: 3
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  Image: {fileID: 1082137404}
-  blocker: {fileID: 1666297652}
-  boardCollider: {fileID: 1346445825}
---- !u!114 &1082137402
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1082137398}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 64bb99f1f7ae69b4b881a42abc089f9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystickKnob: {fileID: 182633842}
-  arrowObject: {fileID: 623045683}
-  targetObject: {fileID: 1085446562}
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  Image: {fileID: 1082137404}
-  blocker: {fileID: 1666297652}
---- !u!114 &1082137403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1082137398}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b35e82395cafcb24393b1b3c99118a08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  imageBoton: {fileID: 1082137404}
-  blocker: {fileID: 1666297652}
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  flechaHorizontalObj: {fileID: 623045683}
-  flechaVerticalObj: {fileID: 1103608200}
-  barraFuerzaObj: {fileID: 761413276}
-  barraFuerzaFill: {fileID: 842674729}
-  lanzador: {fileID: 1895205442}
 --- !u!114 &1082137404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3546,6 +3472,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1082137398}
   m_CullTransparentMesh: 1
+--- !u!114 &1082137406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1082137398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11b0e36994466c242aa6aefa022a8173, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  background: {fileID: 1082137399}
+  handle: {fileID: 182633842}
+  targetObject: {fileID: 1539571648}
+  moveRange: 3
+  controlDuration: 3
+  startActive: 1
 --- !u!4 &1085446562 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 371119762830507168, guid: def13b0a754e43740a6b5bafb04b2d53, type: 3}
@@ -4655,85 +4599,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1351345713}
   m_CullTransparentMesh: 1
---- !u!1 &1478174084
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1478174087}
-  - component: {fileID: 1478174086}
-  - component: {fileID: 1478174085}
-  m_Layer: 0
-  m_Name: EventSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1478174085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1478174084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SendPointerHoverToParent: 1
-  m_MoveRepeatDelay: 0.5
-  m_MoveRepeatRate: 0.1
-  m_XRTrackingOrigin: {fileID: 0}
-  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_DeselectOnBackgroundClick: 1
-  m_PointerBehavior: 0
-  m_CursorLockBehavior: 0
-  m_ScrollDeltaPerTick: 6
---- !u!114 &1478174086
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1478174084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
-  m_DragThreshold: 10
---- !u!4 &1478174087
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1478174084}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1485851757
 GameObject:
   m_ObjectHideFlags: 0
@@ -5148,22 +5013,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1511727194}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 36b49ca0853fb8f4e902febd6950fcd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  joystick1: {fileID: 2108083846}
-  joystick2: {fileID: 2127454761}
-  joystick3: {fileID: 560638891}
-  joystick4: {fileID: 1082137401}
-  target1: {fileID: 1611045257}
-  target2: {fileID: 306076947}
-  target3: {fileID: 163818390}
-  target4: {fileID: 1539571648}
-  moveSpeed: 5
-  controlDuration: 3
-  finished: 0
+  units: []
+  mainJoystickControlObject: {fileID: 0}
 --- !u!1 &1539571646
 GameObject:
   m_ObjectHideFlags: 0
@@ -6380,10 +6236,7 @@ GameObject:
   - component: {fileID: 2108083844}
   - component: {fileID: 2108083850}
   - component: {fileID: 2108083849}
-  - component: {fileID: 2108083848}
-  - component: {fileID: 2108083847}
-  - component: {fileID: 2108083846}
-  - component: {fileID: 2108083845}
+  - component: {fileID: 2108083851}
   m_Layer: 5
   m_Name: JoyStick (1)
   m_TagString: Untagged
@@ -6411,99 +6264,6 @@ RectTransform:
   m_AnchoredPosition: {x: 100.999985, y: 70.98499}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2108083845
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108083843}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36b49ca0853fb8f4e902febd6950fcd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystick1: {fileID: 0}
-  joystick2: {fileID: 0}
-  joystick3: {fileID: 0}
-  joystick4: {fileID: 0}
-  target1: {fileID: 1611045257}
-  target2: {fileID: 306076947}
-  target3: {fileID: 163818390}
-  target4: {fileID: 1539571648}
-  moveSpeed: 5
-  controlDuration: 3
-  finished: 0
---- !u!114 &2108083846
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108083843}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ca3285aad8522643a6743dc822907ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystickKnob: {fileID: 1027554234}
-  targetObject: {fileID: 147015976}
-  minX: -3
-  maxX: 4
-  minY: -4.5
-  maxY: 4
-  moveRange: 3
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  Image: {fileID: 2108083849}
-  blocker: {fileID: 1666297652}
-  boardCollider: {fileID: 1346445825}
---- !u!114 &2108083847
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108083843}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 64bb99f1f7ae69b4b881a42abc089f9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystickKnob: {fileID: 1027554234}
-  arrowObject: {fileID: 623045683}
-  targetObject: {fileID: 1085446562}
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  Image: {fileID: 2108083849}
-  blocker: {fileID: 1666297652}
---- !u!114 &2108083848
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108083843}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b35e82395cafcb24393b1b3c99118a08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  imageBoton: {fileID: 2108083849}
-  blocker: {fileID: 1666297652}
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  flechaHorizontalObj: {fileID: 623045683}
-  flechaVerticalObj: {fileID: 1103608200}
-  barraFuerzaObj: {fileID: 761413276}
-  barraFuerzaFill: {fileID: 842674729}
-  lanzador: {fileID: 1895205442}
 --- !u!114 &2108083849
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6542,6 +6302,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2108083843}
   m_CullTransparentMesh: 1
+--- !u!114 &2108083851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2108083843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11b0e36994466c242aa6aefa022a8173, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  background: {fileID: 2108083844}
+  handle: {fileID: 1027554234}
+  targetObject: {fileID: 1611045257}
+  moveRange: 3
+  controlDuration: 3
+  startActive: 1
 --- !u!1 &2115247676
 GameObject:
   m_ObjectHideFlags: 0
@@ -6689,10 +6467,7 @@ GameObject:
   - component: {fileID: 2127454759}
   - component: {fileID: 2127454765}
   - component: {fileID: 2127454764}
-  - component: {fileID: 2127454763}
-  - component: {fileID: 2127454762}
-  - component: {fileID: 2127454761}
-  - component: {fileID: 2127454760}
+  - component: {fileID: 2127454766}
   m_Layer: 5
   m_Name: JoyStick (2)
   m_TagString: Untagged
@@ -6720,99 +6495,6 @@ RectTransform:
   m_AnchoredPosition: {x: 716, y: 301}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2127454760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2127454758}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36b49ca0853fb8f4e902febd6950fcd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystick1: {fileID: 2127454761}
-  joystick2: {fileID: 2108083846}
-  joystick3: {fileID: 560638891}
-  joystick4: {fileID: 1082137401}
-  target1: {fileID: 1611045257}
-  target2: {fileID: 306076947}
-  target3: {fileID: 163818390}
-  target4: {fileID: 1539571648}
-  moveSpeed: 5
-  controlDuration: 3
-  finished: 0
---- !u!114 &2127454761
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2127454758}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ca3285aad8522643a6743dc822907ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystickKnob: {fileID: 168673061}
-  targetObject: {fileID: 147015976}
-  minX: -3
-  maxX: 4
-  minY: -4.5
-  maxY: 4
-  moveRange: 3
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  Image: {fileID: 2127454764}
-  blocker: {fileID: 1666297652}
-  boardCollider: {fileID: 1346445825}
---- !u!114 &2127454762
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2127454758}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 64bb99f1f7ae69b4b881a42abc089f9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joystickKnob: {fileID: 168673061}
-  arrowObject: {fileID: 623045683}
-  targetObject: {fileID: 1085446562}
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  Image: {fileID: 2127454764}
-  blocker: {fileID: 1666297652}
---- !u!114 &2127454763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2127454758}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b35e82395cafcb24393b1b3c99118a08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  imageBoton: {fileID: 2127454764}
-  blocker: {fileID: 1666297652}
-  wheel0: {fileID: 119216277}
-  wheel1: {fileID: 861186391}
-  wheel2: {fileID: 1180633335}
-  wheel3: {fileID: 286465835}
-  flechaHorizontalObj: {fileID: 623045683}
-  flechaVerticalObj: {fileID: 1103608200}
-  barraFuerzaObj: {fileID: 761413276}
-  barraFuerzaFill: {fileID: 842674729}
-  lanzador: {fileID: 1895205442}
 --- !u!114 &2127454764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6851,6 +6533,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2127454758}
   m_CullTransparentMesh: 1
+--- !u!114 &2127454766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2127454758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11b0e36994466c242aa6aefa022a8173, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  background: {fileID: 2127454759}
+  handle: {fileID: 168673061}
+  targetObject: {fileID: 306076947}
+  moveRange: 3
+  controlDuration: 3
+  startActive: 1
 --- !u!1 &2131863669
 GameObject:
   m_ObjectHideFlags: 0
@@ -7228,7 +6928,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1215972838}
   - {fileID: 1074922606}
-  - {fileID: 1478174087}
   - {fileID: 1206900951}
   - {fileID: 1885943949235566454}
   - {fileID: 4560580116158244136}
@@ -7245,4 +6944,3 @@ SceneRoots:
   - {fileID: 620540983}
   - {fileID: 2074584137}
   - {fileID: 1925767613}
-  - {fileID: 179407604}

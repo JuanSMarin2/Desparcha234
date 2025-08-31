@@ -45,12 +45,21 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         if (blocker != null)
             blocker.SetActive(false);
+
+        //  Desactivar el joystick al inicio hasta que termine MultiJoystickControl
+        if (multiJoystick != null)
+            gameObject.SetActive(false);
     }
 
     private void Update()
     {
         if (multiJoystick != null && !multiJoystick.finished)
-            return; // Espera hasta que termine el MultiJoystickControl
+            return; //  no hacemos nada mientras multiJoystick esté en curso
+
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true); //  activamos el joystick cuando ya terminó MultiJoystickControl
+        }
 
         int currentTurn = TurnManager.instance.CurrentTurn();
 
