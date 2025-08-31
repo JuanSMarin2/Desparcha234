@@ -29,6 +29,8 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     private int previusTurn;
 
+    private MultiJoystickControl multiJoystick;
+
     void Awake()
     {
         backgroundRect = GetComponent<RectTransform>();
@@ -36,6 +38,8 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     void Start()
     {
+        multiJoystick = FindObjectOfType<MultiJoystickControl>();
+
         joystickRadius = backgroundRect.rect.width / 2;
         inputVector = Vector2.zero;
 
@@ -45,6 +49,9 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     private void Update()
     {
+        if (multiJoystick != null && !multiJoystick.finished)
+            return; // Espera hasta que termine el MultiJoystickControl
+
         int currentTurn = TurnManager.instance.CurrentTurn();
 
         if (previusTurn != currentTurn)
