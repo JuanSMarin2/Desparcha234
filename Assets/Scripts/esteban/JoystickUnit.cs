@@ -18,6 +18,13 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
 
     public Action<JoystickUnit> OnFinished; // evento al terminar
 
+    [Header("Límites de movimiento del target")]
+    public bool useLimits = true;         // activar o no el límite
+    public Vector2 minLimits = new Vector2(-5f, -5f); // coordenadas mínimas (X, Y)
+    public Vector2 maxLimits = new Vector2(5f, 5f);   // coordenadas máximas (X, Y)
+
+    Vector3 initialTargetPos;
+
     public Vector2 inputVector { get; private set; }
     public bool IsFinished { get; private set; }
     public bool IsActive { get; private set; }
@@ -35,6 +42,9 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
     void Start()
     {
         ResetUnit(startActive);
+
+        if (targetObject != null)
+            initialTargetPos = targetObject.position;
     }
 
     void Update()
@@ -54,6 +64,19 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
             timer += Time.deltaTime;
             if (timer >= controlDuration)
                 Finish();
+        }
+
+        if (inputVector.magnitude > 0.01f && targetObject != null)
+        {
+            Vector3 delta = new Vector3(inputVector.x, inputVector.y, 0f) * moveRange * Time.deltaTime;
+            targetObject.position += delta;
+
+            if (useLimits)
+            {
+                float clampedX = Mathf.Clamp(targetObject.position.x, initialTargetPos.x + minLimits.x, initialTargetPos.x + maxLimits.x);
+                float clampedY = Mathf.Clamp(targetObject.position.y, initialTargetPos.y + minLimits.y, initialTargetPos.y + maxLimits.y);
+                targetObject.position = new Vector3(clampedX, clampedY, targetObject.position.z);
+            }
         }
     }
 
