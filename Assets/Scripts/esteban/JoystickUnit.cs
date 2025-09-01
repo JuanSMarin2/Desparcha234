@@ -8,6 +8,8 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
     public RectTransform background;  // RectTransform del fondo (este GameObject normalmente)
     public RectTransform handle;      // RectTransform del "knob" hijo
 
+    [SerializeField] private Vector3 initialTargetPos;
+
     [Header("Movimiento")]
     public Transform targetObject;    // El objeto (ficha) que moverá este joystick
     public float moveRange = 3f;      // Velocidad / rango
@@ -23,7 +25,7 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
     public Vector2 minLimits = new Vector2(-5f, -5f); // coordenadas mínimas (X, Y)
     public Vector2 maxLimits = new Vector2(5f, 5f);   // coordenadas máximas (X, Y)
 
-    Vector3 initialTargetPos;
+    
 
     public Vector2 inputVector { get; private set; }
     public bool IsFinished { get; private set; }
@@ -92,13 +94,15 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         // activamos/desactivamos el joystick
         gameObject.SetActive(active);
 
-        //  el targetObject solo se activa o resetea aquí
         if (targetObject != null)
         {
             targetObject.gameObject.SetActive(active);
 
             if (active)
-                initialTargetPos = targetObject.position;
+            {
+                // restauramos la posición inicial al resetear
+                targetObject.position = initialTargetPos;
+            }
         }
     }
 

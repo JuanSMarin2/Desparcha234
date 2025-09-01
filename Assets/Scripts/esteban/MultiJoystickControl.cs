@@ -25,6 +25,14 @@ public class MultiJoystickControl : MonoBehaviour
     // --- utilidad: llamar al comenzar nueva ronda/turno ---
     public void PrepareForNextRound()
     {
+        // Destruir todos los proyectiles de la ronda anterior
+        GameObject[] projectiles = GameObject.FindGameObjectsWithTag("Tejo");
+
+        foreach (GameObject proj in projectiles)
+        {
+            Destroy(proj);
+        }
+
         finished = false;
 
         int blockedIndex = Mathf.Clamp(TurnManager.instance.CurrentTurn() - 1, 0, units.Length - 1);
