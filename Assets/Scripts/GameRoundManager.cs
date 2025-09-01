@@ -6,6 +6,9 @@ public class GameRoundManager : MonoBehaviour
 {
     public static GameRoundManager instance;
 
+
+    [SerializeField] private bool advanceTurnOnRemove = false;
+
     [Tooltip("Índices de los jugadores que han ganado, en orden de llegada (1º, 2º, etc.).")]
     [SerializeField] private List<int> winners = new List<int>();
 
@@ -21,6 +24,23 @@ public class GameRoundManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    public void RemovePlayerFromTurn(int playerIndexToRemove)
+    {
+        TurnManager.instance.GetActivePlayerIndices().Remove(playerIndexToRemove);
+
+        // reubicar indice de lista si hace falta
+        if (TurnManager.instance.GetActivePlayerCount() > 0)
+        {
+            // normalizar activePlayerListIndex si usas ese patrón internamente
+        }
+
+        // IMPORTANTE: solo avanzar si está permitido (en Canicas: false)
+        if (advanceTurnOnRemove)
+        {
+            TurnManager.instance.NextTurn();
         }
     }
 

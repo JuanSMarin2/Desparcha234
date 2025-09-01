@@ -24,10 +24,10 @@ TagManager:
   - 
   - 
   - 
-  - Wall
-  - Blocker
-  - GhostMarble
-  - Marble
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 
@@ -43,10 +43,10 @@ TagManager:
   - 
   - Tablero
   - "Colisi\xF3ntablero"
-  - 
-  - 
-  - 
-  - 
+  - Marble
+  - Wall
+  - Blocker
+  - GhostMarble
   m_SortingLayers:
   - name: Default
     uniqueID: 0

@@ -56,6 +56,7 @@ public class MarbleShooter2D : MonoBehaviour
 
     void Start()
     {
+        bonusShotForPlayer = -1;
         startLinearDamping = linearDamping;
         startAngularDamping = angularDamping;
         forceCharger.OnReleaseForce += TryShoot;
@@ -173,6 +174,8 @@ public class MarbleShooter2D : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        if (ExitManager.ForceReturnToMainMenu) return;
+
         if (collision.CompareTag("SafeZone"))
         {
             // Esta canica (playerIndex) se elimina
