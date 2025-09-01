@@ -47,7 +47,12 @@ public class Tejo : MonoBehaviour
         {
             Debug.Log($"Jugador {jugadorID} golpeó papeleta");
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
-            other.gameObject.SetActive(false);
+            // En vez de SetActive(false), ocultamos su sprite y collider
+            SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
+            if (sr != null) sr.enabled = false;
+
+            Collider2D col = other.GetComponent<Collider2D>();
+            if (col != null) col.enabled = false;
         }
 
         // ⚡ Papeletas especiales (restan al dueño de esa papeleta)
