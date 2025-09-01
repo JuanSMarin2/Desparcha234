@@ -11,6 +11,10 @@ TagManager:
   - Tejo
   - Centro
   - Papeleta
+  - Papeleta1
+  - Papeleta2
+  - Papeleta3
+  - Papeleta4
   layers:
   - Default
   - TransparentFX

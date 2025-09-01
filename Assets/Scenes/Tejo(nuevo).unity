@@ -437,7 +437,7 @@ GameObject:
   - component: {fileID: 163818392}
   m_Layer: 26
   m_Name: Papeleta3
-  m_TagString: Papeleta
+  m_TagString: Papeleta3
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -524,7 +524,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipo: 2
+  tipo: 5
 --- !u!60 &163818393
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -1344,7 +1344,7 @@ GameObject:
   - component: {fileID: 306076949}
   m_Layer: 26
   m_Name: Papeleta2
-  m_TagString: Papeleta
+  m_TagString: Papeleta2
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1431,7 +1431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipo: 2
+  tipo: 4
 --- !u!60 &306076950
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -5033,7 +5033,7 @@ GameObject:
   - component: {fileID: 1539571650}
   m_Layer: 26
   m_Name: Papeleta4
-  m_TagString: Papeleta
+  m_TagString: Papeleta4
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5120,7 +5120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipo: 2
+  tipo: 6
 --- !u!60 &1539571651
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -5185,7 +5185,7 @@ GameObject:
   - component: {fileID: 1611045259}
   m_Layer: 26
   m_Name: Papeleta1
-  m_TagString: Papeleta
+  m_TagString: Papeleta1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5272,7 +5272,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 413e79df2ab9cd9428021ae71ce709a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tipo: 2
+  tipo: 3
 --- !u!60 &1611045260
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -6296,6 +6296,10 @@ MonoBehaviour:
   - {fileID: 1719764865}
   - {fileID: 437441274}
   - {fileID: 516274327}
+  maxTiros: 3
+  delayCambioTurno: 1.5
+  delayMoverCentro: 1.5
+  blocker: {fileID: 1666297652}
 --- !u!4 &2074584137
 Transform:
   m_ObjectHideFlags: 0

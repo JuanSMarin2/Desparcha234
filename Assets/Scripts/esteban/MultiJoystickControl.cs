@@ -34,7 +34,11 @@ public class MultiJoystickControl : MonoBehaviour
         CentroController centro = FindObjectOfType<CentroController>();
         if (centro != null)
         {
-            centro.gameObject.SetActive(true);
+            SpriteRenderer sr = centro.GetComponent<SpriteRenderer>();
+            if (sr != null) sr.enabled = true;
+
+            Collider2D col = centro.GetComponent<Collider2D>();
+            if (col != null) col.enabled = true;
         }
 
         // Destruir todos los proyectiles de la ronda anterior
@@ -62,6 +66,10 @@ public class MultiJoystickControl : MonoBehaviour
         //  Aquí apagas el bloqueador para que no moleste en la nueva ronda
         if (bloqueador != null)
             bloqueador.SetActive(false);
+
+        CentroController centro2 = FindObjectOfType<CentroController>();
+        if (centro2 != null)
+            centro2.MoverCentro();
     }
 
     void Update()

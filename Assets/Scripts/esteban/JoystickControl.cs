@@ -41,17 +41,12 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     [SerializeField] private BarraDeFuerza barraDeFuerza; // referencia al script de la barra
 
-
-    private bool lanzando = false; // flag para evitar dobles tiros
-
+    private bool lanzando = false; // evita dobles tiros mientras corre la corrutina
     public bool IsDragging { get; private set; }
     public Vector2 inputVector { get; private set; }
 
     private int previousTurn;
     private MultiJoystickControl multiJoystick;
-
-    private int tirosRealizados = 0;
-    private int maxTiros = 3;
 
     void Awake()
     {
@@ -71,6 +66,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     private void Update()
     {
+        // No permitir usar el joystick principal hasta que los mini-joysticks hayan terminado
         if (multiJoystick != null && !multiJoystick.finished)
             return;
 
@@ -133,11 +129,9 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (lanzando) return;
+        if (lanzando) return; // protege de dobles taps mientras vuela el tejo
 
         IsDragging = false;
-        //blocker.SetActive(true);
-
         joystickKnob.anchoredPosition = Vector2.zero;
         inputVector = Vector2.zero;
 
@@ -150,14 +144,25 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
             {
                 GameObject obj = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
 
-                //  Usa el valor real de la barra visible
-                float fuerza = barraDeFuerza.GetValorFuerza();
-                StartCoroutine(MoverObjeto(obj, fuerza));
+                // asignar dueño
+                Tejo tejoScript = obj.GetComponent<Tejo>();
+                if (tejoScript != null)
+                {
+                    tejoScript.jugadorID = currentTurn;
+                }
+
+                // registrar tiro en el GameManager (control centralizado de 3/3)
+                GameManagerTejo.instance.RegistrarTejoLanzado();
+
+                // usar el valor real de la barra visible y lanzar con "parábola falsa"
+                float fuerza = (barraDeFuerza != null) ? barraDeFuerza.GetValorFuerza() : valorFuerza;
+                StartCoroutine(MoverObjeto(obj, fuerza, tejoScript));
             }
         }
     }
 
-    private IEnumerator MoverObjeto(GameObject obj, float valor)
+    // Corrutina del “falso parabólico”: interpola posición + cambia escala + rehabilita colisión al final
+    private IEnumerator MoverObjeto(GameObject obj, float valor, Tejo tejoScript)
     {
         lanzando = true;
 
@@ -180,6 +185,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         {
             t += Time.deltaTime / duracion;
 
+            // parábola simple: 4 * (t - t^2) para "arco" visual
             float altura = 4f * (t - t * t);
             tejo.position = new Vector3(start.x, Mathf.Lerp(start.y, end.y, t) + altura, start.z);
 
@@ -190,23 +196,18 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         if (col != null) col.enabled = true;
 
-        lanzando = false;     
+        // Espera 2 pasos de física para que se procesen colisiones/puntos antes de mover el centro
+        yield return new WaitForFixedUpdate();
+        yield return new WaitForFixedUpdate();
 
-        // aumentar contador de tiros
-        tirosRealizados++;
+        // Ahora sí, permitimos al Tejo reportar “me detuve”
+        if (tejoScript != null)
+            tejoScript.HabilitarReporteAlDetenerse();
 
-        if (tirosRealizados >= maxTiros)
-        {
-            blocker.SetActive(true); // ✅ ahora sí bloquea al terminar los 3 tiros
-            TurnManager.instance.NextTurn();
-            tirosRealizados = 0; // reinicia para el siguiente jugador
+        lanzando = false;
 
-            MultiJoystickControl multi = FindObjectOfType<MultiJoystickControl>();
-            if (multi != null)
-            {
-                multi.PrepareForNextRound();
-            }
-        }
+        // ⚠️ Ya NO contamos tiros aquí. El control está en GameManagerTejo.
+        //    Tampoco cambiamos de ronda aquí: se hace cuando el último tejo se DETIENE (TejoTermino).
     }
 
     private void UpdateTarget()
@@ -254,7 +255,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void DisableBlocker()
     {
-        blocker.SetActive(false);
+        if (blocker != null) blocker.SetActive(false);
     }
 
     void OnEnable()
