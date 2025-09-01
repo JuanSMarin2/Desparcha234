@@ -6,6 +6,8 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private GameObject PlayersPanel;
     [SerializeField] private MinigameChooser minigameChooser;
 
+    [SerializeField] private GameObject gamesPanel;
+
     public void TogglePlayersPanel()
     {
         PlayersPanel.SetActive(!PlayersPanel.activeSelf);
@@ -20,7 +22,7 @@ public class MainMenuManager : MonoBehaviour
         RoundData.instance.ResetData();
         RoundData.instance.GetNumberOfPlayers(players);
 
-        minigameChooser.RandomGameChooser();
+        gamesPanel.SetActive(true);
     }
 
 

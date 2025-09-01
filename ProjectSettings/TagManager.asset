@@ -4,17 +4,9 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Player_1
-  - Player_2
-  - Player_3
-  - Player_4
-  - Tejo
-  - Centro
-  - Papeleta
-  - Papeleta1
-  - Papeleta2
-  - Papeleta3
-  - Papeleta4
+  - SafeZone
+  - Marble
+  - PowerUp
   layers:
   - Default
   - TransparentFX
@@ -25,6 +17,10 @@ TagManager:
   - 
   - 
   - 
+  - Wall
+  - Blocker
+  - GhostMarble
+  - Marble
   - 
   - 
   - 
@@ -40,10 +36,6 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - Tablero
-  - "Colisi\xF3ntablero"
   - 
   - 
   - 

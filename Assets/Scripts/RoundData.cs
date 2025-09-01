@@ -1,13 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class RoundData : MonoBehaviour
 {
     public static RoundData instance;
+
     public int numPlayers = 4;
+
+    // Catálogo base disponible (nombres = nombres de escenas)
     public List<string> availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos" };
+
+    
+    public List<string> scheduledGames = new List<string>(); // << NUEVO
+    public int scheduledIndex = 0;                            // << NUEVO
+
     public List<int> finalPositions = new List<int>();
     public int[] currentPoints;
     public int[] totalPoints;
@@ -44,11 +51,12 @@ public class RoundData : MonoBehaviour
         numPlayers = 0;
         availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos" };
         finalPositions.Clear();
+        scheduledGames.Clear();     // << NUEVO
+        scheduledIndex = 0;         // << NUEVO
         currentPoints = new int[numPlayers];
         totalPoints = new int[numPlayers];
     }
 
-    
     public void GetTotalPoints()
     {
         StartCoroutine(SumPointsWithDelay());
@@ -64,6 +72,5 @@ public class RoundData : MonoBehaviour
         }
 
         Debug.Log("TotalPoints actualizado.");
-
     }
 }

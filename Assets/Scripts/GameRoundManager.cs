@@ -34,20 +34,30 @@ public class GameRoundManager : MonoBehaviour
 
     public void PlayerLose(int losingPlayerIndex)
     {
-        losers.Add(losingPlayerIndex);
+        losers.Add(losingPlayerIndex); // se acumulan en orden de eliminación
         Debug.Log("El Jugador " + (losingPlayerIndex + 1) + " ha sido eliminado.");
         TurnManager.instance.RemovePlayerFromTurn(losingPlayerIndex);
         CheckForRoundEnd();
     }
 
+    private bool roundEnded = false;
+
     private void CheckForRoundEnd()
     {
-        if (TurnManager.instance.GetActivePlayerCount() <= 1)
+        if (roundEnded) return;
+
+        int active = TurnManager.instance.GetActivePlayerCount();
+        if (active <= 1)
         {
-            if (TurnManager.instance.GetActivePlayerCount() == 1)
+            if (active == 1)
             {
-                PlayerWin(TurnManager.instance.GetActivePlayerIndices()[0]);
+                int last = TurnManager.instance.GetActivePlayerIndices()[0];
+                // Añade al ganador una sola vez
+                if (!winners.Contains(last) && !losers.Contains(last))
+                    winners.Add(last);
             }
+
+            roundEnded = true;
             FinalizeRound();
         }
     }
@@ -57,48 +67,25 @@ public class GameRoundManager : MonoBehaviour
     /// </summary>
     private void FinalizeRound()
     {
-        // 1. Unificamos las posiciones finales.
-        List<int> finalPositions = new List<int>();
-        finalPositions.AddRange(winners);
-        losers.Reverse();
-        finalPositions.AddRange(losers);
+        // losers = [último, anteúltimo, ..., segundo]
+        var finalPositions = new List<int>();
+        finalPositions.AddRange(winners);       // 1.º, 2.º, ...
+        var losersCopy = new List<int>(losers);
+        losersCopy.Reverse();                   //  [segundo, tercero, ..., último]
+        finalPositions.AddRange(losersCopy);
 
-        // 2. Asignamos los puntos según la posición.
-        RoundData.instance.currentPoints = new int[RoundData.instance.numPlayers]; // Limpiamos los puntos de esta ronda
+        RoundData.instance.currentPoints = new int[RoundData.instance.numPlayers];
+
         for (int i = 0; i < finalPositions.Count; i++)
         {
-            int playerIndex = finalPositions[i];
-            int pointsToAdd = 0;
-            switch (i)
-            {
-                case 0: // Primer lugar
-                    pointsToAdd = 3;
-                    break;
-                case 1: // Segundo lugar
-                    pointsToAdd = 2;
-                    break;
-                case 2: // Tercer lugar
-                    pointsToAdd = 1;
-                    break;
-                case 3: // Cuarto lugar
-                    pointsToAdd = 0;
-                    break;
-                default:
-                    pointsToAdd = 0; 
-                    break;
-            }
-
-            RoundData.instance.currentPoints[playerIndex] = pointsToAdd;
-
-
-            Debug.Log($"Jugador {playerIndex + 1} obtuvo {pointsToAdd} puntos. Total: {RoundData.instance.totalPoints[playerIndex]}");
+            int idx = finalPositions[i];
+            int pts = (i == 0) ? 3 : (i == 1) ? 2 : (i == 2) ? 1 : 0;
+            RoundData.instance.currentPoints[idx] = pts;
+            Debug.Log($"Jugador {idx + 1} obtuvo {pts} puntos. Total: {RoundData.instance.totalPoints[idx]}");
         }
 
-        // 3. Guardamos la clasificación final en RoundData para la escena de resultados.
         RoundData.instance.finalPositions.Clear();
         RoundData.instance.finalPositions.AddRange(finalPositions);
-
-        // 4. Cargamos la escena de resultados.
         LoadResultsScene();
     }
 

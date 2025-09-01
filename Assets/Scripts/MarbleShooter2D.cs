@@ -17,12 +17,27 @@ public class MarbleShooter2D : MonoBehaviour
     private bool isWaitingToEndTurn = false;
     private float stopThreshold = 0.05f;
 
+    [SerializeField] private float speed;
+    [SerializeField] private float maxSpeed = 30f; // velocidad máxima en unidades/segundo
+
+    // >>>> NUEVO: referencia al sistema de poderes <<<<
+    [SerializeField] private MarblePower marblePower;
+
+    void FixedUpdate()
+    {
+        // Limitar velocidad máxima (tu lógica original)
+        if (marble.linearVelocity.magnitude > maxSpeed)
+        {
+            speed = marble.linearVelocity.magnitude;
+            marble.linearVelocity = Vector2.zero;
+        }
+    }
+
     void Start()
     {
         startLinearDamping = linearDamping;
         startAngularDamping = angularDamping;
         forceCharger.OnReleaseForce += TryShoot;
-
     }
 
     void Update()
@@ -34,6 +49,10 @@ public class MarbleShooter2D : MonoBehaviour
             if (marble.linearVelocity.magnitude <= stopThreshold)
             {
                 isWaitingToEndTurn = false;
+
+                // >>>> NUEVO: avisar a los poderes que terminó MI turno <<<<
+                marblePower?.NotifyTurnEndedIfMine();
+
                 TurnManager.instance.NextTurn();
             }
         }
@@ -43,7 +62,7 @@ public class MarbleShooter2D : MonoBehaviour
 
     private void ChangeDamping()
     {
-        if(playerIndex +1 != TurnManager.instance.CurrentTurn())
+        if (playerIndex + 1 != TurnManager.instance.CurrentTurn())
         {
             linearDamping = 1f;
             angularDamping = 0.5f;
@@ -53,7 +72,6 @@ public class MarbleShooter2D : MonoBehaviour
             linearDamping = startLinearDamping;
             angularDamping = startAngularDamping;
         }
-
     }
 
     private void TryShoot(float fuerza)
@@ -61,7 +79,6 @@ public class MarbleShooter2D : MonoBehaviour
         if (playerIndex != TurnManager.instance.GetCurrentPlayerIndex()) return;
 
         ShootMarble(fuerza);
-
         isWaitingToEndTurn = true;
     }
 
@@ -77,7 +94,24 @@ public class MarbleShooter2D : MonoBehaviour
         marble.linearDamping = linearDamping;
         marble.angularDamping = angularDamping;
 
-        marble.AddForce(direction * fuerza * forceMultiplier, ForceMode2D.Impulse);
+        // >>>> NUEVO: aplicar multiplicador de poder (MorePower) si existe <<<<
+        float effectiveMultiplier = marblePower
+            ? marblePower.GetLaunchMultiplier(forceMultiplier)
+            : forceMultiplier;
+
+        marble.AddForce(direction * fuerza * effectiveMultiplier, ForceMode2D.Impulse);
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("SafeZone"))
+        {
+            GameRoundManager.instance.PlayerLose(playerIndex);
+
+            marblePower?.ApplyPower(MarblePowerType.None);
+
+            this.gameObject.SetActive(false);
+            this.gameObject.transform.position = Vector3.zero;
+        }
     }
 }
-  

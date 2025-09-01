@@ -47,33 +47,57 @@ public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandl
         int currentTurn = TurnManager.instance.CurrentTurn();
 
         if(previusTurn != currentTurn)
-            DisableBlocker();
-
-
-     
-       switch(currentTurn)
         {
-            case 1: 
+            DisableBlocker();
+            arrowObject.transform.position = Vector3.zero;
+        }
+          
+
+
+
+        switch (currentTurn)
+        {
+            case 1:
                 transform.position = wheel0.position;
-             Image.color = Color.red;
+                Image.color = Color.red;
+                wheel0.gameObject.SetActive(false);
+                wheel1.gameObject.SetActive(true);
+                wheel2.gameObject.SetActive(true);
+                wheel3.gameObject.SetActive(true);
                 break;
-                case 2:
+
+            case 2:
                 transform.position = wheel1.position;
                 Image.color = Color.blue;
-                break;
-                case 3:
-                transform.position = wheel2.position;
-                Image.color = Color.yellow;
-                break;
-                case 4:
-                transform.position = wheel3.position;
-                Image.color = Color.green;
-                break;
-                default: 
-                Debug.Log("Error turno no valido" + currentTurn);
+                wheel0.gameObject.SetActive(true);
+                wheel1.gameObject.SetActive(false);
+                wheel2.gameObject.SetActive(true);
+                wheel3.gameObject.SetActive(true);
                 break;
 
+            case 3:
+                transform.position = wheel2.position;
+                Image.color = Color.yellow;
+                wheel0.gameObject.SetActive(true);
+                wheel1.gameObject.SetActive(true);
+                wheel2.gameObject.SetActive(false);
+                wheel3.gameObject.SetActive(true);
+                break;
+
+            case 4:
+                transform.position = wheel3.position;
+                Image.color = Color.green;
+                wheel0.gameObject.SetActive(true);
+                wheel1.gameObject.SetActive(true);
+                wheel2.gameObject.SetActive(true);
+                wheel3.gameObject.SetActive(false);
+                break;
+
+            default:
+                Debug.Log("Error turno no válido: " + currentTurn);
+                break;
         }
+
 
 
 
