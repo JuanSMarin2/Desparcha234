@@ -7,21 +7,8 @@ public class CentroController : MonoBehaviour
     public float minY = -3f;  // límites del tablero en Y
     public float maxY = 3f;
 
-    public float intervalo = 2f; // cada cuántos segundos se moverá
-    private float tiempoTranscurrido = 0f;
-
-    void Update()
-    {
-        tiempoTranscurrido += Time.deltaTime;
-
-        if (tiempoTranscurrido >= intervalo)
-        {
-            MoverCentro();
-            tiempoTranscurrido = 0f;
-        }
-    }
-
-    void MoverCentro()
+    // este método lo llamamos manualmente
+    public void MoverCentro()
     {
         float randomX = Random.Range(minX, maxX);
         float randomY = Random.Range(minY, maxY);

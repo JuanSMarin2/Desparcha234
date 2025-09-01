@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections; // <- importante para usar coroutines
 
 public class GameManagerTejo : MonoBehaviour
 {
@@ -19,16 +20,13 @@ public class GameManagerTejo : MonoBehaviour
 
     public void SumarPuntos(int jugadorID, int puntos)
     {
-
         Debug.Log($"Jugador {jugadorID} gana {puntos} puntos");
 
         puntajes[jugadorID] += puntos;
         puntajeTextos[jugadorID].text = $"J{jugadorID + 1}: {puntajes[jugadorID]}";
 
-        // Chequear si este jugador llegó a 21
-        if (puntajes[jugadorID] >= 21)
+        if (puntajes[jugadorID] >= puntajeMaximo)
         {
-            // Mandar el número del ganador a GameRoundManager
             GameRoundManager.instance.PlayerWin(jugadorID);
         }
     }
@@ -53,6 +51,23 @@ public class GameManagerTejo : MonoBehaviour
         if (jugadorCercano >= 0)
         {
             SumarPuntos(jugadorCercano, 1);
+        }
+    }
+
+    //  Nuevo: llamado por Tejo cuando ya se detuvo
+    public void TejoTermino(Tejo tejo)
+    {
+        StartCoroutine(MoverCentroDespuesDeRetraso(1.5f));
+    }
+
+    private IEnumerator MoverCentroDespuesDeRetraso(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        CentroController centro = FindObjectOfType<CentroController>();
+        if (centro != null)
+        {
+            centro.MoverCentro();
         }
     }
 }

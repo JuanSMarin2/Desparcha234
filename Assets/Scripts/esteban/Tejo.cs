@@ -2,22 +2,36 @@ using UnityEngine;
 
 public class Tejo : MonoBehaviour
 {
-    [HideInInspector] public int jugadorID; // asignado por Lanzador
+    [HideInInspector] public int jugadorID;
+    private Rigidbody2D rb;
+    private bool yaParo = false;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void Update()
+    {
+        if (!yaParo && rb.linearVelocity.magnitude < 0.1f) // casi quieto
+        {
+            yaParo = true;
+            GameManagerTejo.instance.TejoTermino(this); // avisamos al GameManager
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Si entra al centro
         if (other.CompareTag("Centro"))
         {
             GameManagerTejo.instance.SumarPuntos(jugadorID, 6);
         }
 
-        // Si golpea papeleta
         if (other.CompareTag("Papeleta"))
         {
-            Debug.Log($"Jugador {jugadorID} golpeó papeleta");
+            Debug.Log($"Jugador {jugadorID} golpeï¿½ papeleta");
             GameManagerTejo.instance.SumarPuntos(jugadorID, 3);
-            Destroy(other.gameObject); // desaparece la papeleta
+            other.gameObject.SetActive(false); // desactivar en vez de destruir
         }
     }
 }

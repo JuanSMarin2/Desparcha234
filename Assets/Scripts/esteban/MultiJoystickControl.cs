@@ -25,6 +25,18 @@ public class MultiJoystickControl : MonoBehaviour
     // --- utilidad: llamar al comenzar nueva ronda/turno ---
     public void PrepareForNextRound()
     {
+        GameObject[] papeletas = GameObject.FindGameObjectsWithTag("Papeleta");
+        foreach (GameObject p in papeletas)
+        {
+            p.SetActive(true);
+        }
+
+        CentroController centro = FindObjectOfType<CentroController>();
+        if (centro != null)
+        {
+            centro.gameObject.SetActive(true);
+        }
+
         // Destruir todos los proyectiles de la ronda anterior
         GameObject[] projectiles = GameObject.FindGameObjectsWithTag("Tejo");
 

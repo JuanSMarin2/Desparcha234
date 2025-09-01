@@ -166,16 +166,10 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         if (col != null) col.enabled = false;
 
         Vector3 start = spawnPoint.position;
-
-        // Fuerza escala la distancia (ej: 0..1 → 0..10 metros)
         float distanciaMax = 10f;
         float distancia = Mathf.Lerp(0.001f, distanciaMax, valor);
-
-        // Siempre ángulo vertical de 45° para simular arco
-
         Vector3 end = start + new Vector3(0f, 1f, 0f) * distancia;
 
-        // Duración en función de fuerza
         float duracion = 1.2f;
         float t = 0f;
 
@@ -186,8 +180,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         {
             t += Time.deltaTime / duracion;
 
-            // Movimiento solo en Y con parábola
-            float altura = 4f * (t - t * t); // parábola simple (0→sube→baja→0)
+            float altura = 4f * (t - t * t);
             tejo.position = new Vector3(start.x, Mathf.Lerp(start.y, end.y, t) + altura, start.z);
 
             tejo.localScale = Vector3.Lerp(escalaInicial, escalaFinal, t);
@@ -197,7 +190,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         if (col != null) col.enabled = true;
 
-        lanzando = false;
+        lanzando = false;     
 
         // aumentar contador de tiros
         tirosRealizados++;

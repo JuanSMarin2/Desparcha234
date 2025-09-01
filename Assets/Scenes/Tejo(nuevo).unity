@@ -4155,11 +4155,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1180633334}
   m_CullTransparentMesh: 1
---- !u!1 &1198955163 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5092533611313153846, guid: 4da634166750cf84982995bb59aa8c57, type: 3}
-  m_PrefabInstance: {fileID: 4560580116158244136}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1206900950
 GameObject:
   m_ObjectHideFlags: 0
@@ -4707,7 +4702,6 @@ MonoBehaviour:
   maxX: 3.5
   minY: -3.5
   maxY: 2.5
-  intervalo: 2
 --- !u!114 &1485851760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5016,10 +5010,10 @@ MonoBehaviour:
   Image: {fileID: 1511727198}
   blocker: {fileID: 1666297652}
   objectPrefabs:
-  - {fileID: 2120365268}
-  - {fileID: 1198955163}
-  - {fileID: 7390144133690548628}
-  - {fileID: 6277598649374320817}
+  - {fileID: 477731166513891508, guid: def13b0a754e43740a6b5bafb04b2d53, type: 3}
+  - {fileID: 5092533611313153846, guid: 4da634166750cf84982995bb59aa8c57, type: 3}
+  - {fileID: 8084020014978178105, guid: cc26e91cad8a5614d9168b87dd230248, type: 3}
+  - {fileID: 1392255486889855801, guid: 18a38ea042a9c0e47a78a227503f3a4d, type: 3}
   spawnPoint: {fileID: 147015976}
   barraFuerza: {fileID: 761413278}
   velocidadSubida: 1.5
@@ -6552,11 +6546,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2115247676}
   m_CullTransparentMesh: 1
---- !u!1 &2120365268 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 477731166513891508, guid: def13b0a754e43740a6b5bafb04b2d53, type: 3}
-  m_PrefabInstance: {fileID: 1885943949235566454}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2127454758
 GameObject:
   m_ObjectHideFlags: 0
