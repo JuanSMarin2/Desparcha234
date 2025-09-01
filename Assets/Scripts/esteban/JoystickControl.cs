@@ -31,6 +31,13 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     [SerializeField] private GameObject[] objectPrefabs;   // Prefabs para cada turno
     [SerializeField] private Transform spawnPoint;         // Zona de tiro      
 
+    [Header("Barra de Fuerza UI")]
+    [SerializeField] private Image barraFuerza;            // Imagen UI (fillAmount)
+    public float velocidadSubida = 1.5f;
+    public float velocidadBajada = 0.5f;
+    private float valorFuerza = 0f;
+    private bool subiendo = true;
+
     [SerializeField] private Collider2D boardCollider;
 
     public bool IsDragging { get; private set; }
@@ -68,7 +75,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         if (previousTurn != currentTurn)
             DisableBlocker();
 
-        // Cambiar base seg�n turno
+        // Cambiar base según turno
         switch (currentTurn)
         {
             case 1:
@@ -92,6 +99,8 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         previousTurn = currentTurn;
 
         UpdateTarget();
+        UpdateBarraFuerza();
+        SeguirSpawnPoint();
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -128,11 +137,18 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         // Instanciar objeto correspondiente al turno
         if (objectPrefabs != null && objectPrefabs.Length >= currentTurn && spawnPoint != null)
         {
-            GameObject prefabToSpawn = objectPrefabs[currentTurn - 1]; // -1 porque el turno empieza en 1
+            GameObject prefabToSpawn = objectPrefabs[currentTurn - 1];
             if (prefabToSpawn != null)
             {
-                Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
-                Debug.Log("Objeto generado para turno " + currentTurn);
+                GameObject obj = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
+                Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
+
+                if (rb != null)
+                {
+                    AplicarFuerza(rb, valorFuerza);
+                }
+
+                Debug.Log("Objeto lanzado con fuerza " + valorFuerza);
             }
             else
             {
@@ -143,6 +159,18 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         {
             Debug.LogWarning("No se asignaron suficientes prefabs o falta el spawnPoint.");
         }
+    }
+
+    /// <summary>
+    /// Aplica la fuerza calculada según la barra y un ángulo fijo (45° por ahora)
+    /// </summary>
+    private void AplicarFuerza(Rigidbody2D rb, float valor)
+    {
+        float fuerza = Mathf.Lerp(5f, 20f, valor); // rango min-max
+        float angulo = 45f * Mathf.Deg2Rad;
+
+        Vector2 dir = new Vector2(Mathf.Cos(angulo), Mathf.Sin(angulo));
+        rb.linearVelocity = dir.normalized * fuerza;
     }
 
     private void UpdateTarget()
@@ -158,6 +186,33 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
             float clampedY = Mathf.Clamp(targetObject.position.y, minY, maxY);
 
             targetObject.position = new Vector3(clampedX, clampedY, targetObject.position.z);
+        }
+    }
+
+    private void UpdateBarraFuerza()
+    {
+        if (barraFuerza == null) return;
+
+        if (subiendo)
+        {
+            valorFuerza += velocidadSubida * Time.deltaTime;
+            if (valorFuerza >= 1f) { valorFuerza = 1f; subiendo = false; }
+        }
+        else
+        {
+            valorFuerza -= velocidadBajada * Time.deltaTime;
+            if (valorFuerza <= 0f) { valorFuerza = 0f; subiendo = true; }
+        }
+
+        barraFuerza.fillAmount = valorFuerza;
+    }
+
+    private void SeguirSpawnPoint()
+    {
+        if (barraFuerza != null && spawnPoint != null)
+        {
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(spawnPoint.position + Vector3.up * 1f); // un poco arriba
+            barraFuerza.transform.position = screenPos;
         }
     }
 
