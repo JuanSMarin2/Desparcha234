@@ -4,31 +4,39 @@ using UnityEngine.UI;
 
 public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
+    [Header("Joystick UI")]
     [SerializeField] private RectTransform joystickKnob;
-    [SerializeField] private Transform targetObject; // El objeto que se moverá con el joystick
+    private RectTransform backgroundRect;
+    private float joystickRadius;
+
+    [Header("Target movement")]
+    [SerializeField] private Transform targetObject;
     [SerializeField] private float minX = -5f;
     [SerializeField] private float maxX = 5f;
     [SerializeField] private float minY = -3f;
-    [SerializeField] private float maxY = 3f;   
-    [SerializeField] private float moveRange = 3f;     // Rango máximo de movimiento en el mundo
+    [SerializeField] private float maxY = 3f;
+    [SerializeField] private float moveRange = 3f;
 
+    [Header("Turn wheels")]
     [SerializeField] private Transform wheel0;
     [SerializeField] private Transform wheel1;
     [SerializeField] private Transform wheel2;
     [SerializeField] private Transform wheel3;
 
+    [Header("Visuals")]
     [SerializeField] private Image Image;
     [SerializeField] private GameObject blocker;
 
+    [Header("Spawn Settings")]
+    [SerializeField] private GameObject[] objectPrefabs;   // Prefabs para cada turno
+    [SerializeField] private Transform spawnPoint;         // Zona de tiro      
+
     [SerializeField] private Collider2D boardCollider;
 
-    private RectTransform backgroundRect;
-    private float joystickRadius;
     public bool IsDragging { get; private set; }
     public Vector2 inputVector { get; private set; }
 
-    private int previusTurn;
-
+    private int previousTurn;
     private MultiJoystickControl multiJoystick;
 
     void Awake()
@@ -45,28 +53,22 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         if (blocker != null)
             blocker.SetActive(false);
-
-        //  Desactivar el joystick al inicio hasta que termine MultiJoystickControl
-        if (multiJoystick != null)
-            gameObject.SetActive(false);
     }
 
     private void Update()
     {
         if (multiJoystick != null && !multiJoystick.finished)
-            return; //  no hacemos nada mientras multiJoystick esté en curso
+            return;
 
         if (!gameObject.activeSelf)
-        {
-            gameObject.SetActive(true); //  activamos el joystick cuando ya terminó MultiJoystickControl
-        }
+            gameObject.SetActive(true);
 
         int currentTurn = TurnManager.instance.CurrentTurn();
 
-        if (previusTurn != currentTurn)
+        if (previousTurn != currentTurn)
             DisableBlocker();
 
-        // Cambiar la posición base del joystick dependiendo del turno
+        // Cambiar base según turno
         switch (currentTurn)
         {
             case 1:
@@ -85,14 +87,10 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
                 transform.position = wheel3.position;
                 Image.color = Color.green;
                 break;
-            default:
-                Debug.Log("Error turno no valido: " + currentTurn);
-                break;
         }
 
-        previusTurn = currentTurn;
+        previousTurn = currentTurn;
 
-        // Actualizar movimiento del target
         UpdateTarget();
     }
 
@@ -103,8 +101,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 pos;
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(backgroundRect, eventData.position, eventData.pressEventCamera, out pos))
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(backgroundRect, eventData.position, eventData.pressEventCamera, out Vector2 pos))
         {
             IsDragging = true;
 
@@ -125,6 +122,27 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         joystickKnob.anchoredPosition = Vector2.zero;
         inputVector = Vector2.zero;
+
+        int currentTurn = TurnManager.instance.CurrentTurn();
+
+        // Instanciar objeto correspondiente al turno
+        if (objectPrefabs != null && objectPrefabs.Length >= currentTurn && spawnPoint != null)
+        {
+            GameObject prefabToSpawn = objectPrefabs[currentTurn - 1]; // -1 porque el turno empieza en 1
+            if (prefabToSpawn != null)
+            {
+                Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
+                Debug.Log("Objeto generado para turno " + currentTurn);
+            }
+            else
+            {
+                Debug.LogWarning("Prefab no asignado para el turno " + currentTurn);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No se asignaron suficientes prefabs o falta el spawnPoint.");
+        }
     }
 
     private void UpdateTarget()
@@ -133,11 +151,9 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         if (inputVector.magnitude > 0.1f)
         {
-            // Movimiento incremental
             Vector3 delta = new Vector3(inputVector.x, inputVector.y, 0) * moveRange * Time.deltaTime;
             targetObject.position += delta;
 
-            // Limitar dentro del área
             float clampedX = Mathf.Clamp(targetObject.position.x, minX, maxX);
             float clampedY = Mathf.Clamp(targetObject.position.y, minY, maxY);
 

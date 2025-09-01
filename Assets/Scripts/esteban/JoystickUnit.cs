@@ -89,8 +89,17 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         inputVector = Vector2.zero;
         if (handle != null) handle.anchoredPosition = Vector2.zero;
 
-        // activamos/desactivamos el objeto del joystick (visual + receptor de eventos)
+        // activamos/desactivamos el joystick
         gameObject.SetActive(active);
+
+        //  el targetObject solo se activa o resetea aquí
+        if (targetObject != null)
+        {
+            targetObject.gameObject.SetActive(active);
+
+            if (active)
+                initialTargetPos = targetObject.position;
+        }
     }
 
     public void Finish()
@@ -103,8 +112,12 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         // avisamos antes de desactivar
         OnFinished?.Invoke(this);
 
-        // ocultamos el joystick (opcional, el manager puede hacerlo también)
+        // ocultamos el joystick
         gameObject.SetActive(false);
+
+        //  Ya no desactivamos el targetObject aquí
+        // if (targetObject != null)
+        //     targetObject.gameObject.SetActive(false);
     }
 
     // --- eventos UI ---

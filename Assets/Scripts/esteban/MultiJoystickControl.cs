@@ -49,15 +49,23 @@ public class MultiJoystickControl : MonoBehaviour
 
     void HandleUnitFinished(JoystickUnit unit)
     {
-        // comprobamos si todas las unidades activas terminaron
+        Debug.Log($"JoystickUnit {unit.name} terminó. Revisando si todos acabaron...");
+
         if (AllActiveFinished())
         {
             finished = true;
-            Debug.Log("MultiJoystickManager: todos los joysticks activos terminaron.");
+            Debug.Log(" MultiJoystickManager: todos los joysticks activos terminaron.");
 
-            // activamos joystick principal (punto de lanzamiento)
             if (mainJoystickControlObject != null)
+            {
                 mainJoystickControlObject.SetActive(true);
+                Debug.Log("¿Activo?: " + mainJoystickControlObject.activeSelf);
+                Debug.Log(" Activado Joystick principal (zona de tiro).");
+            }
+        }
+        else
+        {
+            Debug.Log(" Aún faltan joysticks por terminar.");
         }
     }
 
