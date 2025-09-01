@@ -504,13 +504,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 163818388}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 2.2012267, y: -0.53030074, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.0952268, y: -0.49, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 620540983}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &163818392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1410,13 +1410,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 306076945}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 1, w: 0}
-  m_LocalPosition: {x: 1.0952268, y: -1.6513008, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.0952268, y: 1.49, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 620540983}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &306076949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2078,8 +2078,8 @@ MonoBehaviour:
   controlDuration: 3
   startActive: 1
   useLimits: 1
-  minLimits: {x: -3, y: -4.5}
-  maxLimits: {x: 4, y: 4}
+  minLimits: {x: -3.7, y: -4.4}
+  maxLimits: {x: 3.5, y: 4.4}
 --- !u!1 &606609693
 GameObject:
   m_ObjectHideFlags: 0
@@ -3492,10 +3492,10 @@ MonoBehaviour:
   targetObject: {fileID: 1539571648}
   moveRange: 3
   controlDuration: 3
-  startActive: 0
+  startActive: 1
   useLimits: 1
-  minLimits: {x: -3.5, y: -4.5}
-  maxLimits: {x: 4, y: 4}
+  minLimits: {x: -3.7, y: -3.3}
+  maxLimits: {x: 3.5, y: 5.5}
 --- !u!4 &1085446562 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 371119762830507168, guid: def13b0a754e43740a6b5bafb04b2d53, type: 3}
@@ -5108,13 +5108,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1539571646}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -0.07277328, y: -0.5453008, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.0952268, y: -1.55, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 620540983}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1539571650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6327,8 +6327,8 @@ MonoBehaviour:
   controlDuration: 3
   startActive: 1
   useLimits: 1
-  minLimits: {x: -3, y: -4.5}
-  maxLimits: {x: 4, y: 4}
+  minLimits: {x: -3.7, y: -5.3}
+  maxLimits: {x: 3.5, y: 3.4}
 --- !u!1 &2115247676
 GameObject:
   m_ObjectHideFlags: 0
@@ -6561,8 +6561,8 @@ MonoBehaviour:
   controlDuration: 3
   startActive: 1
   useLimits: 1
-  minLimits: {x: -3, y: -4.5}
-  maxLimits: {x: 4, y: 4}
+  minLimits: {x: -3.7, y: -6.3}
+  maxLimits: {x: 3.5, y: 2.5}
 --- !u!1 &2131863669
 GameObject:
   m_ObjectHideFlags: 0

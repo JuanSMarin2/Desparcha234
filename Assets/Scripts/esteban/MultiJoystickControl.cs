@@ -12,6 +12,8 @@ public class MultiJoystickControl : MonoBehaviour
     public bool finished { get; private set; }
     private bool initialized = false; // <- bandera para correr solo una vez
 
+    
+
     void Start()
     {
         finished = false;
