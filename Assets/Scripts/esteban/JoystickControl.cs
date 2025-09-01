@@ -39,6 +39,9 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     private float valorFuerza = 0f;
     private bool subiendo = true;
 
+    [SerializeField] private BarraDeFuerza barraDeFuerza; // referencia al script de la barra
+
+
     private bool lanzando = false; // flag para evitar dobles tiros
 
     public bool IsDragging { get; private set; }
@@ -46,6 +49,9 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     private int previousTurn;
     private MultiJoystickControl multiJoystick;
+
+    private int tirosRealizados = 0;
+    private int maxTiros = 3;
 
     void Awake()
     {
@@ -127,33 +133,27 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (lanzando) return; // si ya está lanzando, ignorar
+        if (lanzando) return;
 
         IsDragging = false;
-        blocker.SetActive(true);
+        //blocker.SetActive(true);
 
         joystickKnob.anchoredPosition = Vector2.zero;
         inputVector = Vector2.zero;
 
         int currentTurn = TurnManager.instance.CurrentTurn();
 
-        // Instanciar objeto correspondiente al turno
         if (objectPrefabs != null && objectPrefabs.Length >= currentTurn && spawnPoint != null)
         {
             GameObject prefabToSpawn = objectPrefabs[currentTurn - 1];
             if (prefabToSpawn != null)
             {
                 GameObject obj = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
-                StartCoroutine(MoverObjeto(obj, valorFuerza));
+
+                //  Usa el valor real de la barra visible
+                float fuerza = barraDeFuerza.GetValorFuerza();
+                StartCoroutine(MoverObjeto(obj, fuerza));
             }
-            else
-            {
-                Debug.LogWarning("Prefab no asignado para el turno " + currentTurn);
-            }
-        }
-        else
-        {
-            Debug.LogWarning("No se asignaron suficientes prefabs o falta el spawnPoint.");
         }
     }
 
@@ -169,10 +169,10 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         // Fuerza escala la distancia (ej: 0..1 → 0..10 metros)
         float distanciaMax = 10f;
-        float distancia = Mathf.Lerp(3f, distanciaMax, valor);
+        float distancia = Mathf.Lerp(0.001f, distanciaMax, valor);
 
         // Siempre ángulo vertical de 45° para simular arco
-        float angulo = 45f * Mathf.Deg2Rad;
+
         Vector3 end = start + new Vector3(0f, 1f, 0f) * distancia;
 
         // Duración en función de fuerza
@@ -198,7 +198,22 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         if (col != null) col.enabled = true;
 
         lanzando = false;
-        TurnManager.instance.NextTurn();
+
+        // aumentar contador de tiros
+        tirosRealizados++;
+
+        if (tirosRealizados >= maxTiros)
+        {
+            blocker.SetActive(true); // ✅ ahora sí bloquea al terminar los 3 tiros
+            TurnManager.instance.NextTurn();
+            tirosRealizados = 0; // reinicia para el siguiente jugador
+
+            MultiJoystickControl multi = FindObjectOfType<MultiJoystickControl>();
+            if (multi != null)
+            {
+                multi.PrepareForNextRound();
+            }
+        }
     }
 
     private void UpdateTarget()
@@ -247,5 +262,17 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     public void DisableBlocker()
     {
         blocker.SetActive(false);
+    }
+
+    void OnEnable()
+    {
+        if (barraFuerza != null)
+            barraFuerza.gameObject.SetActive(true);
+    }
+
+    void OnDisable()
+    {
+        if (barraFuerza != null)
+            barraFuerza.gameObject.SetActive(false);
     }
 }

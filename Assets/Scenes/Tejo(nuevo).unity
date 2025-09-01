@@ -700,6 +700,7 @@ MonoBehaviour:
   - {fileID: 560638896}
   - {fileID: 1082137406}
   mainJoystickControlObject: {fileID: 1511727194}
+  bloqueador: {fileID: 1666297652}
 --- !u!1 &182633841
 GameObject:
   m_ObjectHideFlags: 0
@@ -2319,7 +2320,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &761413277
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4218,7 +4219,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   barraPoder: {fileID: 842674730}
-  velocidadSubida: 1.5
+  velocidadSubida: 1
   velocidadBajada: 0.5
 --- !u!4 &1214087834
 Transform:
@@ -5021,7 +5022,7 @@ MonoBehaviour:
   barraFuerza: {fileID: 761413278}
   velocidadSubida: 1.5
   velocidadBajada: 0.5
-  boardCollider: {fileID: 1346445825}
+  barraDeFuerza: {fileID: 1214087833}
 --- !u!1 &1539571646
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,23 +4,44 @@ using System.Linq;
 public class MultiJoystickControl : MonoBehaviour
 {
     [Header("Joystick units (ordenados 0..3)")]
-    public JoystickUnit[] units; // asigna en el inspector (cuatro)
+    public JoystickUnit[] units;
 
     [Header("Joystick principal (punto de lanzamiento)")]
-    public GameObject mainJoystickControlObject; // el GameObject con JoystickControl (se activará al final)
+    public GameObject mainJoystickControlObject;
+
+    [Header("Bloqueador del joystick")]
+    public GameObject bloqueador; // arrástralo desde el inspector
 
     public bool finished { get; private set; }
-    private bool initialized = false; // <- bandera para correr solo una vez
-
-    
+    private bool initialized = false;
 
     void Start()
     {
         finished = false;
-
-        // desactivar joystick principal al inicio
         if (mainJoystickControlObject != null)
             mainJoystickControlObject.SetActive(false);
+    }
+
+    // --- utilidad: llamar al comenzar nueva ronda/turno ---
+    public void PrepareForNextRound()
+    {
+        finished = false;
+
+        int blockedIndex = Mathf.Clamp(TurnManager.instance.CurrentTurn() - 1, 0, units.Length - 1);
+
+        for (int i = 0; i < units.Length; i++)
+        {
+            if (units[i] == null) continue;
+            bool shouldBeActive = (i != blockedIndex);
+            units[i].ResetUnit(shouldBeActive);
+        }
+
+        if (mainJoystickControlObject != null)
+            mainJoystickControlObject.SetActive(false);
+
+        //  Aquí apagas el bloqueador para que no moleste en la nueva ronda
+        if (bloqueador != null)
+            bloqueador.SetActive(false);
     }
 
     void Update()
@@ -78,24 +99,5 @@ public class MultiJoystickControl : MonoBehaviour
             if (u.IsActive && !u.IsFinished) return false;
         }
         return true;
-    }
-
-    // --- utilidad: llamar al comenzar nueva ronda/turno ---
-    public void PrepareForNextRound()
-    {
-        finished = false;
-
-        // recalcular bloqueado y resetear
-        int blockedIndex = Mathf.Clamp(TurnManager.instance.CurrentTurn() - 1, 0, units.Length - 1);
-
-        for (int i = 0; i < units.Length; i++)
-        {
-            if (units[i] == null) continue;
-            bool shouldBeActive = (i != blockedIndex);
-            units[i].ResetUnit(shouldBeActive);
-        }
-
-        if (mainJoystickControlObject != null)
-            mainJoystickControlObject.SetActive(false);
     }
 }
