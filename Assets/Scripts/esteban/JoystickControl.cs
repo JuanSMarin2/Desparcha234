@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections;
 
 public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
@@ -28,7 +29,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     [SerializeField] private GameObject blocker;
 
     [Header("Spawn Settings")]
-    [SerializeField] private GameObject[] objectPrefabs;   // Prefabs para cada turno
+    [SerializeField] private GameObject[] objectPrefabs;   // Prefabs por turno
     [SerializeField] private Transform spawnPoint;         // Zona de tiro      
 
     [Header("Barra de Fuerza UI")]
@@ -38,7 +39,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     private float valorFuerza = 0f;
     private bool subiendo = true;
 
-    [SerializeField] private Collider2D boardCollider;
+    private bool lanzando = false; // flag para evitar dobles tiros
 
     public bool IsDragging { get; private set; }
     public Vector2 inputVector { get; private set; }
@@ -126,6 +127,8 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (lanzando) return; // si ya está lanzando, ignorar
+
         IsDragging = false;
         blocker.SetActive(true);
 
@@ -141,14 +144,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
             if (prefabToSpawn != null)
             {
                 GameObject obj = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
-                Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
-
-                if (rb != null)
-                {
-                    AplicarFuerza(rb, valorFuerza);
-                }
-
-                Debug.Log("Objeto lanzado con fuerza " + valorFuerza);
+                StartCoroutine(MoverObjeto(obj, valorFuerza));
             }
             else
             {
@@ -161,16 +157,48 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         }
     }
 
-    /// <summary>
-    /// Aplica la fuerza calculada según la barra y un ángulo fijo (45° por ahora)
-    /// </summary>
-    private void AplicarFuerza(Rigidbody2D rb, float valor)
+    private IEnumerator MoverObjeto(GameObject obj, float valor)
     {
-        float fuerza = Mathf.Lerp(5f, 20f, valor); // rango min-max
-        float angulo = 45f * Mathf.Deg2Rad;
+        lanzando = true;
 
-        Vector2 dir = new Vector2(Mathf.Cos(angulo), Mathf.Sin(angulo));
-        rb.linearVelocity = dir.normalized * fuerza;
+        Transform tejo = obj.transform;
+        Collider2D col = obj.GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        Vector3 start = spawnPoint.position;
+
+        // Fuerza escala la distancia (ej: 0..1 → 0..10 metros)
+        float distanciaMax = 10f;
+        float distancia = Mathf.Lerp(3f, distanciaMax, valor);
+
+        // Siempre ángulo vertical de 45° para simular arco
+        float angulo = 45f * Mathf.Deg2Rad;
+        Vector3 end = start + new Vector3(0f, 1f, 0f) * distancia;
+
+        // Duración en función de fuerza
+        float duracion = 1.2f;
+        float t = 0f;
+
+        Vector3 escalaInicial = tejo.localScale;
+        Vector3 escalaFinal = escalaInicial * 0.5f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / duracion;
+
+            // Movimiento solo en Y con parábola
+            float altura = 4f * (t - t * t); // parábola simple (0→sube→baja→0)
+            tejo.position = new Vector3(start.x, Mathf.Lerp(start.y, end.y, t) + altura, start.z);
+
+            tejo.localScale = Vector3.Lerp(escalaInicial, escalaFinal, t);
+
+            yield return null;
+        }
+
+        if (col != null) col.enabled = true;
+
+        lanzando = false;
+        TurnManager.instance.NextTurn();
     }
 
     private void UpdateTarget()
@@ -211,7 +239,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     {
         if (barraFuerza != null && spawnPoint != null)
         {
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(spawnPoint.position + Vector3.up * 1f); // un poco arriba
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(spawnPoint.position + Vector3.up * 1f);
             barraFuerza.transform.position = screenPos;
         }
     }
