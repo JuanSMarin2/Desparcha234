@@ -57,7 +57,13 @@ public class Bolita : MonoBehaviour
     [SerializeField] private bool useVirtualZ = true;
     [Tooltip("Gravedad aplicada al eje Z virtual (negativa hacia abajo)")]
     [SerializeField] private float gravedadVirtualZ = -9.81f;
+    [Tooltip("Arrastre lineal en Z (0 = sin arrastre). Valores 0.2–1 dan caída más suave")]
+    [SerializeField, Range(0f, 3f)] private float dragZ = 0.6f;
 
+    [Header("Advertencia de recoger bola")]
+    [Tooltip("Si la altura virtual Z está por debajo de este valor (pero > 0), se mostrará la advertencia para recoger la bola.")]
+    [SerializeField] private float distanciaAdvertenciaZ = 1.0f;
+    [SerializeField] private bool usarBolaEnPantalla = true;
     private float _launchY;
     private float _launchForce;
     private float _launchForceNorm; // fuerza normalizada [0,1]
@@ -70,6 +76,11 @@ public class Bolita : MonoBehaviour
     // Estado del eje Z virtual
     private float _z = 0f;   // altura virtual sobre el suelo
     private float _vz = 0f;  // velocidad vertical virtual
+
+    // Flag público para otros sistemas (p.ej. BarraFuerza)
+    public bool PorTocarSuelo { get; private set; }
+
+    private UiManager _ui;
 
     void Awake()
     {
@@ -91,6 +102,8 @@ public class Bolita : MonoBehaviour
             _shadowBaseScale = shadow.localScale;
             _shadowBaseLocalPos = shadow.localPosition;
         }
+
+        _ui = FindAnyObjectByType<UiManager>();
     }
 
     void Start()
@@ -98,6 +111,8 @@ public class Bolita : MonoBehaviour
         _rb.gravityScale = 0f; // Desactivar gravedad al inicio
         _rb.linearVelocity = Vector2.zero;
         NotificarEstado(_estado);
+        // Asegurar que la advertencia inicie oculta
+        ComunicarPorTocarSuelo(false);
     }
 
     // Update is called once per frame
@@ -107,6 +122,11 @@ public class Bolita : MonoBehaviour
         if (useVirtualZ && _estado == EstadoLanzamiento.EnElAire)
         {
             _vz += gravedadVirtualZ * Time.deltaTime;
+            // Aplicar arrastre lineal en Z para suavizar la subida/bajada
+            if (dragZ > 0f)
+            {
+                _vz -= dragZ * _vz * Time.deltaTime;
+            }
             _z += _vz * Time.deltaTime;
 
             // Asegurar que no se mueva físicamente en Y
@@ -124,10 +144,30 @@ public class Bolita : MonoBehaviour
                 }
             }
 
+            // Advertencia: cercano al suelo (pero aún en el aire) SOLO cuando va bajando
+            bool descending = _vz <= 0f;
+
+            // Calcular visibilidad del sprite en base a la escala visual s y el umbral de desaparición
+            float alturaForVis = useVirtualZ ? Mathf.Max(0f, _z) : Mathf.Max(0f, transform.position.y - _launchY);
+            float scalePerUnitVis = Mathf.Lerp(scalePerUnitMin, scalePerUnitMax, Mathf.Clamp01(_launchForceNorm));
+            float sVis = Mathf.Clamp(1f + alturaForVis * scalePerUnitVis, 1f, maxVisualScale);
+            bool bolaVisible = sVis < disappearScaleThreshold; // true si no está desaparecida
+
+            // Dos criterios posibles para mostrar advertencia
+            bool criterioNearGround = _z > 0f && _z <= distanciaAdvertenciaZ;
+            bool criterioBolaEnPantalla = descending && bolaVisible; // solicitado: descendiendo y visible
+
+            bool mostrarAdvertencia = descending && (usarBolaEnPantalla ? criterioBolaEnPantalla : criterioNearGround);
+            if (mostrarAdvertencia != PorTocarSuelo)
+            {
+                ComunicarPorTocarSuelo(mostrarAdvertencia);
+            }
+
             // Suelo virtual
             if (_z <= 0f)
             {
                 _z = 0f;
+                if (PorTocarSuelo) ComunicarPorTocarSuelo(false);
                 CambiarEstado(EstadoLanzamiento.Fallado);
 
                 // SFX: error/caída
@@ -200,6 +240,7 @@ public class Bolita : MonoBehaviour
         if (_rb == null) return;
 
         CambiarEstado(EstadoLanzamiento.EnElAire);
+        ComunicarPorTocarSuelo(false); // al iniciar el vuelo, aún lejos del suelo
 
         if (useVirtualZ)
         {
@@ -240,6 +281,7 @@ public class Bolita : MonoBehaviour
 
         // Toca suelo -> pierde turno
         CambiarEstado(EstadoLanzamiento.Fallado);
+        ComunicarPorTocarSuelo(false);
 
         // SFX: error/caída
         var sm = GameObject.Find("SoundManager");
@@ -255,23 +297,7 @@ public class Bolita : MonoBehaviour
         }
     }
 
-    private void OnMouseDown()
-    {
-        // Click del jugador: solo válido si ya fue lanzada
-        if (_estado == EstadoLanzamiento.PendienteDeLanzar) return;
-        if (_estado != EstadoLanzamiento.EnElAire) return;
-
-        CambiarEstado(EstadoLanzamiento.TocadaPorJugador);
-
-        Progression progression = FindAnyObjectByType<Progression>();
-        if (progression != null)
-        {
-            progression.NotificarBolitaTocada();
-        }
-
-        // SFX: bolita tocada
-        
-    }
+    // public void OnMouseDown() { ... }
 
     public void ReiniciarBola()
     {
@@ -284,6 +310,7 @@ public class Bolita : MonoBehaviour
         _rb.angularVelocity = 0f;
         _rb.gravityScale = 0f; // asegurar desactivación
         _z = 0f; _vz = 0f;      // reset estado virtual
+        ComunicarPorTocarSuelo(false);
         Debug.Log($"Bolita reiniciada. gravityScale={_rb.gravityScale}");
         if (puntoReinicio != null)
         {
@@ -328,5 +355,16 @@ public class Bolita : MonoBehaviour
     private void NotificarEstado(EstadoLanzamiento e)
     {
         OnEstadoCambio?.Invoke(e);
+    }
+
+    // Método público para comunicar el estado PorTocarSuelo al UI Manager
+    public void ComunicarPorTocarSuelo(bool valor)
+    {
+        PorTocarSuelo = valor;
+        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
+        if (_ui != null)
+        {
+            _ui.SendMessage("MostrarAdvertenciaRecoger", valor, SendMessageOptions.DontRequireReceiver);
+        }
     }
 }

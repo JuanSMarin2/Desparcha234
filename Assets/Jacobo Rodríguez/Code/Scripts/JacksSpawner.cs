@@ -13,17 +13,23 @@ public class JackSpawner : MonoBehaviour
 
     [Header("Spawn")]
 
-    [SerializeField] private BoxCollider2D spawnArea; // Asigna un GameObject con BoxCollider2D (Is Trigger)
+    [SerializeField] private PolygonCollider2D spawnArea; // Asigna un GameObject con PolygonCollider2D (Is Trigger)
 
     [SerializeField] private bool randomRotation = true;
 
     [SerializeField] private int numberOfJacks = 10;
 
+    [Header("Probabilidades de spawn")]
+    [Tooltip("Pesos relativos para cada tipo de Jack. No es necesario que sumen 1.")]
+    [SerializeField, Min(0f)] private float weightNormal = 0.5f;
+    [SerializeField, Min(0f)] private float weightSpecial = 0.25f;
+    [SerializeField, Min(0f)] private float weightBomb = 0.25f;
+
     private void Start()
     {
         if (spawnArea == null)
         {
-            Debug.LogWarning("Spawn area not assigned. Please assign a BoxCollider2D.");
+            Debug.LogWarning("Spawn area not assigned. Please assign a PolygonCollider2D.");
             return;
         }
 
@@ -34,7 +40,7 @@ public class JackSpawner : MonoBehaviour
     {
         if (spawnArea == null)
         {
-            Debug.LogWarning("Asigna un BoxCollider2D como área de spawn.");
+            Debug.LogWarning("Asigna un PolygonCollider2D como área de spawn.");
             return;
         }
 
@@ -93,20 +99,40 @@ public class JackSpawner : MonoBehaviour
         SpawnJacks();
     }
 
-    private static Vector3 RandomPointInArea(BoxCollider2D area)
+    private static Vector3 RandomPointInArea(PolygonCollider2D area)
     {
         Bounds b = area.bounds;
-        float x = Random.Range(b.min.x, b.max.x);
-        float y = Random.Range(b.min.y, b.max.y);
-        return new Vector3(x, y, 0f);
+        const int maxAttempts = 64;
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            float x = Random.Range(b.min.x, b.max.x);
+            float y = Random.Range(b.min.y, b.max.y);
+            Vector2 p = new Vector2(x, y);
+            if (area.OverlapPoint(p))
+            {
+                return new Vector3(x, y, 0f);
+            }
+        }
+        // Fallback: centro del polígono si no encontramos punto en intentos
+        Vector3 c = area.bounds.center;
+        return new Vector3(c.x, c.y, 0f);
     }
-    // Devuelve un prefab con pesos: normal 50%, special 25%, bomb 25%
+    // Devuelve un prefab con pesos configurables en el inspector
     private GameObject PickPrefab()
     {
-        float r = Random.value; // [0,1)
-        if (r < 0.50f) return normalJackPrefab;   // 50%
-        if (r < 0.75f) return specialJackPrefab;  // 25%
-        return bombJackPrefab;                    // 25%
+        float n = Mathf.Max(0f, weightNormal);
+        float s = Mathf.Max(0f, weightSpecial);
+        float b = Mathf.Max(0f, weightBomb);
+        float total = n + s + b;
+        if (total <= 0f)
+        {
+            // Fallback: todo a normal si no hay pesos válidos
+            n = 1f; s = 0f; b = 0f; total = 1f;
+        }
+        float r = Random.value * total;
+        if (r < n) return normalJackPrefab;
+        if (r < n + s) return specialJackPrefab;
+        return bombJackPrefab;
     }
     #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
@@ -114,9 +140,19 @@ public class JackSpawner : MonoBehaviour
         if (spawnArea != null)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(spawnArea.bounds.center, spawnArea.bounds.size);
+            // Dibujar contorno del/los paths del PolygonCollider2D
+            for (int i = 0; i < spawnArea.pathCount; i++)
+            {
+                var path = spawnArea.GetPath(i);
+                for (int j = 0; j < path.Length; j++)
+                {
+                    Vector3 a = spawnArea.transform.TransformPoint(path[j]);
+                    Vector3 b = spawnArea.transform.TransformPoint(path[(j + 1) % path.Length]);
+                    Gizmos.DrawLine(a, b);
+                }
+            }
         }
     }
-#endif
+    #endif
 
 }

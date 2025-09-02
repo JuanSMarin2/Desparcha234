@@ -1,6 +1,9 @@
+using Microsoft.Unity.VisualStudio.Editor;
+using Unity.VisualScripting;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 #endif
 
 public class BarraFuerza : MonoBehaviour
@@ -8,6 +11,8 @@ public class BarraFuerza : MonoBehaviour
     [Header("Referencias UI")]
     [SerializeField] private RectTransform marcador; // Objeto que se mueve
     [SerializeField] private RectTransform barra;    // Barra con gradiente
+    [SerializeField] private GameObject advertenciaLanzar;
+      // Barra con gradiente
 
     [Header("Configuración")]
     [SerializeField] private float velocidad = 200f;   // Velocidad base (px/seg)
@@ -37,6 +42,11 @@ public class BarraFuerza : MonoBehaviour
     private bool _lateralTapArmed = false;     // habilita tap lateral tras lanzar por shake
     private bool _lastLaunchWasByShake = false;
     private float _launchByShakeTime = -999f;
+
+    [Header("Shake guard")]
+    [Tooltip("Segundos tras reanudar el marcador en los que se bloquea el lanzamiento por shake")]
+    [SerializeField] private float postResetShakeDelay = 1f;
+    private float _shakeBlockedUntil = 0f;
 
     [Header("Debug shakes")]
     [SerializeField] private bool debugShakes = true;
@@ -70,6 +80,22 @@ public class BarraFuerza : MonoBehaviour
 #endif
     }
 
+    void Start()
+    {
+        if (!lanzarConbarra)
+        {
+            GameObject marcador = GameObject.Find("Marcador");
+            if (marcador != null)
+            {
+                UnityEngine.UI.Image img = GetComponent<UnityEngine.UI.Image>();
+               img.enabled = false;
+                marcador.SetActive(false);
+            Debug.Log("LanzarConBarra desactivado: ocultando barra y marcador. " + img.enabled + " " + marcador.activeSelf);
+            }
+            
+            
+        }
+    }
     private void Update()
     {
         // Antes: if (detenido) return; -> Esto impedía detectar shakes en el aire
@@ -79,6 +105,11 @@ public class BarraFuerza : MonoBehaviour
         if (!detenido)
         {
             MoverMarcador();
+            advertenciaLanzar.SetActive(true);
+        }
+        else
+        {
+            advertenciaLanzar.SetActive(false);
         }
 
         DetectarShakeYLanzar(); // siempre leer shakes
@@ -168,7 +199,7 @@ public class BarraFuerza : MonoBehaviour
         if (bolita == null) return;
 
 #if ENABLE_INPUT_SYSTEM
-        if (UnityEngine.InputSystem.Accelerometer.current == null) return; // no hay acelerómetro
+        if (Accelerometer.current == null) return; // no hay acelerómetro
         // Filtro pasa-bajos para separar aceleración lenta de cambios bruscos usando nuevo Input System
         Vector3 accelNow = UnityEngine.InputSystem.Accelerometer.current.acceleration.ReadValue();
         _lowPassAccel = Vector3.Lerp(_lowPassAccel, accelNow, lowPassFactor);
@@ -193,22 +224,31 @@ public class BarraFuerza : MonoBehaviour
         bool upOK = Mathf.Abs(upComponent) >= upShakeThreshold;
         bool sideOK = lateralMag >= sideShakeThreshold;
         bool upDominates = Mathf.Abs(upComponent) >= lateralMag;
+        bool resetGuardReady = Time.time >= _shakeBlockedUntil; // nuevo guardado post-reset
+
+        // Opcional: evita consumir un tap si hay un dedo en pantalla (reduce falsos positivos)
+        bool touchActive = false;
+#if ENABLE_INPUT_SYSTEM
+        touchActive = Touchscreen.current?.primaryTouch.isInProgress ?? false;
+#else
+        touchActive = Input.touchCount > 0;
+#endif
 
         // DEBUG: Log cada agite significativo con contexto del flujo
         if (debugShakes && totalMag >= debugShakeLogThreshold && Time.time - _ultimoShakeLogTime >= debugLogMinInterval)
         {
             _ultimoShakeLogTime = Time.time;
             Debug.Log($"[ShakeDBG][RAW] total={totalMag:F2} up={upComponent:F2} side={lateralMag:F2} state={bolita.Estado} detenido={detenido}");
-            Debug.Log($"[ShakeDBG][EVAL] isPending={isPending} isAirTapWindow={isAirTapWindow} cooldownReady={cooldownReady} delayReady={delayReady} upOK={upOK} upDominates={upDominates} sideOK={sideOK} armed={_lateralTapArmed}");
+            Debug.Log($"[ShakeDBG][EVAL] isPending={isPending} isAirTapWindow={isAirTapWindow} cooldownReady={cooldownReady} delayReady={delayReady} upOK={upOK} upDominates={upDominates} sideOK={sideOK} armed={_lateralTapArmed} porTocarSuelo={bolita.PorTocarSuelo} resetGuardReady={resetGuardReady}");
         }
 
         // 1) Evaluación de lanzamiento (pendiente)
         if (isPending)
         {
-            bool shouldLaunch = upOK && upDominates && cooldownReady;
+            bool shouldLaunch = upOK && upDominates && cooldownReady && resetGuardReady;
             if (debugShakes && totalMag >= debugShakeLogThreshold)
             {
-                Debug.Log($"[ShakeDBG][PENDING] shouldLaunch={shouldLaunch} (upOK&&upDominates&&cooldownReady)");
+                Debug.Log($"[ShakeDBG][PENDING] shouldLaunch={shouldLaunch} (upOK&&upDominates&&cooldownReady&&resetGuardReady)");
             }
             if (shouldLaunch)
             {
@@ -241,13 +281,13 @@ public class BarraFuerza : MonoBehaviour
             }
         }
 
-        // 2) Evaluación de tap lateral en el aire
+        // 2) Evaluación de tap lateral en el aire (solo si está cerca del suelo)
         if (isAirTapWindow && _lateralTapArmed)
         {
-            bool shouldTap = delayReady && sideOK && cooldownReady;
+            bool shouldTap = !touchActive && delayReady && sideOK && cooldownReady && bolita.PorTocarSuelo;
             if (debugShakes && totalMag >= debugShakeLogThreshold)
             {
-                Debug.Log($"[ShakeDBG][AIR] shouldTap={shouldTap} (delayReady&&sideOK&&cooldownReady)");
+                Debug.Log($"[ShakeDBG][AIR] shouldTap={shouldTap} (delayReady&&sideOK&&cooldownReady&&porTocarSuelo)");
             }
             if (shouldTap)
             {
@@ -275,6 +315,9 @@ public class BarraFuerza : MonoBehaviour
         if (marcador != null && barra != null)
             marcador.anchoredPosition = new Vector2(marcador.anchoredPosition.x, -barra.rect.height / 2f);
         subiendo = true;
+
+        // Bloqueo temporal de lanzamiento por shake tras reanudar
+        _shakeBlockedUntil = Time.time + postResetShakeDelay;
 
         // Reset de flags de shake/tap
         _lateralTapArmed = false;
