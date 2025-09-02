@@ -144,8 +144,8 @@ public class Progression : MonoBehaviour
                 for (int i = 0; i < _attemptsLeft.Length; i++) totalRestantes += _attemptsLeft[i];
                 if (totalRestantes <= 0)
                 {
-                    // DEBUG: en lugar de ir a Resultados, recargar esta misma escena
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                    FinalizarMiniJuegoPorPuntaje();
+                 //   SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                     return;
                 }
 
@@ -177,7 +177,7 @@ public class Progression : MonoBehaviour
         }
     }
 
-    private void FinalizarMinijuegoPorPuntaje()
+    private void FinalizarMiniJuegoPorPuntaje()
     {
         int n = _playerCurrentScores != null ? _playerCurrentScores.Length : (RoundData.instance != null ? RoundData.instance.numPlayers : 0);
         if (n <= 0) return;
