@@ -175,7 +175,7 @@ public class PointsUIManager : MonoBehaviour
 
     private IEnumerator CommitTotalsAfterOneSecond(RoundData rd)
     {
-        // Llamamos a su propia rutina que ya hace WaitForSeconds(1f) y suma current → total
+        // Llamamos a su propia rutina que ya hace WaitForSeconds(1f) y suma current total
         rd.GetTotalPoints();
         yield return new WaitForSeconds(1f);
         // No tocamos UI aquí; ya está mostrando los targetTotals locales
