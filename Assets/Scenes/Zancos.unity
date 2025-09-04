@@ -925,7 +925,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1091253076}
+      - m_Target: {fileID: 1264223780}
         m_TargetAssemblyTypeName: ZancoMove, Assembly-CSharp
         m_MethodName: buttonGetsClicked
         m_Mode: 1
@@ -1058,7 +1058,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1091253076}
+      - m_Target: {fileID: 1424594952}
         m_TargetAssemblyTypeName: ZancoMove, Assembly-CSharp
         m_MethodName: buttonGetsClicked
         m_Mode: 1
@@ -3338,7 +3338,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1091253076}
+      - m_Target: {fileID: 1495881620}
         m_TargetAssemblyTypeName: ZancoMove, Assembly-CSharp
         m_MethodName: buttonGetsClicked
         m_Mode: 1
