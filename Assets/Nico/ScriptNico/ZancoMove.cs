@@ -3,6 +3,7 @@ using System.Collections;
 
 public class ZancoMove : MonoBehaviour
 {
+    animatorControllerCharacter acc;
     Transform posicion;
     bool puedeMover = true;
     bool llegoMeta = false; // Nueva variable de estado
@@ -16,27 +17,42 @@ public class ZancoMove : MonoBehaviour
     const float resetDelay = 1.5f;
     public float numPer;
 
+    // indicador de que hubo una caída y estamos esperando el reseteo asociado
+    bool inCaida = false;
+
     void Start()
     {
         posicion = gameObject.GetComponent<Transform>();
         cc = GetComponent<CollorController>();
+        acc = GetComponent<animatorControllerCharacter>();
     }
 
     void Update()
     {
+        // Primero comprobar si ya pasó el resetDelay desde el último click válido.
+        // Si venimos de una caída (inCaida == true) llamaremos recoverTrigger() cuando se resetee.
+        if (Time.time - lastValidClickTime >= resetDelay)
+        {
+            // Sólo ejecutar acciones de reseteo si algo cambia o si venimos de una caída pendiente.
+            if (saltosSeguidos != 0 || inCaida)
+            {
+                saltosSeguidos = 0;
+                if (cc != null) cc.frio();
+
+                if (inCaida)
+                {
+                    if (acc != null) acc.recoverTrigger(); // <-- llamamos recoverTrigger() tras la caída
+                    inCaida = false;
+                }
+
+                // opcional: Debug.Log("Reset saltosSeguidos por inactividad o tras caida");
+            }
+        }
+
         // Si no hay saltos acumulados, asegurar color frio
         if (saltosSeguidos == 0)
         {
             if (cc != null) cc.frio();
-            return;
-        }
-
-        // Si han pasado >= resetDelay desde el último click válido, resetear saltosSeguidos
-        if (Time.time - lastValidClickTime >= resetDelay)
-        {
-            saltosSeguidos = 0;
-            if (cc != null) cc.frio();
-            // opcional: Debug.Log("Reset saltosSeguidos por inactividad");
         }
 
         Debug.Log(saltosSeguidos);
@@ -69,6 +85,7 @@ public class ZancoMove : MonoBehaviour
         if (cc != null) cc.calentando();
         saltosSeguidos += 1;
         lastValidClickTime = Time.time;
+        if (acc != null) acc.jumpTrigger();
     }
 
     public void MoveZanco()
@@ -84,6 +101,11 @@ public class ZancoMove : MonoBehaviour
     void caida()
     {
         Debug.Log("Caida");
+        if (acc != null) acc.fallTrigger();
+        // marcar que hubo una caída para invocar recoverTrigger() cuando se haga el reset
+        inCaida = true;
+        // asegurar que el conteo de inactividad arranca desde ahora
+        lastValidClickTime = Time.time;
         StartCoroutine(BloquearMovimientoPorTiempo(2f));
     }
 
