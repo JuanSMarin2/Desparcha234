@@ -1,0 +1,546 @@
+fileFormatVersion: 2
+guid: 2c9d13fcd622ffe499413dcc52e4c7d1
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -267254892506809611
+    second: Catapis colorsitos_0
+  - first:
+      213: 8874383510894838881
+    second: Catapis colorsitos_1
+  - first:
+      213: 5855483077049035533
+    second: Catapis colorsitos_2
+  - first:
+      213: -8425922710152830698
+    second: Catapis colorsitos_3
+  - first:
+      213: 2998082960460143662
+    second: Catapis colorsitos_4
+  - first:
+      213: -7988865796295809603
+    second: Catapis colorsitos_5
+  - first:
+      213: 5597520371272618289
+    second: Catapis colorsitos_6
+  - first:
+      213: -879498505240394699
+    second: Catapis colorsitos_7
+  - first:
+      213: -5099476230081034791
+    second: Catapis colorsitos_8
+  - first:
+      213: 5697851341650409315
+    second: Catapis colorsitos_9
+  - first:
+      213: 338947983110570213
+    second: Catapis colorsitos_10
+  - first:
+      213: -5177399474068457310
+    second: Catapis colorsitos_11
+  - first:
+      213: -522232099381803678
+    second: Catapis colorsitos_12
+  - first:
+      213: 1583418695160540438
+    second: Catapis colorsitos_13
+  - first:
+      213: -6387776247046548253
+    second: Catapis colorsitos_14
+  - first:
+      213: 5629297768788690794
+    second: Catapis colorsitos_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Catapis colorsitos_0
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 1523
+        width: 424
+        height: 428
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fa75ab57158a4cf0800000000000000
+      internalID: -267254892506809611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_1
+      rect:
+        serializedVersion: 2
+        x: 556
+        y: 1523
+        width: 406
+        height: 431
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 164887fd8c4282b70800000000000000
+      internalID: 8874383510894838881
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_2
+      rect:
+        serializedVersion: 2
+        x: 1046
+        y: 1521
+        width: 340
+        height: 442
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0ba1dbb5dad24150800000000000000
+      internalID: 5855483077049035533
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_3
+      rect:
+        serializedVersion: 2
+        x: 1464
+        y: 1514
+        width: 474
+        height: 459
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 611a17400fb111b80800000000000000
+      internalID: -8425922710152830698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_4
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 1033
+        width: 424
+        height: 429
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2cd06961945b9920800000000000000
+      internalID: 2998082960460143662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_5
+      rect:
+        serializedVersion: 2
+        x: 554
+        y: 1033
+        width: 406
+        height: 431
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db5258592e8d12190800000000000000
+      internalID: -7988865796295809603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_6
+      rect:
+        serializedVersion: 2
+        x: 1044
+        y: 1032
+        width: 340
+        height: 441
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13197b8ee136ead40800000000000000
+      internalID: 5597520371272618289
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_7
+      rect:
+        serializedVersion: 2
+        x: 1473
+        y: 1031
+        width: 474
+        height: 459
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 534c8aee4c46bc3f0800000000000000
+      internalID: -879498505240394699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_8
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 514
+        width: 424
+        height: 428
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d5c87d03650b39b0800000000000000
+      internalID: -5099476230081034791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_9
+      rect:
+        serializedVersion: 2
+        x: 565
+        y: 514
+        width: 405
+        height: 430
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3673e025b95d21f40800000000000000
+      internalID: 5697851341650409315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_10
+      rect:
+        serializedVersion: 2
+        x: 1054
+        y: 512
+        width: 340
+        height: 442
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e004a2156f24b400800000000000000
+      internalID: 338947983110570213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_11
+      rect:
+        serializedVersion: 2
+        x: 1484
+        y: 512
+        width: 473
+        height: 458
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a8fadffb9e2628b0800000000000000
+      internalID: -5177399474068457310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_12
+      rect:
+        serializedVersion: 2
+        x: 65
+        y: 24
+        width: 424
+        height: 428
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2658a0a2ca8a0c8f0800000000000000
+      internalID: -522232099381803678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_13
+      rect:
+        serializedVersion: 2
+        x: 563
+        y: 24
+        width: 405
+        height: 430
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61da1c7f9ee69f510800000000000000
+      internalID: 1583418695160540438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_14
+      rect:
+        serializedVersion: 2
+        x: 1052
+        y: 23
+        width: 340
+        height: 441
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e4dc12e85f0a57a0800000000000000
+      internalID: -6387776247046548253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Catapis colorsitos_15
+      rect:
+        serializedVersion: 2
+        x: 1482
+        y: 22
+        width: 473
+        height: 458
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a678c83de784f1e40800000000000000
+      internalID: 5629297768788690794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Catapis colorsitos_0: -267254892506809611
+      Catapis colorsitos_1: 8874383510894838881
+      Catapis colorsitos_10: 338947983110570213
+      Catapis colorsitos_11: -5177399474068457310
+      Catapis colorsitos_12: -522232099381803678
+      Catapis colorsitos_13: 1583418695160540438
+      Catapis colorsitos_14: -6387776247046548253
+      Catapis colorsitos_15: 5629297768788690794
+      Catapis colorsitos_2: 5855483077049035533
+      Catapis colorsitos_3: -8425922710152830698
+      Catapis colorsitos_4: 2998082960460143662
+      Catapis colorsitos_5: -7988865796295809603
+      Catapis colorsitos_6: 5597520371272618289
+      Catapis colorsitos_7: -879498505240394699
+      Catapis colorsitos_8: -5099476230081034791
+      Catapis colorsitos_9: 5697851341650409315
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
