@@ -124,8 +124,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.0000007894655, y: -0.041150495}
-  m_Radius: 3.5676615
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 3.7
 --- !u!114 &7156585503405785716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,6 +161,8 @@ MonoBehaviour:
   - {fileID: -7988865796295809603, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
   - {fileID: 5597520371272618289, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
   - {fileID: -879498505240394699, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  transparentAlpha: 0.4
+  transparentGray: {r: 0.65, g: 0.65, b: 0.65, a: 1}
   puntos: 100
   tipoJack: 0
 --- !u!50 &5804796854432227951
@@ -179,7 +181,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0
-  m_Material: {fileID: 6200000, guid: e0c3102c93d7b1145894a92bf63ece15, type: 2}
+  m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

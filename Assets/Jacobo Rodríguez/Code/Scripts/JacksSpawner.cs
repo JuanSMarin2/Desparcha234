@@ -21,6 +21,10 @@ public class JackSpawner : MonoBehaviour
     [Tooltip("Opcional: Asigna un PolygonCollider2D para un área de spawn más compleja")]
     [SerializeField] private PolygonCollider2D spawnAreaPolygon;
 
+    [Header("Spawn Exclusions")]
+    [Tooltip("Colliders donde NO se pueden spawnear jacks (exclusiones)")]
+    [SerializeField] private Collider2D[] spawnExclude;
+
     [SerializeField] private bool randomRotation = true;
 
     [SerializeField] private int numberOfJacks = 10;
@@ -87,6 +91,7 @@ public class JackSpawner : MonoBehaviour
             int turno = TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1;
             foreach (var jack in jackComponents)
             {
+                jack.HabilitarColor();
                 // Para Normal, esto asigna sprite según color del jugador; otros tipos se mantienen
                 jack.updateColor(turno);
                 jack.Transparentar();
@@ -104,11 +109,7 @@ public class JackSpawner : MonoBehaviour
         }
     }
 
-    public void EnableAll()
-    {
-        // Ya no existe "enable" en Jack; restaurar = respawnear
-        SpawnJacks();
-    }
+    
 
     // Habilita colliders y color pleno de todos los jacks activos bajo este spawner
     public void EnableJacks()
@@ -135,25 +136,49 @@ public class JackSpawner : MonoBehaviour
         switch (spawnShape)
         {
             case SpawnAreaShape.Box:
-                return RandomPointInBox(spawnAreaBox);
+                return RandomPointInBox(spawnAreaBox, spawnExclude);
             case SpawnAreaShape.Polygon:
-                return RandomPointInPolygon(spawnAreaPolygon);
+                return RandomPointInPolygon(spawnAreaPolygon, spawnExclude);
             default:
                 // Fallback al centro del spawner si no hay área válida
                 return transform.position;
         }
     }
 
-    private static Vector3 RandomPointInBox(BoxCollider2D area)
+    private static bool IsExcludedAt(Vector2 p, Collider2D[] excludes)
     {
-        if (area == null) return Vector3.zero;
-        Bounds b = area.bounds;
-        float x = Random.Range(b.min.x, b.max.x);
-        float y = Random.Range(b.min.y, b.max.y);
-        return new Vector3(x, y, 0f);
+        if (excludes == null || excludes.Length == 0) return false;
+        for (int i = 0; i < excludes.Length; i++)
+        {
+            var c = excludes[i];
+            if (c == null) continue;
+            if (c.OverlapPoint(p)) return true;
+        }
+        return false;
     }
 
-    private static Vector3 RandomPointInPolygon(PolygonCollider2D area)
+    private static Vector3 RandomPointInBox(BoxCollider2D area, Collider2D[] excludes)
+    {
+        if (area == null) return Vector3.zero;
+        const int maxAttempts = 64;
+        Bounds b = area.bounds;
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            float x = Random.Range(b.min.x, b.max.x);
+            float y = Random.Range(b.min.y, b.max.y);
+            Vector2 p = new Vector2(x, y);
+            // Validar que esté dentro de la caja (soporta rotación) y no en exclusión
+            if (area.OverlapPoint(p) && !IsExcludedAt(p, excludes))
+            {
+                return new Vector3(x, y, 0f);
+            }
+        }
+        // Fallback: centro del box si no encontramos punto válido
+        Vector3 c = area.bounds.center;
+        return new Vector3(c.x, c.y, 0f);
+    }
+
+    private static Vector3 RandomPointInPolygon(PolygonCollider2D area, Collider2D[] excludes)
     {
         if (area == null) return Vector3.zero;
         Bounds b = area.bounds;
@@ -163,15 +188,16 @@ public class JackSpawner : MonoBehaviour
             float x = Random.Range(b.min.x, b.max.x);
             float y = Random.Range(b.min.y, b.max.y);
             Vector2 p = new Vector2(x, y);
-            if (area.OverlapPoint(p))
+            if (area.OverlapPoint(p) && !IsExcludedAt(p, excludes))
             {
                 return new Vector3(x, y, 0f);
             }
         }
         // Fallback: centro del polígono si no encontramos punto en intentos
-        Vector3 c = area.bounds.center;
-        return new Vector3(c.x, c.y, 0f);
+        Vector3 c2 = area.bounds.center;
+        return new Vector3(c2.x, c2.y, 0f);
     }
+
     // Devuelve un prefab con pesos configurables en el inspector
     private GameObject PickPrefab()
     {

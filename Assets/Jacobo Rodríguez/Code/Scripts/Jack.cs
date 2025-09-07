@@ -63,8 +63,7 @@ public class Jack : MonoBehaviour
 
     private void Start()
     {
-        // Ya no usamos enable(); los Jacks inician activos por defecto
-        if (_col2D != null) _col2D.enabled = true; // Asegurar que el collider esté activo
+        // No forzar el collider aquí: Transparentar/HabilitarColor controlan su estado
         if (TurnManager.instance != null)
         {
             updateColor(TurnManager.instance.CurrentTurn()); // Actualizar sprite por color al inicio
@@ -111,6 +110,13 @@ public class Jack : MonoBehaviour
         {
             if (sr != null) sr.color = c;
         }
+        // Deshabilitar todos los Collider2D (no solo el círculo)
+        CircleCollider2D jackCollider = GetComponent<CircleCollider2D>();
+        if (jackCollider != null)
+        {
+            jackCollider.enabled = false;
+            Debug.Log("Collider deshabilitado en Jack (CircleCollider2D), enabled ahora: " + jackCollider.enabled);
+        }
         var cols = GetComponentsInChildren<Collider2D>(true);
         foreach (var col in cols)
         {
@@ -121,17 +127,20 @@ public class Jack : MonoBehaviour
     // Restaurar visibilidad y habilitar collider (estado: listo/lanzado)
     public void HabilitarColor()
     {
+        // Habilitar todos los Collider2D (incluido el círculo si existe)
+        CircleCollider2D jackCollider = GetComponent<CircleCollider2D>();
+        if (jackCollider != null)
+        {
+            jackCollider.enabled = true;
+            Debug.Log("CircleCollider2D habilitado en Jack, enabled: " + jackCollider.enabled);
+        }
         var cols = GetComponentsInChildren<Collider2D>(true);
         foreach (var col in cols)
         {
             if (col != null) col.enabled = true;
         }
 
-        // Restaurar color visible. Para Normal, además actualizamos sprite por jugador actual.
-        if (TurnManager.instance != null && tipoJack == tipo.Normal)
-        {
-           // updateColor(TurnManager.instance.CurrentTurn());
-        }
+        // Restaurar color visible (para cualquier tipo)
         var sprs = GetComponentsInChildren<SpriteRenderer>(true);
         foreach (var sr in sprs)
         {
@@ -171,7 +180,7 @@ public class Jack : MonoBehaviour
 
             }
         }
-        Debug.Log("Sprites random para los jacks normales escogidos YTUJUUUUUU");
+        
     }
 }
 
