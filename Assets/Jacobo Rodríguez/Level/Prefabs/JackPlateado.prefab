@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 162931619170609566}
   - component: {fileID: 1218437788153453120}
   - component: {fileID: 7156585503405785716}
+  - component: {fileID: 5804796854432227951}
   m_Layer: 0
   m_Name: JackPlateado
   m_TagString: Untagged
@@ -78,7 +79,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 3452165985447942676, guid: 738d098b0130e96458501bff64e80d8a, type: 3}
+  m_Sprite: {fileID: -267254892506809611, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -99,7 +100,7 @@ CircleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: e0c3102c93d7b1145894a92bf63ece15, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -119,7 +120,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -137,8 +138,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bdf7a134101dfd4594ac64832a20c0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jackSprite: {fileID: 3452165985447942676, guid: 738d098b0130e96458501bff64e80d8a, type: 3}
+  jackSpritesNormal: []
+  jackSpritesEspecial: []
+  jackSpritesBomba: []
+  jackSpritesNormalAmarillo:
+  - {fileID: -5099476230081034791, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: 5697851341650409315, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: 338947983110570213, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: -5177399474068457310, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  jackSpritesNormalRojo:
+  - {fileID: -267254892506809611, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: 8874383510894838881, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: 5855483077049035533, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: -8425922710152830698, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  jackSpritesNormalVerde:
+  - {fileID: -522232099381803678, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: 1583418695160540438, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: -6387776247046548253, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: 5629297768788690794, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  jackSpritesNormalAzul:
+  - {fileID: 2998082960460143662, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: -7988865796295809603, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: 5597520371272618289, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
+  - {fileID: -879498505240394699, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
   puntos: 100
   tipoJack: 0
-  progression: {fileID: 0}
-  alphaTransparente: 0.6
+--- !u!50 &5804796854432227951
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500172226620226627}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 6200000, guid: e0c3102c93d7b1145894a92bf63ece15, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 0

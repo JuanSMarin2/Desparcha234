@@ -11,9 +11,15 @@ public class JackSpawner : MonoBehaviour
     [SerializeField] private GameObject specialJackPrefab;
     [SerializeField] private GameObject bombJackPrefab;
 
-    [Header("Spawn")]
+    public enum SpawnAreaShape { Box, Polygon }
 
-    [SerializeField] private PolygonCollider2D spawnArea; // Asigna un GameObject con PolygonCollider2D (Is Trigger)
+    [Header("Spawn")]
+    [Tooltip("Elige la forma del área de spawn")]
+    [SerializeField] private SpawnAreaShape spawnShape = SpawnAreaShape.Box;
+    [Tooltip("Asigna un BoxCollider2D para el área de spawn")]
+    [SerializeField] private BoxCollider2D spawnAreaBox;
+    [Tooltip("Opcional: Asigna un PolygonCollider2D para un área de spawn más compleja")]
+    [SerializeField] private PolygonCollider2D spawnAreaPolygon;
 
     [SerializeField] private bool randomRotation = true;
 
@@ -27,9 +33,12 @@ public class JackSpawner : MonoBehaviour
 
     private void Start()
     {
-        if (spawnArea == null)
+        bool areaMissing = (spawnShape == SpawnAreaShape.Box && spawnAreaBox == null) ||
+                           (spawnShape == SpawnAreaShape.Polygon && spawnAreaPolygon == null);
+
+        if (areaMissing)
         {
-            Debug.LogWarning("Spawn area not assigned. Please assign a PolygonCollider2D.");
+            Debug.LogWarning($"Spawn area ({spawnShape}) not assigned. Please assign a {spawnShape}Collider2D.");
             return;
         }
 
@@ -38,9 +47,12 @@ public class JackSpawner : MonoBehaviour
     }
     public void SpawnJacks()
     {
-        if (spawnArea == null)
+        bool areaMissing = (spawnShape == SpawnAreaShape.Box && spawnAreaBox == null) ||
+                           (spawnShape == SpawnAreaShape.Polygon && spawnAreaPolygon == null);
+
+        if (areaMissing)
         {
-            Debug.LogWarning("Asigna un PolygonCollider2D como área de spawn.");
+            Debug.LogWarning($"Asigna un {spawnShape}Collider2D como área de spawn.");
             return;
         }
 
@@ -63,7 +75,7 @@ public class JackSpawner : MonoBehaviour
             var prefab = PickPrefab();
             if (prefab == null) continue;
 
-            Vector3 pos = RandomPointInArea(spawnArea);
+            Vector3 pos = GetRandomPointInArea();
             //Verificar si se rota o no.
             Quaternion rot = randomRotation ? Quaternion.Euler(0f, 0f, Random.Range(0f, 360f)) : Quaternion.identity;
 
@@ -99,8 +111,32 @@ public class JackSpawner : MonoBehaviour
         SpawnJacks();
     }
 
-    private static Vector3 RandomPointInArea(PolygonCollider2D area)
+    private Vector3 GetRandomPointInArea()
     {
+        switch (spawnShape)
+        {
+            case SpawnAreaShape.Box:
+                return RandomPointInBox(spawnAreaBox);
+            case SpawnAreaShape.Polygon:
+                return RandomPointInPolygon(spawnAreaPolygon);
+            default:
+                // Fallback al centro del spawner si no hay área válida
+                return transform.position;
+        }
+    }
+
+    private static Vector3 RandomPointInBox(BoxCollider2D area)
+    {
+        if (area == null) return Vector3.zero;
+        Bounds b = area.bounds;
+        float x = Random.Range(b.min.x, b.max.x);
+        float y = Random.Range(b.min.y, b.max.y);
+        return new Vector3(x, y, 0f);
+    }
+
+    private static Vector3 RandomPointInPolygon(PolygonCollider2D area)
+    {
+        if (area == null) return Vector3.zero;
         Bounds b = area.bounds;
         const int maxAttempts = 64;
         for (int i = 0; i < maxAttempts; i++)
@@ -137,17 +173,22 @@ public class JackSpawner : MonoBehaviour
     #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
-        if (spawnArea != null)
+        Gizmos.color = Color.green;
+
+        if (spawnShape == SpawnAreaShape.Box && spawnAreaBox != null)
         {
-            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(spawnAreaBox.bounds.center, spawnAreaBox.bounds.size);
+        }
+        else if (spawnShape == SpawnAreaShape.Polygon && spawnAreaPolygon != null)
+        {
             // Dibujar contorno del/los paths del PolygonCollider2D
-            for (int i = 0; i < spawnArea.pathCount; i++)
+            for (int i = 0; i < spawnAreaPolygon.pathCount; i++)
             {
-                var path = spawnArea.GetPath(i);
+                var path = spawnAreaPolygon.GetPath(i);
                 for (int j = 0; j < path.Length; j++)
                 {
-                    Vector3 a = spawnArea.transform.TransformPoint(path[j]);
-                    Vector3 b = spawnArea.transform.TransformPoint(path[(j + 1) % path.Length]);
+                    Vector3 a = spawnAreaPolygon.transform.TransformPoint(path[j]);
+                    Vector3 b = spawnAreaPolygon.transform.TransformPoint(path[(j + 1) % path.Length]);
                     Gizmos.DrawLine(a, b);
                 }
             }

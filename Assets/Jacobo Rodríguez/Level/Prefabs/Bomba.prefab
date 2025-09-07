@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
+  m_Sprite: {fileID: -4571584923481145164, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -119,7 +119,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -137,7 +137,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bdf7a134101dfd4594ac64832a20c0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jackSprite: {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
+  jackSpritesNormal: []
+  jackSpritesEspecial: []
+  jackSpritesBomba:
+  - {fileID: -7415375663567640634, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
+  - {fileID: -3183247706017676327, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
+  - {fileID: -4571584923481145164, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
+  - {fileID: 5550822443121170120, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
+  jackSpritesNormalAmarillo: []
+  jackSpritesNormalRojo: []
+  jackSpritesNormalVerde: []
+  jackSpritesNormalAzul: []
   puntos: -200
   tipoJack: 2
-  alphaTransparente: 0.6

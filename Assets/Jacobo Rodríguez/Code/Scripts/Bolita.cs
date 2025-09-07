@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Bolita : MonoBehaviour
@@ -42,6 +43,21 @@ public class Bolita : MonoBehaviour
     [Tooltip("Si la escala visual supera este valor, ocultar el sprite (solo queda la sombra)")]
     [SerializeField] private float disappearScaleThreshold = 1.65f;
 
+    // Visual: transparencia por estado
+    [Header("Visual - Transparencia")]
+    [SerializeField, Range(0f,1f)] private float alphaEnElAire = 0.5f;
+    [SerializeField, Range(0f,1f)] private float alphaEnSuelo = 1f;
+
+    [Header("Sprites por Jugador")]
+    [Tooltip("Sprites para el jugador 1 (Rojo)")]
+    [SerializeField] private Sprite[] spritesJugador1;
+    [Tooltip("Sprites para el jugador 2 (Azul)")]
+    [SerializeField] private Sprite[] spritesJugador2;
+    [Tooltip("Sprites para el jugador 3 (Amarillo)")]
+    [SerializeField] private Sprite[] spritesJugador3;
+    [Tooltip("Sprites para el jugador 4 (Verde)")]
+    [SerializeField] private Sprite[] spritesJugador4;
+
     [Header("Fuerza (para visual)")]
     [Tooltip("Fuerza máxima esperada para normalizar el efecto visual")] 
     [SerializeField] private float maxExpectedForce = 100f;
@@ -60,10 +76,18 @@ public class Bolita : MonoBehaviour
     [Tooltip("Arrastre lineal en Z (0 = sin arrastre). Valores 0.2–1 dan caída más suave")]
     [SerializeField, Range(0f, 3f)] private float dragZ = 0.6f;
 
+    [Header("Descenso controlado (Z virtual)")]
+    [Tooltip("Si está activo, limita la velocidad cuando la bola desciende en Z virtual (velocidad terminal)")]
+    [SerializeField] private bool limitDescentSpeed = true;
+    [Tooltip("Velocidad máxima de descenso (unidades/seg) en Z virtual. Solo se aplica al bajar")]
+    [SerializeField, Min(0f)] private float maxDescentSpeed = 6f;
+    [Tooltip("Aplicar el dragZ solo cuando la bola está descendiendo")]
+    [SerializeField] private bool dragOnlyOnDescent = true;
+
     [Header("Advertencia de recoger bola")]
     [Tooltip("Si la altura virtual Z está por debajo de este valor (pero > 0), se mostrará la advertencia para recoger la bola.")]
     [SerializeField] private float distanciaAdvertenciaZ = 1.0f;
-    [SerializeField] private bool usarBolaEnPantalla = true;
+   
     private float _launchY;
     private float _launchForce;
     private float _launchForceNorm; // fuerza normalizada [0,1]
@@ -113,6 +137,7 @@ public class Bolita : MonoBehaviour
         NotificarEstado(_estado);
         // Asegurar que la advertencia inicie oculta
         ComunicarPorTocarSuelo(false);
+        ActualizarSpritePorTurno();
     }
 
     // Update is called once per frame
@@ -122,11 +147,21 @@ public class Bolita : MonoBehaviour
         if (useVirtualZ && _estado == EstadoLanzamiento.EnElAire)
         {
             _vz += gravedadVirtualZ * Time.deltaTime;
-            // Aplicar arrastre lineal en Z para suavizar la subida/bajada
+            // Aplicar arrastre en Z; opcionalmente solo al descender
             if (dragZ > 0f)
             {
-                _vz -= dragZ * _vz * Time.deltaTime;
+                if (!dragOnlyOnDescent || _vz < 0f)
+                {
+                    _vz -= dragZ * _vz * Time.deltaTime;
+                }
             }
+            // Limitar velocidad de descenso (velocidad terminal)
+            if (limitDescentSpeed && _vz < 0f)
+            {
+                float minVz = -Mathf.Abs(maxDescentSpeed);
+                if (_vz < minVz) _vz = minVz;
+            }
+
             _z += _vz * Time.deltaTime;
 
             // Asegurar que no se mueva físicamente en Y
@@ -157,7 +192,7 @@ public class Bolita : MonoBehaviour
             bool criterioNearGround = _z > 0f && _z <= distanciaAdvertenciaZ;
             bool criterioBolaEnPantalla = descending && bolaVisible; // solicitado: descendiendo y visible
 
-            bool mostrarAdvertencia = descending && (usarBolaEnPantalla ? criterioBolaEnPantalla : criterioNearGround);
+            bool mostrarAdvertencia = descending && criterioNearGround;
             if (mostrarAdvertencia != PorTocarSuelo)
             {
                 ComunicarPorTocarSuelo(mostrarAdvertencia);
@@ -241,6 +276,7 @@ public class Bolita : MonoBehaviour
 
         CambiarEstado(EstadoLanzamiento.EnElAire);
         ComunicarPorTocarSuelo(false); // al iniciar el vuelo, aún lejos del suelo
+        
 
         if (useVirtualZ)
         {
@@ -343,12 +379,29 @@ public class Bolita : MonoBehaviour
         var progression = FindAnyObjectByType<Progression>();
         progression?.OnballePendingThrow();
 
+        ActualizarSpritePorTurno();
     }
 
     private void CambiarEstado(EstadoLanzamiento nuevo)
     {
         if (_estado == nuevo) return;
         _estado = nuevo;
+
+        // Aplicar alpha según el estado: transparente en el aire, normal al volver a pendiente
+        if (_sprite != null)
+        {
+            if (_estado == EstadoLanzamiento.EnElAire)
+            {
+                var c = _sprite.color;
+                _sprite.color = new Color(c.r, c.g, c.b, alphaEnElAire);
+            }
+            else if (_estado == EstadoLanzamiento.PendienteDeLanzar)
+            {
+                var c = _sprite.color;
+                _sprite.color = new Color(c.r, c.g, c.b, alphaEnSuelo);
+            }
+        }
+
         NotificarEstado(_estado);
     }
 
@@ -365,6 +418,28 @@ public class Bolita : MonoBehaviour
         if (_ui != null)
         {
             _ui.SendMessage("MostrarAdvertenciaRecoger", valor, SendMessageOptions.DontRequireReceiver);
+        }
+    }
+
+    public void ActualizarSpritePorTurno()
+    {
+        if (_sprite == null || TurnManager.instance == null) return;
+
+        int numJugador = TurnManager.instance.CurrentTurn();
+        Sprite[] setPorJugador = null;
+
+        switch (numJugador)
+        {
+            case 1: setPorJugador = spritesJugador1; break;
+            case 2: setPorJugador = spritesJugador2; break;
+            case 3: setPorJugador = spritesJugador3; break;
+            case 4: setPorJugador = spritesJugador4; break;
+        }
+
+        if (setPorJugador != null && setPorJugador.Length > 0)
+        {
+            int idx = Random.Range(0, setPorJugador.Length);
+            _sprite.sprite = setPorJugador[idx];
         }
     }
 }

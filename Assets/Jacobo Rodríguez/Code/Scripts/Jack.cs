@@ -5,14 +5,24 @@ public class Jack : MonoBehaviour
 
     [Header("Configuración")]
 
-    [SerializeField] Sprite jackSprite; // Sprite del Jack
+    // Reemplazo: ahora hay varias opciones por tipo
+    [SerializeField] private Sprite[] jackSpritesNormal;
+    [SerializeField] private Sprite[] jackSpritesEspecial;
+    [SerializeField] private Sprite[] jackSpritesBomba;
+
+    [Header("Sprites por color (Normal)")]
+    [SerializeField] private Sprite[] jackSpritesNormalAmarillo;
+    [SerializeField] private Sprite[] jackSpritesNormalRojo;
+    [SerializeField] private Sprite[] jackSpritesNormalVerde;
+    [SerializeField] private Sprite[] jackSpritesNormalAzul;
+
     [SerializeField] private int puntos;
     [SerializeField] public enum tipo { Normal, Especial, bomba };
     [SerializeField] public tipo tipoJack = tipo.Normal; // tipo de este Jack
     private Progression progression;   
     
-    [SerializeField] private float alphaTransparente = 0f; // Alpha para el estado deshabilitado (ya no se usa para volver transparente)
-      // Referencia a Progression
+    
+      
 
     public int Puntos => puntos; // Exponer puntos para Progression
 
@@ -23,8 +33,28 @@ public class Jack : MonoBehaviour
     {
         _sr = GetComponent<SpriteRenderer>();
         _col2D = GetComponent<Collider2D>();
-        if (_sr != null && jackSprite != null) _sr.sprite = jackSprite;
+        // Elegir un sprite aleatorio según el tipo (para Normal se ajustará de nuevo en Start vía updateColor)
+        Sprite selected = GetRandomSpriteForType();
+        if (_sr != null && selected != null) _sr.sprite = selected;
         if (progression == null) progression = FindAnyObjectByType<Progression>();
+    }
+
+    private Sprite GetRandomSpriteForType()
+    {
+        switch (tipoJack)
+        {
+            case tipo.Normal: return PickRandom(jackSpritesNormal);
+            case tipo.Especial: return PickRandom(jackSpritesEspecial);
+            case tipo.bomba: return PickRandom(jackSpritesBomba);
+            default: return null;
+        }
+    }
+
+    private Sprite PickRandom(Sprite[] opciones)
+    {
+        if (opciones == null || opciones.Length == 0) return null;
+        int idx = Random.Range(0, opciones.Length);
+        return opciones[idx];
     }
 
     private void Start()
@@ -33,7 +63,7 @@ public class Jack : MonoBehaviour
         if (_col2D != null) _col2D.enabled = true; // Asegurar que el collider esté activo
         if (TurnManager.instance != null)
         {
-            updateColor(TurnManager.instance.CurrentTurn()); // Actualizar color al inicio
+            updateColor(TurnManager.instance.CurrentTurn()); // Actualizar sprite por color al inicio
         }
     }
     private void OnMouseDown()
@@ -70,21 +100,32 @@ public class Jack : MonoBehaviour
 
     public void updateColor(int numJugador)
     {
-        // Solo los jacks de tipo Normal cambian de color por jugador
-        if (tipoJack != tipo.Normal || _sr == null) return;
-
-        Color color = Color.white;
-        switch (numJugador)
+        // Para tipo Normal: elegir el set de sprites por color del jugador
+        if (_sr == null) return;
+        if (tipoJack != tipo.Normal)
         {
-            case 1: color = Color.red; break;
-            case 2: color = Color.blue; break;
-            case 3: color = Color.yellow; break;
-            case 4: color = Color.green; break;
-            default: color = Color.white; break;
+            return; // Especial y bomba no cambian por color
         }
 
-        // Mantener el alpha actual (si existiera) aunque ya no se usa para deshabilitar
-        color.a = _sr.color.a;
-        _sr.color = color;
+        Sprite[] setPorColor = null;
+        switch (numJugador)
+        {
+            case 1: setPorColor = jackSpritesNormalRojo; break;
+            case 2: setPorColor = jackSpritesNormalAzul; break;
+            case 3: setPorColor = jackSpritesNormalAmarillo; break;
+            case 4: setPorColor = jackSpritesNormalVerde; break;
+            default: setPorColor = jackSpritesNormal; break; // fallback
+        }
+
+        if (setPorColor != null && setPorColor.Length > 0)
+        {
+            // Actualizar el vector base y asignar un sprite al azar de ese color
+            jackSpritesNormal = setPorColor;
+            var elegido = PickRandom(jackSpritesNormal);
+            if (elegido != null)
+            {
+                _sr.sprite = elegido;
+            }
+        }
     }
 }
