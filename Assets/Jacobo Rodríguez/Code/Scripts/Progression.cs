@@ -19,7 +19,7 @@ public class Progression : MonoBehaviour
     private long[] _playerCurrentScores; // puntaje actual por jugador (para ranking)
 
     [Header("Configuración Etapas / Intentos")]
-    [SerializeField] private bool respawnJacksEachStage = false;
+    
     [SerializeField] private int attemptsPerPlayer = 2;
     private int[] _attemptsLeft;
 
@@ -71,6 +71,7 @@ public class Progression : MonoBehaviour
             int idx = TurnManager.instance.GetCurrentPlayerIndex();
             if (idx >= 0) OnTurnAdvanced?.Invoke(idx);
         }
+        _spawner?.SpawnJacks();
     }
 
     private void ActualizarNeededJacks()
@@ -102,7 +103,7 @@ public class Progression : MonoBehaviour
     public void OnBallLaunched()
     {
         if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
-        _spawner?.SpawnJacks();
+        _spawner?.EnableJacks();
     }
 
     public void NotificarBolitaTocada()
@@ -117,12 +118,20 @@ public class Progression : MonoBehaviour
         TerminarTurno();
         touchedBall = false;
     }
-    public void OnballePendingThrow()
+
+    // Alias con ortografía correcta por si se usa desde otros lugares
+    public void OnBallPendingThrow()
+    {
+        VisualTiroPendiente();
+    }
+
+    public void VisualTiroPendiente()
     {
         if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
-        _spawner.DisableAll();
-        Debug.Log("Disabling jacks because ball is pending throw");
+        _spawner?.SpawnJacks();
+        Debug.Log("Spawning jacks because ball is pending throw");
     }
+
     private void ConsolidarIntento()
     {
         if (_attemptScore <= 0) return;
@@ -140,8 +149,7 @@ public class Progression : MonoBehaviour
     public void TerminarTurno()
     {
         _barra?.Reiniciar();
-        _bolita?.ReiniciarBola();
-        _spawner?.DisableAll();
+        // Ya no destruimos aquí: ReiniciarBola llama a OnballePendingThrow que spawnea nuevos jacks.
 
         if (TurnManager.instance != null)
         {
@@ -192,6 +200,9 @@ public class Progression : MonoBehaviour
             _ui?.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
             ActualizarUiIntentos();
         }
+
+        // Ahora reiniciamos la bola para que dispare OnballePendingThrow y se spawneen jacks del nuevo jugador
+        _bolita?.ReiniciarBola();
     }
 
     private void FinalizarMiniJuegoPorPuntaje()
@@ -217,7 +228,7 @@ public class Progression : MonoBehaviour
         _barra?.Reiniciar();
         if (_spawner != null)
         {
-            if (respawnJacksEachStage) _spawner.SpawnJacks(); else _spawner.EnableAll();
+         _spawner.SpawnJacks(); 
         }
     }
 

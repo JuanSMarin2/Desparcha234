@@ -16,13 +16,17 @@ public class Jack : MonoBehaviour
     [SerializeField] private Sprite[] jackSpritesNormalVerde;
     [SerializeField] private Sprite[] jackSpritesNormalAzul;
 
+    [Header("Transparencia (estado pendiente)")]
+    [SerializeField, Range(0f, 1f)] private float transparentAlpha = 0.4f;
+    [SerializeField] private Color transparentGray = new Color(0.65f, 0.65f, 0.65f, 1f);
+
     [SerializeField] private int puntos;
     [SerializeField] public enum tipo { Normal, Especial, bomba };
     [SerializeField] public tipo tipoJack = tipo.Normal; // tipo de este Jack
-    private Progression progression;   
-    
-    
-      
+    private Progression progression;
+
+
+
 
     public int Puntos => puntos; // Exponer puntos para Progression
 
@@ -87,7 +91,7 @@ public class Jack : MonoBehaviour
                 sm.SendMessage("SonidoBombaTocada", SendMessageOptions.DontRequireReceiver);
             }
             else
-            sm.SendMessage("SonidoJackTocado", SendMessageOptions.DontRequireReceiver);
+                sm.SendMessage("SonidoJackTocado", SendMessageOptions.DontRequireReceiver);
         }
         disable();
     }
@@ -96,6 +100,43 @@ public class Jack : MonoBehaviour
     public void disable()
     {
         Destroy(gameObject);
+    }
+
+    // Decolorar y deshabilitar collider (estado: pendiente de lanzar)
+    public void Transparentar()
+    {
+        var sprs = GetComponentsInChildren<SpriteRenderer>(true);
+        Color c = new Color(transparentGray.r, transparentGray.g, transparentGray.b, transparentAlpha);
+        foreach (var sr in sprs)
+        {
+            if (sr != null) sr.color = c;
+        }
+        var cols = GetComponentsInChildren<Collider2D>(true);
+        foreach (var col in cols)
+        {
+            if (col != null) col.enabled = false;
+        }
+    }
+
+    // Restaurar visibilidad y habilitar collider (estado: listo/lanzado)
+    public void HabilitarColor()
+    {
+        var cols = GetComponentsInChildren<Collider2D>(true);
+        foreach (var col in cols)
+        {
+            if (col != null) col.enabled = true;
+        }
+
+        // Restaurar color visible. Para Normal, además actualizamos sprite por jugador actual.
+        if (TurnManager.instance != null && tipoJack == tipo.Normal)
+        {
+           // updateColor(TurnManager.instance.CurrentTurn());
+        }
+        var sprs = GetComponentsInChildren<SpriteRenderer>(true);
+        foreach (var sr in sprs)
+        {
+            if (sr != null) sr.color = new Color(1f, 1f, 1f, 1f);
+        }
     }
 
     public void updateColor(int numJugador)
@@ -107,7 +148,9 @@ public class Jack : MonoBehaviour
             return; // Especial y bomba no cambian por color
         }
 
-        Sprite[] setPorColor = null;
+
+
+        Sprite[] setPorColor;
         switch (numJugador)
         {
             case 1: setPorColor = jackSpritesNormalRojo; break;
@@ -125,7 +168,10 @@ public class Jack : MonoBehaviour
             if (elegido != null)
             {
                 _sr.sprite = elegido;
+
             }
         }
+        Debug.Log("Sprites random para los jacks normales escogidos YTUJUUUUUU");
     }
 }
+

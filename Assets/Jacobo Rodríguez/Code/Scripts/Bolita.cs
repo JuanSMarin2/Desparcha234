@@ -377,7 +377,7 @@ public class Bolita : MonoBehaviour
         }
         CambiarEstado(EstadoLanzamiento.PendienteDeLanzar);
         var progression = FindAnyObjectByType<Progression>();
-        progression?.OnballePendingThrow();
+        progression?.VisualTiroPendiente();
 
        
     }

@@ -42,7 +42,7 @@ public class JackSpawner : MonoBehaviour
             return;
         }
 
-        // Spawn is now triggered when the ball is thrown.
+        // El spawn se controla desde Progression (pendiente de lanzar o al lanzar).
         // SpawnJacks();
     }
     public void SpawnJacks()
@@ -82,15 +82,14 @@ public class JackSpawner : MonoBehaviour
             // Instanciar como hijo de este spawner, conservando posición/rotación en mundo
             var instance = Instantiate(prefab, pos, rot, transform);
 
-            // Actualizar color para cada componente Jack del objeto instanciado (y sus hijos)
-            if (TurnManager.instance != null)
+            // Actualizar color por jugador y dejar en estado "pendiente" (transparente y sin collider)
+            var jackComponents = instance.GetComponentsInChildren<Jack>(true);
+            int turno = TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1;
+            foreach (var jack in jackComponents)
             {
-                int turno = TurnManager.instance.CurrentTurn();
-                var jackComponents = instance.GetComponentsInChildren<Jack>(true);
-                foreach (var jack in jackComponents)
-                {
-                    jack.updateColor(turno);
-                }
+                // Para Normal, esto asigna sprite según color del jugador; otros tipos se mantienen
+                jack.updateColor(turno);
+                jack.Transparentar();
             }
         }
     }
@@ -109,6 +108,26 @@ public class JackSpawner : MonoBehaviour
     {
         // Ya no existe "enable" en Jack; restaurar = respawnear
         SpawnJacks();
+    }
+
+    // Habilita colliders y color pleno de todos los jacks activos bajo este spawner
+    public void EnableJacks()
+    {
+        var jackComponents = GetComponentsInChildren<Jack>(true);
+        int turno = TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1;
+        foreach (var jack in jackComponents)
+        {
+            // Asegurar sprite correcto por turno para Normales y color pleno para todos
+            if (jack != null)
+            {
+                if (TurnManager.instance != null && jack != null)
+                {
+                    //jack.updateColor(turno);
+                }
+                jack.HabilitarColor();
+            }
+        }
+        Debug.Log($"Jacks enabled for Player {turno}");
     }
 
     private Vector3 GetRandomPointInArea()
