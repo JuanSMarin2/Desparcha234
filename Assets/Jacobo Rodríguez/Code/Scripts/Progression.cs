@@ -29,6 +29,10 @@ public class Progression : MonoBehaviour
     private JackSpawner _spawner;
     private Bolita _bolita;
 
+    // Nuevo: evento global para notificar que el turno avanzó.
+    // Envía el índice del jugador actual (0-based).
+    public static event Action<int> OnTurnAdvanced;
+
     void Awake()
     {
         _barra = FindAnyObjectByType<BarraFuerza>();
@@ -60,6 +64,13 @@ public class Progression : MonoBehaviour
 
         _ui?.ActualizarPuntos(TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1, currentScore);
         ActualizarUiIntentos(true);
+
+        // Notificar al inicio el turno actual para posicionar objetos dependientes del turno.
+        if (TurnManager.instance != null)
+        {
+            int idx = TurnManager.instance.GetCurrentPlayerIndex();
+            if (idx >= 0) OnTurnAdvanced?.Invoke(idx);
+        }
     }
 
     private void ActualizarNeededJacks()
@@ -145,7 +156,7 @@ public class Progression : MonoBehaviour
                 if (totalRestantes <= 0)
                 {
                     FinalizarMiniJuegoPorPuntaje();
-                 //   SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                    //   SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                     return;
                 }
 
@@ -160,6 +171,12 @@ public class Progression : MonoBehaviour
             {
                 TurnManager.instance.NextTurn();
             }
+
+            // Notificar que el turno avanzó (índice 0-based del jugador actual)
+            int idxActual = TurnManager.instance.GetCurrentPlayerIndex();
+            if (idxActual >= 0) OnTurnAdvanced?.Invoke(idxActual);
+
+            _bolita?.ActualizarSpritePorTurno();
         }
 
         stage = 1;

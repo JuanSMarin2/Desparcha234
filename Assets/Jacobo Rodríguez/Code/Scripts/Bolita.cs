@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-using Unity.VisualScripting;
+
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Bolita : MonoBehaviour
@@ -50,13 +50,13 @@ public class Bolita : MonoBehaviour
 
     [Header("Sprites por Jugador")]
     [Tooltip("Sprites para el jugador 1 (Rojo)")]
-    [SerializeField] private Sprite[] spritesJugador1;
+    [SerializeField] private Color colorJugador1;
     [Tooltip("Sprites para el jugador 2 (Azul)")]
-    [SerializeField] private Sprite[] spritesJugador2;
+    [SerializeField] private Color colorJugador2;
     [Tooltip("Sprites para el jugador 3 (Amarillo)")]
-    [SerializeField] private Sprite[] spritesJugador3;
+    [SerializeField] private Color colorJugador3;
     [Tooltip("Sprites para el jugador 4 (Verde)")]
-    [SerializeField] private Sprite[] spritesJugador4;
+    [SerializeField] private Color colorJugador4;
 
     [Header("Fuerza (para visual)")]
     [Tooltip("Fuerza máxima esperada para normalizar el efecto visual")] 
@@ -379,7 +379,7 @@ public class Bolita : MonoBehaviour
         var progression = FindAnyObjectByType<Progression>();
         progression?.OnballePendingThrow();
 
-        ActualizarSpritePorTurno();
+       
     }
 
     private void CambiarEstado(EstadoLanzamiento nuevo)
@@ -426,20 +426,15 @@ public class Bolita : MonoBehaviour
         if (_sprite == null || TurnManager.instance == null) return;
 
         int numJugador = TurnManager.instance.CurrentTurn();
-        Sprite[] setPorJugador = null;
-
+    
         switch (numJugador)
         {
-            case 1: setPorJugador = spritesJugador1; break;
-            case 2: setPorJugador = spritesJugador2; break;
-            case 3: setPorJugador = spritesJugador3; break;
-            case 4: setPorJugador = spritesJugador4; break;
+            case 1: _sprite.color = colorJugador1; break;
+            case 2: _sprite.color = colorJugador2; break;
+            case 3: _sprite.color = colorJugador3; break;
+            case 4: _sprite.color = colorJugador4; break;
         }
-
-        if (setPorJugador != null && setPorJugador.Length > 0)
-        {
-            int idx = Random.Range(0, setPorJugador.Length);
-            _sprite.sprite = setPorJugador[idx];
-        }
+        Debug.Log("Bolita cambiada de color a " + _sprite.color + " pues el turno es del jugador " + TurnManager.instance.CurrentTurn());
     }
 }
+
