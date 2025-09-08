@@ -1,6 +1,7 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Jack : MonoBehaviour
+public class Jack : MonoBehaviour, IPointerDownHandler
 {
 
     [Header("Configuración")]
@@ -69,6 +70,47 @@ public class Jack : MonoBehaviour
             updateColor(TurnManager.instance.CurrentTurn()); // Actualizar sprite por color al inicio
         }
     }
+
+    // Prioridad máxima: capturar clic/tap vía EventSystem y también con raycast manual como respaldo
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        Recolectar();
+        eventData.Use(); // consume el evento para evitar que UI/otros lo capturen
+    }
+
+    private void Update()
+    {
+        // Respaldo para clic/tap aunque haya UI encima
+        if (Input.GetMouseButtonDown(0))
+        {
+            TryCollectAt(Input.mousePosition);
+        }
+        else if (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
+        {
+            TryCollectAt(Input.touches[0].position);
+        }
+    }
+
+    private void TryCollectAt(Vector2 screenPos)
+    {
+        var cam = Camera.main;
+        if (cam == null) return;
+        Vector3 wp = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 0f));
+        Vector2 p = new Vector2(wp.x, wp.y);
+        var hits = Physics2D.OverlapPointAll(p);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            var h = hits[i];
+            if (h == null) continue;
+            // Si el hit es este jack o un hijo suyo, recolectar
+            if (h.transform == transform || h.transform.IsChildOf(transform))
+            {
+                Recolectar();
+                return;
+            }
+        }
+    }
+
     private void OnMouseDown()
     {
         Recolectar();
