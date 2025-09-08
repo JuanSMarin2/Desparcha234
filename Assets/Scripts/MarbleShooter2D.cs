@@ -9,9 +9,9 @@ public class MarbleShooter2D : MonoBehaviour
     [SerializeField] private Rigidbody2D marble;
     [SerializeField] private int playerIndex;
     [SerializeField] private MarblePower marblePower;
-    [SerializeField] private JoystickController joystick;   // NUEVO
+    [SerializeField] private JoystickController joystick;
 
-    [Header("Física")]
+    [Header("Fisica")]
     [SerializeField] private float forceMultiplier = 10f;
     [SerializeField] private float linearDamping = 3f;
     [SerializeField] private float angularDamping = 1.0f;
@@ -27,8 +27,37 @@ public class MarbleShooter2D : MonoBehaviour
     [SerializeField] private Sprite impactSprite;
     [SerializeField] private float impactMinVelocity = 3f;
 
-    // ====== BONUS SHOT (estático, compartido) ======
+    // ====== Bonus shot (static, compartido) ======
     private static int bonusShotForPlayer = -1; // -1 = sin bonus
+
+    // ====== Bloqueo dobles en primer ciclo ======
+    private static bool firstCycleActive = true;                 // true hasta que todos tiren 1 vez
+    private static System.Collections.Generic.HashSet<int> shotFirstCycle = new System.Collections.Generic.HashSet<int>();
+
+    private static bool AllActivePlayersHaveShotOnce()
+    {
+        if (TurnManager.instance == null) return false;
+        var active = TurnManager.instance.GetActivePlayerIndices();
+        if (active == null || active.Count == 0) return false;
+        for (int i = 0; i < active.Count; i++)
+        {
+            if (!shotFirstCycle.Contains(active[i])) return false;
+        }
+        return true;
+    }
+
+    private static void RegisterFirstShotIfNeeded(int playerIdx)
+    {
+        if (!firstCycleActive) return;
+        if (!shotFirstCycle.Contains(playerIdx))
+            shotFirstCycle.Add(playerIdx);
+
+        if (AllActivePlayersHaveShotOnce())
+        {
+            firstCycleActive = false;
+            shotFirstCycle.Clear();
+        }
+    }
 
     private static void AwardBonusToCurrentTurnIfEliminatedNotCurrent(int eliminatedPlayerIndex)
     {
@@ -36,11 +65,16 @@ public class MarbleShooter2D : MonoBehaviour
         int current = TurnManager.instance.GetCurrentPlayerIndex();
         if (current < 0) return;
 
-        // Solo dar bonus si el eliminado NO es el que está en turno
+        // Si aun estamos en el primer ciclo, no dar bonus
+        if (firstCycleActive) return;
+
+        // No acumular bonus
+        if (bonusShotForPlayer != -1) return;
+
+        // Solo dar bonus si el eliminado no es el que esta en turno
         if (eliminatedPlayerIndex != current)
         {
             bonusShotForPlayer = current;
-            // Debug.Log($"[Bonus] Se concedió bonus al Jugador {current+1} por eliminación de Jugador {eliminatedPlayerIndex+1}");
         }
     }
 
@@ -54,9 +88,26 @@ public class MarbleShooter2D : MonoBehaviour
         return false;
     }
 
+    private static void ZeroAllMarbles()
+    {
+        var shooters = FindObjectsByType<MarbleShooter2D>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < shooters.Length; i++)
+        {
+            if (shooters[i] != null && shooters[i].marble != null)
+            {
+                shooters[i].marble.linearVelocity = Vector2.zero;
+                shooters[i].marble.angularVelocity = 0f;
+            }
+        }
+    }
+
     void Start()
     {
+        // Reset por escena
         bonusShotForPlayer = -1;
+        firstCycleActive = true;
+        shotFirstCycle.Clear();
+
         startLinearDamping = linearDamping;
         startAngularDamping = angularDamping;
         forceCharger.OnReleaseForce += TryShoot;
@@ -70,7 +121,7 @@ public class MarbleShooter2D : MonoBehaviour
 
     void Update()
     {
-        // Si esta canica es la del jugador en turno y está esperando fin de turno…
+        // Si esta canica es la del jugador en turno y esta esperando fin de turno
         if (isWaitingToEndTurn &&
             TurnManager.instance != null &&
             TurnManager.instance.GetCurrentPlayerIndex() == playerIndex)
@@ -78,7 +129,6 @@ public class MarbleShooter2D : MonoBehaviour
             if (marble.linearVelocity.magnitude <= stopThreshold)
             {
                 isWaitingToEndTurn = false;
-                // Esperar 0.5s y decidir (bonus o siguiente turno)
                 StartCoroutine(ResolveEndOfTurnAfterDelay(0.5f));
             }
         }
@@ -89,23 +139,22 @@ public class MarbleShooter2D : MonoBehaviour
     private IEnumerator ResolveEndOfTurnAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        Debug.Log("Turno acaba");
 
-        // Avisar al sistema de poderes que terminó MI turno (descuenta turnos de power-ups)
+        // Forzar velocidad 0 de todas las canicas al cerrar turno
+        ZeroAllMarbles();
+
+        // Descontar turnos de poderes si aplica
         marblePower?.NotifyTurnEndedIfMine();
 
-        // ¿Tengo bonus para repetir lanzamiento?
+        // Consumir bonus si pertenece a este jugador
         if (TryConsumeBonus(playerIndex))
         {
-            // Mantener el turno NO NextTurn()
-            // Desbloquear joystick para que pueda volver a disparar
+            // Mantener turno, desbloquear joystick para siguiente tiro
             joystick?.DisableBlocker();
-
-        
             yield break;
         }
 
-        // Si no hay bonus, ahora sí pasamos el turno
+        // Pasar turno normal
         TurnManager.instance?.NextTurn();
     }
 
@@ -129,6 +178,9 @@ public class MarbleShooter2D : MonoBehaviour
 
         ShootMarble(fuerza);
         isWaitingToEndTurn = true;
+
+        // Registrar primer tiro en el primer ciclo si aplica
+        RegisterFirstShotIfNeeded(playerIndex);
 
         if (EffectPool.Instance != null && launchSprite != null)
             EffectPool.Instance.Spawn(transform.position, launchSprite, 0.3f, 1f);
@@ -159,6 +211,7 @@ public class MarbleShooter2D : MonoBehaviour
         var otherShooter = collision.collider.GetComponent<MarbleShooter2D>();
         if (otherShooter != null)
         {
+            // Evitar doble efecto en choque entre canicas
             if (this.gameObject.GetInstanceID() < otherShooter.gameObject.GetInstanceID())
             {
                 if (EffectPool.Instance != null && impactSprite != null)
@@ -187,7 +240,7 @@ public class MarbleShooter2D : MonoBehaviour
             gameObject.SetActive(false);
             transform.position = Vector3.zero;
 
-            // Si al eliminarse esto otorga bonus al actual, de una vez desbloqueamos el joystick por si es el mismo que está jugando
+            // Si otorgo bonus al actual, desbloquear joystick
             if (TurnManager.instance != null && TurnManager.instance.GetCurrentPlayerIndex() >= 0)
             {
                 if (bonusShotForPlayer == TurnManager.instance.GetCurrentPlayerIndex())

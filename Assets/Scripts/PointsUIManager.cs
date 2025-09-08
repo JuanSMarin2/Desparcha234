@@ -20,32 +20,18 @@ public class PointsUIManager : MonoBehaviour
 
     [Header("Fondo")]
     [SerializeField] private Image backgroundImage;
-
-    [Header("Fondos base por cantidad de jugadores")]
-    [SerializeField] private Sprite baseFor2;
-    [SerializeField] private Sprite baseFor3;
-    [SerializeField] private Sprite baseFor4;
-
-    [Header("Fondos por jugador y cantidad de jugadores")]
-    [SerializeField] private Sprite p1_For2;
-    [SerializeField] private Sprite p1_For3;
-    [SerializeField] private Sprite p1_For4;
-
-    [SerializeField] private Sprite p2_For2;
-    [SerializeField] private Sprite p2_For3;
-    [SerializeField] private Sprite p2_For4;
-
-    [SerializeField] private Sprite p3_For3;
-    [SerializeField] private Sprite p3_For4;
-
-    [SerializeField] private Sprite p4_Any;
+    [SerializeField] private Sprite baseSprite;
+    [SerializeField] private Sprite p1Sprite;
+    [SerializeField] private Sprite p2Sprite;
+    [SerializeField] private Sprite p3Sprite;
+    [SerializeField] private Sprite p4Sprite;
 
     [Header("Tiempos")]
-    [SerializeField] private float baseDuration = 3f;       // base inicial
-    [SerializeField] private float perPlayerDuration = 3f;  // total de la etapa por jugador
-    [SerializeField] private float holdBeforeAnim = 1f;     // espera antes de animar (dentro de la etapa)
-    [SerializeField] private float midBaseDuration = 0.5f;  // vuelta a base entre jugadores
-    [SerializeField] private float finalBaseDuration = 3f;  // base final
+    [SerializeField] private float baseDuration = 3f;
+    [SerializeField] private float perPlayerDuration = 3f;
+    [SerializeField] private float holdBeforeAnim = 1f;
+    [SerializeField] private float midBaseDuration = 0.5f;
+    [SerializeField] private float finalBaseDuration = 3f;
 
     [Header("Flujo siguiente escena")]
     [SerializeField] private MinigameChooser minigameChooser;
@@ -72,7 +58,7 @@ public class PointsUIManager : MonoBehaviour
 
         int numPlayers = Mathf.Clamp(rd.numPlayers, 2, 4);
 
-        // Ocultar extras según cantidad
+        // Ocultar controles extra y limpiar +N
         for (int i = 0; i < playerTexts.Length; i++)
         {
             bool active = (i < numPlayers);
@@ -80,7 +66,7 @@ public class PointsUIManager : MonoBehaviour
             if (gainTexts[i]) gainTexts[i].gameObject.SetActive(false);
         }
 
-        // Copias locales para mostrar y animar
+        // Copias locales
         int[] baseTotals = new int[numPlayers];
         int[] gains = new int[numPlayers];
         int[] targetTotals = new int[numPlayers];
@@ -92,12 +78,12 @@ public class PointsUIManager : MonoBehaviour
             targetTotals[i] = baseTotals[i] + gains[i];
         }
 
-        // 1) Fondo base inicial con totales "base"
-        SetBackground(BaseSpriteFor(numPlayers));
+        // Fondo base inicial con totales base
+        SetBackground(baseSprite);
         WriteTotals(baseTotals, numPlayers);
         yield return new WaitForSeconds(baseDuration);
 
-        // Orden: de menos puntos ganados a más
+        // Orden por menos puntos ganados
         var order = Enumerable.Range(0, numPlayers)
                               .Select(i => new { idx = i, pts = gains[i] })
                               .OrderBy(x => x.pts)
@@ -110,9 +96,9 @@ public class PointsUIManager : MonoBehaviour
             int gained = entry.pts;
 
             // Fondo del jugador
-            SetBackground(PerPlayerSprite(i, numPlayers));
+            SetBackground(PerPlayerSprite(i));
 
-            // +N visible solo del jugador actual
+            // Mostrar +N del jugador i
             SetAllGainsActive(false);
             if (gainTexts[i])
             {
@@ -120,16 +106,16 @@ public class PointsUIManager : MonoBehaviour
                 gainTexts[i].gameObject.SetActive(true);
             }
 
-            // Mostrar totales actuales locales (sin tocar los demás)
+            // Escribir totales actuales locales
             WriteTotals(baseTotals, numPlayers);
 
-            // 2) Esperar 1s sin animar (su "momento" antes del cambio visual)
-            float stage = Mathf.Max(0f, perPlayerDuration);
-            float wait = Mathf.Min(holdBeforeAnim, stage);
+            // Espera previa a la animacion en su etapa
+            float stageTotal = Mathf.Max(0f, perPlayerDuration);
+            float wait = Mathf.Min(holdBeforeAnim, stageTotal);
             yield return new WaitForSeconds(wait);
 
-            // 3) Animar SOLO el jugador i, durante el resto de su etapa
-            float animDur = Mathf.Max(0f, stage - wait);
+            // Animar solo el total del jugador i durante el resto de su etapa
+            float animDur = Mathf.Max(0f, stageTotal - wait);
             if (animDur > 0f)
             {
                 float t = 0f;
@@ -139,7 +125,7 @@ public class PointsUIManager : MonoBehaviour
                     float k = Mathf.Clamp01(t / animDur);
 
                     int shown = Mathf.RoundToInt(Mathf.Lerp(baseTotals[i], targetTotals[i], k));
-                    // Pintar los demas en su valor base, y el actual animado
+
                     for (int j = 0; j < numPlayers; j++)
                     {
                         int val = (j == i) ? shown : baseTotals[j];
@@ -149,36 +135,38 @@ public class PointsUIManager : MonoBehaviour
                 }
             }
 
-            // Consolidar el total local del jugador i
+            // Consolidar localmente
             baseTotals[i] = targetTotals[i];
 
-            // 4) Vuelta a base entre jugadores (0.5s)
+            // Vuelta a fondo base entre jugadores
             SetAllGainsActive(false);
-            SetBackground(BaseSpriteFor(numPlayers));
+            SetBackground(baseSprite);
             WriteTotals(baseTotals, numPlayers);
             yield return new WaitForSeconds(midBaseDuration);
         }
 
-        // 5) Base final mostrando todos los targetTotals locales
+        // Base final con totales locales finales
         SetAllGainsActive(false);
-        SetBackground(BaseSpriteFor(numPlayers));
+        SetBackground(baseSprite);
         WriteTotals(targetTotals, numPlayers);
 
-        // 6) Aplicar la suma "real" a RoundData tras 1s dentro de esta rutina
-        yield return StartCoroutine(CommitTotalsAfterOneSecond(rd));
+        // Aplicar la suma real a RoundData dentro de esta rutina (y esperar 1s)
+        yield return StartCoroutine(CommitTotalsAfterOneSecond());
 
-        // 7) Espera final y avanzar
+        // Espera final y pasar a siguiente
         yield return new WaitForSeconds(finalBaseDuration);
         if (minigameChooser)
             minigameChooser.LoadNextScheduledOrFinish();
     }
 
-    private IEnumerator CommitTotalsAfterOneSecond(RoundData rd)
+    private IEnumerator CommitTotalsAfterOneSecond()
     {
-        // Llamamos a su propia rutina que ya hace WaitForSeconds(1f) y suma current total
-        rd.GetTotalPoints();
-        yield return new WaitForSeconds(1f);
-        // No tocamos UI aquí; ya está mostrando los targetTotals locales
+        var rd = RoundData.instance;
+        if (rd != null)
+        {
+            rd.GetTotalPoints(); // internamente espera 1s y suma current -> total
+            yield return new WaitForSeconds(1f);
+        }
     }
 
     private void WriteTotals(int[] totals, int numPlayers)
@@ -201,41 +189,18 @@ public class PointsUIManager : MonoBehaviour
 
     private void SetBackground(Sprite s)
     {
-        if (backgroundImage) backgroundImage.sprite = s;
+        if (backgroundImage && s) backgroundImage.sprite = s;
     }
 
-    private Sprite BaseSpriteFor(int numPlayers)
-    {
-        switch (numPlayers)
-        {
-            case 2: return baseFor2 ? baseFor2 : backgroundImage?.sprite;
-            case 3: return baseFor3 ? baseFor3 : backgroundImage?.sprite;
-            case 4: return baseFor4 ? baseFor4 : backgroundImage?.sprite;
-            default: return backgroundImage?.sprite;
-        }
-    }
-
-    private Sprite PerPlayerSprite(int playerIndex, int numPlayers)
+    private Sprite PerPlayerSprite(int playerIndex)
     {
         switch (playerIndex)
         {
-            case 0:
-                if (numPlayers == 2) return p1_For2 ? p1_For2 : backgroundImage?.sprite;
-                if (numPlayers == 3) return p1_For3 ? p1_For3 : backgroundImage?.sprite;
-                return p1_For4 ? p1_For4 : backgroundImage?.sprite;
-
-            case 1:
-                if (numPlayers == 2) return p2_For2 ? p2_For2 : backgroundImage?.sprite;
-                if (numPlayers == 3) return p2_For3 ? p2_For3 : backgroundImage?.sprite;
-                return p2_For4 ? p2_For4 : backgroundImage?.sprite;
-
-            case 2:
-                if (numPlayers == 3) return p3_For3 ? p3_For3 : backgroundImage?.sprite;
-                return p3_For4 ? p3_For4 : backgroundImage?.sprite;
-
-            case 3:
-                return p4_Any ? p4_Any : backgroundImage?.sprite;
+            case 0: return p1Sprite ? p1Sprite : baseSprite;
+            case 1: return p2Sprite ? p2Sprite : baseSprite;
+            case 2: return p3Sprite ? p3Sprite : baseSprite;
+            case 3: return p4Sprite ? p4Sprite : baseSprite;
+            default: return baseSprite;
         }
-        return backgroundImage?.sprite;
     }
 }
