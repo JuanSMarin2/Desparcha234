@@ -1,9 +1,6 @@
-using Microsoft.Unity.VisualStudio.Editor;
-using Unity.VisualScripting;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 #endif
 
 public class BarraFuerza : MonoBehaviour
