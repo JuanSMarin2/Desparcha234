@@ -1513,7 +1513,7 @@ MonoBehaviour:
   player4Text: {fileID: 921979932}
   displayDuration: 5
   morePowerColor: {r: 1, g: 0, b: 0.10067558, a: 1}
-  unmovableColor: {r: 0, g: 0, b: 0, a: 1}
+  unmovableColor: {r: 0.16981131, g: 0.08289838, b: 0.0056069805, a: 1}
   ghostColor: {r: 0.5, g: 0, b: 0.5, a: 1}
   othersTextColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!4 &304658598
@@ -4569,7 +4569,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -11792,7 +11792,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535

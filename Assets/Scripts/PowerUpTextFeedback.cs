@@ -96,7 +96,7 @@ public class PowerUpTextFeedback : MonoBehaviour
                 color = unmovableColor;
                 break;
             case MarblePowerType.Ghost:
-                msg = "Ahora puedes atravesar paredes";
+                msg = "Ahora puedes atravesar piedras";
                 color = ghostColor;
                 break;
             default:
@@ -112,7 +112,7 @@ public class PowerUpTextFeedback : MonoBehaviour
         {
             case MarblePowerType.MorePower: return "Ahora " + winnerColorName + " tiene mas potencia";
             case MarblePowerType.Unmovable: return "Ahora " + winnerColorName + " es inamovible";
-            case MarblePowerType.Ghost: return "Ahora " + winnerColorName + " puede atravesar paredes";
+            case MarblePowerType.Ghost: return "Ahora " + winnerColorName + " puede atravesar piedras";
             default: return "";
         }
     }
