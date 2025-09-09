@@ -1,9 +1,10 @@
 using UnityEngine;
 using System;
+using UnityEngine.EventSystems; // nuevo para IPointerDownHandler
 
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class Bolita : MonoBehaviour
+public class Bolita : MonoBehaviour, IPointerDownHandler
 {
     public enum EstadoLanzamiento
     {
@@ -106,6 +107,9 @@ public class Bolita : MonoBehaviour
 
     private UiManager _ui;
 
+    // Flag para evitar recoger dos veces en el mismo vuelo
+    private bool _yaRecogida = false;
+
     void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -126,7 +130,7 @@ public class Bolita : MonoBehaviour
             _shadowBaseScale = shadow.localScale;
             _shadowBaseLocalPos = shadow.localPosition;
         }
-
+     
         _ui = FindAnyObjectByType<UiManager>();
     }
 
@@ -136,8 +140,12 @@ public class Bolita : MonoBehaviour
         _rb.linearVelocity = Vector2.zero;
         NotificarEstado(_estado);
         // Asegurar que la advertencia inicie oculta
+        
+
         ComunicarPorTocarSuelo(false);
         ActualizarSpritePorTurno();
+        // Se quita la llamada automática a OnBallPendingThrow para que Progression controle el flujo inicial.
+        _yaRecogida = false;
     }
 
     // Update is called once per frame
@@ -335,6 +343,33 @@ public class Bolita : MonoBehaviour
 
     // public void OnMouseDown() { ... }
 
+    // Nuevo: interacción táctil / click para recoger la bola (alternativa al shake lateral)
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        IntentarRecogerPorInteraccion();
+    }
+
+    // Fallback para editor / mouse si no hay EventSystem (aunque tenemos IPointerDownHandler)
+    private void OnMouseDown()
+    {
+        IntentarRecogerPorInteraccion();
+    }
+
+    private void IntentarRecogerPorInteraccion()
+    {
+        if (_yaRecogida) return;
+        if (_estado != EstadoLanzamiento.EnElAire) return; // solo en vuelo
+        if (!PorTocarSuelo) return; // debe estar en ventana near-ground
+        // Debe estar descendiendo
+        bool descending = useVirtualZ ? (_vz <= 0f) : (_rb != null ? _rb.linearVelocity.y <= 0f : true);
+        if (!descending) return;
+
+        _yaRecogida = true; // bloquear múltiples
+        var progression = FindAnyObjectByType<Progression>();
+        progression?.NotificarBolitaTocada();
+        Debug.Log("[Bolita] Recogida por toque/click (near-ground descendiendo)");
+    }
+
     public void ReiniciarBola()
     {
         if (_rb == null)
@@ -377,9 +412,9 @@ public class Bolita : MonoBehaviour
         }
         CambiarEstado(EstadoLanzamiento.PendienteDeLanzar);
         var progression = FindAnyObjectByType<Progression>();
-        progression?.VisualTiroPendiente();
+        progression?.OnBallPendingThrow();
 
-       
+        _yaRecogida = false; // permitir nueva recogida en siguiente intento
     }
 
     private void CambiarEstado(EstadoLanzamiento nuevo)

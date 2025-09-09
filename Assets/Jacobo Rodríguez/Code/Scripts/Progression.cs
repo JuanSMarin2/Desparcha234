@@ -9,7 +9,6 @@ public class Progression : MonoBehaviour
 {
     bool touchedBall = false;
     public int stage = 0;
-    public int neededJacks = 0;
     private const int MaxStage = 3;
 
     public int jacksCounter = 0;
@@ -29,6 +28,10 @@ public class Progression : MonoBehaviour
     private JackSpawner _spawner;
     private Bolita _bolita;
 
+    [Header("UI Lanzamiento")]
+    [SerializeField] private GameObject botonListo; // asignar en inspector
+    private bool _preLaunchPaused = false;
+
     // Nuevo: evento global para notificar que el turno avanzó.
     // Envía el índice del jugador actual (0-based).
     public static event Action<int> OnTurnAdvanced;
@@ -45,7 +48,7 @@ public class Progression : MonoBehaviour
     {
         if (stage < 1) stage = 1;
         if (stage > MaxStage) stage = MaxStage;
-        ActualizarNeededJacks();
+     
 
         int n = RoundData.instance != null ? Mathf.Max(0, RoundData.instance.numPlayers) : 0;
         if (n > 0)
@@ -71,14 +74,26 @@ public class Progression : MonoBehaviour
             int idx = TurnManager.instance.GetCurrentPlayerIndex();
             if (idx >= 0) OnTurnAdvanced?.Invoke(idx);
         }
+        
+        // Tras configuraciones iniciales, forzar estado de pausa pre-lanzamiento
+        if (!_preLaunchPaused)
+        {
+            ActivarPausaPreLanzamiento(); // esto también bloquea shakes
+        }
+        // Evitar que Time.timeScale quede pausado si se usa lógica distinta: dejamos el timeScale en 1 (el bloqueo es con flag)
+        Time.timeScale = 1f;
+        // Spawnear jacks iniciales en estado transparente: sólo si aún no se han spawneado
+        if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
         _spawner?.SpawnJacks();
+        // Notificar turno actual para reposiciones
+        if (TurnManager.instance != null)
+        {
+            int idx = TurnManager.instance.GetCurrentPlayerIndex();
+            if (idx >= 0) OnTurnAdvanced?.Invoke(idx);
+        }
     }
 
-    private void ActualizarNeededJacks()
-    {
-        jacksCounter = 0;
-        neededJacks = Mathf.Clamp(stage, 1, MaxStage);
-    }
+   
 
     public void NotificarJackTocado(Jack jack)
     {
@@ -122,14 +137,42 @@ public class Progression : MonoBehaviour
     // Alias con ortografía correcta por si se usa desde otros lugares
     public void OnBallPendingThrow()
     {
-        VisualTiroPendiente();
+        if (_bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar) //Validacion de estado
+        {
+            SpawnearJacksTransparentes();
+            ActivarPausaPreLanzamiento(); 
+            Debug.Log("Pausanding Juego");
+        }
+        
     }
 
-    public void VisualTiroPendiente()
+    public void SpawnearJacksTransparentes()
     {
         if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
         _spawner?.SpawnJacks();
         Debug.Log("Spawning jacks because ball is pending throw");
+    }
+
+    private void ActivarPausaPreLanzamiento()
+    {
+        if (botonListo != null) botonListo.SetActive(true);
+        _preLaunchPaused = true;
+        BarraFuerza.SetGlobalShakeBlocked(true);
+       // Time.timeScale = 0f; // pausa física/animaciones (UI sigue)
+        Debug.Log("[Progression] Juego pausado esperando botonListo");
+    }
+
+    public void BotonListoConfirmar()
+    {
+        if (!_preLaunchPaused) return;
+        _preLaunchPaused = false;
+        if (botonListo != null) botonListo.SetActive(false);
+        // Antes de desbloquear los shakes, limpiar estado y aplicar cooldown anti-lanzamiento accidental
+        if (_barra == null) _barra = FindAnyObjectByType<BarraFuerza>();
+        _barra?.PostResumeReset(0.3f);
+        BarraFuerza.SetGlobalShakeBlocked(false);
+        Time.timeScale = 1f;
+        Debug.Log("[Progression] Reanudado tras botonListo (cooldown shakes aplicado)");
     }
 
     private void ConsolidarIntento()
@@ -188,7 +231,7 @@ public class Progression : MonoBehaviour
         }
 
         stage = 1;
-        ActualizarNeededJacks();
+        
 
         if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
         if (TurnManager.instance != null)
@@ -224,7 +267,6 @@ public class Progression : MonoBehaviour
     {
         stage++;
         if (stage > MaxStage) stage = MaxStage;
-        ActualizarNeededJacks();
         _barra?.Reiniciar();
         if (_spawner != null)
         {

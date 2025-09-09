@@ -5,6 +5,9 @@ using UnityEngine.InputSystem;
 
 public class BarraFuerza : MonoBehaviour
 {
+    // Inicial ahora en true: bloquea cualquier lanzamiento hasta la confirmación del botón listo.
+    public static bool GlobalShakeBlocked = true; // bloque global de shakes/entrada previo a lanzamiento
+
     [Header("Referencias UI")]
     [SerializeField] private RectTransform marcador; // Objeto que se mueve
     [SerializeField] private RectTransform barra;    // Barra con gradiente
@@ -95,6 +98,12 @@ public class BarraFuerza : MonoBehaviour
     }
     private void Update()
     {
+        if (GlobalShakeBlocked)
+        {
+            if (advertenciaLanzar != null) advertenciaLanzar.SetActive(false);
+            return; // Pausa lógica: no mover marcador ni leer inputs
+        }
+
         // Antes: if (detenido) return; -> Esto impedía detectar shakes en el aire
         if (marcador == null || barra == null) return;
 
@@ -192,6 +201,8 @@ public class BarraFuerza : MonoBehaviour
 
     private void DetectarShakeYLanzar()
     {
+        if (GlobalShakeBlocked) return; // no detectar shakes mientras está pausado esperando botón
+
         if (!usarShakeParaLanzar) return;
         if (bolita == null) return;
 
@@ -328,4 +339,34 @@ public class BarraFuerza : MonoBehaviour
         fuerzaActual = 0f; // Reiniciar fuerza
         Debug.Log("Barra de fuerza reiniciada.");
     }
+
+    /// <summary>
+    /// Llamar justo antes de permitir nuevamente los shakes (al cerrar la pantalla de listo).
+    /// Limpia el estado del filtro y coloca un pequeño cooldown para que no se use un delta residual.
+    /// </summary>
+    public void PostResumeReset(float resumeIgnoreDuration = 0.3f)
+    {
+#if ENABLE_INPUT_SYSTEM
+        if (Accelerometer.current != null)
+        {
+            // Releer aceleración actual y alinear el low-pass para que delta ~ 0 al primer frame
+            _lowPassAccel = Accelerometer.current.acceleration.ReadValue();
+        }
+        else
+        {
+            _lowPassAccel = Vector3.zero;
+        }
+#else
+        _lowPassAccel = Input.acceleration; // alinear al valor actual
+#endif
+        // Forzar cooldown de lanzamiento por shake
+        _shakeBlockedUntil = Time.time + resumeIgnoreDuration; // reutiliza la misma compuerta resetGuardReady
+        _ultimoShakeTime = Time.time; // asegura que cooldownReady también sea false unos ms
+        _lateralTapArmed = false;
+        _lastLaunchWasByShake = false;
+        // Evitar que se lance inmediatamente por teclado: detenido permanece false (barra sigue moviéndose) hasta que el jugador decida.
+        Debug.Log($"[ShakeDBG] PostResumeReset aplicado. Ignorando shakes por {resumeIgnoreDuration:F2}s");
+    }
+
+    public static void SetGlobalShakeBlocked(bool v) { GlobalShakeBlocked = v; }
 }

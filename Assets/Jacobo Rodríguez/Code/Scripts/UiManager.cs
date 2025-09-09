@@ -30,8 +30,7 @@ public class UiManager : MonoBehaviour
     [Tooltip("UI de advertencia para avisar que recoja la bola (activar/desactivar)")]
     [SerializeField] private GameObject panelAdvertenciaRecoger;
 
-    private bool _cronometroActivo;
-    private float _tiempo;
+  
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -140,7 +139,7 @@ public class UiManager : MonoBehaviour
             case 3: target = intentosJugador4; break;
         }
         if (target == null) return; // opcional, no hay UI asignada
-        target.text = "x" + Mathf.Max(0, intentosRestantes);
+        target.text = "Tiros(" + Mathf.Max(0, intentosRestantes)+")";
     }
 
     // Mostrar/ocultar advertencia de recoger la bola

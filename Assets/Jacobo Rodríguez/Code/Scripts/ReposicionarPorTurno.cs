@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI; // agregado para soporte de Image UI
 
 [DefaultExecutionOrder(200)]
 public class ReposicionarPorTurno : MonoBehaviour
@@ -42,15 +43,28 @@ public class ReposicionarPorTurno : MonoBehaviour
     [Tooltip("Si se aplica al iniciar la escena, hacerlo animado (no instantáneo)")]
     public bool animarAlIniciar = false;
 
+    [Header("Color por jugador (opcional)")]
+    [Tooltip("Si está activo, al reposicionar se aplica un color distinto por jugador")] public bool cambiarColorPorJugador = false;
+    public Color colorJugador1 = Color.red;
+    public Color colorJugador2 = Color.blue;
+    public Color colorJugador3 = Color.yellow;
+    public Color colorJugador4 = Color.green;
+
     private RectTransform _rt;
     private Coroutine _moveCo;
     private Coroutine _rotateCo;
     private bool _aplicadoInicio = false;
     private Coroutine _esperaInicioCo;
 
+    // Caches para color
+    private SpriteRenderer _spriteRenderer;
+    private Image _image;
+
     void Awake()
     {
         _rt = usarRectTransform ? GetComponent<RectTransform>() : null;
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _image = GetComponent<Image>();
     }
 
     void OnEnable()
@@ -176,6 +190,7 @@ public class ReposicionarPorTurno : MonoBehaviour
                         StartRotate(() => _rt.rotation, q => _rt.rotation = q, qDestino);
                 }
             }
+            if (cambiarColorPorJugador) ApplyColor(playerIndex);
             return;
         }
 
@@ -253,6 +268,28 @@ public class ReposicionarPorTurno : MonoBehaviour
                         StartRotate(() => transform.rotation, q => transform.rotation = q, qDestino);
                 }
             }
+        }
+
+        if (cambiarColorPorJugador) ApplyColor(playerIndex);
+    }
+
+    private void ApplyColor(int playerIndex)
+    {
+        Color c = colorJugador1;
+        switch (playerIndex)
+        {
+            case 0: c = colorJugador1; break;
+            case 1: c = colorJugador2; break;
+            case 2: c = colorJugador3; break;
+            case 3: c = colorJugador4; break;
+        }
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.color = c;
+        }
+        if (_image != null)
+        {
+            _image.color = c;
         }
     }
 

@@ -157,7 +157,7 @@ public class Jack : MonoBehaviour, IPointerDownHandler
         if (jackCollider != null)
         {
             jackCollider.enabled = false;
-            Debug.Log("Collider deshabilitado en Jack (CircleCollider2D), enabled ahora: " + jackCollider.enabled);
+           
         }
         var cols = GetComponentsInChildren<Collider2D>(true);
         foreach (var col in cols)
@@ -174,7 +174,7 @@ public class Jack : MonoBehaviour, IPointerDownHandler
         if (jackCollider != null)
         {
             jackCollider.enabled = true;
-            Debug.Log("CircleCollider2D habilitado en Jack, enabled: " + jackCollider.enabled);
+          
         }
         var cols = GetComponentsInChildren<Collider2D>(true);
         foreach (var col in cols)
