@@ -10,27 +10,84 @@ public class MultiJoystickControl : MonoBehaviour
     public GameObject mainJoystickControlObject;
 
     [Header("Bloqueador del joystick")]
-    public GameObject bloqueador; // arrástralo desde el inspector
+    public GameObject bloqueador;
+
+    [Header("Conjuntos por jugador (opcional)")]
+    [Tooltip("Raíz por jugador (0..3): grupo que contiene joystick, papeletas y UI de ese jugador.")]
+    public GameObject[] playerSets;   // opcional
 
     public bool finished { get; private set; }
     private bool initialized = false;
+
+    int NumPlayers()
+    {
+        // Si RoundData no existe aún, asume el tamaño del array de units
+        int n = (RoundData.instance != null) ? RoundData.instance.numPlayers : units.Length;
+        return Mathf.Clamp(n, 1, units.Length);
+    }
 
     void Start()
     {
         finished = false;
         if (mainJoystickControlObject != null)
             mainJoystickControlObject.SetActive(false);
+
+        // Asegura el estado correcto ANTES del primer Update
+        EnforcePlayersActiveState();
+        InicializarUnidadesDeArranque();
+    }
+
+    // Apaga todo lo que sea de jugadores inexistentes (joystick, target/papeleta y sets opcionales)
+    void EnforcePlayersActiveState()
+    {
+        int n = NumPlayers();
+
+        for (int i = 0; i < units.Length; i++)
+        {
+            bool jugadorExiste = (i < n);
+
+            // Apaga/enciende grupo opcional por jugador
+            if (playerSets != null && i < playerSets.Length && playerSets[i] != null)
+                playerSets[i].SetActive(jugadorExiste);
+
+            // Apaga/enciende JoystickUnit GameObject
+            if (units[i] != null)
+            {
+                // Ojo: no llamamos ResetUnit aquí para no decidir turnos todavía.
+                units[i].gameObject.SetActive(jugadorExiste);
+
+                // También podemos apagar el target (papeleta) si el jugador no existe
+                if (units[i].targetObject != null)
+                    units[i].targetObject.gameObject.SetActive(jugadorExiste);
+            }
+        }
+    }
+
+    // Solo una vez: suscribe eventos y aplica el estado activo/inactivo correcto para el primer turno
+    void InicializarUnidadesDeArranque()
+    {
+        if (TurnManager.instance == null) return;
+        int n = NumPlayers();
+        int blockedIndex = Mathf.Clamp(TurnManager.instance.CurrentTurn() - 1, 0, units.Length - 1);
+
+        for (int i = 0; i < units.Length; i++)
+        {
+            if (units[i] == null) continue;
+
+            units[i].OnFinished -= HandleUnitFinished; // evita doble suscripción si se llama dos veces
+            units[i].OnFinished += HandleUnitFinished;
+
+            bool shouldBeActive = (i < n) && (i != blockedIndex);
+            units[i].ResetUnit(shouldBeActive);
+        }
     }
 
     // --- utilidad: llamar al comenzar nueva ronda/turno ---
     public void PrepareForNextRound()
     {
-        GameObject[] papeletas = GameObject.FindGameObjectsWithTag("Papeleta");
-        foreach (GameObject p in papeletas)
-        {
-            p.SetActive(true);
-        }
+        int n = NumPlayers();
 
+        // activar el centro otra vez (pero no lo destruyas)
         CentroController centro = FindObjectOfType<CentroController>();
         if (centro != null)
         {
@@ -39,11 +96,12 @@ public class MultiJoystickControl : MonoBehaviour
 
             Collider2D col = centro.GetComponent<Collider2D>();
             if (col != null) col.enabled = true;
+
+            centro.MoverCentro(); // mover al inicio de ronda
         }
 
-        // Destruir todos los proyectiles de la ronda anterior
+        // limpiar proyectiles
         GameObject[] projectiles = GameObject.FindGameObjectsWithTag("Tejo");
-
         foreach (GameObject proj in projectiles)
         {
             Destroy(proj);
@@ -51,48 +109,39 @@ public class MultiJoystickControl : MonoBehaviour
 
         finished = false;
 
+        // calcular qué joystick se bloquea
         int blockedIndex = Mathf.Clamp(TurnManager.instance.CurrentTurn() - 1, 0, units.Length - 1);
 
+        // MUY IMPORTANTE: respeta numPlayers aquí también
         for (int i = 0; i < units.Length; i++)
         {
             if (units[i] == null) continue;
-            bool shouldBeActive = (i != blockedIndex);
+
+            bool shouldBeActive = (i < n) && (i != blockedIndex);
             units[i].ResetUnit(shouldBeActive);
+
+            // sincroniza sets opcionales por jugador
+            if (playerSets != null && i < playerSets.Length && playerSets[i] != null)
+                playerSets[i].SetActive(i < n);
         }
 
         if (mainJoystickControlObject != null)
             mainJoystickControlObject.SetActive(false);
 
-        //  Aquí apagas el bloqueador para que no moleste en la nueva ronda
         if (bloqueador != null)
             bloqueador.SetActive(false);
-
-        CentroController centro2 = FindObjectOfType<CentroController>();
-        if (centro2 != null)
-            centro2.MoverCentro();
     }
 
     void Update()
     {
-        // Esperar hasta que TurnManager esté listo
+        // Esperar hasta que TurnManager esté listo y solo inicializar una vez
         if (!initialized && TurnManager.instance != null && TurnManager.instance.CurrentTurn() > 0)
         {
             initialized = true;
 
-            // determinamos qué joystick queda bloqueado según el turno (CurrentTurn devuelve 1..N)
-            int blockedIndex = Mathf.Clamp(TurnManager.instance.CurrentTurn() - 1, 0, units.Length - 1);
-
-            // subscribir y resetear unidades
-            for (int i = 0; i < units.Length; i++)
-            {
-                if (units[i] == null) continue;
-
-                units[i].OnFinished += HandleUnitFinished;
-
-                // si es el bloqueado lo dejamos inactivo, los demás activos
-                bool shouldBeActive = (i != blockedIndex);
-                units[i].ResetUnit(shouldBeActive);
-            }
+            // Asegura coherencia al inicio: respeta numPlayers
+            EnforcePlayersActiveState();
+            InicializarUnidadesDeArranque();
         }
     }
 
@@ -120,7 +169,6 @@ public class MultiJoystickControl : MonoBehaviour
 
     bool AllActiveFinished()
     {
-        // todas las unidades que estaban activadas (IsActive==true) deben tener IsFinished==true
         foreach (var u in units)
         {
             if (u == null) continue;

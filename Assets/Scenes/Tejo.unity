@@ -701,6 +701,7 @@ MonoBehaviour:
   - {fileID: 1082137406}
   mainJoystickControlObject: {fileID: 1511727194}
   bloqueador: {fileID: 1666297652}
+  playerSets: []
 --- !u!1 &182633841
 GameObject:
   m_ObjectHideFlags: 0
@@ -1279,7 +1280,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 991743340426723893, guid: 1db1722f532bbc6478e7712b5d8f7aa9, type: 3}
       propertyPath: numPlayers
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2401113022653695755, guid: 1db1722f532bbc6478e7712b5d8f7aa9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3258,10 +3259,14 @@ MonoBehaviour:
   - {fileID: 7390144133690548628}
   - {fileID: 1180633334}
   - {fileID: 437441272}
+  - {fileID: 560638888}
+  - {fileID: 163818388}
   objectsFor4Players:
   - {fileID: 6277598649374320817}
   - {fileID: 286465834}
   - {fileID: 516274325}
+  - {fileID: 1082137398}
+  - {fileID: 1539571646}
 --- !u!4 &1048118533
 Transform:
   m_ObjectHideFlags: 0
