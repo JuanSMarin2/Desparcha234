@@ -87,7 +87,7 @@ public class ReposicionarPorTurno : MonoBehaviour
                 bool instant = !animarAlIniciar;
                 ApplyPosition(idx0, instant);
                 _aplicadoInicio = true;
-                Debug.Log($"[ReposicionarPorTurno] Inicio aplicado (jugador {idx0 + 1}, instant={instant})");
+                Debug.Log($"[ReposicionarPorTurno] Inicio aplicado (jugador {idx0 + 1}, instant={instant}), nombre el objeto reposicionado: {gameObject.name}");
             }
         }
     }
@@ -123,8 +123,21 @@ public class ReposicionarPorTurno : MonoBehaviour
 
     private void OnTurnAdvanced(int playerIndex)
     {
-        Debug.Log($"[ReposicionarPorTurno] Turno avanzado -> jugador {playerIndex + 1}");
+        Debug.Log($"[ReposicionarPorTurno] Turno avanzado -> jugador {playerIndex + 1}, nombre el objeto reposicionado: {gameObject.name}");
         ApplyPosition(playerIndex, false);
+    }
+
+    // Nuevo: forzar reposicionamiento inmediato según el turno actual (útil si este objeto está inactivo)
+    public void ApplyCurrentTurnPositionInstant()
+    {
+        int idx = (TurnManager.instance != null) ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (idx >= 0) ApplyPosition(idx, true);
+    }
+
+    // Nuevo: forzar reposicionamiento inmediato para un índice específico de jugador (0-based)
+    public void ApplyForPlayerIndexInstant(int playerIndexZeroBased)
+    {
+        ApplyPosition(playerIndexZeroBased, true);
     }
 
     private void ApplyPosition(int playerIndex, bool instant)

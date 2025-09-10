@@ -7,10 +7,11 @@ using UnityEngine.SceneManagement;
 
 public class Progression : MonoBehaviour
 {
-    bool touchedBall = false;
+  
     public int stage = 0;
     private const int MaxStage = 3;
 
+    bool touchedBall = false;
     public int jacksCounter = 0;
     public long currentScore = 0; // base + intento
     private long _baseScore = 0;   // consolidado del jugador
@@ -35,6 +36,10 @@ public class Progression : MonoBehaviour
     // Nuevo: evento global para notificar que el turno avanzó.
     // Envía el índice del jugador actual (0-based).
     public static event Action<int> OnTurnAdvanced;
+
+    private int _lastSpawnFrame = -1; // guard para evitar spawns duplicados en mismo frame
+    private string _lastSpawnOrigin = ""; // info debug
+    private string _pendingSpawnOrigin = "PendingThrow"; // origen que se usará para el próximo spawn cuando la bola quede pendiente
 
     void Awake()
     {
@@ -68,29 +73,23 @@ public class Progression : MonoBehaviour
         _ui?.ActualizarPuntos(TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1, currentScore);
         ActualizarUiIntentos(true);
 
-        // Notificar al inicio el turno actual para posicionar objetos dependientes del turno.
+        // Notificar turno actual SOLO una vez
         if (TurnManager.instance != null)
         {
             int idx = TurnManager.instance.GetCurrentPlayerIndex();
             if (idx >= 0) OnTurnAdvanced?.Invoke(idx);
         }
         
-        // Tras configuraciones iniciales, forzar estado de pausa pre-lanzamiento
+        // Activar pausa pre-lanzamiento antes de spawnear
         if (!_preLaunchPaused)
         {
-            ActivarPausaPreLanzamiento(); // esto también bloquea shakes
+            ActivarPausaPreLanzamiento();
         }
         // Evitar que Time.timeScale quede pausado si se usa lógica distinta: dejamos el timeScale en 1 (el bloqueo es con flag)
         Time.timeScale = 1f;
         // Spawnear jacks iniciales en estado transparente: sólo si aún no se han spawneado
         if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
-        _spawner?.SpawnJacks();
-        // Notificar turno actual para reposiciones
-        if (TurnManager.instance != null)
-        {
-            int idx = TurnManager.instance.GetCurrentPlayerIndex();
-            if (idx >= 0) OnTurnAdvanced?.Invoke(idx);
-        }
+        SpawnearJacksTransparentes("Start"); // spawn inicial bajo bloqueo
     }
 
    
@@ -121,36 +120,40 @@ public class Progression : MonoBehaviour
         _spawner?.EnableJacks();
     }
 
-    public void NotificarBolitaTocada()
-    {
-        touchedBall = true;
-        var sm = GameObject.Find("SoundManager");
-        if (sm != null)
-        {
-            sm.SendMessage("SonidoBolitaTocada", SendMessageOptions.DontRequireReceiver);
-        }
-        ConsolidarIntento();
-        TerminarTurno();
-        touchedBall = false;
-    }
+   
 
     // Alias con ortografía correcta por si se usa desde otros lugares
     public void OnBallPendingThrow()
     {
         if (_bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar) //Validacion de estado
         {
-            SpawnearJacksTransparentes();
-            ActivarPausaPreLanzamiento(); 
-            Debug.Log("Pausanding Juego");
+            // 1) Pausar primero para bloquear cualquier input hasta confirmar
+            ActivarPausaPreLanzamiento();
+
+            // 2) Spawnear jacks transparentes bajo la pausa (sin ventana de input abierta)
+            var usedOrigin = _pendingSpawnOrigin;
+            SpawnearJacksTransparentes(usedOrigin);
+
+            // 3) Resetear origen por defecto para el siguiente ciclo
+            _pendingSpawnOrigin = "PendingThrow";
+
+            Debug.Log($"[Progression] OnBallPendingThrow -> Pause then Spawn (originUsed={usedOrigin})");
         }
-        
     }
 
-    public void SpawnearJacksTransparentes()
+    public void SpawnearJacksTransparentes(string origin = "Unknown")
     {
         if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
+        // Guard: evitar doble spawn en mismo frame (p.ej. Reiniciar + llamada redundante)
+        if (Time.frameCount == _lastSpawnFrame)
+        {
+            Debug.Log($"[Progression][SpawnGuard] Ignorado spawn duplicado mismo frame. Origen nuevo={origin} previo={_lastSpawnOrigin}");
+            return;
+        }
+        _lastSpawnFrame = Time.frameCount;
+        _lastSpawnOrigin = origin;
         _spawner?.SpawnJacks();
-        Debug.Log("Spawning jacks because ball is pending throw");
+        Debug.Log($"[Progression] SpawnJacks origin={origin} frame={_lastSpawnFrame}");
     }
 
     private void ActivarPausaPreLanzamiento()
@@ -158,7 +161,7 @@ public class Progression : MonoBehaviour
         if (botonListo != null) botonListo.SetActive(true);
         _preLaunchPaused = true;
         BarraFuerza.SetGlobalShakeBlocked(true);
-       // Time.timeScale = 0f; // pausa física/animaciones (UI sigue)
+        // Time.timeScale = 0f; //// No se pausa porque caga las animaciones.
         Debug.Log("[Progression] Juego pausado esperando botonListo");
     }
 
@@ -206,9 +209,8 @@ public class Progression : MonoBehaviour
                 for (int i = 0; i < _attemptsLeft.Length; i++) totalRestantes += _attemptsLeft[i];
                 if (totalRestantes <= 0)
                 {
-                    FinalizarMiniJuegoPorPuntaje();
-                    //   SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-                    return;
+                       FinalizarMiniJuegoPorPuntaje();
+                       return;
                 }
 
                 int safety = _attemptsLeft.Length;
@@ -244,38 +246,83 @@ public class Progression : MonoBehaviour
             ActualizarUiIntentos();
         }
 
-        // Ahora reiniciamos la bola para que dispare OnballePendingThrow y se spawneen jacks del nuevo jugador
-        _bolita?.ReiniciarBola();
+        // Forzar reposicionamiento incluso en objetos inactivos que tengan ReposicionarPorTurno
+        ForceApplyRepositionAll();
+
+        // Reiniciar explícitamente la bola UNA sola vez aquí
+        _bolita?.ReiniciarBola(); // Esto disparará OnBallPendingThrow con guard de frame
     }
 
     private void FinalizarMiniJuegoPorPuntaje()
     {
-        int n = _playerCurrentScores != null ? _playerCurrentScores.Length : (RoundData.instance != null ? RoundData.instance.numPlayers : 0);
-        if (n <= 0) return;
-
-        // Pasar scores directamente al GameRoundManager para que asigne puntos con empates
-        var grm = GameRoundManager.instance != null ? GameRoundManager.instance : FindAnyObjectByType<GameRoundManager>();
-        if (grm != null)
+        // Asegurar que el intento en curso quede consolidado para el jugador actual
+        if (_attemptScore > 0)
         {
-            long[] scores = new long[n];
-            for (int i = 0; i < n; i++) scores[i] = _playerCurrentScores[i];
-            grm.FinalizeRoundFromScores(scores);
+            _baseScore += _attemptScore;
+            _attemptScore = 0;
+            currentScore = _baseScore;
+            if (TurnManager.instance != null && _playerCurrentScores != null)
+            {
+                int idx = TurnManager.instance.GetCurrentPlayerIndex();
+                if (idx >= 0 && idx < _playerCurrentScores.Length)
+                    _playerCurrentScores[idx] = currentScore;
+            }
+        }
+
+        // Intentar finalizar la ronda con los puntajes acumulados
+        var grm = FindAnyObjectByType<GameRoundManager>();
+        if (grm != null && _playerCurrentScores != null && _playerCurrentScores.Length > 0)
+        {
+            Debug.Log("[Progression] Finalizando mini-juego con puntajes acumulados.");
+            grm.FinalizeRoundFromScores(_playerCurrentScores);
+        }
+        else
+        {
+            // Fallback: recargar la escena actual si no hay gestor o puntajes
+            Debug.LogWarning("[Progression] No se pudo usar GameRoundManager. Recargando escena actual como fallback.");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 
-    public void Avanzaretapa()
+    private void ForceApplyRepositionAll()
     {
-        stage++;
-        if (stage > MaxStage) stage = MaxStage;
-        _barra?.Reiniciar();
-        if (_spawner != null)
+        // Buscar también deshabilitados
+        var all = Resources.FindObjectsOfTypeAll<ReposicionarPorTurno>();
+        if (all == null || all.Length == 0) return;
+        int idx = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        foreach (var r in all)
         {
-         _spawner.SpawnJacks(); 
+            if (r == null) continue;
+            // Evitar tocar prefabs (sin escena) o assets
+            if (r.gameObject.scene.IsValid())
+            {
+                r.ApplyForPlayerIndexInstant(idx);
+            }
         }
+        Debug.Log($"[Progression] ForceApplyRepositionAll aplicado a {all.Length} componentes (incluye inactivos). Jugador idx={idx}");
     }
 
+    public void NotificarBolitaTocada()
+    {
+        // Origen de próximo spawn: recogida exitosa de la bola
+        _pendingSpawnOrigin = "Pickup";
+        touchedBall = true;
+        // Consolidar el intento ANTES de terminar el turno (antes se hacía después)
+        ConsolidarIntento();
+        // SFX inmediatamente
+        var sm = GameObject.Find("SoundManager");
+        if (sm != null)
+        {
+            sm.SendMessage("SonidoBolitaTocada", SendMessageOptions.DontRequireReceiver);
+        }
+        // Avanzar turno (reiniciará barra y bola -> OnBallPendingThrow -> spawn con origen=_pendingSpawnOrigin)
+        TerminarTurno();
+        touchedBall = false;
+    }
     public void PerderPorTocarSuelo()
     {
+        // Origen del siguiente spawn: fallo por tocar suelo
+        _pendingSpawnOrigin = "GroundFail";
         _attemptScore = 0;
         currentScore = _baseScore;
         if (_ui == null) _ui = FindAnyObjectByType<UiManager>();

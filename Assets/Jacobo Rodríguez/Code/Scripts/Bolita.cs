@@ -88,6 +88,10 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     [Header("Advertencia de recoger bola")]
     [Tooltip("Si la altura virtual Z está por debajo de este valor (pero > 0), se mostrará la advertencia para recoger la bola.")]
     [SerializeField] private float distanciaAdvertenciaZ = 1.0f;
+
+    [Header("Interacción")]
+    [Tooltip("Permitir recoger la bolita con toque/click (además del shake lateral)")]
+    [SerializeField] private bool permitirRecogerPorToque = true;
    
     private float _launchY;
     private float _launchForce;
@@ -311,7 +315,7 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         _launchForce = Mathf.Abs(fuerza);
         _launchForceNorm = maxExpectedForce > 0f ? Mathf.Clamp01(_launchForce / maxExpectedForce) : 1f;
 
-        // Nuevo: notificar a Progression que la bola fue lanzada para que spawnee Jacks
+        // Nuevo: notificar a Progression que la bola fue lanzada para que habilite los Jacks
         var progression = FindAnyObjectByType<Progression>();
         progression?.OnBallLaunched();
     }
@@ -341,17 +345,17 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         }
     }
 
-    // public void OnMouseDown() { ... }
-
     // Nuevo: interacción táctil / click para recoger la bola (alternativa al shake lateral)
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (!permitirRecogerPorToque) return;
         IntentarRecogerPorInteraccion();
     }
 
     // Fallback para editor / mouse si no hay EventSystem (aunque tenemos IPointerDownHandler)
     private void OnMouseDown()
     {
+        if (!permitirRecogerPorToque) return;
         IntentarRecogerPorInteraccion();
     }
 
@@ -365,7 +369,10 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         if (!descending) return;
 
         _yaRecogida = true; // bloquear múltiples
+
         var progression = FindAnyObjectByType<Progression>();
+        //_estado = EstadoLanzamiento.PendienteDeLanzar;
+        //NotificarEstado(_estado);
         progression?.NotificarBolitaTocada();
         Debug.Log("[Bolita] Recogida por toque/click (near-ground descendiendo)");
     }

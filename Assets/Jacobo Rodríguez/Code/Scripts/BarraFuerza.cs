@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI; // Para ocultar/mostrar imágenes de UI
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -12,7 +13,11 @@ public class BarraFuerza : MonoBehaviour
     [SerializeField] private RectTransform marcador; // Objeto que se mueve
     [SerializeField] private RectTransform barra;    // Barra con gradiente
     [SerializeField] private GameObject advertenciaLanzar;
-      // Barra con gradiente
+
+    [Header("Visual de Barra")]
+    // Ocultamos/mostramos los componentes de UI (MaskableGraphic: Image, Text, etc.) de este objeto y sus hijos
+    private MaskableGraphic[] _uiGraphics;
+    private bool _barraOculta = false;
 
     [Header("Configuración")]
     [SerializeField] private float velocidad = 200f;   // Velocidad base (px/seg)
@@ -63,6 +68,10 @@ public class BarraFuerza : MonoBehaviour
     {
         if (bolita == null)
             bolita = FindAnyObjectByType<Bolita>();
+
+        // Cachear todos los gráficos de UI propios e hijos para ocultar/mostrar sin desactivar scripts
+        _uiGraphics = GetComponentsInChildren<MaskableGraphic>(true);
+
         // Inicial del filtro de acelerómetro usando el nuevo Input System si está disponible
 #if ENABLE_INPUT_SYSTEM
         if (UnityEngine.InputSystem.Accelerometer.current != null)
@@ -84,16 +93,9 @@ public class BarraFuerza : MonoBehaviour
     {
         if (!lanzarConbarra)
         {
-            GameObject marcador = GameObject.Find("Marcador");
-            if (marcador != null)
-            {
-                UnityEngine.UI.Image img = GetComponent<UnityEngine.UI.Image>();
-               img.enabled = false;
-                marcador.SetActive(false);
-            Debug.Log("LanzarConBarra desactivado: ocultando barra y marcador. " + img.enabled + " " + marcador.activeSelf);
-            }
-            
-            
+            // Si no se usa la barra para lanzar, ocultar toda su UI desde el inicio
+            SetBarraVisible(false);
+            Debug.Log("LanzarConBarra desactivado: ocultando UI de la barra");
         }
     }
     private void Update()
@@ -111,11 +113,11 @@ public class BarraFuerza : MonoBehaviour
         if (!detenido)
         {
             MoverMarcador();
-            advertenciaLanzar.SetActive(true);
+            if (advertenciaLanzar != null) advertenciaLanzar.SetActive(!_barraOculta);
         }
         else
         {
-            advertenciaLanzar.SetActive(false);
+            if (advertenciaLanzar != null) advertenciaLanzar.SetActive(false);
         }
 
         DetectarShakeYLanzar(); // siempre leer shakes
@@ -134,6 +136,8 @@ public class BarraFuerza : MonoBehaviour
 
                 detenido = true;
                 CalcularFuerza();
+                // Ocultar barra visual al lanzar
+                SetBarraVisible(false);
                 bolita.DarVelocidadHaciaArriba(fuerzaActual);
             }
         }
@@ -150,6 +154,8 @@ public class BarraFuerza : MonoBehaviour
 
                 detenido = true;
                 CalcularFuerza();
+                // Ocultar barra visual al lanzar
+                SetBarraVisible(false);
                 bolita.DarVelocidadHaciaArriba(fuerzaActual);
             }
         }
@@ -280,6 +286,8 @@ public class BarraFuerza : MonoBehaviour
                 }
 
                 Debug.Log($"[ShakeDBG][ACT-LAUNCH] up={upComponent:F2} side={lateralMag:F2} fuerza={fuerzaActual:F1}");
+                // Ocultar barra visual al lanzar
+                SetBarraVisible(false);
                 bolita.DarVelocidadHaciaArriba(fuerzaLanzamiento);
 
                 // Armar tap lateral solo si el lanzamiento fue por shake
@@ -337,6 +345,11 @@ public class BarraFuerza : MonoBehaviour
             bolita.ReiniciarBola();
         }
         fuerzaActual = 0f; // Reiniciar fuerza
+        
+        // Mostrar barra visual nuevamente si corresponde
+        if (lanzarConbarra)
+            SetBarraVisible(true);
+
         Debug.Log("Barra de fuerza reiniciada.");
     }
 
@@ -369,4 +382,27 @@ public class BarraFuerza : MonoBehaviour
     }
 
     public static void SetGlobalShakeBlocked(bool v) { GlobalShakeBlocked = v; }
+
+    // Control centralizado de visual de barra
+    public void SetBarraVisible(bool visible)
+    {
+        _barraOculta = !visible;
+
+        // Mostrar/ocultar todos los gráficos de UI de este objeto y sus hijos
+        if (_uiGraphics == null || _uiGraphics.Length == 0)
+        {
+            _uiGraphics = GetComponentsInChildren<MaskableGraphic>(true);
+        }
+        foreach (var g in _uiGraphics)
+        {
+            if (g == null) continue;
+            g.enabled = visible;
+        }
+
+        // La advertencia sigue la visibilidad de la barra y el estado
+        if (advertenciaLanzar != null)
+        {
+            advertenciaLanzar.SetActive(visible && !detenido && !GlobalShakeBlocked);
+        }
+    }
 }

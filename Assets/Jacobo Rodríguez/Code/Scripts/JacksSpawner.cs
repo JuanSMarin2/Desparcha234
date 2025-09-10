@@ -35,6 +35,9 @@ public class JackSpawner : MonoBehaviour
     [SerializeField, Min(0f)] private float weightSpecial = 0.25f;
     [SerializeField, Min(0f)] private float weightBomb = 0.25f;
 
+    private static int _fallbackBoxUses = 0; // diagnostico clustering
+    private static int _fallbackPolyUses = 0; // diagnostico clustering
+
     private void Start()
     {
         bool areaMissing = (spawnShape == SpawnAreaShape.Box && spawnAreaBox == null) ||
@@ -128,7 +131,7 @@ public class JackSpawner : MonoBehaviour
                 jack.HabilitarColor();
             }
         }
-        Debug.Log($"Jacks enabled for Player {turno}");
+        Debug.Log($"[JackSpawner] Jacks enabled for Player {turno}. Fallbacks(Box={_fallbackBoxUses},Poly={_fallbackPolyUses}) totalJacks={jackComponents.Length}");
     }
 
     private Vector3 GetRandomPointInArea()
@@ -174,7 +177,9 @@ public class JackSpawner : MonoBehaviour
             }
         }
         // Fallback: centro del box si no encontramos punto válido
+        _fallbackBoxUses++;
         Vector3 c = area.bounds.center;
+        Debug.LogWarning($"[JackSpawner][Fallback][Box] Usando centro tras {maxAttempts} intentos. center={c} exclCount={(excludes!=null?excludes.Length:0)} fallbackUses={_fallbackBoxUses}");
         return new Vector3(c.x, c.y, 0f);
     }
 
@@ -194,7 +199,9 @@ public class JackSpawner : MonoBehaviour
             }
         }
         // Fallback: centro del polígono si no encontramos punto en intentos
+        _fallbackPolyUses++;
         Vector3 c2 = area.bounds.center;
+        Debug.LogWarning($"[JackSpawner][Fallback][Poly] Usando centro tras {maxAttempts} intentos. center={c2} exclCount={(excludes!=null?excludes.Length:0)} fallbackUses={_fallbackPolyUses}");
         return new Vector3(c2.x, c2.y, 0f);
     }
 
