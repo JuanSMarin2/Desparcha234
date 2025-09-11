@@ -58,20 +58,6 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         {
             Vector3 delta = new Vector3(inputVector.x, inputVector.y, 0f) * moveRange * Time.deltaTime;
             targetObject.position += delta;
-        }
-
-        // si está usando el joystick (arrastrando o con input) contamos tiempo
-        if (isDragging || inputVector.magnitude > 0.01f)
-        {
-            timer += Time.deltaTime;
-            if (timer >= controlDuration)
-                Finish();
-        }
-
-        if (inputVector.magnitude > 0.01f && targetObject != null)
-        {
-            Vector3 delta = new Vector3(inputVector.x, inputVector.y, 0f) * moveRange * Time.deltaTime;
-            targetObject.position += delta;
 
             if (useLimits)
             {
@@ -79,6 +65,14 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
                 float clampedY = Mathf.Clamp(targetObject.position.y, initialTargetPos.y + minLimits.y, initialTargetPos.y + maxLimits.y);
                 targetObject.position = new Vector3(clampedX, clampedY, targetObject.position.z);
             }
+        }
+
+        // el timer ahora siempre corre una vez que se haya iniciado
+        if (timer > 0f && !IsFinished)
+        {
+            timer += Time.deltaTime;
+            if (timer >= controlDuration)
+                Finish();
         }
     }
 
@@ -130,6 +124,10 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         if (!IsActive || IsFinished) return;
         OnDrag(eventData);
         isDragging = true;
+
+        // si el timer aún no había empezado, lo iniciamos
+        if (timer == 0f)
+            timer = 0.0001f; // >0 para que Update empiece a contar
     }
 
     public void OnDrag(PointerEventData eventData)

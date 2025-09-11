@@ -2341,7 +2341,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 21.166016, y: -182.52393}
+  m_AnchoredPosition: {x: 58, y: -182.52393}
   m_SizeDelta: {x: -752.6318, y: -396.4833}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &761413278
@@ -5005,8 +5005,8 @@ MonoBehaviour:
   targetObject: {fileID: 147015976}
   minX: -3
   maxX: 4
-  minY: -4.5
-  maxY: 4
+  minY: -4.6
+  maxY: -1
   moveRange: 3
   wheel0: {fileID: 119216277}
   wheel1: {fileID: 861186391}
