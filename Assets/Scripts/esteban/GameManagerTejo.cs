@@ -85,8 +85,9 @@ public class GameManagerTejo : MonoBehaviour
         cambiosDeTurno++;
         Debug.Log($"Cambio de turno #{cambiosDeTurno}");
 
-        // Después de 5 ciclos significa que se jugaron 4 rondas
-        if (cambiosDeTurno >= 5)
+        int numPlayers = (RoundData.instance != null) ? RoundData.instance.numPlayers : puntajes.Length;
+        // cuando se completan 'numPlayers' ciclos  fin de partida
+        if (cambiosDeTurno >= numPlayers)
         {
             DefinirGanadorPorMayorPuntaje();
         }

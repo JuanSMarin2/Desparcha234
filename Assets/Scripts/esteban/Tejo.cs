@@ -7,7 +7,7 @@ public class Tejo : MonoBehaviour
     private Rigidbody2D rb;
     private bool yaParo = false;
 
-    // 👇 nuevo: hasta que no lo habilitemos desde el lanzador, NO reporta “me detuve”
+    //  nuevo: hasta que no lo habilitemos desde el lanzador, NO reporta “me detuve”
     private bool puedeReportar = false;
 
     private void Awake()
@@ -36,13 +36,13 @@ public class Tejo : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // ⚡ Centro
+        //  Centro
         if (other.CompareTag("Centro"))
         {
             GameManagerTejo.instance.SumarPuntos(jugadorID, 6);
         }
 
-        // ⚡ Papeleta neutra
+        //  Papeleta neutra
         if (other.CompareTag("Papeleta"))
         {
             Debug.Log($"Jugador {jugadorID} golpeó papeleta");
@@ -55,7 +55,7 @@ public class Tejo : MonoBehaviour
             if (col != null) col.enabled = false;
         }
 
-        // ⚡ Papeletas especiales (restan al dueño de esa papeleta)
+        //  Papeletas especiales (restan al dueño de esa papeleta)
         if (other.CompareTag("Papeleta1"))
         {
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
