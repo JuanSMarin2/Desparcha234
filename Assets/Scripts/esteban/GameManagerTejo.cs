@@ -86,7 +86,8 @@ public class GameManagerTejo : MonoBehaviour
         Debug.Log($"Cambio de turno #{cambiosDeTurno}");
 
         int numPlayers = (RoundData.instance != null) ? RoundData.instance.numPlayers : puntajes.Length;
-        // cuando se completan 'numPlayers' ciclos  fin de partida
+
+        // cuando se completan 'numPlayers' ciclos se define ganador
         if (cambiosDeTurno >= numPlayers)
         {
             DefinirGanadorPorMayorPuntaje();
@@ -95,44 +96,13 @@ public class GameManagerTejo : MonoBehaviour
 
     private void DefinirGanadorPorMayorPuntaje()
     {
-        int maxPuntaje = -1;
-        bool empate = false;
-        int ganadorID = -1;
-
+        // Convertir puntajes (int[]) a long[] para el método
+        long[] scores = new long[puntajes.Length];
         for (int i = 0; i < puntajes.Length; i++)
-        {
-            int puntos = puntajes[i];
+            scores[i] = puntajes[i];
 
-            if (puntos > maxPuntaje)
-            {
-                maxPuntaje = puntos;
-                ganadorID = i;
-                empate = false;
-            }
-            else if (puntos == maxPuntaje)
-            {
-                empate = true;
-            }
-        }
-
-        if (empate)
-        {
-            Debug.Log("La partida termina en EMPATE por puntos tras 4 rondas!");
-            for (int i = 0; i < puntajes.Length; i++)
-            {
-                GameRoundManager.instance.PlayerLose(i);
-            }
-        }
-        else
-        {
-            Debug.Log($"Jugador {ganadorID + 1} gana por mayor puntaje tras 4 rondas!");
-            GameRoundManager.instance.PlayerWin(ganadorID);
-            for (int i = 0; i < puntajes.Length; i++)
-            {
-                if (i != ganadorID)
-                    GameRoundManager.instance.PlayerLose(i);
-            }
-        }
+        Debug.Log("Finalizando ronda por mayor puntaje tras 4 rondas...");
+        GameRoundManager.instance.FinalizeRoundFromScores(scores);
     }
 
     // Llamado cada vez que se instancia un tejo (desde JoystickControl)
