@@ -5436,6 +5436,7 @@ MonoBehaviour:
   velocidadSubida: 1.5
   velocidadBajada: 0.5
   barraDeFuerza: {fileID: 1214087833}
+  barraOffset: {x: 1, y: -0.5, z: 0}
 --- !u!1 &1521011295
 GameObject:
   m_ObjectHideFlags: 0
@@ -6716,7 +6717,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.6679245, g: 0, b: 0.30716345, a: 1}
+  m_Color: {r: 1, g: 0, b: 0.45882368, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

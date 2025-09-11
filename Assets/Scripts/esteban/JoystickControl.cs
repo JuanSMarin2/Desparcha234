@@ -41,6 +41,11 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     [SerializeField] private BarraDeFuerza barraDeFuerza; // referencia al script de la barra
 
+    // --- en tu clase JoystickControl ---
+    [Header("Barra de Fuerza Offset")]
+    [SerializeField] private Vector3 barraOffset = new Vector3(1f, 0f, 0f);
+    // mueve la barra a la derecha por defecto
+
     private bool lanzando = false; // evita dobles tiros mientras corre la corrutina
     public bool IsDragging { get; private set; }
     public Vector2 inputVector { get; private set; }
@@ -248,7 +253,8 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     {
         if (barraFuerza != null && spawnPoint != null)
         {
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(spawnPoint.position + Vector3.up * 1f);
+            // Usa el offset configurable desde el Inspector
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(spawnPoint.position + barraOffset);
             barraFuerza.transform.position = screenPos;
         }
     }
