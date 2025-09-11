@@ -88,7 +88,7 @@ public class PowerUpTextFeedback : MonoBehaviour
         switch (type)
         {
             case MarblePowerType.MorePower:
-                msg = "Ahora tienes mas potencia";
+                msg = "Ahora tienes más potencia";
                 color = morePowerColor;
                 break;
             case MarblePowerType.Unmovable:
@@ -110,7 +110,7 @@ public class PowerUpTextFeedback : MonoBehaviour
     {
         switch (type)
         {
-            case MarblePowerType.MorePower: return "Ahora " + winnerColorName + " tiene mas potencia";
+            case MarblePowerType.MorePower: return "Ahora " + winnerColorName + " tiene más potencia";
             case MarblePowerType.Unmovable: return "Ahora " + winnerColorName + " es inamovible";
             case MarblePowerType.Ghost: return "Ahora " + winnerColorName + " puede atravesar piedras";
             default: return "";
