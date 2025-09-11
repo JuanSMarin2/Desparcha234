@@ -1,31 +1,31 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
+using TMPro;  // <-- si usas TextMeshPro
 
 public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     [Header("UI")]
-    public RectTransform background;  // RectTransform del fondo (este GameObject normalmente)
-    public RectTransform handle;      // RectTransform del "knob" hijo
+    public RectTransform background;
+    public RectTransform handle;
+    public TextMeshProUGUI timerText;   // <-- referencia al UI del contador
 
     [SerializeField] private Vector3 initialTargetPos;
 
     [Header("Movimiento")]
-    public Transform targetObject;    // El objeto (ficha) que moverá este joystick
-    public float moveRange = 3f;      // Velocidad / rango
-    public float controlDuration = 3f;// segundos que puede usarse
+    public Transform targetObject;
+    public float moveRange = 3f;
+    public float controlDuration = 3f;
 
     [Header("Opciones")]
-    public bool startActive = true;   // activado al Start si true
+    public bool startActive = true;
 
-    public Action<JoystickUnit> OnFinished; // evento al terminar
+    public Action<JoystickUnit> OnFinished;
 
     [Header("Límites de movimiento del target")]
-    public bool useLimits = true;         // activar o no el límite
-    public Vector2 minLimits = new Vector2(-5f, -5f); // coordenadas mínimas (X, Y)
-    public Vector2 maxLimits = new Vector2(5f, 5f);   // coordenadas máximas (X, Y)
-
-    
+    public bool useLimits = true;
+    public Vector2 minLimits = new Vector2(-5f, -5f);
+    public Vector2 maxLimits = new Vector2(5f, 5f);
 
     public Vector2 inputVector { get; private set; }
     public bool IsFinished { get; private set; }
@@ -53,7 +53,7 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
     {
         if (!IsActive || IsFinished) return;
 
-        // mover el target según el input acumulado cada frame
+        // mover target
         if (inputVector.magnitude > 0.01f && targetObject != null)
         {
             Vector3 delta = new Vector3(inputVector.x, inputVector.y, 0f) * moveRange * Time.deltaTime;
@@ -67,12 +67,21 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
             }
         }
 
-        // el timer ahora siempre corre una vez que se haya iniciado
+        // contador de tiempo
         if (timer > 0f && !IsFinished)
         {
             timer += Time.deltaTime;
+
+            float remaining = Mathf.Max(0, controlDuration - timer);
+
+            // mostrar tiempo en pantalla
+            if (timerText != null)
+                timerText.text = remaining.ToString("F1"); // con 1 decimal
+
             if (timer >= controlDuration)
+            {
                 Finish();
+            }
         }
     }
 
@@ -85,7 +94,6 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         inputVector = Vector2.zero;
         if (handle != null) handle.anchoredPosition = Vector2.zero;
 
-        // activamos/desactivamos el joystick
         gameObject.SetActive(active);
 
         if (targetObject != null)
@@ -93,11 +101,12 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
             targetObject.gameObject.SetActive(active);
 
             if (active)
-            {
-                // restauramos la posición inicial al resetear
                 targetObject.position = initialTargetPos;
-            }
         }
+
+        // resetear texto del timer
+        if (timerText != null)
+            timerText.text = controlDuration.ToString("F1");
     }
 
     public void Finish()
@@ -107,27 +116,23 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         inputVector = Vector2.zero;
         if (handle != null) handle.anchoredPosition = Vector2.zero;
 
-        // avisamos antes de desactivar
         OnFinished?.Invoke(this);
 
-        // ocultamos el joystick
         gameObject.SetActive(false);
 
-        //  Ya no desactivamos el targetObject aquí
-        // if (targetObject != null)
-        //     targetObject.gameObject.SetActive(false);
+        // ocultamos el texto al acabar
+        if (timerText != null)
+            timerText.text = "0.0";
     }
 
-    // --- eventos UI ---
     public void OnPointerDown(PointerEventData eventData)
     {
         if (!IsActive || IsFinished) return;
         OnDrag(eventData);
         isDragging = true;
 
-        // si el timer aún no había empezado, lo iniciamos
         if (timer == 0f)
-            timer = 0.0001f; // >0 para que Update empiece a contar
+            timer = 0.0001f;
     }
 
     public void OnDrag(PointerEventData eventData)
