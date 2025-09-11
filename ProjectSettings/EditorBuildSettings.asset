@@ -14,12 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Canicas.unity
     guid: 9d4faaf816d35a74ebd47814fa9468ee
-  - enabled: 0
-    path: Assets/Scenes/Tejo(viejo).unity
-    guid: 1d56873dc9b918a41b109007e88a7dda
   - enabled: 1
     path: Assets/Scenes/Tejo.unity
-    guid: f25ce3dd4f75ca641b9eaf13d44f1973
+    guid: 1d56873dc9b918a41b109007e88a7dda
   - enabled: 1
     path: Assets/Scenes/Zancos.unity
     guid: 371a3e32f8fe02d4999b5baf2153e103
@@ -30,9 +27,7 @@ EditorBuildSettings:
     path: Assets/Scenes/FinalResults.unity
     guid: c348576d08e865c4e86a8358e1d242b0
   m_configObjects:
-    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: ec9f5ce2128f4004fb3bf3bb447ccab6, type: 2}
-    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: be967802c73186d4bb8aacb7694fe956, type: 2}
-    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: 0975f78495eca474fbbd627ec30b0b3b, type: 2}
+    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: d1868e0e4b670844ca3bff0c15221bdb, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: b61060970ed0dee46a738d5a8aa10d7c, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

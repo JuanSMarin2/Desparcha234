@@ -61,7 +61,7 @@ public class ForceCharger : MonoBehaviour
         if (!forceBar) return;
 
         float minScale = 0.01f;
-        float maxScale = 0.3f;
+        float maxScale = 0.17f;
         float t = Mathf.InverseLerp(1f, 5f, fuerza);
 
         var s = forceBar.localScale;

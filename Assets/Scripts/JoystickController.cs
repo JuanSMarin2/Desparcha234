@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     [SerializeField] private RectTransform joystickKnob;
-    [SerializeField] private GameObject arrowObject;       
+    [SerializeField] private GameObject arrowObject;
     [SerializeField] private Transform targetObject;
 
     [SerializeField] private Transform wheel0;
@@ -13,16 +13,20 @@ public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandl
     [SerializeField] private Transform wheel2;
     [SerializeField] private Transform wheel3;
 
-    [SerializeField] private Image Image;
+    [Header("Sprites por jugador")]
+    [SerializeField] private Sprite player1Sprite;
+    [SerializeField] private Sprite player2Sprite;
+    [SerializeField] private Sprite player3Sprite;
+    [SerializeField] private Sprite player4Sprite;
+
+    [SerializeField] private Image image;
 
     [SerializeField] private GameObject blocker;
 
     private RectTransform backgroundRect;
     private float joystickRadius;
     public bool IsDragging { get; private set; }
-
     public Vector2 inputVector { get; private set; }
-
     private int previusTurn;
 
     void Awake()
@@ -38,7 +42,7 @@ public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandl
         if (arrowObject != null)
             arrowObject.SetActive(false);
 
-        if(blocker != null)
+        if (blocker != null)
             blocker.SetActive(false);
     }
 
@@ -46,20 +50,17 @@ public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandl
     {
         int currentTurn = TurnManager.instance.CurrentTurn();
 
-        if(previusTurn != currentTurn)
+        if (previusTurn != currentTurn)
         {
             DisableBlocker();
             arrowObject.transform.position = Vector3.zero;
         }
-          
-
-
 
         switch (currentTurn)
         {
             case 1:
                 transform.position = wheel0.position;
-                Image.color = Color.red;
+                image.sprite = player1Sprite;
                 wheel0.gameObject.SetActive(false);
                 wheel1.gameObject.SetActive(true);
                 wheel2.gameObject.SetActive(true);
@@ -68,7 +69,7 @@ public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandl
 
             case 2:
                 transform.position = wheel1.position;
-                Image.color = Color.blue;
+                image.sprite = player2Sprite;
                 wheel0.gameObject.SetActive(true);
                 wheel1.gameObject.SetActive(false);
                 wheel2.gameObject.SetActive(true);
@@ -77,7 +78,7 @@ public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandl
 
             case 3:
                 transform.position = wheel2.position;
-                Image.color = Color.yellow;
+                image.sprite = player3Sprite;
                 wheel0.gameObject.SetActive(true);
                 wheel1.gameObject.SetActive(true);
                 wheel2.gameObject.SetActive(false);
@@ -86,7 +87,7 @@ public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandl
 
             case 4:
                 transform.position = wheel3.position;
-                Image.color = Color.green;
+                image.sprite = player4Sprite;
                 wheel0.gameObject.SetActive(true);
                 wheel1.gameObject.SetActive(true);
                 wheel2.gameObject.SetActive(true);
@@ -98,11 +99,7 @@ public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandl
                 break;
         }
 
-
-
-
         previusTurn = currentTurn;
-
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -153,7 +150,6 @@ public class JoystickController : MonoBehaviour, IPointerDownHandler, IDragHandl
             float angle = Mathf.Atan2(oppositeDirection.y, oppositeDirection.x) * Mathf.Rad2Deg;
             arrowObject.transform.rotation = Quaternion.Euler(0, 0, angle + 90f);
 
-     
             arrowObject.transform.position = targetObject.position;
         }
         else

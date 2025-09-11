@@ -7,6 +7,13 @@ TagManager:
   - SafeZone
   - Marble
   - PowerUp
+  - Player_1
+  - Player_2
+  - Player_3
+  - Player_4
+  - Tejo
+  - Centro
+  - Papeleta
   layers:
   - Default
   - TransparentFX
@@ -17,29 +24,29 @@ TagManager:
   - 
   - 
   - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - Tablero
+  - "Colisi\xF3ntablero"
+  - Marble
   - Wall
   - Blocker
   - GhostMarble
-  - Marble
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
   m_SortingLayers:
   - name: Default
     uniqueID: 0

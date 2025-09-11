@@ -6,9 +6,11 @@ public class RoundData : MonoBehaviour
 {
     public static RoundData instance;
 
+    public int[] lastRoundPoints;
+
     public int numPlayers = 4;
 
-    // Catálogo base disponible (nombres = nombres de escenas)
+    // Catï¿½logo base disponible (nombres = nombres de escenas)
     public List<string> availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos" };
 
     
@@ -66,10 +68,14 @@ public class RoundData : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
 
+        lastRoundPoints = (int[])currentPoints.Clone();
+
         for (int i = 0; i < numPlayers; i++)
         {
             totalPoints[i] += currentPoints[i];
+            currentPoints[i] = 0;
         }
+
 
         Debug.Log("TotalPoints actualizado.");
     }
