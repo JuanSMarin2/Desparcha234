@@ -9,10 +9,10 @@ public class GameRoundManager : MonoBehaviour
 
     [SerializeField] private bool advanceTurnOnRemove = false;
 
-    [Tooltip("√çndices de los jugadores que han ganado, en orden de llegada (1¬∫, 2¬∫, etc.).")]
+    [Tooltip("Õndices de los jugadores que han ganado, en orden de llegada (1∫, 2∫, etc.).")]
     [SerializeField] private List<int> winners = new List<int>();
 
-    [Tooltip("√çndices de los jugadores que han perdido, en orden de llegada.")]
+    [Tooltip("Õndices de los jugadores que han perdido, en orden de llegada.")]
     [SerializeField] private List<int> losers = new List<int>();
 
     void Awake()
@@ -34,10 +34,10 @@ public class GameRoundManager : MonoBehaviour
         // reubicar indice de lista si hace falta
         if (TurnManager.instance.GetActivePlayerCount() > 0)
         {
-            // normalizar activePlayerListIndex si usas ese patr√≥n internamente
+            // normalizar activePlayerListIndex si usas ese patrÛn internamente
         }
 
-        // IMPORTANTE: solo avanzar si est√° permitido (en Canicas: false)
+        // IMPORTANTE: solo avanzar si est· permitido (en Canicas: false)
         if (advanceTurnOnRemove)
         {
             TurnManager.instance.NextTurn();
@@ -47,14 +47,14 @@ public class GameRoundManager : MonoBehaviour
     public void PlayerWin(int winningPlayerIndex)
     {
         winners.Add(winningPlayerIndex);
-        Debug.Log("¬°El Jugador " + (winningPlayerIndex + 1) + " ha ganado! Posici√≥n: " + winners.Count);
+        Debug.Log("°El Jugador " + (winningPlayerIndex + 1) + " ha ganado! PosiciÛn: " + winners.Count);
         TurnManager.instance.RemovePlayerFromTurn(winningPlayerIndex);
         CheckForRoundEnd();
     }
 
     public void PlayerLose(int losingPlayerIndex)
     {
-        losers.Add(losingPlayerIndex); // se acumulan en orden de eliminaciÔøΩn
+        losers.Add(losingPlayerIndex); // se acumulan en orden de eliminaci?n
         Debug.Log("El Jugador " + (losingPlayerIndex + 1) + " ha sido eliminado.");
         TurnManager.instance.RemovePlayerFromTurn(losingPlayerIndex);
         CheckForRoundEnd();
@@ -72,7 +72,7 @@ public class GameRoundManager : MonoBehaviour
             if (active == 1)
             {
                 int last = TurnManager.instance.GetActivePlayerIndices()[0];
-                // AÔøΩade al ganador una sola vez
+                // A?ade al ganador una sola vez
                 if (!winners.Contains(last) && !losers.Contains(last))
                     winners.Add(last);
             }
@@ -94,11 +94,11 @@ public class GameRoundManager : MonoBehaviour
         int numPlayers = RoundData.instance.numPlayers;
         if (scores.Length < numPlayers)
         {
-            Debug.LogWarning("Scores no coincide con numPlayers; se ajustar√° al m√≠nimo disponible.");
+            Debug.LogWarning("Scores no coincide con numPlayers; se ajustar· al mÌnimo disponible.");
             numPlayers = scores.Length;
         }
 
-        // √çndices 0..n-1 ordenados por score DESC, luego √≠ndice ASC
+        // Õndices 0..n-1 ordenados por score DESC, luego Ìndice ASC
         int[] order = new int[numPlayers];
         for (int i = 0; i < numPlayers; i++) order[i] = i;
         System.Array.Sort(order, (a, b) =>
@@ -112,7 +112,7 @@ public class GameRoundManager : MonoBehaviour
         RoundData.instance.finalPositions.Clear();
         for (int i = 0; i < order.Length; i++) RoundData.instance.finalPositions.Add(order[i]);
 
-        // Asignar puntos por rango con empates: 1¬∫=3, 2¬∫=2, 3¬∫=1, 4¬∫+=0
+        // Asignar puntos por rango con empates: 1∫=3, 2∫=2, 3∫=1, 4∫+=0
         int rank = 1; // rango actual (1-based)
         for (int i = 0; i < order.Length;)
         {
@@ -129,7 +129,7 @@ public class GameRoundManager : MonoBehaviour
                     RoundData.instance.currentPoints[player] = points;
             }
 
-            rank += groupSize; // siguiente rango salta el tama√±o del grupo empatado (1,1,3,...) 
+            rank += groupSize; // siguiente rango salta el tamaÒo del grupo empatado (1,1,3,...) 
             i = j;
         }
 
@@ -148,20 +148,20 @@ public class GameRoundManager : MonoBehaviour
         }
         else
         {
-            // 2) Fallback: unificar winners/losers (flujo de eliminaci√≥n cl√°sico)
+            // 2) Fallback: unificar winners/losers (flujo de eliminaciÛn cl·sico)
             finalPositions.AddRange(winners);
             losers.Reverse();
             finalPositions.AddRange(losers);
         }
 
-        // Asegurar tama√±o acorde a numPlayers
+        // Asegurar tamaÒo acorde a numPlayers
         int numPlayers = RoundData.instance != null ? RoundData.instance.numPlayers : finalPositions.Count;
         if (RoundData.instance != null)
         {
             RoundData.instance.currentPoints = new int[numPlayers]; // limpiar puntaje de ronda (3/2/1/0)
         }
 
-        // 3) Asignar puntos de ronda seg√∫n orden (top1->3, top2->2, top3->1, top4->0)
+        // 3) Asignar puntos de ronda seg˙n orden (top1->3, top2->2, top3->1, top4->0)
         for (int i = 0; i < finalPositions.Count && i < numPlayers; i++)
         {
             int playerIndex = finalPositions[i];
@@ -172,7 +172,7 @@ public class GameRoundManager : MonoBehaviour
             }
         }
 
-        // 4) Guardar clasificaci√≥n en RoundData (ya viene del ranking si exist√≠a)
+        // 4) Guardar clasificaciÛn en RoundData (ya viene del ranking si existÌa)
         if (RoundData.instance != null)
         {
             RoundData.instance.finalPositions.Clear();
