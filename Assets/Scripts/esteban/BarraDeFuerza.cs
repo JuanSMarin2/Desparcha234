@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class BarraDeFuerza : MonoBehaviour
 {
     [Header("Config Barra de Fuerza")]
-    public Image barraPoder; // Asigna aquí la imagen 'BarraFuerzaPoder'
+    public Image barraPoder; // Asigna aquï¿½ la imagen 'BarraFuerzaPoder'
     public float velocidadSubida = 1.5f;
     public float velocidadBajada = 0.5f;
 
@@ -35,7 +35,7 @@ public class BarraDeFuerza : MonoBehaviour
         barraPoder.fillAmount = valorActual;
     }
 
-    // Método público para obtener el valor de la barra cuando presiones un botón
+    // Mï¿½todo pï¿½blico para obtener el valor de la barra cuando presiones un botï¿½n
     public float GetValorFuerza()
     {
         return valorActual;
