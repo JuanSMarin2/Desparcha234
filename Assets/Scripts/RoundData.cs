@@ -6,6 +6,8 @@ public class RoundData : MonoBehaviour
 {
     public static RoundData instance;
 
+    public int[] lastRoundPoints;
+
     public int numPlayers = 4;
 
     // Cat�logo base disponible (nombres = nombres de escenas)
@@ -66,10 +68,14 @@ public class RoundData : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
 
+        lastRoundPoints = (int[])currentPoints.Clone();
+
         for (int i = 0; i < numPlayers; i++)
         {
             totalPoints[i] += currentPoints[i];
+            currentPoints[i] = 0;
         }
+
 
         Debug.Log("TotalPoints actualizado.");
     }

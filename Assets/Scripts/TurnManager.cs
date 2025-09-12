@@ -28,6 +28,12 @@ public class TurnManager : MonoBehaviour
             Destroy(gameObject);
         }
           uiManager = FindAnyObjectByType<UiManager>();
+
+        if (RoundData.instance != null)
+        {
+            RoundData.instance.finalPositions.Clear();
+        }
+
     }
     public void NextTurn()
     {

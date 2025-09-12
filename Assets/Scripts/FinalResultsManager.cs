@@ -99,7 +99,7 @@ public class FinalResultsManager : MonoBehaviour
 
         // Mensaje inicial
         if (winnerText)
-            winnerText.text = "Los puntos ganados se están convirtiendo en dinero...";
+            winnerText.text = "Los puntos ganados se convierten en dinero...";
 
         if (conversionText) conversionText.gameObject.SetActive(true);
         if (continueButton) continueButton.gameObject.SetActive(false);
