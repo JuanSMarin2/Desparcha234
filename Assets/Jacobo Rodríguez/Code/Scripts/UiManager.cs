@@ -6,7 +6,7 @@ public class UiManager : MonoBehaviour
 {
     [Header("Referencias")]
     [SerializeField] private Bolita bolita;        // Arrastra la Bolita desde la escena
-   
+    
 
     [Header("Puntajes (Jugadores 1-4)")]
     [SerializeField] private TMP_Text puntosJugador1;
@@ -26,8 +26,11 @@ public class UiManager : MonoBehaviour
     [SerializeField] private GameObject botonJugador3;
     [SerializeField] private GameObject botonJugador4;
 
-    private bool _cronometroActivo;
-    private float _tiempo;
+    [Header("Advertencia recoger bola")]
+    [Tooltip("UI de advertencia para avisar que recoja la bola (activar/desactivar)")]
+    [SerializeField] private GameObject panelAdvertenciaRecoger;
+
+  
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -50,6 +53,9 @@ public class UiManager : MonoBehaviour
             SetTextoPuntos(puntosJugador3, 0);
             SetTextoPuntos(puntosJugador4, 0);
         }
+
+        // Asegurar que el panel de advertencia inicie oculto
+        if (panelAdvertenciaRecoger != null) panelAdvertenciaRecoger.SetActive(false);
     }
 
     private static int GetSafe(int[] arr, int idx)
@@ -66,7 +72,6 @@ public class UiManager : MonoBehaviour
   
 
    
-
 
 
 
@@ -134,7 +139,14 @@ public class UiManager : MonoBehaviour
             case 3: target = intentosJugador4; break;
         }
         if (target == null) return; // opcional, no hay UI asignada
-        target.text = "x" + Mathf.Max(0, intentosRestantes);
+        target.text = "Tiros(" + Mathf.Max(0, intentosRestantes)+")";
+    }
+
+    // Mostrar/ocultar advertencia de recoger la bola
+    public void MostrarAdvertenciaRecoger(bool mostrar)
+    {
+        if (panelAdvertenciaRecoger != null)
+            panelAdvertenciaRecoger.SetActive(mostrar);
     }
 
     private static void SetTextoPuntos(TMP_Text label, long valor)
