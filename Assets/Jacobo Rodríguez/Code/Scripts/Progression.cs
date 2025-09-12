@@ -33,6 +33,10 @@ public class Progression : MonoBehaviour
     [SerializeField] private GameObject botonListo; // asignar en inspector
     private bool _preLaunchPaused = false;
 
+    [Header("Animación Fin de Partida")]
+    [SerializeField] private Animacionfinal _animacionFinal; // Referencia en escena para animación de ganador
+    private bool _endGameAnimationTriggered = false;
+
     // Nuevo: evento global para notificar que el turno avanzó.
     // Envía el índice del jugador actual (0-based).
     public static event Action<int> OnTurnAdvanced;
@@ -209,8 +213,8 @@ public class Progression : MonoBehaviour
                 for (int i = 0; i < _attemptsLeft.Length; i++) totalRestantes += _attemptsLeft[i];
                 if (totalRestantes <= 0)
                 {
-                       FinalizarMiniJuegoPorPuntaje();
-                       return;
+                    MostrarAnimacionGanadorYOtorgarCierre();
+                    return;
                 }
 
                 int safety = _attemptsLeft.Length;
@@ -251,6 +255,78 @@ public class Progression : MonoBehaviour
 
         // Reiniciar explícitamente la bola UNA sola vez aquí
         _bolita?.ReiniciarBola(); // Esto disparará OnBallPendingThrow con guard de frame
+    }
+
+    private int CalcularGanadorIndex1Based()
+    {
+        if (_playerCurrentScores == null || _playerCurrentScores.Length == 0)
+            return 1; // default seguro
+
+        int ganador0 = 0;
+        long max = _playerCurrentScores[0];
+        for (int i = 1; i < _playerCurrentScores.Length; i++)
+        {
+            if (_playerCurrentScores[i] > max)
+            {
+                max = _playerCurrentScores[i];
+                ganador0 = i;
+            }
+        }
+
+        // Nota: si hay empate exacto, gana el primer índice con el máximo.
+        // Se puede ajustar esta política si se requiere un desempate distinto.
+        int ganador1 = ganador0 + 1;
+        Debug.Log($"[Progression] Ganador calculado: playerIdx0={ganador0} (1-based={ganador1}) score={max}");
+        return ganador1;
+    }
+
+    private void MostrarAnimacionGanadorYOtorgarCierre()
+    {
+        if (_endGameAnimationTriggered)
+        {
+            Debug.Log("[Progression] Animación de fin ya fue disparada; ignorando duplicado.");
+            return;
+        }
+        _endGameAnimationTriggered = true;
+
+        // Bloquear inputs mientras corre la animación
+        BarraFuerza.SetGlobalShakeBlocked(true);
+        if (botonListo != null) botonListo.SetActive(false);
+
+        // Consolidar intento en curso por seguridad antes de mostrar ganador
+        if (_attemptScore > 0)
+        {
+            _baseScore += _attemptScore;
+            _attemptScore = 0;
+            currentScore = _baseScore;
+            if (TurnManager.instance != null && _playerCurrentScores != null)
+            {
+                int idx = TurnManager.instance.GetCurrentPlayerIndex();
+                if (idx >= 0 && idx < _playerCurrentScores.Length)
+                    _playerCurrentScores[idx] = currentScore;
+            }
+        }
+
+        int ganador = CalcularGanadorIndex1Based();
+        if (_animacionFinal == null) _animacionFinal = FindAnyObjectByType<Animacionfinal>();
+
+        if (_animacionFinal != null)
+        {
+            Debug.Log($"[Progression] Mostrando animación de ganador (ganador={ganador}). Esperando Animation Event para finalizar.");
+            _animacionFinal.AnimacionFinal(ganador);
+            // No finalizamos aquí; se llamará a FinalizarPorAnimacion() desde un Animation Event.
+        }
+        else
+        {
+            Debug.LogWarning("[Progression] Animacionfinal no encontrada. Finalizando directamente por puntaje.");
+            FinalizarMiniJuegoPorPuntaje();
+        }
+    }
+
+    public void FinalizarPorAnimacion()
+    {
+        Debug.Log("[Progression] Animation Event recibido: finalizando mini-juego por puntaje.");
+        FinalizarMiniJuegoPorPuntaje();
     }
 
     private void FinalizarMiniJuegoPorPuntaje()
