@@ -329,7 +329,7 @@ Transform:
   m_GameObject: {fileID: 147015975}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -272.04, y: -102.05, z: 0}
+  m_LocalPosition: {x: -272.04, y: -99.87, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5395,9 +5395,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 377ac1ca730bc184a9965cd5b571f281, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minX: -3
-  maxX: 3.5
-  minY: -3.5
+  minX: -2.5
+  maxX: 3
+  minY: -2.5
   maxY: 2.5
 --- !u!114 &1485851760
 MonoBehaviour:
@@ -5695,10 +5695,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   joystickKnob: {fileID: 606609694}
   targetObject: {fileID: 147015976}
-  minX: -3
-  maxX: 4
-  minY: -4.6
-  maxY: -1
+  minX: -5
+  maxX: 5.5
+  minY: -3
+  maxY: -0.7
   moveRange: 3
   wheel0: {fileID: 119216277}
   wheel1: {fileID: 861186391}
@@ -7159,7 +7159,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 1, g: 0, b: 0.45882368, a: 1}
   m_FlipX: 0
