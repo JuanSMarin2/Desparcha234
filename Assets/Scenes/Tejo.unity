@@ -2767,7 +2767,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: -6160792388114195215, guid: 787ede9a290483249b2b4b7f1f5983d4, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2980,7 +2980,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 6340931277490026581, guid: cf245993e6df64243be120881cc668d8, type: 3}
+  m_Sprite: {fileID: -6160792388114195215, guid: 787ede9a290483249b2b4b7f1f5983d4, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4286,7 +4286,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -6160792388114195215, guid: 787ede9a290483249b2b4b7f1f5983d4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4838,8 +4838,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   barraPoder: {fileID: 842674730}
-  velocidadSubida: 1
-  velocidadBajada: 0.5
+  velocidadSubida: 2
+  velocidadBajada: 3
 --- !u!4 &1214087834
 Transform:
   m_ObjectHideFlags: 0
