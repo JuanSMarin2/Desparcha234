@@ -5704,7 +5704,12 @@ MonoBehaviour:
   wheel1: {fileID: 861186391}
   wheel2: {fileID: 1180633335}
   wheel3: {fileID: 286465835}
-  Image: {fileID: 1511727198}
+  Image: {fileID: 606609695}
+  playerSprites:
+  - {fileID: 1292473709232041094, guid: 2bd5fbc6e420e394ba1ad4363ff7e685, type: 3}
+  - {fileID: -5210494982953479380, guid: c760770d0d70ba84eabfc75b1a637fbf, type: 3}
+  - {fileID: -3988303255311248835, guid: 25b820bc54eb1bd4aa8d6333a39ba17d, type: 3}
+  - {fileID: -8432653952069585967, guid: c1e0b8b215ccaab479ba7efee854747e, type: 3}
   blocker: {fileID: 1666297652}
   objectPrefabs:
   - {fileID: 477731166513891508, guid: def13b0a754e43740a6b5bafb04b2d53, type: 3}

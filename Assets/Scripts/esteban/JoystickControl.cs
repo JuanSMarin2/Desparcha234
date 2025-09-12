@@ -25,7 +25,8 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     [SerializeField] private Transform wheel3;
 
     [Header("Visuals")]
-    [SerializeField] private Image Image;
+    [SerializeField] private Image Image;       // El componente de la UI que muestras
+    [SerializeField] private Sprite[] playerSprites; // Sprites para cada jugador
     [SerializeField] private GameObject blocker;
 
     [Header("Spawn Settings")]
@@ -88,19 +89,19 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         {
             case 1:
                 transform.position = wheel0.position;
-                Image.color = Color.red;
+                Image.sprite = playerSprites[0]; // Sprite del jugador 1
                 break;
             case 2:
                 transform.position = wheel1.position;
-                Image.color = Color.blue;
+                Image.sprite = playerSprites[1]; // Sprite del jugador 2
                 break;
             case 3:
                 transform.position = wheel2.position;
-                Image.color = Color.yellow;
+                Image.sprite = playerSprites[2]; // Sprite del jugador 3
                 break;
             case 4:
                 transform.position = wheel3.position;
-                Image.color = Color.green;
+                Image.sprite = playerSprites[3]; // Sprite del jugador 4
                 break;
         }
 
