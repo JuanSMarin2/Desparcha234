@@ -164,7 +164,7 @@ public class Progression : MonoBehaviour
     {
         if (botonListo != null) botonListo.SetActive(true);
         _preLaunchPaused = true;
-        BarraFuerza.SetGlobalShakeBlocked(true);
+        global::BarraFuerza.SetGlobalShakeBlocked(true);
         // Time.timeScale = 0f; //// No se pausa porque caga las animaciones.
         Debug.Log("[Progression] Juego pausado esperando botonListo");
     }
@@ -259,25 +259,59 @@ public class Progression : MonoBehaviour
 
     private int CalcularGanadorIndex1Based()
     {
-        if (_playerCurrentScores == null || _playerCurrentScores.Length == 0)
-            return 1; // default seguro
+        // Compatibilidad: usa la lista de ganadores y devuelve el primero
+        var ganadores = CalcularGanadoresIndex1Based();
+        return (ganadores != null && ganadores.Length > 0) ? ganadores[0] : 1;
+    }
 
-        int ganador0 = 0;
+    // Nuevo: devuelve todos los ganadores (1-based) en caso de empate
+    private int[] CalcularGanadoresIndex1Based()
+    {
+        if (_playerCurrentScores == null || _playerCurrentScores.Length == 0)
+            return new[] { 1 };
+
         long max = _playerCurrentScores[0];
         for (int i = 1; i < _playerCurrentScores.Length; i++)
         {
             if (_playerCurrentScores[i] > max)
-            {
                 max = _playerCurrentScores[i];
-                ganador0 = i;
-            }
         }
 
-        // Nota: si hay empate exacto, gana el primer índice con el máximo.
-        // Se puede ajustar esta política si se requiere un desempate distinto.
-        int ganador1 = ganador0 + 1;
-        Debug.Log($"[Progression] Ganador calculado: playerIdx0={ganador0} (1-based={ganador1}) score={max}");
-        return ganador1;
+        List<int> ganadores = new List<int>();
+        for (int i = 0; i < _playerCurrentScores.Length; i++)
+        {
+            if (_playerCurrentScores[i] == max)
+                ganadores.Add(i + 1); // 1-based
+        }
+        Debug.Log($"[Progression] Ganadores calculados (1-based): [{string.Join(",", ganadores)}] con scoreMax={max}");
+        return ganadores.ToArray();
+    }
+
+    private void PrepararFinDeJuegoVisual()
+    {
+        // Bloquear inputs por shake
+        BarraFuerza.SetGlobalShakeBlocked(true);
+
+        // Ocultar botón "Listo"
+        if (botonListo != null) botonListo.SetActive(false);
+
+        // Ocultar barra de fuerza por completo
+        if (_barra == null) _barra = FindAnyObjectByType<BarraFuerza>();
+        _barra?.OcultarUIBarra();
+
+        // Limpiar todos los jacks (disable)
+        if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
+        _spawner?.DisableAll();
+
+        // Ocultar la bolita para evitar interacción/visual residual
+        if (_bolita == null) _bolita = FindAnyObjectByType<Bolita>();
+        if (_bolita != null) _bolita.gameObject.SetActive(false);
+
+        // Mostrar/"highlight" de todos los botones de jugador
+        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
+        _ui?.MostrarTodosBotonesJugadores();
+
+        Debug.Log("[Progression] Preparación visual de fin de juego aplicada (jacks deshabilitados, bolita oculta, botones resaltados, listo/barra ocultos).");
     }
 
     private void MostrarAnimacionGanadorYOtorgarCierre()
@@ -289,9 +323,8 @@ public class Progression : MonoBehaviour
         }
         _endGameAnimationTriggered = true;
 
-        // Bloquear inputs mientras corre la animación
-        BarraFuerza.SetGlobalShakeBlocked(true);
-        if (botonListo != null) botonListo.SetActive(false);
+        // Preparar fin de juego a nivel visual (ocultar UI y limpiar jacks)
+        PrepararFinDeJuegoVisual();
 
         // Consolidar intento en curso por seguridad antes de mostrar ganador
         if (_attemptScore > 0)
@@ -307,13 +340,13 @@ public class Progression : MonoBehaviour
             }
         }
 
-        int ganador = CalcularGanadorIndex1Based();
+        var ganadores = CalcularGanadoresIndex1Based();
         if (_animacionFinal == null) _animacionFinal = FindAnyObjectByType<Animacionfinal>();
 
         if (_animacionFinal != null)
         {
-            Debug.Log($"[Progression] Mostrando animación de ganador (ganador={ganador}). Esperando Animation Event para finalizar.");
-            _animacionFinal.AnimacionFinal(ganador);
+            Debug.Log($"[Progression] Mostrando animación de ganador(es) [{string.Join(",", ganadores)}]. Esperando Animation Event para finalizar.");
+            _animacionFinal.AnimacionFinal(ganadores);
             // No finalizamos aquí; se llamará a FinalizarPorAnimacion() desde un Animation Event.
         }
         else
@@ -331,6 +364,9 @@ public class Progression : MonoBehaviour
 
     private void FinalizarMiniJuegoPorPuntaje()
     {
+        // Preparar fin de juego visual por si no fue preparado aún (fallback)
+        PrepararFinDeJuegoVisual();
+
         // Asegurar que el intento en curso quede consolidado para el jugador actual
         if (_attemptScore > 0)
         {

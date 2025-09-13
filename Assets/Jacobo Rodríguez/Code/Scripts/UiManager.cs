@@ -109,7 +109,14 @@ public class UiManager : MonoBehaviour
         if (botonJugador4 != null) botonJugador4.SetActive(false);
     }
     
- 
+    // Nuevo: mostrar/"highlight" de todos los botones de jugadores (útil para fin de juego)
+    public void MostrarTodosBotonesJugadores()
+    {
+        if (botonJugador1 != null) botonJugador1.SetActive(true);
+        if (botonJugador2 != null) botonJugador2.SetActive(true);
+        if (botonJugador3 != null) botonJugador3.SetActive(true);
+        if (botonJugador4 != null) botonJugador4.SetActive(true);
+    }
 
     // Método público para actualizar los 4 textos de puntaje.
     // Pasa el arreglo de puntos (por ejemplo RoundData.instance.currentPoints)

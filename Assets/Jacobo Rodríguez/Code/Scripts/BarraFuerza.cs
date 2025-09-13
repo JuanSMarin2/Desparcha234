@@ -405,4 +405,13 @@ public class BarraFuerza : MonoBehaviour
             advertenciaLanzar.SetActive(visible && !detenido && !GlobalShakeBlocked);
         }
     }
+
+    // Llamar para ocultar toda la UI de la barra al finalizar el juego
+    public void OcultarUIBarra()
+    {
+        var graphics = GetComponentsInChildren<MaskableGraphic>(true);
+        foreach (var g in graphics) g.enabled = false;
+        var go = gameObject;
+        if (go) go.SetActive(false); // opcional: desactivar el GameObject entero
+    }
 }
