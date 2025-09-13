@@ -7,21 +7,22 @@ using UnityEngine.InputSystem;
 public class BarraFuerza : MonoBehaviour
 {
     // Inicial ahora en true: bloquea cualquier lanzamiento hasta la confirmación del botón listo.
-    public static bool GlobalShakeBlocked = true; // bloque global de shakes/entrada previo a lanzamiento
+    public static bool GlobalShakeBlocked = true; 
 
     [Header("Referencias UI")]
-    [SerializeField] private RectTransform marcador; // Objeto que se mueve
-    [SerializeField] private RectTransform barra;    // Barra con gradiente
+    [SerializeField] private RectTransform marcador;
+    [SerializeField] private RectTransform barra;  
     [SerializeField] private GameObject advertenciaLanzar;
 
     [Header("Visual de Barra")]
-    // Ocultamos/mostramos los componentes de UI (MaskableGraphic: Image, Text, etc.) de este objeto y sus hijos
     private MaskableGraphic[] _uiGraphics;
     private bool _barraOculta = false;
 
     [Header("Configuración")]
     [SerializeField] private float velocidad = 200f;   // Velocidad base (px/seg)
     [SerializeField] private float fuerzaMaxima = 100f; // Fuerza máxima posible
+    [Tooltip("Fuerza mínima garantizada al lanzar, incluso con el marcador abajo")] 
+    [SerializeField] private float fuerzaMinima = 25f;
     [Tooltip("Fracción mínima de la velocidad (0-1) para que nunca se detenga del todo")] 
     [SerializeField] private float factorMinVelocidad = 0.2f; 
     [Tooltip("Mayor que 1 para que suba lento y luego rápido; y baje rápido y luego lento")]
@@ -44,6 +45,8 @@ public class BarraFuerza : MonoBehaviour
     [SerializeField] private float upShakeThreshold = 1.6f;    // componente vertical mínima para lanzar
     [SerializeField] private float sideShakeThreshold = 1.0f;  // componente lateral mínima para "tocar"
     [SerializeField] private float lateralShakeDelay = 0.15f;  // pequeña espera tras lanzar
+    [Tooltip("Magnitud total mínima (|delta|) para recoger en el aire; acepta cualquier dirección")]
+    [SerializeField] private float pickupShakeThreshold = 1.2f;
     private bool _lateralTapArmed = false;     // habilita tap lateral tras lanzar por shake
     private bool _lastLaunchWasByShake = false;
     private float _launchByShakeTime = -999f;
@@ -198,11 +201,13 @@ public class BarraFuerza : MonoBehaviour
         marcador.anchoredPosition = nuevaPos;
     }
 
-    /// Calcula la fuerza en base a la altura del marcador (0 a fuerzaMaxima).
+    /// Calcula la fuerza en base a la altura del marcador (0 a fuerzaMaxima), respetando un mínimo.
     private void CalcularFuerza()
     {
         float alturaNormalizada = (marcador.anchoredPosition.y + barra.rect.height / 2f) / barra.rect.height;
-        fuerzaActual = alturaNormalizada * fuerzaMaxima;
+        float minF = Mathf.Clamp(fuerzaMinima, 0f, fuerzaMaxima);
+        float rango = Mathf.Max(0f, fuerzaMaxima - minF);
+        fuerzaActual = minF + alturaNormalizada * rango;
     }
 
     private void DetectarShakeYLanzar()
@@ -237,6 +242,7 @@ public class BarraFuerza : MonoBehaviour
         bool delayReady = (Time.time - _launchByShakeTime) >= lateralShakeDelay;
         bool upOK = Mathf.Abs(upComponent) >= upShakeThreshold;
         bool sideOK = lateralMag >= sideShakeThreshold;
+        bool anyShakeOK = totalMag >= pickupShakeThreshold; // ya no requiere lateral
         bool upDominates = Mathf.Abs(upComponent) >= lateralMag;
         bool resetGuardReady = Time.time >= _shakeBlockedUntil; // nuevo guardado post-reset
 
@@ -253,7 +259,7 @@ public class BarraFuerza : MonoBehaviour
         {
             _ultimoShakeLogTime = Time.time;
             Debug.Log($"[ShakeDBG][RAW] total={totalMag:F2} up={upComponent:F2} side={lateralMag:F2} state={bolita.Estado} detenido={detenido}");
-            Debug.Log($"[ShakeDBG][EVAL] isPending={isPending} isAirTapWindow={isAirTapWindow} cooldownReady={cooldownReady} delayReady={delayReady} upOK={upOK} upDominates={upDominates} sideOK={sideOK} armed={_lateralTapArmed} porTocarSuelo={bolita.PorTocarSuelo} resetGuardReady={resetGuardReady}");
+            Debug.Log($"[ShakeDBG][EVAL] isPending={isPending} isAirTapWindow={isAirTapWindow} cooldownReady={cooldownReady} delayReady={delayReady} upOK={upOK} upDominates={upDominates} sideOK={sideOK} anyShakeOK={anyShakeOK} armed={_lateralTapArmed} porTocarSuelo={bolita.PorTocarSuelo} resetGuardReady={resetGuardReady}");
         }
 
         // 1) Evaluación de lanzamiento (pendiente)
@@ -278,10 +284,11 @@ public class BarraFuerza : MonoBehaviour
                 }
                 else
                 {
-                    // Mapear intensidad vertical |upComponent| a [~25%..100%] de fuerzaMaxima
+                    // Mapear intensidad a [fuerzaMinima..fuerzaMaxima]
+                    float minF = Mathf.Clamp(fuerzaMinima, 0f, fuerzaMaxima);
                     float norm = Mathf.InverseLerp(upShakeThreshold, upShakeThreshold + 2.5f, Mathf.Abs(upComponent));
-                    fuerzaLanzamiento = Mathf.Lerp(fuerzaMaxima * 0.25f, fuerzaMaxima, norm);
-                    fuerzaLanzamiento = Mathf.Clamp(fuerzaLanzamiento, 0f, fuerzaMaxima);
+                    fuerzaLanzamiento = Mathf.Lerp(minF, fuerzaMaxima, norm);
+                    fuerzaLanzamiento = Mathf.Clamp(fuerzaLanzamiento, minF, fuerzaMaxima);
                     fuerzaActual = fuerzaLanzamiento; // para UI/consulta
                 }
 
@@ -297,13 +304,13 @@ public class BarraFuerza : MonoBehaviour
             }
         }
 
-        // 2) Evaluación de tap lateral en el aire (solo si está cerca del suelo)
+        // 2) Evaluación de tap en el aire (cualquier tipo de shake, solo si está cerca del suelo)
         if (isAirTapWindow && _lateralTapArmed)
         {
-            bool shouldTap = !touchActive && delayReady && sideOK && cooldownReady && bolita.PorTocarSuelo;
+            bool shouldTap = !touchActive && delayReady && anyShakeOK && cooldownReady && bolita.PorTocarSuelo;
             if (debugShakes && totalMag >= debugShakeLogThreshold)
             {
-                Debug.Log($"[ShakeDBG][AIR] shouldTap={shouldTap} (delayReady&&sideOK&&cooldownReady&&porTocarSuelo)");
+                Debug.Log($"[ShakeDBG][AIR] shouldTap={shouldTap} (anyShake>=th && delayReady && cooldown && porTocarSuelo) total={totalMag:F2}");
             }
             if (shouldTap)
             {
@@ -313,7 +320,7 @@ public class BarraFuerza : MonoBehaviour
                 var progression = FindAnyObjectByType<Progression>();
                 progression?.NotificarBolitaTocada();
 
-                Debug.Log($"[ShakeDBG][ACT-TAP] up={upComponent:F2} side={lateralMag:F2}");
+                Debug.Log($"[ShakeDBG][ACT-TAP] total={totalMag:F2} up={upComponent:F2} side={lateralMag:F2}");
             }
         }
     }
