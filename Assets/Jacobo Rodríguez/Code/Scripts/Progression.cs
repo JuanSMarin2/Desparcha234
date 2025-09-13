@@ -257,12 +257,6 @@ public class Progression : MonoBehaviour
         _bolita?.ReiniciarBola(); // Esto disparará OnBallPendingThrow con guard de frame
     }
 
-    private int CalcularGanadorIndex1Based()
-    {
-        // Compatibilidad: usa la lista de ganadores y devuelve el primero
-        var ganadores = CalcularGanadoresIndex1Based();
-        return (ganadores != null && ganadores.Length > 0) ? ganadores[0] : 1;
-    }
 
     // Nuevo: devuelve todos los ganadores (1-based) en caso de empate
     private int[] CalcularGanadoresIndex1Based()
