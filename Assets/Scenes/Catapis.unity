@@ -1390,7 +1390,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 92a2022d92a17734894abcd160e994ae, type: 3}
+  m_Sprite: {fileID: -263961982116466414, guid: 8c9b660c2d3752245b9d121267cb2028, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5770,7 +5770,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Inclina Para atrapar
+  m_text: Inclina o agita Para atrapar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
   m_sharedMaterial: {fileID: -3534736346125445407, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
@@ -7913,8 +7913,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 343533115}
-  - {fileID: 754749703}
   - {fileID: 861263428}
+  - {fileID: 754749703}
   - {fileID: 587397819}
   - {fileID: 798887730}
   - {fileID: 1366309571}
@@ -10367,7 +10367,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Inclina Para atrapar
+  m_text: Inclina o agita Para atrapar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
   m_sharedMaterial: {fileID: -3534736346125445407, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
