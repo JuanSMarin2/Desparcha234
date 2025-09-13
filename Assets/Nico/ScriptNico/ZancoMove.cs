@@ -5,11 +5,12 @@ public class ZancoMove : MonoBehaviour
 {
     animatorControllerCharacter acc;
     Transform posicion;
+    public StaminaManager sm;
     bool puedeMover = true;
     bool llegoMeta = false; // Nueva variable de estado
     int saltosMax = 15;
-    int saltosSeguidos = 0;
-    CollorController cc;
+    float saltosSeguidos = 0;
+    //CollorController cc;
     bool isHot = false;
 
     // tiempo del último click válido y delay para reset
@@ -23,12 +24,13 @@ public class ZancoMove : MonoBehaviour
     void Start()
     {
         posicion = gameObject.GetComponent<Transform>();
-        cc = GetComponent<CollorController>();
+        //cc = GetComponent<CollorController>();
         acc = GetComponent<animatorControllerCharacter>();
     }
 
     void Update()
     {
+        sm.setStamina(saltosSeguidos);
         // Primero comprobar si ya pasó el resetDelay desde el último click válido.
         // Si venimos de una caída (inCaida == true) llamaremos recoverTrigger() cuando se resetee.
         if (Time.time - lastValidClickTime >= resetDelay)
@@ -37,7 +39,7 @@ public class ZancoMove : MonoBehaviour
             if (saltosSeguidos != 0 || inCaida)
             {
                 saltosSeguidos = 0;
-                if (cc != null) cc.frio();
+                //if (cc != null) cc.frio();
 
                 if (inCaida)
                 {
@@ -52,7 +54,7 @@ public class ZancoMove : MonoBehaviour
         // Si no hay saltos acumulados, asegurar color frio
         if (saltosSeguidos == 0)
         {
-            if (cc != null) cc.frio();
+            //if (cc != null) cc.frio();
         }
 
         Debug.Log(saltosSeguidos);
@@ -75,14 +77,14 @@ public class ZancoMove : MonoBehaviour
         {
             saltosSeguidos = 0;
             caida();
-            if (cc != null) cc.frio();
+            //if (cc != null) cc.frio();
             lastValidClickTime = Time.time; // marca el inicio del periodo tras la caída
             return;
         }
 
         // Click válido: mover, calentar, incrementar y registrar tiempo válido
         MoveZanco();
-        if (cc != null) cc.calentando();
+        //if (cc != null) cc.calentando();
         saltosSeguidos += 1;
         lastValidClickTime = Time.time;
         if (acc != null) acc.jumpTrigger();
