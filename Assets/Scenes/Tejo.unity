@@ -6960,6 +6960,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickKnob: {fileID: 606609694}
+  objectToActivateWhenEnabled: {fileID: 1895205439}
+  deactivateOnDisable: 1
   targetObject: {fileID: 147015976}
   minX: -5
   maxX: 5.5
