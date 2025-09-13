@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 40b6059e5af67fd4ba97a6aa017bc023
+guid: 4f820a9e764d455428b326dc93e92e48
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5063066768993226510
-    second: Captura de pantalla 2025-09-12 185119_0
+      213: 6350919156492391870
+    second: Captura de pantalla 2025-09-12 220009_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Captura de pantalla 2025-09-12 185119_0
+      name: Captura de pantalla 2025-09-12 220009_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1788
-        height: 997
+        width: 1792
+        height: 1001
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2f0f210599f5cb9b0800000000000000
-      internalID: -5063066768993226510
+      spriteID: eb5d3fff25ff22850800000000000000
+      internalID: 6350919156492391870
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Captura de pantalla 2025-09-12 185119_0: -5063066768993226510
+      Captura de pantalla 2025-09-12 220009_0: 6350919156492391870
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

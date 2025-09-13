@@ -983,6 +983,11 @@ MonoBehaviour:
   p2Sprite: {fileID: 21300000, guid: c1c2146d62476bd429012836d1389bc8, type: 3}
   p3Sprite: {fileID: 21300000, guid: 9c6b1b0a362c5b949ad2d1026caaa57b, type: 3}
   p4Sprite: {fileID: 21300000, guid: c5bbd389398ab844d9f27dce4fef7b28, type: 3}
+  icons:
+  - {fileID: 237199473}
+  - {fileID: 2117845980}
+  - {fileID: 1964016296}
+  - {fileID: 1576215689}
   baseDuration: 1
   perPlayerDuration: 1.5
   holdBeforeAnim: 1
@@ -1392,9 +1397,9 @@ RectTransform:
   - {fileID: 1291957389}
   - {fileID: 2030749907}
   - {fileID: 237199474}
-  - {fileID: 1576215690}
   - {fileID: 2117845981}
   - {fileID: 1964016299}
+  - {fileID: 1576215690}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
