@@ -1718,9 +1718,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectsFor3Players:
-  - {fileID: 1576215689}
-  objectsFor4Players:
   - {fileID: 1964016296}
+  objectsFor4Players:
+  - {fileID: 1576215689}
 --- !u!4 &2008319724
 Transform:
   m_ObjectHideFlags: 0
