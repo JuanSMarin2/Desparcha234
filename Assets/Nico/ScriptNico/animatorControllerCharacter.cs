@@ -1,6 +1,5 @@
-using UnityEditor.Animations;
 using UnityEngine;
-using UnityEngine.Animations;
+
 
 public class animatorControllerCharacter : MonoBehaviour
 {
