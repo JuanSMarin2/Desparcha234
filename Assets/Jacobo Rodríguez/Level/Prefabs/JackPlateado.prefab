@@ -163,7 +163,7 @@ MonoBehaviour:
   - {fileID: -879498505240394699, guid: 2c9d13fcd622ffe499413dcc52e4c7d1, type: 3}
   transparentAlpha: 0.4
   transparentGray: {r: 0.65, g: 0.65, b: 0.65, a: 1}
-  puntos: 100
+  puntos: 1
   tipoJack: 0
 --- !u!50 &5804796854432227951
 Rigidbody2D:

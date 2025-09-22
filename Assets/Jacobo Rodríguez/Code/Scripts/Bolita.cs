@@ -1,6 +1,7 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using System;
-using UnityEngine.EventSystems; // nuevo para IPointerDownHandler
 
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -92,6 +93,10 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     [Header("Interacción")]
     [Tooltip("Permitir recoger la bolita con toque/click (además del shake lateral)")]
     [SerializeField] private bool permitirRecogerPorToque = true;
+
+    [Header("Interacción (UI)")]
+    [Tooltip("Imagen de UI que captura taps para lanzar o atrapar (sobre la bola o pantalla)")]
+    [SerializeField] private Image inputImage;
    
     private float _launchY;
     private float _launchForce;
@@ -136,6 +141,49 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         }
      
         _ui = FindAnyObjectByType<UiManager>();
+        SetupInputImage();
+    }
+
+    private void OnEnable()
+    {
+        SetupInputImage();
+    }
+
+    private void SetupInputImage()
+    {
+        if (inputImage == null) return;
+        inputImage.raycastTarget = true; // asegurar interacción incluso si se desactiva/activa en runtime
+        var btn = inputImage.GetComponent<Button>();
+        if (btn == null)
+        {
+            btn = inputImage.gameObject.AddComponent<Button>();
+        }
+        btn.onClick.RemoveAllListeners();
+        btn.onClick.AddListener(OnInputImageClicked);
+    }
+
+    private void OnInputImageClicked()
+    {
+        // Si está pendiente, esto cuenta como lanzar; si está en el aire y cerca del suelo, cuenta como recoger
+        if (_estado == EstadoLanzamiento.PendienteDeLanzar)
+        {
+            // Delegar al controlador de la barra para que respete fuerzaMinima/barra
+            var barra = FindAnyObjectByType<BarraFuerza>();
+            if (barra != null)
+            {
+                barra.LanzarPorInteraccion();
+            }
+            else
+            {
+                // Fallback: lanzar con una fuerza media si no hay barra
+                DarVelocidadHaciaArriba(Mathf.Max(30f, maxExpectedForce * 0.5f));
+            }
+        }
+        else if (_estado == EstadoLanzamiento.EnElAire && PorTocarSuelo)
+        {
+            var progression = FindAnyObjectByType<Progression>();
+            progression?.NotificarBolitaTocada();
+        }
     }
 
     void Start()

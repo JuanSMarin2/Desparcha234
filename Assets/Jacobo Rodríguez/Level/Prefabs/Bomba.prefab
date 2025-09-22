@@ -150,5 +150,5 @@ MonoBehaviour:
   jackSpritesNormalAzul: []
   transparentAlpha: 0.4
   transparentGray: {r: 0.65, g: 0.65, b: 0.65, a: 1}
-  puntos: -400
+  puntos: -2
   tipoJack: 2
