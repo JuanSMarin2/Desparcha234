@@ -8,6 +8,8 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip jackTocadoClip;
     [SerializeField] private AudioClip bolitaTocadaClip;
 
+    [SerializeField] private AudioClip especialTocadoClip;
+
     [SerializeField] private AudioClip bombaTocadaClip;
     
     [SerializeField] private AudioClip errorClip;
@@ -56,6 +58,11 @@ public class SoundManager : MonoBehaviour
     public void SonidoBolitaTocada()
     {
         PlayOneShot(bolitaTocadaClip);
+    }
+
+    public void SonidoJackEspecialTocado()
+    {
+        PlayOneShot(especialTocadoClip);
     }
 
     // Nuevo: sonido cuando la bolita falla (toca el suelo)

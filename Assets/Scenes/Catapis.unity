@@ -1201,7 +1201,7 @@ MonoBehaviour:
   - {fileID: 443601731}
   randomRotation: 1
   stage1Counts:
-    normal: 10
+    normal: 9
     special: 5
     bomb: 1
   stage2Counts:
@@ -1601,8 +1601,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jackTocadoClip: {fileID: 8300000, guid: b9fdf2f73d477794ca691fa8b7255514, type: 3}
   bolitaTocadaClip: {fileID: 8300000, guid: 486ca3a5b2f10434ca52d9c0f1e35144, type: 3}
-  bombaTocadaClip: {fileID: 8300000, guid: 7a4e5f9df122eec458ce04aaead6b058, type: 3}
-  errorClip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
+  especialTocadoClip: {fileID: 8300000, guid: 2bbfea3e8aa5fcb41a2b1215d02e32ed, type: 3}
+  bombaTocadaClip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
+  errorClip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
   volume: 1
 --- !u!1 &376087870
 GameObject:
@@ -8159,7 +8160,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1548038419
 RectTransform:
   m_ObjectHideFlags: 0

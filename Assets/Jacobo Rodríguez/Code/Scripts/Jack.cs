@@ -131,10 +131,23 @@ public class Jack : MonoBehaviour, IPointerDownHandler
             {
                 sm.SendMessage("SonidoBombaTocada", SendMessageOptions.DontRequireReceiver);
             }
-            else
+            else if (tipoJack == tipo.Especial)
+            {
+                sm.SendMessage("SonidoJackEspecialTocado", SendMessageOptions.DontRequireReceiver
+                );
+            }
+            else if (tipoJack == tipo.Normal)
+            {
                 sm.SendMessage("SonidoJackTocado", SendMessageOptions.DontRequireReceiver);
-        }
-        disable();
+            }
+
+            else
+            {
+                Debug.LogWarning("SoundManager no encontrado en la escena.");
+            }
+
+            disable();
+         } 
     }
 
 
