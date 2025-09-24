@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FinalResults.unity
     guid: c348576d08e865c4e86a8358e1d242b0
+  - enabled: 1
+    path: "Assets/Jacobo Rodr\xEDguez/PruebaSonidos.unity"
+    guid: f93f06d7aedcfd340aafd3084907f47d
   m_configObjects:
     com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: d1868e0e4b670844ca3bff0c15221bdb, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: b61060970ed0dee46a738d5a8aa10d7c, type: 2}

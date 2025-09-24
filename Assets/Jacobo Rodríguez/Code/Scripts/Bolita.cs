@@ -265,12 +265,7 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
                 if (PorTocarSuelo) ComunicarPorTocarSuelo(false);
                 CambiarEstado(EstadoLanzamiento.Fallado);
 
-                // SFX: error/caída
-                var sm = GameObject.Find("SoundManager");
-                if (sm != null)
-                {
-                    sm.SendMessage("SonidoError", SendMessageOptions.DontRequireReceiver);
-                }
+                var smErr = SoundManager.instance; if (smErr != null) smErr.PlaySfx("catapis:error");
 
                 var progressionZ = FindAnyObjectByType<Progression>();
                 progressionZ?.PerderPorTocarSuelo();
@@ -379,12 +374,7 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         CambiarEstado(EstadoLanzamiento.Fallado);
         ComunicarPorTocarSuelo(false);
 
-        // SFX: error/caída
-        var sm = GameObject.Find("SoundManager");
-        if (sm != null)
-        {
-            sm.SendMessage("SonidoError", SendMessageOptions.DontRequireReceiver);
-        }
+        var smErr2 = SoundManager.instance; if (smErr2 != null) smErr2.PlaySfx("catapis:error");
 
         Progression progression = FindAnyObjectByType<Progression>();
         if (progression != null)

@@ -421,21 +421,18 @@ public class Progression : MonoBehaviour
 
     public void NotificarBolitaTocada()
     {
-        // Origen de próximo spawn: recogida exitosa de la bola
         _pendingSpawnOrigin = "Pickup";
         touchedBall = true;
-        // Consolidar el intento ANTES de terminar el turno (antes se hacía después)
         ConsolidarIntento();
-        // SFX inmediatamente
-        var sm = GameObject.Find("SoundManager");
-        if (sm != null)
+        var smSingleton = SoundManager.instance;
+        if (smSingleton != null)
         {
-            sm.SendMessage("SonidoBolitaTocada", SendMessageOptions.DontRequireReceiver);
+            smSingleton.PlaySfx("catapis:bolitatocada");
         }
-        // Avanzar turno (reiniciará barra y bola -> OnBallPendingThrow -> spawn con origen=_pendingSpawnOrigin)
         TerminarTurno();
         touchedBall = false;
     }
+
     public void PerderPorTocarSuelo()
     {
         // Origen del siguiente spawn: fallo por tocar suelo

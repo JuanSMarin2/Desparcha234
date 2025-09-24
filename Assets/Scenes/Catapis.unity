@@ -1555,56 +1555,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 343533114}
   m_CullTransparentMesh: 1
---- !u!1 &368278666
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 368278667}
-  - component: {fileID: 368278668}
-  m_Layer: 0
-  m_Name: SoundManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &368278667
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 368278666}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 598252612}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &368278668
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 368278666}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41ba789b5b6eeab4ba66e98071d5a1f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  jackTocadoClip: {fileID: 8300000, guid: b9fdf2f73d477794ca691fa8b7255514, type: 3}
-  bolitaTocadaClip: {fileID: 8300000, guid: 486ca3a5b2f10434ca52d9c0f1e35144, type: 3}
-  especialTocadoClip: {fileID: 8300000, guid: 2bbfea3e8aa5fcb41a2b1215d02e32ed, type: 3}
-  bombaTocadaClip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
-  errorClip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
-  volume: 1
 --- !u!1 &376087870
 GameObject:
   m_ObjectHideFlags: 0
@@ -2761,7 +2711,6 @@ Transform:
   - {fileID: 1048118533}
   - {fileID: 686510136}
   - {fileID: 44222859}
-  - {fileID: 368278667}
   - {fileID: 1582307207}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3208,6 +3157,65 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 754749702}
   m_CullTransparentMesh: 1
+--- !u!1 &786171954
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 786171956}
+  - component: {fileID: 786171955}
+  m_Layer: 0
+  m_Name: SonidosEscena
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &786171955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786171954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c4fd8d572e5f174a9f3e59f1a3dfbad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameId: catapis
+  sfxClips:
+  - key: normaltocado
+    clip: {fileID: 8300000, guid: b9fdf2f73d477794ca691fa8b7255514, type: 3}
+  - key: especialtocado
+    clip: {fileID: 8300000, guid: 8f18cb177ce733845ac15db6527fe6bd, type: 3}
+  - key: bombatocado
+    clip: {fileID: 8300000, guid: 6fe1c26fac4ea224c908140f55a692bc, type: 3}
+  - key: error
+    clip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
+  musicClips:
+  - key: bgmusic
+    clip: {fileID: 8300000, guid: e35b57fb9d591974d8c4535e52fe134e, type: 3}
+  autoPlayMusicKey: 
+  autoLoopMusic: 1
+--- !u!4 &786171956
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786171954}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1384.7743, y: 759.742, z: -6.031124}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &790351019
 GameObject:
   m_ObjectHideFlags: 0
@@ -11033,3 +11041,4 @@ SceneRoots:
   - {fileID: 598252612}
   - {fileID: 235918252}
   - {fileID: 883950609}
+  - {fileID: 786171956}
