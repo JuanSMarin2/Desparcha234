@@ -16,6 +16,10 @@ public class MultiJoystickControl : MonoBehaviour
     [Tooltip("Raíz por jugador (0..3): grupo que contiene joystick, papeletas y UI de ese jugador.")]
     public GameObject[] playerSets;   // opcional
 
+    [Header("Prefab del centro")]
+    public GameObject centroPrefab;
+    public Transform centroSpawnPoint; // opcional, si quieres controlar la posición
+
     public bool finished { get; private set; }
     private bool initialized = false;
 
@@ -82,13 +86,20 @@ public class MultiJoystickControl : MonoBehaviour
         }
     }
 
+
     // --- utilidad: llamar al comenzar nueva ronda/turno ---
     public void PrepareForNextRound()
     {
         int n = NumPlayers();
 
-        // activar el centro otra vez (pero no lo destruyas)
+        // Buscar o instanciar el centro
         CentroController centro = FindObjectOfType<CentroController>();
+        if (centro == null && centroPrefab != null)
+        {
+            GameObject centroObj = Instantiate(centroPrefab, centroSpawnPoint != null ? centroSpawnPoint.position : Vector3.zero, Quaternion.identity);
+            centro = centroObj.GetComponent<CentroController>();
+        }
+
         if (centro != null)
         {
             SpriteRenderer sr = centro.GetComponent<SpriteRenderer>();

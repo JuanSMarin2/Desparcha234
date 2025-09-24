@@ -1109,6 +1109,8 @@ MonoBehaviour:
   mainJoystickControlObject: {fileID: 1511727194}
   bloqueador: {fileID: 1666297652}
   playerSets: []
+  centroPrefab: {fileID: 1485851757}
+  centroSpawnPoint: {fileID: 1485851758}
 --- !u!1 &182633841
 GameObject:
   m_ObjectHideFlags: 0
