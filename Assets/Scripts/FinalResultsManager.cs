@@ -22,6 +22,7 @@ public class FinalResultsManager : MonoBehaviour
     [Header("Economia")]
     [SerializeField] private int coinsPerPoint = 10;          // Monedas por punto
     [SerializeField] private float conversionRate = 5f;      // Puntos convertidos por segundo en la animacion
+    [SerializeField] private GameObject[] icons;
 
     private bool conversionRunning = false;
 
@@ -31,13 +32,20 @@ public class FinalResultsManager : MonoBehaviour
         if (shopButton) shopButton.onClick.AddListener(() => { if (!string.IsNullOrEmpty(shopSceneName)) SceneManager.LoadScene(shopSceneName); });
         if (mainMenuButton) mainMenuButton.onClick.AddListener(() => { if (!string.IsNullOrEmpty(mainMenuSceneName)) SceneManager.LoadScene(mainMenuSceneName); });
 
-        // Estado inicial de botones
         if (shopButton) shopButton.gameObject.SetActive(false);
         if (mainMenuButton) mainMenuButton.gameObject.SetActive(false);
         if (conversionText) { conversionText.gameObject.SetActive(false); conversionText.text = ""; }
 
+        // Desactiva todos los iconos de forma segura
+        if (icons != null)
+        {
+            for (int i = 0; i < icons.Length; i++)
+                if (icons[i] != null) icons[i].SetActive(false);
+        }
+
         ShowWinners();
     }
+
 
     private void ShowWinners()
     {
@@ -52,7 +60,7 @@ public class FinalResultsManager : MonoBehaviour
         int[] puntos = rd.totalPoints;
         int maxPoints = puntos.Max();
 
-        List<int> ganadores = new List<int>();
+        var ganadores = new System.Collections.Generic.List<int>();
         for (int i = 0; i < puntos.Length; i++)
             if (puntos[i] == maxPoints) ganadores.Add(i);
 
@@ -63,12 +71,21 @@ public class FinalResultsManager : MonoBehaviour
         }
         else
         {
-            string jugadores = string.Join(" y ", ganadores.Select(g => "Jugador " + (g + 1)));
+            string jugadores = string.Join(" y ", ganadores.ConvertAll(g => "Jugador " + (g + 1)));
             if (winnerText) winnerText.text = "Ganadores: " + jugadores;
         }
 
-        if (continueButton) continueButton.gameObject.SetActive(true);
+        // Activa iconos de ganadores de forma segura
+        if (icons != null)
+        {
+            foreach (int ganadorIndex in ganadores)
+            {
+                if (ganadorIndex >= 0 && ganadorIndex < icons.Length && icons[ganadorIndex] != null)
+                    icons[ganadorIndex].SetActive(true);
+            }
+        }
     }
+
 
     private void OnContinuePressed()
     {

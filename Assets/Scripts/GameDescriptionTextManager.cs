@@ -4,17 +4,15 @@ using UnityEngine;
 public class GameDescriptionTextManager : MonoBehaviour
 {
     [SerializeField] private GameObject textObject;
-    [SerializeField] private byte delay;
+
+
     private void Start()
     {
-        StartCoroutine(TimeToBanish());
+        textObject.SetActive(true);
     }
 
-    private IEnumerator TimeToBanish()
+    public void Continue()
     {
-
-
-        yield return new WaitForSeconds(delay);
         textObject.SetActive(false);
     }
 }

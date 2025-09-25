@@ -35,6 +35,8 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
     float timer;
     bool isDragging;
 
+    public TutorialManagerTejo tutorialManagerTejo;
+
     void Awake()
     {
         if (background != null)
@@ -123,6 +125,10 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         // ocultamos el texto al acabar
         if (timerText != null)
             timerText.text = "0.0";
+
+        // Reactivar el botón de reactivación del tutorial
+        if (tutorialManagerTejo != null && tutorialManagerTejo.ContinuarButton != null)
+            tutorialManagerTejo.ContinuarButton.interactable = true;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -133,6 +139,10 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
 
         if (timer == 0f)
             timer = 0.0001f;
+
+        // Desactivar el botón de reactivación del tutorial
+        if (tutorialManagerTejo != null && tutorialManagerTejo.ContinuarButton != null)
+            tutorialManagerTejo.ContinuarButton.interactable = false;
     }
 
     public void OnDrag(PointerEventData eventData)

@@ -10,6 +10,10 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     private RectTransform backgroundRect;
     private float joystickRadius;
 
+    [Header("Activar al aparecer el joystick")]
+    [SerializeField] private GameObject objectToActivateWhenEnabled; // asigna en el Inspector
+    [SerializeField] private bool deactivateOnDisable = true; // si quieres que se apague cuando el joystick se oculte
+
     [Header("Target movement")]
     [SerializeField] private Transform targetObject;
     [SerializeField] private float minX = -5f;
@@ -114,6 +118,32 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        // --- ELIMINAR TEJO ANTERIOR ---
+        GameObject[] tejos = GameObject.FindGameObjectsWithTag("Tejo");
+        foreach (GameObject t in tejos)
+        {
+            Destroy(t);
+        }
+
+        // --- REAPARECER CENTRO SI FUE DESTRUIDO ---
+        CentroController centro = FindObjectOfType<CentroController>();
+        if (centro == null && multiJoystick != null && multiJoystick.centroPrefab != null)
+        {
+            GameObject centroObj = Instantiate(multiJoystick.centroPrefab,
+                multiJoystick.centroSpawnPoint != null ? multiJoystick.centroSpawnPoint.position : Vector3.zero,
+                Quaternion.identity);
+            centro = centroObj.GetComponent<CentroController>();
+        }
+        if (centro != null)
+        {
+            SpriteRenderer sr = centro.GetComponent<SpriteRenderer>();
+            if (sr != null) sr.enabled = true;
+            Collider2D col = centro.GetComponent<Collider2D>();
+            if (col != null) col.enabled = true;
+            centro.MoverCentro();
+        }
+
+        // Continúa con la lógica original
         OnDrag(eventData);
     }
 
@@ -269,11 +299,21 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     {
         if (barraFuerza != null)
             barraFuerza.gameObject.SetActive(true);
+
+        if (objectToActivateWhenEnabled != null)
+        {
+            objectToActivateWhenEnabled.SetActive(true);
+        }
     }
 
     void OnDisable()
     {
         if (barraFuerza != null)
             barraFuerza.gameObject.SetActive(false);
+
+        if (objectToActivateWhenEnabled != null && deactivateOnDisable)
+        {
+            objectToActivateWhenEnabled.SetActive(false);
+        }
     }
 }
