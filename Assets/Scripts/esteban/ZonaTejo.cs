@@ -13,6 +13,7 @@ public class ZonaTejo : MonoBehaviour
             {
                 case TipoZona.Tablero:
                     Debug.Log("Cayó en el tablero (punto básico).");
+                    Destroy(other.gameObject, 0.5f);
                     break;
                 case TipoZona.Centro:
                     Debug.Log("¡Cayó en el centro!");
