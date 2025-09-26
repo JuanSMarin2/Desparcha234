@@ -10,6 +10,10 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     private RectTransform backgroundRect;
     private float joystickRadius;
 
+    [Header("Activar al aparecer el joystick")]
+    [SerializeField] private GameObject objectToActivateWhenEnabled; // asigna en el Inspector
+    [SerializeField] private bool deactivateOnDisable = true; // si quieres que se apague cuando el joystick se oculte
+
     [Header("Target movement")]
     [SerializeField] private Transform targetObject;
     [SerializeField] private float minX = -5f;
@@ -269,11 +273,21 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     {
         if (barraFuerza != null)
             barraFuerza.gameObject.SetActive(true);
+
+        if (objectToActivateWhenEnabled != null)
+        {
+            objectToActivateWhenEnabled.SetActive(true);
+        }
     }
 
     void OnDisable()
     {
         if (barraFuerza != null)
             barraFuerza.gameObject.SetActive(false);
+
+        if (objectToActivateWhenEnabled != null && deactivateOnDisable)
+        {
+            objectToActivateWhenEnabled.SetActive(false);
+        }
     }
 }

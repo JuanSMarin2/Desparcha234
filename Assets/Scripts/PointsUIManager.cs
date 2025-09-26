@@ -26,6 +26,9 @@ public class PointsUIManager : MonoBehaviour
     [SerializeField] private Sprite p3Sprite;
     [SerializeField] private Sprite p4Sprite;
 
+    [Header("Íconos por jugador (0..3)")]
+    [SerializeField] private GameObject[] icons = new GameObject[4];
+
     [Header("Tiempos")]
     [SerializeField] private float baseDuration = 3f;
     [SerializeField] private float perPlayerDuration = 3f;
@@ -58,7 +61,7 @@ public class PointsUIManager : MonoBehaviour
 
         int numPlayers = Mathf.Clamp(rd.numPlayers, 2, 4);
 
-        // Ocultar controles extra y limpiar +N
+        // Ocultar textos extra y limpiar +N
         for (int i = 0; i < playerTexts.Length; i++)
         {
             bool active = (i < numPlayers);
@@ -78,8 +81,9 @@ public class PointsUIManager : MonoBehaviour
             targetTotals[i] = baseTotals[i] + gains[i];
         }
 
-        // Fondo base inicial con totales base
+        // Estado neutro inicial
         SetBackground(baseSprite);
+        SetIconsNeutral(numPlayers);
         WriteTotals(baseTotals, numPlayers);
         yield return new WaitForSeconds(baseDuration);
 
@@ -95,8 +99,9 @@ public class PointsUIManager : MonoBehaviour
             int i = entry.idx;
             int gained = entry.pts;
 
-            // Fondo del jugador
+            // Fondo e ícono del jugador
             SetBackground(PerPlayerSprite(i));
+            SetIconsOnly(i, numPlayers);
 
             // Mostrar +N del jugador i
             SetAllGainsActive(false);
@@ -109,12 +114,12 @@ public class PointsUIManager : MonoBehaviour
             // Escribir totales actuales locales
             WriteTotals(baseTotals, numPlayers);
 
-            // Espera previa a la animacion en su etapa
+            // Espera previa a la animación en su etapa
             float stageTotal = Mathf.Max(0f, perPlayerDuration);
             float wait = Mathf.Min(holdBeforeAnim, stageTotal);
             yield return new WaitForSeconds(wait);
 
-            // Animar solo el total del jugador i durante el resto de su etapa
+            // Animar solo el total del jugador i
             float animDur = Mathf.Max(0f, stageTotal - wait);
             if (animDur > 0f)
             {
@@ -138,16 +143,18 @@ public class PointsUIManager : MonoBehaviour
             // Consolidar localmente
             baseTotals[i] = targetTotals[i];
 
-            // Vuelta a fondo base entre jugadores
+            // Vuelta a neutro entre jugadores
             SetAllGainsActive(false);
             SetBackground(baseSprite);
+            SetIconsNeutral(numPlayers);
             WriteTotals(baseTotals, numPlayers);
             yield return new WaitForSeconds(midBaseDuration);
         }
 
-        // Base final con totales locales finales
+        // Base final con totales finales y neutro
         SetAllGainsActive(false);
         SetBackground(baseSprite);
+        SetIconsNeutral(numPlayers);
         WriteTotals(targetTotals, numPlayers);
 
         // Aplicar la suma real a RoundData dentro de esta rutina (y esperar 1s)
@@ -164,7 +171,7 @@ public class PointsUIManager : MonoBehaviour
         var rd = RoundData.instance;
         if (rd != null)
         {
-            rd.GetTotalPoints(); // internamente espera 1s y suma current -> total
+            rd.GetTotalPoints(); // esta corrutina ya espera 1s internamente
             yield return new WaitForSeconds(1f);
         }
     }
@@ -201,6 +208,28 @@ public class PointsUIManager : MonoBehaviour
             case 2: return p3Sprite ? p3Sprite : baseSprite;
             case 3: return p4Sprite ? p4Sprite : baseSprite;
             default: return baseSprite;
+        }
+    }
+
+    // Activa solo el ícono del jugador indicado; desactiva el resto
+    private void SetIconsOnly(int playerIndex, int numPlayers)
+    {
+        for (int i = 0; i < icons.Length; i++)
+        {
+            if (!icons[i]) continue;
+            bool shouldBeActive = (i == playerIndex) && (i < numPlayers);
+            icons[i].SetActive(shouldBeActive);
+        }
+    }
+
+    // Estado neutro: activa todos los íconos de jugadores participantes; desactiva el resto
+    private void SetIconsNeutral(int numPlayers)
+    {
+        for (int i = 0; i < icons.Length; i++)
+        {
+            if (!icons[i]) continue;
+            bool shouldBeActive = (i < numPlayers);
+            icons[i].SetActive(shouldBeActive);
         }
     }
 }
