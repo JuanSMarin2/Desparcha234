@@ -27,13 +27,23 @@ public class JackSpawner : MonoBehaviour
 
     [SerializeField] private bool randomRotation = true;
 
-    [SerializeField] private int numberOfJacks = 10;
+    // Total fijo por spawn
+    private const int TotalJacksPorSpawn = 15;
 
-    [Header("Probabilidades de spawn")]
-    [Tooltip("Pesos relativos para cada tipo de Jack. No es necesario que sumen 1.")]
-    [SerializeField, Min(0f)] private float weightNormal = 0.5f;
-    [SerializeField, Min(0f)] private float weightSpecial = 0.25f;
-    [SerializeField, Min(0f)] private float weightBomb = 0.25f;
+    [System.Serializable]
+    private struct StageJackCounts
+    {
+        public int normal;
+        public int special;
+        public int bomb;
+    }
+
+    [Header("Conteos por etapa (deben sumar 15)")]
+    [SerializeField] private StageJackCounts stage1Counts = new StageJackCounts { normal = 12, special = 3, bomb = 0 };
+    [SerializeField] private StageJackCounts stage2Counts = new StageJackCounts { normal = 10, special = 4, bomb = 1 };
+    [SerializeField] private StageJackCounts stage3Counts = new StageJackCounts { normal = 8, special = 5, bomb = 2 };
+    [Tooltip("Usado si la etapa actual no es 1..3")]
+    [SerializeField] private StageJackCounts defaultCounts = new StageJackCounts { normal = 12, special = 3, bomb = 0 };
 
     private static int _fallbackBoxUses = 0; // diagnostico clustering
     private static int _fallbackPolyUses = 0; // diagnostico clustering
@@ -77,9 +87,39 @@ public class JackSpawner : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < numberOfJacks; i++)
+        // Determinar conteos por etapa actual
+        int stage = 1;
+        var prog = FindAnyObjectByType<Progression>();
+        if (prog != null) stage = prog.stage;
+        StageJackCounts cfg = GetCountsForStage(stage);
+        AjustarConteosASuma(ref cfg, TotalJacksPorSpawn);
+
+        // Construir lista a instanciar y mezclar para distribuir
+        System.Collections.Generic.List<GameObject> prefabs = new System.Collections.Generic.List<GameObject>(TotalJacksPorSpawn);
+        for (int i = 0; i < cfg.normal; i++) prefabs.Add(normalJackPrefab);
+        for (int i = 0; i < cfg.special; i++) prefabs.Add(specialJackPrefab);
+        for (int i = 0; i < cfg.bomb; i++) prefabs.Add(bombJackPrefab);
+
+        // Eliminar posibles nulls (si faltan prefabs) conservando cantidad lo más posible
+        int antes = prefabs.Count;
+        prefabs.RemoveAll(p => p == null);
+        if (prefabs.Count != antes)
         {
-            var prefab = PickPrefab();
+            Debug.LogWarning($"[JackSpawner] Algunos prefabs no están asignados. Se instanciarán {prefabs.Count}/{TotalJacksPorSpawn}.");
+        }
+
+        // Mezclar
+        for (int i = 0; i < prefabs.Count; i++)
+        {
+            int j = Random.Range(i, prefabs.Count);
+            var tmp = prefabs[i];
+            prefabs[i] = prefabs[j];
+            prefabs[j] = tmp;
+        }
+
+        for (int i = 0; i < prefabs.Count; i++)
+        {
+            var prefab = prefabs[i];
             if (prefab == null) continue;
 
             Vector3 pos = GetRandomPointInArea();
@@ -100,6 +140,43 @@ public class JackSpawner : MonoBehaviour
                 jack.Transparentar();
             }
         }
+
+        Debug.Log($"[JackSpawner] Spawned {prefabs.Count} jacks for stage={stage} (N={cfg.normal}, S={cfg.special}, B={cfg.bomb}).");
+    }
+
+    private StageJackCounts GetCountsForStage(int stage)
+    {
+        switch (stage)
+        {
+            case 1: return stage1Counts;
+            case 2: return stage2Counts;
+            case 3: return stage3Counts;
+            default: return defaultCounts;
+        }
+    }
+
+    private static void AjustarConteosASuma(ref StageJackCounts cfg, int objetivo)
+    {
+        // Asegurar no-negativos
+        cfg.normal = Mathf.Max(0, cfg.normal);
+        cfg.special = Mathf.Max(0, cfg.special);
+        cfg.bomb = Mathf.Max(0, cfg.bomb);
+
+        int total = cfg.normal + cfg.special + cfg.bomb;
+        if (total == objetivo) return;
+
+        if (total < objetivo)
+        {
+            // Completar con normales por seguridad
+            cfg.normal += (objetivo - total);
+            return;
+        }
+
+        // Si nos pasamos, recortar en orden normal->special->bomb
+        int sobre = total - objetivo;
+        int rec = Mathf.Min(sobre, cfg.normal); cfg.normal -= rec; sobre -= rec;
+        if (sobre > 0) { rec = Mathf.Min(sobre, cfg.special); cfg.special -= rec; sobre -= rec; }
+        if (sobre > 0) { rec = Mathf.Min(sobre, cfg.bomb); cfg.bomb -= rec; sobre -= rec; }
     }
 
     public void DisableAll()
@@ -205,23 +282,6 @@ public class JackSpawner : MonoBehaviour
         return new Vector3(c2.x, c2.y, 0f);
     }
 
-    // Devuelve un prefab con pesos configurables en el inspector
-    private GameObject PickPrefab()
-    {
-        float n = Mathf.Max(0f, weightNormal);
-        float s = Mathf.Max(0f, weightSpecial);
-        float b = Mathf.Max(0f, weightBomb);
-        float total = n + s + b;
-        if (total <= 0f)
-        {
-            // Fallback: todo a normal si no hay pesos válidos
-            n = 1f; s = 0f; b = 0f; total = 1f;
-        }
-        float r = Random.value * total;
-        if (r < n) return normalJackPrefab;
-        if (r < n + s) return specialJackPrefab;
-        return bombJackPrefab;
-    }
     #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {

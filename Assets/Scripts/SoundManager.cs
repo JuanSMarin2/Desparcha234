@@ -1,22 +1,40 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System; // agregado para eventos
 
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager instance;
 
-    [Header("Clips")]
-    [SerializeField] private AudioClip jackTocadoClip;
-    [SerializeField] private AudioClip bolitaTocadaClip;
+    [Header("Volúmenes Globales")]
+    [Range(0f,1f)] [SerializeField] private float sfxVolume = 1f;
+    [Range(0f,1f)] [SerializeField] private float musicVolume = 1f;
 
-    [SerializeField] private AudioClip bombaTocadaClip;
-    
-    [SerializeField] private AudioClip errorClip;
+    [Header("Config Música")] [SerializeField] private bool musicLoopDefault = true;
 
-    [Header("Config")]
-    [Range(0f, 1f)]
-    [SerializeField] private float volume = 1f;
+    private AudioSource _sfxSource;      // disparos one-shot (SFX)
+    private AudioSource _musicSource;    // canal dedicado música (loop)
 
-    private AudioSource _oneShotSource;
+    // Diccionarios dinámicos (nombre -> clip)
+    private readonly Dictionary<string, AudioClip> _sfxClips = new();
+    private readonly Dictionary<string, AudioClip> _musicClips = new();
+
+    // Rastreo de propiedad (para limpiar al salir de escena)
+    private readonly Dictionary<object, List<string>> _ownerSfxKeys = new();
+    private readonly Dictionary<object, List<string>> _ownerMusicKeys = new();
+
+    private readonly HashSet<string> _warnedMissing = new();
+
+    // Eventos para UI cuando cambian los volúmenes
+    public static event Action<float> OnSfxVolumeChanged;
+    public static event Action<float> OnMusicVolumeChanged;
+
+    // Getters públicos de solo lectura
+    public float SfxVolume => sfxVolume;
+    public float MusicVolume => musicVolume;
+
+    private const string PREF_SFX = "SFX_VOL";
+    private const string PREF_MUS = "MUS_VOL";
 
     private void Awake()
     {
@@ -33,34 +51,170 @@ public class SoundManager : MonoBehaviour
 
         gameObject.name = "SoundManager"; // name for SendMessage lookup
 
-        _oneShotSource = gameObject.AddComponent<AudioSource>();
-        _oneShotSource.playOnAwake = false;
-        _oneShotSource.spatialBlend = 0f; // 2D
+        _sfxSource = gameObject.AddComponent<AudioSource>();
+        _sfxSource.playOnAwake = false;
+        _sfxSource.spatialBlend = 0f; // 2D
+
+        _musicSource = gameObject.AddComponent<AudioSource>();
+        _musicSource.playOnAwake = false;
+        _musicSource.loop = musicLoopDefault;
+        _musicSource.spatialBlend = 0f;
+
+        CargarVolumenesPersistidos();
     }
 
-    public void PlayOneShot(AudioClip clip, float vol = -1f)
+    private void CargarVolumenesPersistidos()
     {
-        if (clip == null || _oneShotSource == null) return;
-        _oneShotSource.PlayOneShot(clip, vol < 0f ? volume : Mathf.Clamp01(vol));
+        if (PlayerPrefs.HasKey(PREF_SFX)) sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PREF_SFX, sfxVolume));
+        if (PlayerPrefs.HasKey(PREF_MUS)) musicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PREF_MUS, musicVolume));
+        if (_musicSource != null) _musicSource.volume = musicVolume;
     }
 
-    public void SonidoJackTocado()
+    // ================== REGISTRO DINÁMICO ==================
+    public void RegisterClip(object owner, string key, AudioClip clip, bool music = false)
     {
-        PlayOneShot(jackTocadoClip);
+        if (string.IsNullOrWhiteSpace(key) || clip == null) return;
+        key = key.Trim();
+        if (music)
+        {
+            _musicClips[key] = clip;
+            if (!_ownerMusicKeys.TryGetValue(owner, out var list)) { list = new List<string>(); _ownerMusicKeys[owner] = list; }
+            if (!list.Contains(key)) list.Add(key);
+        }
+        else
+        {
+            _sfxClips[key] = clip;
+            if (!_ownerSfxKeys.TryGetValue(owner, out var list)) { list = new List<string>(); _ownerSfxKeys[owner] = list; }
+            if (!list.Contains(key)) list.Add(key);
+        }
     }
 
-    public void SonidoBombaTocada()
+    // Reflection-based batch registration to avoid hard compile dependency on SceneAudioLibrary in this analysis tool.
+    // In Unity runtime this still finds the real fields.
+    public void RegisterBatch(Component libComp)
     {
-        PlayOneShot(bombaTocadaClip);
-    }
-    public void SonidoBolitaTocada()
-    {
-        PlayOneShot(bolitaTocadaClip);
+        if (libComp == null) return;
+        var t = libComp.GetType();
+        var gameIdField = t.GetField("gameId");
+        string gameId = gameIdField != null ? gameIdField.GetValue(libComp) as string : null;
+
+        // Helper local function
+        string Qualify(string local)
+        {
+            if (string.IsNullOrWhiteSpace(local)) return null;
+            local = local.Trim();
+            if (string.IsNullOrWhiteSpace(gameId) || local.Contains(":")) return local;
+            return gameId.Trim() + ":" + local;
+        }
+
+        // SFX array
+        var sfxField = t.GetField("sfxClips");
+        if (sfxField != null)
+        {
+            var arr = sfxField.GetValue(libComp) as System.Collections.IEnumerable;
+            if (arr != null)
+            {
+                foreach (var elem in arr)
+                {
+                    if (elem == null) continue;
+                    var et = elem.GetType();
+                    var keyF = et.GetField("key");
+                    var clipF = et.GetField("clip");
+                    if (keyF == null || clipF == null) continue;
+                    string localKey = keyF.GetValue(elem) as string;
+                    var clip = clipF.GetValue(elem) as AudioClip;
+                    if (clip == null) continue;
+                    RegisterClip(libComp, Qualify(localKey), clip, false);
+                }
+            }
+        }
+
+        // Music array
+        var musField = t.GetField("musicClips");
+        if (musField != null)
+        {
+            var arr = musField.GetValue(libComp) as System.Collections.IEnumerable;
+            if (arr != null)
+            {
+                foreach (var elem in arr)
+                {
+                    if (elem == null) continue;
+                    var et = elem.GetType();
+                    var keyF = et.GetField("key");
+                    var clipF = et.GetField("clip");
+                    if (keyF == null || clipF == null) continue;
+                    string localKey = keyF.GetValue(elem) as string;
+                    var clip = clipF.GetValue(elem) as AudioClip;
+                    if (clip == null) continue;
+                    RegisterClip(libComp, Qualify(localKey), clip, true);
+                }
+            }
+        }
     }
 
-    // Nuevo: sonido cuando la bolita falla (toca el suelo)
-    public void SonidoError()
+    public void UnregisterBatch(Component libComp)
     {
-        PlayOneShot(errorClip);
+        if (libComp == null) return;
+        if (_ownerSfxKeys.TryGetValue(libComp, out var sfxList))
+        {
+            foreach (var k in sfxList) _sfxClips.Remove(k);
+            _ownerSfxKeys.Remove(libComp);
+        }
+        if (_ownerMusicKeys.TryGetValue(libComp, out var musList))
+        {
+            foreach (var k in musList) _musicClips.Remove(k);
+            _ownerMusicKeys.Remove(libComp);
+        }
+    }
+
+    // ================== PLAYBACK SFX ==================
+    public void PlaySfx(string key, float volumeScale = 1f)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        if (!_sfxClips.TryGetValue(key, out var clip))
+        {
+            if (!_warnedMissing.Contains(key)) { Debug.LogWarning($"[SoundManager] SFX key '{key}' no encontrado."); _warnedMissing.Add(key); }
+            return;
+        }
+        if (clip != null && _sfxSource != null)
+        {
+            _sfxSource.PlayOneShot(clip, Mathf.Clamp01(sfxVolume * volumeScale));
+        }
+    }
+
+    // ================== PLAYBACK MÚSICA ==================
+    public void PlayMusic(string key, bool loop = true)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        if (!_musicClips.TryGetValue(key, out var clip))
+        {
+            if (!_warnedMissing.Contains(key)) { Debug.LogWarning($"[SoundManager] Music key '{key}' no encontrado."); _warnedMissing.Add(key); }
+            return;
+        }
+        if (_musicSource == null || clip == null) return;
+        _musicSource.loop = loop;
+        _musicSource.clip = clip;
+        _musicSource.volume = musicVolume;
+        _musicSource.Play();
+    }
+
+    public void StopMusic()
+    {
+        if (_musicSource != null) _musicSource.Stop();
+    }
+
+    public void SetSfxVolume(float v) 
+    { 
+        sfxVolume = Mathf.Clamp01(v); 
+        PlayerPrefs.SetFloat(PREF_SFX, sfxVolume); 
+        OnSfxVolumeChanged?.Invoke(sfxVolume); 
+    }
+
+    public void SetMusicVolume(float v) 
+    { 
+        musicVolume = Mathf.Clamp01(v); 
+        if (_musicSource != null) _musicSource.volume = musicVolume; 
+        PlayerPrefs.SetFloat(PREF_MUS, musicVolume); 
+        OnMusicVolumeChanged?.Invoke(musicVolume); 
     }
 }

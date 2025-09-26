@@ -118,6 +118,30 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerDown(PointerEventData eventData)
     {
+
+        // Solo permitir mover el centro si NO se está lanzando
+        if (!lanzando)
+        {
+            // --- REAPARECER CENTRO SI FUE DESTRUIDO ---
+            CentroController centro = FindObjectOfType<CentroController>();
+            if (centro == null && multiJoystick != null && multiJoystick.centroPrefab != null)
+            {
+                GameObject centroObj = Instantiate(multiJoystick.centroPrefab,
+                    multiJoystick.centroSpawnPoint != null ? multiJoystick.centroSpawnPoint.position : Vector3.zero,
+                    Quaternion.identity);
+                centro = centroObj.GetComponent<CentroController>();
+            }
+            if (centro != null)
+            {
+                SpriteRenderer sr = centro.GetComponent<SpriteRenderer>();
+                if (sr != null) sr.enabled = true;
+                Collider2D col = centro.GetComponent<Collider2D>();
+                if (col != null) col.enabled = true;
+                centro.MoverCentro();
+            }
+        }
+
+        // Continúa con la lógica original
         OnDrag(eventData);
     }
 

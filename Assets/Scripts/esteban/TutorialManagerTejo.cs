@@ -7,12 +7,13 @@ public class TutorialManagerTejo : MonoBehaviour
     [SerializeField] private GameObject[] tutorialPanels;   // Lista de paneles en orden
     [SerializeField] private GameObject blocker;            // Panel transparente que bloquea interacción
     [SerializeField] private Button continuarButton;        // Botón de continuar
+    public Button ContinuarButton => continuarButton;
 
     private int currentPanelIndex = 0;
 
     private void Start()
     {              
-         MostrarPanel(0);      
+         //MostrarPanel(0);      
     }
 
     private void MostrarPanel(int index)
@@ -45,6 +46,16 @@ public class TutorialManagerTejo : MonoBehaviour
             PlayerPrefs.SetInt("TutorialMostrado", 1);
             PlayerPrefs.Save();
         }
+    }
+
+    public void ReactivarPrimerPanel()
+    {
+        // Desactiva todos los paneles y el blocker
+        DesactivarTodo();
+
+        // Reinicia el índice y muestra el primer panel
+        currentPanelIndex = 0;
+        MostrarPanel(0);
     }
 
     public void DesactivarTodo()
