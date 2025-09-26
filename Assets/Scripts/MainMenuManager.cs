@@ -25,5 +25,11 @@ public class MainMenuManager : MonoBehaviour
         gamesPanel.SetActive(true);
     }
 
+    public void ShopButton()
+    {
+
+        SceneManager.LoadScene("Tienda");
+    }
+
 
 }

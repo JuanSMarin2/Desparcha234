@@ -154,4 +154,10 @@ public class FinalResultsManager : MonoBehaviour
 
         conversionRunning = false;
     }
+
+    public void ShopButton()
+    {
+
+        SceneManager.LoadScene("Tienda");
+    }
 }
