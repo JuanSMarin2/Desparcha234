@@ -3197,6 +3197,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 6fe1c26fac4ea224c908140f55a692bc, type: 3}
   - key: error
     clip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
+  - key: atrapada
+    clip: {fileID: 8300000, guid: 486ca3a5b2f10434ca52d9c0f1e35144, type: 3}
   musicClips:
   - key: bgmusic
     clip: {fileID: 8300000, guid: e35b57fb9d591974d8c4535e52fe134e, type: 3}
@@ -8468,6 +8470,7 @@ GameObject:
   - component: {fileID: 1592149799}
   - component: {fileID: 1592149798}
   - component: {fileID: 1592149803}
+  - component: {fileID: 1592149804}
   m_Layer: 0
   m_Name: Bolita
   m_TagString: Untagged
@@ -8580,6 +8583,8 @@ MonoBehaviour:
   distanciaAdvertenciaZ: 3.36
   permitirRecogerPorToque: 0
   inputImage: {fileID: 58468174}
+  _animator: {fileID: 1592149804}
+  animatorBoolEnElAire: EnElAire
 --- !u!212 &1592149801
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -8710,6 +8715,28 @@ MonoBehaviour:
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorJugador4: {r: 0, g: 1, b: 0, a: 1}
+--- !u!95 &1592149804
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592149797}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f40929471ebe6e643b76c34a00a87580, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1599051327
 GameObject:
   m_ObjectHideFlags: 0

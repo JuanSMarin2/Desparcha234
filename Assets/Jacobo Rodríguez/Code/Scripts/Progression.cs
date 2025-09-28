@@ -35,6 +35,16 @@ public class Progression : MonoBehaviour
     [SerializeField] private Animacionfinal _animacionFinal; // Referencia en escena para animación de ganador
     private bool _endGameAnimationTriggered = false;
 
+    [Header("Panel Final de Turno")]
+    [SerializeField] private PanelFinalTurno panelFinalTurno; // asignar en escena
+    private int _lastAttemptPoints = 0;
+    private bool _lastAttemptSuccess = false; // true si recogió, false si cayó
+    private bool _turnPanelShowing = false;
+    // Nuevo: diferir la activación de la pausa pre-lanzamiento si el panel está activo
+    private bool _pendingPreLaunchAfterPanel = false;
+    public bool IsTurnPanelShowing => _turnPanelShowing;
+    public void MarkPendingPreLaunch() { _pendingPreLaunchAfterPanel = true; }
+
     public static event Action<int> OnTurnAdvanced;
 
     private int _lastSpawnFrame = -1; // guard para evitar spawns duplicados en mismo frame
@@ -164,6 +174,13 @@ public class Progression : MonoBehaviour
     {
         if (_bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar)
         {
+            // Si el panel de fin de turno aún se está mostrando, diferir.
+            if (_turnPanelShowing)
+            {
+                _pendingPreLaunchAfterPanel = true;
+                Debug.Log("[Progression] OnBallPendingThrow diferido (panel activo)");
+                return;
+            }
             ActivarPausaPreLanzamiento();
             var usedOrigin = _pendingSpawnOrigin;
             SpawnearJacksTransparentes(usedOrigin);
@@ -211,18 +228,77 @@ public class Progression : MonoBehaviour
         ConsolidarIntentoSimplificado();
     }
 
+    public void NotificarBolitaTocada()
+    {
+        _pendingSpawnOrigin = "Pickup";
+        touchedBall = true;
+        // Guardar puntos del intento antes de consolidar
+        _lastAttemptPoints = (int)_attemptScore;
+        _lastAttemptSuccess = true;
+        ConsolidarIntentoSimplificado();
+        var smSingleton = SoundManager.instance;
+        if (smSingleton != null)
+        {
+            smSingleton.PlaySfx("catapis:bolitatocada");
+        }
+        TerminarTurno();
+        touchedBall = false;
+    }
+
+    public void PerderPorTocarSuelo()
+    {
+        _pendingSpawnOrigin = "GroundFail";
+        // Guardar puntos que iba acumulando (los pierde)
+        _lastAttemptPoints = (int)_attemptScore;
+        _lastAttemptSuccess = false;
+        _attemptScore = 0;
+        RecalculateCurrentScoreOnly();
+        SyncCurrentPlayerScoreAndUi();
+        TerminarTurno();
+    }
+
     public void TerminarTurno()
     {
+        // Si ya estamos mostrando el panel (evitar reentradas)
+        if (_turnPanelShowing)
+            return;
+
         _barra?.Reiniciar();
         _ui?.OcultarTextoAtrapa();
 
+        // Pausar juego antes de avanzar turnos/etapas
+        Time.timeScale = 0f;
+
+        // Mostrar panel si existe (también en último turno según requerimiento)
+        if (panelFinalTurno != null)
+        {
+            _turnPanelShowing = true;
+            int jugadorActual1Based = TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1;
+            panelFinalTurno.Show(jugadorActual1Based, _lastAttemptSuccess, _lastAttemptPoints, () =>
+            {
+                // Callback luego de panel
+                Time.timeScale = 1f;
+                _turnPanelShowing = false;
+                ContinuarDespuesPanelTurno();
+            });
+            return; // no continuar aún
+        }
+
+        // Fallback sin panel
+        ContinuarDespuesPanelTurno();
+    }
+
+    private void ContinuarDespuesPanelTurno()
+    {
         if (TurnManager.instance != null)
         {
             int idxPrev = CurrentIdx();
-
             HandleAttemptsAndAdvanceTurn();
-            if (_endGameAnimationTriggered) return;
-
+            if (_endGameAnimationTriggered)
+            {
+                // Si el juego terminó, reinicio visual se maneja en animación final
+                return;
+            }
             int idxActual = CurrentIdx();
             if (idxActual <= idxPrev && idxActual != -1)
             {
@@ -233,7 +309,6 @@ public class Progression : MonoBehaviour
                     Debug.Log($"[Progression] Avance de etapa: {prevStage} -> {stage} (fin de vuelta)");
                 }
             }
-
             if (idxActual >= 0) OnTurnAdvanced?.Invoke(idxActual);
             _bolita?.ActualizarSpritePorTurno();
         }
@@ -242,7 +317,7 @@ public class Progression : MonoBehaviour
         if (TurnManager.instance != null)
         {
             int idxNuevo = CurrentIdx();
-            _attemptScore = 0;
+            _attemptScore = 0; // nuevo turno empieza sin puntaje intento
             _baseScore = GetPlayerScore(idxNuevo);
             RecalculateCurrentScoreOnly();
             SyncCurrentPlayerScoreAndUi();
@@ -251,6 +326,16 @@ public class Progression : MonoBehaviour
 
         ForceApplyRepositionAll();
         _bolita?.ReiniciarBola();
+
+        // Si había un pre-launch diferido porque el panel estaba abierto, procesarlo ahora
+        if (_pendingPreLaunchAfterPanel)
+        {
+            _pendingPreLaunchAfterPanel = false;
+            OnBallPendingThrow();
+        }
+
+        _lastAttemptPoints = 0;
+        _lastAttemptSuccess = false;
     }
 
     private void HandleAttemptsAndAdvanceTurn()
@@ -349,29 +434,6 @@ public class Progression : MonoBehaviour
             }
         }
         Debug.Log($"[Progression] ForceApplyRepositionAll aplicado a {all.Length} componentes (incluye inactivos). Jugador idx={idx}");
-    }
-
-    public void NotificarBolitaTocada()
-    {
-        _pendingSpawnOrigin = "Pickup";
-        touchedBall = true;
-        ConsolidarIntentoSimplificado();
-        var smSingleton = SoundManager.instance;
-        if (smSingleton != null)
-        {
-            smSingleton.PlaySfx("catapis:bolitatocada");
-        }
-        TerminarTurno();
-        touchedBall = false;
-    }
-
-    public void PerderPorTocarSuelo()
-    {
-        _pendingSpawnOrigin = "GroundFail";
-        _attemptScore = 0;
-        RecalculateCurrentScoreOnly();
-        SyncCurrentPlayerScoreAndUi();
-        TerminarTurno();
     }
 
     private void ActualizarUiIntentos()

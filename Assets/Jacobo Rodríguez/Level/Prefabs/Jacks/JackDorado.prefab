@@ -144,7 +144,6 @@ MonoBehaviour:
   - {fileID: 8586856989683068133, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
   - {fileID: -3629422458566603757, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
   - {fileID: 5312652301252043193, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
-  - {fileID: 6679248682291203681, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
   jackSpritesBomba: []
   jackSpritesNormalAmarillo: []
   jackSpritesNormalRojo: []
@@ -154,6 +153,8 @@ MonoBehaviour:
   transparentGray: {r: 0.65, g: 0.65, b: 0.65, a: 1}
   puntos: 5
   tipoJack: 1
+  _animator: {fileID: -4284708142423623034}
+  bolaEnElAireBool: EnElAire
 --- !u!50 &1023609753762596112
 Rigidbody2D:
   serializedVersion: 5

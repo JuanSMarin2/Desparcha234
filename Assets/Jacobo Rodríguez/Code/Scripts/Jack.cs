@@ -26,8 +26,11 @@ public class Jack : MonoBehaviour, IPointerDownHandler
     [SerializeField] public tipo tipoJack = tipo.Normal; // tipo de este Jack
     private Progression progression;
 
-
-
+    [Header("Animación (opcional)")]
+    [Tooltip("Animator local para reaccionar a eventos de la bolita (lanzada / reiniciada")]
+    [SerializeField] private Animator _animator;
+    [Tooltip("Nombre del parámetro bool que refleja si la bola está en el aire")]
+    [SerializeField] private string bolaEnElAireBool = "EnElAire";
 
     public int Puntos => puntos; // Exponer puntos para Progression
 
@@ -42,6 +45,18 @@ public class Jack : MonoBehaviour, IPointerDownHandler
         Sprite selected = GetRandomSpriteForType();
         if (_sr != null && selected != null) _sr.sprite = selected;
         if (progression == null) progression = FindAnyObjectByType<Progression>();
+    }
+
+    private void OnEnable()
+    {
+        Bolita.BolaLanzada += OnBolaLanzada;
+        Bolita.BolaReiniciada += OnBolaReiniciada;
+    }
+
+    private void OnDisable()
+    {
+        Bolita.BolaLanzada -= OnBolaLanzada;
+        Bolita.BolaReiniciada -= OnBolaReiniciada;
     }
 
     private Sprite GetRandomSpriteForType()
@@ -231,6 +246,32 @@ public class Jack : MonoBehaviour, IPointerDownHandler
             }
         }
         
+    }
+
+    private bool AnimatorHasBool(Animator anim, string param)
+    {
+        if (anim == null || string.IsNullOrEmpty(param)) return false;
+        foreach (var p in anim.parameters)
+        {
+            if (p.type == AnimatorControllerParameterType.Bool && p.name == param) return true;
+        }
+        return false;
+    }
+
+    private void OnBolaLanzada()
+    {
+        if (_animator != null && AnimatorHasBool(_animator, bolaEnElAireBool))
+        {
+            _animator.SetBool(bolaEnElAireBool, true);
+        }
+    }
+
+    private void OnBolaReiniciada()
+    {
+        if (_animator != null && AnimatorHasBool(_animator, bolaEnElAireBool))
+        {
+            _animator.SetBool(bolaEnElAireBool, false);
+        }
     }
 }
 
