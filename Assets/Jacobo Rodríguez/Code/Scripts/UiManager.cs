@@ -26,10 +26,11 @@ public class UiManager : MonoBehaviour
     [SerializeField] private GameObject botonJugador3;
     [SerializeField] private GameObject botonJugador4;
 
-    [Header("Advertencia recoger bola")]
+    [Header("Advertencias")]
     [Tooltip("UI de advertencia para avisar que recoja la bola (activar/desactivar)")]
     [SerializeField] private GameObject panelAdvertenciaRecoger;
 
+    [SerializeField] private GameObject AdvertenciaAtrapa;
   
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -66,16 +67,6 @@ public class UiManager : MonoBehaviour
 
     // Update is called once per frame
   
-
-   
-
-  
-
-   
-
-
-
-
     public void MostrarBotonJugadorActivo(int turnoActual)
     {
         // Ocultar todos primero
@@ -133,7 +124,23 @@ public class UiManager : MonoBehaviour
                 return;
         }
     }
+    public void MostrarTextoAtrapa()
+    {
+        if (AdvertenciaAtrapa != null)
+        {
+            AdvertenciaAtrapa.SetActive(true);
+        Debug.Log("Advertencia Atrapa Activada");
+        }     
+    }
 
+    public void OcultarTextoAtrapa()
+    {
+        if (AdvertenciaAtrapa != null)
+        {
+            AdvertenciaAtrapa.SetActive(false);
+        Debug.Log("Advertencia Atrapa Desactivada");
+        }     
+    }
     // Nuevo: actualizar intentos para un jugador (índice 0-based)
     public void ActualizarIntentosJugador(int playerIndexZeroBased, int intentosRestantes)
     {
@@ -146,7 +153,7 @@ public class UiManager : MonoBehaviour
             case 3: target = intentosJugador4; break;
         }
         if (target == null) return; // opcional, no hay UI asignada
-        target.text = "Tiros(" + Mathf.Max(0, intentosRestantes)+")";
+        target.text = "Tiros(" + Mathf.Max(0, intentosRestantes) + ")";
     }
 
     // Mostrar/ocultar advertencia de recoger la bola

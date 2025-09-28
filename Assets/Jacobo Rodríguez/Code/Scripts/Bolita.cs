@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System;
+using JetBrains.Annotations;
 
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -331,7 +332,8 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
 
         CambiarEstado(EstadoLanzamiento.EnElAire);
         ComunicarPorTocarSuelo(false); // al iniciar el vuelo, aún lejos del suelo
-        
+        UiManager ui_ = FindAnyObjectByType<UiManager>();
+        ui_?.MostrarTextoAtrapa();
 
         if (useVirtualZ)
         {

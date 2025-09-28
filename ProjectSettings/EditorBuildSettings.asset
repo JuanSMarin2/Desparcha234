@@ -29,7 +29,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FinalResults.unity
     guid: c348576d08e865c4e86a8358e1d242b0
-  - enabled: 1
+  - enabled: 0
     path: "Assets/Jacobo Rodr\xEDguez/PruebaSonidos.unity"
     guid: f93f06d7aedcfd340aafd3084907f47d
   m_configObjects:
