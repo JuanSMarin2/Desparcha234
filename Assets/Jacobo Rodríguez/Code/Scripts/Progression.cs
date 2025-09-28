@@ -205,6 +205,12 @@ public class Progression : MonoBehaviour
 
     private void ActivarPausaPreLanzamiento()
     {
+        // Evitar mostrar el botón si el panel está activo o el juego terminó.
+        if (_turnPanelShowing || _endGameAnimationTriggered)
+        {
+            Debug.Log("[Progression] ActivarPausaPreLanzamiento ignorado (panel activo o fin de juego)");
+            return;
+        }
         if (botonListo != null) botonListo.SetActive(true);
         _preLaunchPaused = true;
         global::BarraFuerza.SetGlobalShakeBlocked(true);
@@ -263,7 +269,8 @@ public class Progression : MonoBehaviour
         if (_turnPanelShowing)
             return;
 
-        _barra?.Reiniciar();
+        // IMPORTANTE: Ya no reiniciamos aquí la barra/bolita para evitar que OnBallPendingThrow
+        // dispare la pausa pre-lanzamiento ANTES de que termine el panel.
         _ui?.OcultarTextoAtrapa();
 
         // Pausar juego antes de avanzar turnos/etapas
@@ -272,7 +279,7 @@ public class Progression : MonoBehaviour
         // Mostrar panel si existe (también en último turno según requerimiento)
         if (panelFinalTurno != null)
         {
-            _turnPanelShowing = true;
+            _turnPanelShowing = true; // marcar antes de cualquier posible reinicio externo
             int jugadorActual1Based = TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1;
             panelFinalTurno.Show(jugadorActual1Based, _lastAttemptSuccess, _lastAttemptPoints, () =>
             {
@@ -296,7 +303,8 @@ public class Progression : MonoBehaviour
             HandleAttemptsAndAdvanceTurn();
             if (_endGameAnimationTriggered)
             {
-                // Si el juego terminó, reinicio visual se maneja en animación final
+                // Juego terminó: no mostrar botón listo ni reiniciar barra/bolita.
+                _pendingPreLaunchAfterPanel = false; // limpiar cualquier diferido
                 return;
             }
             int idxActual = CurrentIdx();
@@ -325,7 +333,10 @@ public class Progression : MonoBehaviour
         }
 
         ForceApplyRepositionAll();
-        _bolita?.ReiniciarBola();
+
+        // Ahora sí reiniciar barra (lo cual reinicia bolita internamente) para el siguiente intento.
+        if (_barra == null) _barra = FindAnyObjectByType<BarraFuerza>();
+        _barra?.Reiniciar();
 
         // Si había un pre-launch diferido porque el panel estaba abierto, procesarlo ahora
         if (_pendingPreLaunchAfterPanel)
