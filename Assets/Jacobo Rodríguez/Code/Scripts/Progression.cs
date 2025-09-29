@@ -238,15 +238,16 @@ public class Progression : MonoBehaviour
     {
         _pendingSpawnOrigin = "Pickup";
         touchedBall = true;
+        var smSingleton = SoundManager.instance;
+        if (smSingleton != null)
+        {
+            smSingleton.PlaySfx("catapis:atrapada");
+        }
         // Guardar puntos del intento antes de consolidar
         _lastAttemptPoints = (int)_attemptScore;
         _lastAttemptSuccess = true;
         ConsolidarIntentoSimplificado();
-        var smSingleton = SoundManager.instance;
-        if (smSingleton != null)
-        {
-            smSingleton.PlaySfx("catapis:bolitatocada");
-        }
+        
         TerminarTurno();
         touchedBall = false;
     }
@@ -337,6 +338,15 @@ public class Progression : MonoBehaviour
         // Ahora sí reiniciar barra (lo cual reinicia bolita internamente) para el siguiente intento.
         if (_barra == null) _barra = FindAnyObjectByType<BarraFuerza>();
         _barra?.Reiniciar();
+
+        // Caso especial: si la bola seguía marcada EnElAire (captura exitosa no cambiaba estado),
+        // la barra NO llamó a ReiniciarBola y por tanto no se disparó OnBallPendingThrow.
+        // Forzamos reinicio manual para que se muestre el botón Listo y spawneen jacks transparentes.
+        if (_bolita != null && _bolita.Estado == Bolita.EstadoLanzamiento.EnElAire)
+        {
+            Debug.Log("[Progression] Bola permanecía EnElAire tras panel (captura). Forzando reinicio y gating pre-lanzamiento.");
+            _bolita.ReiniciarBola(); // esto disparará OnBallPendingThrow -> ActivarPausaPreLanzamiento
+        }
 
         // Si había un pre-launch diferido porque el panel estaba abierto, procesarlo ahora
         if (_pendingPreLaunchAfterPanel)

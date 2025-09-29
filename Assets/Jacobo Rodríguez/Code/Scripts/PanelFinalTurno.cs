@@ -34,6 +34,12 @@ public class PanelFinalTurno : MonoBehaviour
     [SerializeField] private float pulseAmplitude = 0.08f;
     [SerializeField] private float pulseSpeed = 5f;
 
+    [Header("SFX Conteo")]
+    [SerializeField] private string sfxTickKey = "catapis:tick"; // clave en SceneAudioLibrary
+    [SerializeField] private float minTickInterval = 0.03f;       // evita saturación
+    private int _ultimoValorTick = -1;
+    private float _lastTickTime = -999f;
+
     private Action _onFinished;
     private bool _running;
     private bool _success;
@@ -69,6 +75,8 @@ public class PanelFinalTurno : MonoBehaviour
         _success = success;
         _puntos = Mathf.Max(0, puntos);
         _player1Based = Mathf.Clamp(playerIndex1Based, 1, 4);
+        _ultimoValorTick = -1; // reset para conteo
+        _lastTickTime = Time.unscaledTime;
 
         // Seleccionar sprite
         Sprite spriteElegido = null;
@@ -117,11 +125,17 @@ public class PanelFinalTurno : MonoBehaviour
                 t += Time.unscaledDeltaTime;
                 float k = Mathf.Clamp01(t / conteoDuration);
                 int valor = _success ? Mathf.RoundToInt(Mathf.Lerp(0, _puntos, k)) : Mathf.RoundToInt(Mathf.Lerp(_puntos, 0, k));
+                if (valor != _ultimoValorTick && (Time.unscaledTime - _lastTickTime) >= minTickInterval)
+                {
+                    _ultimoValorTick = valor;
+                    _lastTickTime = Time.unscaledTime;
+                    var sm = SoundManager.instance; if (sm) sm.PlaySfx(sfxTickKey,0.75f);
+                }
                 textoPuntos.text = valor.ToString();
                 yield return null;
             }
         }
-        // Asegurar valor final
+        
         if (textoPuntos != null)
             textoPuntos.text = _success ? _puntos.ToString() : "0";
 
