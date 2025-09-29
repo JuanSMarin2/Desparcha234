@@ -120,23 +120,31 @@ public class Jack : MonoBehaviour, IPointerDownHandler
     {
         if (progression != null)
         {
-            // Llama al método en Progression cuando exista
             progression.NotificarJackTocado(this);
         }
-        // SFX de jack tocado (sin dependencia de tipo)
-        var sm = GameObject.Find("SoundManager");
+        // Nuevo sistema de audio: usar claves dinámicas registradas via SceneAudioLibrary
+        var sm = SoundManager.instance;
         if (sm != null)
         {
-            if (tipoJack == tipo.bomba)
+            switch (tipoJack)
             {
-                sm.SendMessage("SonidoBombaTocada", SendMessageOptions.DontRequireReceiver);
+                case tipo.bomba:
+                    sm.PlaySfx("catapis:bombatocado");
+                    break;
+                case tipo.Especial:
+                    sm.PlaySfx("catapis:especialtocado");
+                    break;
+                case tipo.Normal:
+                    sm.PlaySfx("catapis:normaltocado");
+                    break;
             }
-            else
-                sm.SendMessage("SonidoJackTocado", SendMessageOptions.DontRequireReceiver);
+        }
+        else
+        {
+            Debug.LogWarning("[Jack] SoundManager.instance no encontrado para reproducir SFX.");
         }
         disable();
     }
-
 
     public void disable()
     {

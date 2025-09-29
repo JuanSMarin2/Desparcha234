@@ -203,7 +203,10 @@ public class Progression : MonoBehaviour
 
         if (TurnManager.instance != null)
         {
-            int idx0 = TurnManager.instance.GetCurrentPlayerIndex();
+            // Guardar índice previo para detectar wrap-around de ronda completa
+            int idxPrev = TurnManager.instance.GetCurrentPlayerIndex();
+
+            int idx0 = idxPrev;
             if (_attemptsLeft != null && idx0 >= 0 && idx0 < _attemptsLeft.Length)
             {
                 _attemptsLeft[idx0] = Mathf.Max(0, _attemptsLeft[idx0] - 1);
@@ -229,15 +232,23 @@ public class Progression : MonoBehaviour
                 TurnManager.instance.NextTurn();
             }
 
-            // Notificar que el turno avanzó (índice 0-based del jugador actual)
+            // Detectar fin de vuelta completa (wrap a índice menor o igual)
             int idxActual = TurnManager.instance.GetCurrentPlayerIndex();
+            if (idxActual <= idxPrev)
+            {
+                int prevStage = stage;
+                stage = Mathf.Min(stage + 1, MaxStage);
+                if (stage != prevStage)
+                {
+                    Debug.Log($"[Progression] Avance de etapa: {prevStage} -> {stage} (fin de vuelta)");
+                }
+            }
+
+            // Notificar que el turno avanzó (índice 0-based del jugador actual)
             if (idxActual >= 0) OnTurnAdvanced?.Invoke(idxActual);
 
             _bolita?.ActualizarSpritePorTurno();
         }
-
-        stage = 1;
-        
 
         if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
         if (TurnManager.instance != null)
@@ -410,21 +421,18 @@ public class Progression : MonoBehaviour
 
     public void NotificarBolitaTocada()
     {
-        // Origen de próximo spawn: recogida exitosa de la bola
         _pendingSpawnOrigin = "Pickup";
         touchedBall = true;
-        // Consolidar el intento ANTES de terminar el turno (antes se hacía después)
         ConsolidarIntento();
-        // SFX inmediatamente
-        var sm = GameObject.Find("SoundManager");
-        if (sm != null)
+        var smSingleton = SoundManager.instance;
+        if (smSingleton != null)
         {
-            sm.SendMessage("SonidoBolitaTocada", SendMessageOptions.DontRequireReceiver);
+            smSingleton.PlaySfx("catapis:bolitatocada");
         }
-        // Avanzar turno (reiniciará barra y bola -> OnBallPendingThrow -> spawn con origen=_pendingSpawnOrigin)
         TerminarTurno();
         touchedBall = false;
     }
+
     public void PerderPorTocarSuelo()
     {
         // Origen del siguiente spawn: fallo por tocar suelo

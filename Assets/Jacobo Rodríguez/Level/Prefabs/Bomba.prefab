@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1033401982420425805}
   - component: {fileID: 7312748914154842753}
   - component: {fileID: 4196651965589605188}
+  - component: {fileID: 1266168671228490730}
   m_Layer: 0
   m_Name: Bomba
   m_TagString: Untagged
@@ -150,5 +151,32 @@ MonoBehaviour:
   jackSpritesNormalAzul: []
   transparentAlpha: 0.4
   transparentGray: {r: 0.65, g: 0.65, b: 0.65, a: 1}
-  puntos: -400
+  puntos: -2
   tipoJack: 2
+--- !u!50 &1266168671228490730
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386566979726624608}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 0
