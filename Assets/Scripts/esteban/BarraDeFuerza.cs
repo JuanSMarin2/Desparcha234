@@ -8,11 +8,17 @@ public class BarraDeFuerza : MonoBehaviour
     public float velocidadSubida = 1.5f;
     public float velocidadBajada = 0.5f;
 
+    [Header("Colores por turno")]
+    public Color[] coloresPorTurno; // Asigna los colores en e
+
     private float valorActual = 0f;
     private bool subiendo = true;
 
     void Update()
     {
+        // Cambiar color según el turno actual
+        CambiarColorPorTurno();
+
         if (subiendo)
         {
             valorActual += velocidadSubida * Time.deltaTime;
@@ -33,6 +39,22 @@ public class BarraDeFuerza : MonoBehaviour
         }
 
         barraPoder.fillAmount = valorActual;
+
+        
+    }
+
+    private void CambiarColorPorTurno()
+    {
+        int turnoActual = 0;
+        if (TurnManager.instance != null)
+            turnoActual = TurnManager.instance.CurrentTurn() - 1; // 0-based
+
+        
+
+        if (coloresPorTurno != null && coloresPorTurno.Length > turnoActual)
+            barraPoder.color = coloresPorTurno[turnoActual];
+        else
+            barraPoder.color = Color.red;
     }
 
     // M�todo p�blico para obtener el valor de la barra cuando presiones un bot�n
