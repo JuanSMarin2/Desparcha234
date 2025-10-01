@@ -139,6 +139,7 @@ public class Progression : MonoBehaviour
 
         _ui?.ActualizarPuntos(TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1, currentScore);
         ActualizarUiIntentos(true);
+        _ui?.ActualizarRonda(stage);
 
         if (TurnManager.instance != null)
         {
@@ -304,11 +305,10 @@ public class Progression : MonoBehaviour
             HandleAttemptsAndAdvanceTurn();
             if (_endGameAnimationTriggered)
             {
-                // Juego terminó: no mostrar botón listo ni reiniciar barra/bolita.
                 _pendingPreLaunchAfterPanel = false; // limpiar cualquier diferido
                 return;
             }
-            int idxActual = CurrentIdx();
+            int idxActual = CurrentIdx(); // restaurado
             if (idxActual <= idxPrev && idxActual != -1)
             {
                 int prevStage = stage;
@@ -316,6 +316,7 @@ public class Progression : MonoBehaviour
                 if (stage != prevStage)
                 {
                     Debug.Log($"[Progression] Avance de etapa: {prevStage} -> {stage} (fin de vuelta)");
+                    _ui?.ActualizarRonda(stage);
                 }
             }
             if (idxActual >= 0) OnTurnAdvanced?.Invoke(idxActual);
@@ -459,20 +460,12 @@ public class Progression : MonoBehaviour
 
     private void ActualizarUiIntentos()
     {
-        if (_attemptsLeft == null || TurnManager.instance == null) return;
-        int idx = TurnManager.instance.GetCurrentPlayerIndex();
-        if (idx < 0 || idx >= _attemptsLeft.Length) return;
-        _ui?.ActualizarIntentosJugador(idx, _attemptsLeft[idx]);
+        // Obsoleto: ya no se muestran intentos; método vacío para evitar referencias.
     }
 
     private void ActualizarUiIntentos(bool inicializarTodos)
     {
-        if (!inicializarTodos) { ActualizarUiIntentos(); return; }
-        if (_attemptsLeft == null || _ui == null) return;
-        for (int i = 0; i < _attemptsLeft.Length && i < 4; i++)
-        {
-            _ui.ActualizarIntentosJugador(i, _attemptsLeft[i]);
-        }
+        // Obsoleto: ignorado
     }
 
     private int[] CalcularGanadoresIndex1Based()

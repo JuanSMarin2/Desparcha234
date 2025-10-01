@@ -91,7 +91,7 @@ public class PanelFinalTurno : MonoBehaviour
             textoResultado.text = success ? textoGanar : textoPerder;
 
         if (textoPuntos != null)
-            textoPuntos.text = success ? "0" : _puntos.ToString(); // inicial según dirección conteo
+            textoPuntos.text = success ? $"Ganas: 0 puntos" : $"Pierdes: {_puntos} puntos"; // inicial según dirección conteo (éxito/fallo formateados)
 
         // Preparar canvas
         gameObject.SetActive(true);
@@ -131,13 +131,13 @@ public class PanelFinalTurno : MonoBehaviour
                     _lastTickTime = Time.unscaledTime;
                     var sm = SoundManager.instance; if (sm) sm.PlaySfx(sfxTickKey,0.75f);
                 }
-                textoPuntos.text = valor.ToString();
+                textoPuntos.text = _success ? $"Ganas: {valor} puntos" : $"Pierdes: {valor} puntos";
                 yield return null;
             }
         }
         
         if (textoPuntos != null)
-            textoPuntos.text = _success ? _puntos.ToString() : "0";
+            textoPuntos.text = _success ? $"Ganas: {_puntos} puntos" : "Pierdes: 0 puntos";
 
         // Espera
         if (holdAfterConteo > 0f) yield return new WaitForSecondsRealtime(holdAfterConteo);
