@@ -102,6 +102,13 @@ public class PanelFinalTurno : MonoBehaviour
             canvasGroup.blocksRaycasts = true;
         }
 
+        // Deshabilitar todos los jacks existentes al mostrar el panel
+        var spawners = UnityEngine.Object.FindObjectsByType<JackSpawner>(FindObjectsSortMode.None);
+        foreach (var sp in spawners)
+        {
+            if (sp != null) sp.DisableAll();
+        }
+
         // Usar tiempo no escalado para funcionar en pausa
         StartCoroutine(RutinaPanel());
     }
