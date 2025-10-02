@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System;
+using JetBrains.Annotations;
 
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -97,7 +98,20 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     [Header("Interacción (UI)")]
     [Tooltip("Imagen de UI que captura taps para lanzar o atrapar (sobre la bola o pantalla)")]
     [SerializeField] private Image inputImage;
-   
+
+    [Header("Animación")]
+    [SerializeField] private Animator _animator;
+    [Tooltip("Nombre del parámetro bool que se pondrá en TRUE al lanzar y FALSE al reiniciar")]
+    [SerializeField] private string animatorBoolEnElAire = "EnElAire";
+
+    [Header("Highlight (resaltado cuando está en suelo)")]
+    [Tooltip("Objeto hijo que actúa como highlight/pulso visual. Se activa cuando la bola NO está en el aire.")]
+    [SerializeField] private GameObject highlight;
+
+    // Eventos estáticos para que cada Jack se suscriba (opción 1)
+    public static event System.Action BolaLanzada;   // se dispara justo al lanzar
+    public static event System.Action BolaReiniciada; // se dispara al reiniciar la bolita
+
     private float _launchY;
     private float _launchForce;
     private float _launchForceNorm; // fuerza normalizada [0,1]
@@ -142,6 +156,9 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
      
         _ui = FindAnyObjectByType<UiManager>();
         SetupInputImage();
+
+        if (_animator == null) _animator = GetComponent<Animator>();
+        if (_animator == null) _animator = GetComponentInChildren<Animator>();
     }
 
     private void OnEnable()
@@ -198,6 +215,9 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         ActualizarSpritePorTurno();
         // Se quita la llamada automática a OnBallPendingThrow para que Progression controle el flujo inicial.
         _yaRecogida = false;
+
+        // Asegurar estado inicial del highlight (pendiente de lanzar -> activo)
+        if (highlight != null) highlight.SetActive(_estado != EstadoLanzamiento.EnElAire);
     }
 
     // Update is called once per frame
@@ -331,7 +351,8 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
 
         CambiarEstado(EstadoLanzamiento.EnElAire);
         ComunicarPorTocarSuelo(false); // al iniciar el vuelo, aún lejos del suelo
-        
+        UiManager ui_ = FindAnyObjectByType<UiManager>();
+        ui_?.MostrarTextoAtrapa();
 
         if (useVirtualZ)
         {
@@ -361,6 +382,11 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         // Nuevo: notificar a Progression que la bola fue lanzada para que habilite los Jacks
         var progression = FindAnyObjectByType<Progression>();
         progression?.OnBallLaunched();
+
+        // Iniciar animación local
+        empezarAnimacion();
+        // Notificar a los jacks
+        BolaLanzada?.Invoke();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -412,6 +438,9 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         //_estado = EstadoLanzamiento.PendienteDeLanzar;
         //NotificarEstado(_estado);
         progression?.NotificarBolitaTocada();
+        var sm = SoundManager.instance; if (sm != null)
+        sm.PlaySfx("catapis:agarrada");
+
         Debug.Log("[Bolita] Recogida por toque/click (near-ground descendiendo)");
     }
 
@@ -457,15 +486,39 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         }
         CambiarEstado(EstadoLanzamiento.PendienteDeLanzar);
         var progression = FindAnyObjectByType<Progression>();
-        progression?.OnBallPendingThrow();
+        if (progression != null)
+        {
+            if (progression.IsTurnPanelShowing)
+            {
+                progression.MarkPendingPreLaunch();
+                Debug.Log("[Bolita] Reinicio durante panel: pre-launch diferido");
+            }
+            else
+            {
+                progression.OnBallPendingThrow();
+            }
+        }
 
         _yaRecogida = false; // permitir nueva recogida en siguiente intento
+
+        // Detener animación local
+        TerminarAnimacion();
+        // Notificar a los jacks que terminó / se reinició
+        BolaReiniciada?.Invoke();
     }
 
     private void CambiarEstado(EstadoLanzamiento nuevo)
     {
         if (_estado == nuevo) return;
         _estado = nuevo;
+
+        // Activar highlight sólo cuando NO está en el aire
+        if (highlight != null)
+        {
+            bool shouldHighlight = _estado != EstadoLanzamiento.EnElAire;
+            if (highlight.activeSelf != shouldHighlight)
+                highlight.SetActive(shouldHighlight);
+        }
 
         // Aplicar alpha según el estado: transparente en el aire, normal al volver a pendiente
         if (_sprite != null)
@@ -515,6 +568,35 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
             case 4: _sprite.color = colorJugador4; break;
         }
         Debug.Log("Bolita cambiada de color a " + _sprite.color + " pues el turno es del jugador " + TurnManager.instance.CurrentTurn());
+    }
+
+    // --- CONTROL DE ANIMACIÓN ---
+    public void empezarAnimacion()
+    {
+        if (string.IsNullOrEmpty(animatorBoolEnElAire)) return;
+        if (_animator != null && _animator.HasParameterOfType(animatorBoolEnElAire, AnimatorControllerParameterType.Bool))
+            _animator.SetBool(animatorBoolEnElAire, true);
+    }
+
+    public void TerminarAnimacion()
+    {
+        if (string.IsNullOrEmpty(animatorBoolEnElAire)) return;
+        if (_animator != null && _animator.HasParameterOfType(animatorBoolEnElAire, AnimatorControllerParameterType.Bool))
+            _animator.SetBool(animatorBoolEnElAire, false);
+    }
+}
+
+// Extensión auxiliar para comprobar parámetros sin excepciones
+public static class AnimatorExtensions
+{
+    public static bool HasParameterOfType(this Animator self, string name, AnimatorControllerParameterType type)
+    {
+        if (self == null) return false;
+        foreach (var p in self.parameters)
+        {
+            if (p.type == type && p.name == name) return true;
+        }
+        return false;
     }
 }
 
