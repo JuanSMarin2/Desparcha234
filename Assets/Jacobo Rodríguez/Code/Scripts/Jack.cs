@@ -26,22 +26,51 @@ public class Jack : MonoBehaviour, IPointerDownHandler
     [SerializeField] public tipo tipoJack = tipo.Normal; // tipo de este Jack
     private Progression progression;
 
+    [Header("Animación (opcional)")]
+    [Tooltip("Animator en un hijo para reaccionar a eventos de la bolita (lanzada / reiniciada)")]
+    [SerializeField] private Animator _animator;
+    [Tooltip("Nombre del parámetro bool que refleja si la bola está en el aire")] 
+    [SerializeField] private string bolaEnElAireBool = "EnElAire";
 
-
+    [Header("Visual Root (si el script está en el padre)")]
+    [Tooltip("Hijo que contiene el SpriteRenderer/Animator. Si se deja vacío se detecta el primer SpriteRenderer en hijos.")]
+    [SerializeField] private Transform visualRoot;
 
     public int Puntos => puntos; // Exponer puntos para Progression
 
     private SpriteRenderer _sr;
-    private Collider2D _col2D;
+    private Collider2D _col2D; // collider del padre
 
     private void Awake()
     {
-        _sr = GetComponent<SpriteRenderer>();
+        // Ahora el script vive en el padre (con collider) y el SpriteRenderer está en un hijo
         _col2D = GetComponent<Collider2D>();
-        // Elegir un sprite aleatorio según el tipo (para Normal se ajustará de nuevo en Start vía updateColor)
+        if (!visualRoot)
+        {
+            var srTemp = GetComponentInChildren<SpriteRenderer>(true);
+            if (srTemp) visualRoot = srTemp.transform;
+        }
+        _sr = visualRoot ? visualRoot.GetComponentInChildren<SpriteRenderer>(true) : null;
+        if (!_animator && visualRoot)
+        {
+            _animator = visualRoot.GetComponentInChildren<Animator>(true);
+        }
+        // Elegir sprite inicial según tipo
         Sprite selected = GetRandomSpriteForType();
-        if (_sr != null && selected != null) _sr.sprite = selected;
+        if (_sr && selected) _sr.sprite = selected;
         if (progression == null) progression = FindAnyObjectByType<Progression>();
+    }
+
+    private void OnEnable()
+    {
+        Bolita.BolaLanzada += OnBolaLanzada;
+        Bolita.BolaReiniciada += OnBolaReiniciada;
+    }
+
+    private void OnDisable()
+    {
+        Bolita.BolaLanzada -= OnBolaLanzada;
+        Bolita.BolaReiniciada -= OnBolaReiniciada;
     }
 
     private Sprite GetRandomSpriteForType()
@@ -97,13 +126,14 @@ public class Jack : MonoBehaviour, IPointerDownHandler
         if (cam == null) return;
         Vector3 wp = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, 0f));
         Vector2 p = new Vector2(wp.x, wp.y);
+        // Raycast puntual: asociar a este Jack via GetComponentInParent
         var hits = Physics2D.OverlapPointAll(p);
         for (int i = 0; i < hits.Length; i++)
         {
             var h = hits[i];
             if (h == null) continue;
-            // Si el hit es este jack o un hijo suyo, recolectar
-            if (h.transform == transform || h.transform.IsChildOf(transform))
+            var jack = h.GetComponentInParent<Jack>();
+            if (jack == this)
             {
                 Recolectar();
                 return;
@@ -151,50 +181,38 @@ public class Jack : MonoBehaviour, IPointerDownHandler
         Destroy(gameObject);
     }
 
+    private void SetCollidersEnabled(bool enabled)
+    {
+        // Solo colliders del objeto donde está el script (padre)
+        var cols = GetComponents<Collider2D>();
+        foreach (var c in cols)
+        {
+            if (c) c.enabled = enabled;
+        }
+    }
+
     // Decolorar y deshabilitar collider (estado: pendiente de lanzar)
     public void Transparentar()
     {
-        var sprs = GetComponentsInChildren<SpriteRenderer>(true);
+        var root = visualRoot ? visualRoot : transform;
+        var sprs = root.GetComponentsInChildren<SpriteRenderer>(true);
         Color c = new Color(transparentGray.r, transparentGray.g, transparentGray.b, transparentAlpha);
         foreach (var sr in sprs)
         {
-            if (sr != null) sr.color = c;
+            if (sr) sr.color = c;
         }
-        // Deshabilitar todos los Collider2D (no solo el círculo)
-        CircleCollider2D jackCollider = GetComponent<CircleCollider2D>();
-        if (jackCollider != null)
-        {
-            jackCollider.enabled = false;
-           
-        }
-        var cols = GetComponentsInChildren<Collider2D>(true);
-        foreach (var col in cols)
-        {
-            if (col != null) col.enabled = false;
-        }
+        SetCollidersEnabled(false);
     }
 
     // Restaurar visibilidad y habilitar collider (estado: listo/lanzado)
     public void HabilitarColor()
     {
-        // Habilitar todos los Collider2D (incluido el círculo si existe)
-        CircleCollider2D jackCollider = GetComponent<CircleCollider2D>();
-        if (jackCollider != null)
-        {
-            jackCollider.enabled = true;
-          
-        }
-        var cols = GetComponentsInChildren<Collider2D>(true);
-        foreach (var col in cols)
-        {
-            if (col != null) col.enabled = true;
-        }
-
-        // Restaurar color visible (para cualquier tipo)
-        var sprs = GetComponentsInChildren<SpriteRenderer>(true);
+        SetCollidersEnabled(true);
+        var root = visualRoot ? visualRoot : transform;
+        var sprs = root.GetComponentsInChildren<SpriteRenderer>(true);
         foreach (var sr in sprs)
         {
-            if (sr != null) sr.color = new Color(1f, 1f, 1f, 1f);
+            if (sr) sr.color = new Color(1f, 1f, 1f, 1f);
         }
     }
 
@@ -206,8 +224,6 @@ public class Jack : MonoBehaviour, IPointerDownHandler
         {
             return; // Especial y bomba no cambian por color
         }
-
-
 
         Sprite[] setPorColor;
         switch (numJugador)
@@ -231,6 +247,32 @@ public class Jack : MonoBehaviour, IPointerDownHandler
             }
         }
         
+    }
+
+    private bool AnimatorHasBool(Animator anim, string param)
+    {
+        if (anim == null || string.IsNullOrEmpty(param)) return false;
+        foreach (var p in anim.parameters)
+        {
+            if (p.type == AnimatorControllerParameterType.Bool && p.name == param) return true;
+        }
+        return false;
+    }
+
+    private void OnBolaLanzada()
+    {
+        if (_animator != null && AnimatorHasBool(_animator, bolaEnElAireBool))
+        {
+            _animator.SetBool(bolaEnElAireBool, true);
+        }
+    }
+
+    private void OnBolaReiniciada()
+    {
+        if (_animator != null && AnimatorHasBool(_animator, bolaEnElAireBool))
+        {
+            _animator.SetBool(bolaEnElAireBool, false);
+        }
     }
 }
 

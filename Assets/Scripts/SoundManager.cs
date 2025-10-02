@@ -63,6 +63,30 @@ public class SoundManager : MonoBehaviour
         CargarVolumenesPersistidos();
     }
 
+    private void Start()
+    {
+        // Auto-registro de todas las bibliotecas presentes en la escena inicial (ej. menú)
+        var libs = FindObjectsByType<SceneAudioLibrary>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        if (libs != null)
+        {
+            var seen = new HashSet<SceneAudioLibrary>();
+            foreach (var lib in libs)
+            {
+                if (lib == null || seen.Contains(lib)) continue;
+                seen.Add(lib);
+                RegisterBatch(lib);
+                if (!string.IsNullOrWhiteSpace(lib.autoPlayMusicKey))
+                {
+                    string local = lib.autoPlayMusicKey;
+                    // Formar clave completa igual que BuildKey interno del library
+                    string full = string.IsNullOrWhiteSpace(lib.gameId) || local.Contains(":") ? local.Trim() : lib.gameId.Trim() + ":" + local.Trim();
+                    PlayMusic(full, lib.autoLoopMusic);
+                }
+            }
+            if (libs.Length > 0) Debug.Log($"[SoundManager] Auto-registradas {libs.Length} SceneAudioLibrary al iniciar.");
+        }
+    }
+
     private void CargarVolumenesPersistidos()
     {
         if (PlayerPrefs.HasKey(PREF_SFX)) sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PREF_SFX, sfxVolume));
