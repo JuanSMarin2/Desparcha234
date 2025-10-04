@@ -169,4 +169,9 @@ public class Movimiento : MonoBehaviour
         int idx = playerIdx1Based - 1; if (idx < 0 || idx >= _jugadores.Length) return;
         var m = _jugadores[idx]; if (m != null) m.TriggerMove();
     }
+
+    public void SetMoveSpeed(float newSpeed)
+    {
+        moveSpeed = newSpeed;
+    }
 }

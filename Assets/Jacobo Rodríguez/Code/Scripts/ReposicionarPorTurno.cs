@@ -50,6 +50,13 @@ public class ReposicionarPorTurno : MonoBehaviour
     public Color colorJugador3 = Color.yellow;
     public Color colorJugador4 = Color.green;
 
+    [Header("Recolocación por Evento (no turnos)")]
+    [Tooltip("Targets alternativos cuando se reposiciona por evento (ej: jugador eliminado). Índice 0=J1")] public Transform[] eliminationTargets = new Transform[4];
+    [Tooltip("Usar los eliminationTargets si están asignados; si no, usar 'targets'")] public bool usarEliminationTargets = true;
+    [Tooltip("Aplicar color del jugador al reposicionar por evento")] public bool recolorAlEvento = true;
+    [Tooltip("Desaturar ligeramente el color si es un jugador eliminado")] public bool desaturarEliminado = false;
+    [Tooltip("Multiplicador de color para desaturar/eliminar (solo si desaturarEliminado=true)")] public Color desaturadoMultiplier = new Color(0.6f, 0.6f, 0.6f, 1f);
+
     private RectTransform _rt;
     private Coroutine _moveCo;
     private Coroutine _rotateCo;
@@ -138,6 +145,122 @@ public class ReposicionarPorTurno : MonoBehaviour
     public void ApplyForPlayerIndexInstant(int playerIndexZeroBased)
     {
         ApplyPosition(playerIndexZeroBased, true);
+    }
+
+    /// <summary>
+    /// Reposiciona (y opcionalmente recolorea) este objeto basado en un jugador eliminado u otro evento externo.
+    /// No depende de turnos; útil en el modo Tag para ubicar paneles/indicadores.
+    /// playerIndexZeroBased: 0..3 (Jugador 1..4)
+    /// mover: si true mueve a la posición del target asignado.
+    /// recolorear: si true aplica el color del jugador (con desaturación opcional).
+    /// instant: si false y hay tween activado, usa animación.
+    /// </summary>
+    public void ReposicionarPorEventoJugador(int playerIndexZeroBased, bool mover = true, bool recolorear = true, bool instant = true)
+    {
+        if (playerIndexZeroBased < 0 || playerIndexZeroBased >= targets.Length) return;
+        Transform targetOverride = null;
+        if (usarEliminationTargets && eliminationTargets != null && playerIndexZeroBased < eliminationTargets.Length)
+        {
+            targetOverride = eliminationTargets[playerIndexZeroBased];
+        }
+        if (targetOverride == null)
+        {
+            targetOverride = targets != null && playerIndexZeroBased < targets.Length ? targets[playerIndexZeroBased] : null;
+        }
+        if (mover && targetOverride != null)
+        {
+            ApplyPositionCustom(playerIndexZeroBased, targetOverride, instant);
+        }
+        if (recolorear && (cambiarColorPorJugador || recolorAlEvento))
+        {
+            ApplyColorEvento(playerIndexZeroBased);
+        }
+    }
+
+    // Versión de ApplyPosition que acepta un target directo (sin usar el array principal)
+    private void ApplyPositionCustom(int playerIndex, Transform customTarget, bool instant)
+    {
+        if (customTarget == null) return;
+
+        // Reutilizar parte de la lógica de ApplyPosition pero con customTarget
+        if (usarRectTransform && _rt != null)
+        {
+            var targetRt = customTarget as RectTransform;
+            if (usarAnchoredPosition && targetRt != null)
+            {
+                Vector2 destino = targetRt.anchoredPosition;
+                if (instant || !suavizarMovimiento || duracion <= 0f) _rt.anchoredPosition = destino; else StartMove(() => _rt.anchoredPosition, v => _rt.anchoredPosition = v, destino);
+            }
+            else
+            {
+                Vector3 destino = usarLocalPosition ? customTarget.localPosition : customTarget.position;
+                if (instant || !suavizarMovimiento || duracion <= 0f)
+                {
+                    if (usarLocalPosition) _rt.localPosition = destino; else _rt.position = destino;
+                }
+                else
+                {
+                    if (usarLocalPosition) StartMove(() => _rt.localPosition, v => _rt.localPosition = v, destino); else StartMove(() => _rt.position, v => _rt.position = v, destino);
+                }
+            }
+            if (aplicarRotacion)
+            {
+                Quaternion qDestino = usarLocalRotation ? customTarget.localRotation : customTarget.rotation;
+                if (instant || !suavizarMovimiento || duracion <= 0f)
+                {
+                    if (usarLocalRotation) _rt.localRotation = qDestino; else _rt.rotation = qDestino;
+                }
+                else
+                {
+                    if (usarLocalRotation) StartRotate(() => _rt.localRotation, q => _rt.localRotation = q, qDestino); else StartRotate(() => _rt.rotation, q => _rt.rotation = q, qDestino);
+                }
+            }
+        }
+        else
+        {
+            Vector3 destino = usarLocalPosition ? customTarget.localPosition : customTarget.position;
+            if (instant || !suavizarMovimiento || duracion <= 0f)
+            {
+                if (usarLocalPosition) transform.localPosition = destino; else transform.position = destino;
+            }
+            else
+            {
+                if (usarLocalPosition) StartMove(() => transform.localPosition, v => transform.localPosition = v, destino); else StartMove(() => transform.position, v => transform.position = v, destino);
+            }
+            if (aplicarRotacion)
+            {
+                Quaternion qDestino = usarLocalRotation ? customTarget.localRotation : customTarget.rotation;
+                if (instant || !suavizarMovimiento || duracion <= 0f)
+                {
+                    if (usarLocalRotation) transform.localRotation = qDestino; else transform.rotation = qDestino;
+                }
+                else
+                {
+                    if (usarLocalRotation) StartRotate(() => transform.localRotation, q => transform.localRotation = q, qDestino); else StartRotate(() => transform.rotation, q => transform.rotation = q, qDestino);
+                }
+            }
+        }
+
+        if (cambiarColorPorJugador || recolorAlEvento)
+        {
+            ApplyColorEvento(playerIndex);
+        }
+    }
+
+    private void ApplyColorEvento(int playerIndex)
+    {
+        // Reusar ApplyColor pero con posible desaturación
+        ApplyColor(playerIndex);
+        if (desaturarEliminado)
+        {
+            if (_spriteRenderer != null) _spriteRenderer.color = MultiplyColor(_spriteRenderer.color, desaturadoMultiplier);
+            if (_image != null) _image.color = MultiplyColor(_image.color, desaturadoMultiplier);
+        }
+    }
+
+    private Color MultiplyColor(Color baseColor, Color mult)
+    {
+        return new Color(baseColor.r * mult.r, baseColor.g * mult.g, baseColor.b * mult.b, baseColor.a * mult.a);
     }
 
     private void ApplyPosition(int playerIndex, bool instant)
