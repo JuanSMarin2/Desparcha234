@@ -30,6 +30,37 @@ public class GameManagerTejo : MonoBehaviour
         if (instance == null) instance = this;
     }
 
+    void Start()
+    {
+        // Buscar una instancia de TutorialManagerTejo en la escena antes de llamar a MostrarPanel
+        TutorialManagerTejo tutorialManager = FindObjectOfType<TutorialManagerTejo>();
+        if (tutorialManager != null)
+        {
+            int numJugador = TurnManager.instance.CurrentTurn();
+            switch 
+                (numJugador)
+            {
+                case 1:
+                    tutorialManager.MostrarPanel(4);
+                    break;
+                case 2:
+                    tutorialManager.MostrarPanel(5);
+                    break;
+                case 3:
+                    tutorialManager.MostrarPanel(6);
+                    break;
+                case 4:
+                    tutorialManager.MostrarPanel(7);
+                    break;                
+            }
+            tutorialManager.MostrarPanel(0);
+        }
+        else
+        {
+            Debug.LogWarning("No se encontró TutorialManagerTejo en la escena.");
+        }
+    }
+
     public void SumarPuntos(int jugadorID, int puntos)
     {
         Debug.Log($"Jugador {jugadorID} gana {puntos} puntos");
