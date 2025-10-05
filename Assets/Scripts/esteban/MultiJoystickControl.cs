@@ -140,7 +140,7 @@ public class MultiJoystickControl : MonoBehaviour
             mainJoystickControlObject.SetActive(false);
 
         if (bloqueador != null)
-            bloqueador.SetActive(false);
+            bloqueador.SetActive(false);  
     }
 
     void Update()
@@ -168,6 +168,33 @@ public class MultiJoystickControl : MonoBehaviour
             if (mainJoystickControlObject != null)
             {
                 mainJoystickControlObject.SetActive(true);
+                // Buscar una instancia de TutorialManagerTejo en la escena antes de llamar a MostrarPanel
+                TutorialManagerTejo tutorialManager = FindObjectOfType<TutorialManagerTejo>();
+                if (tutorialManager != null)
+                {
+                    int numJugador = TurnManager.instance.CurrentTurn();
+                    switch
+                        (numJugador)
+                    {
+                        case 1:
+                            tutorialManager.MostrarPanel(8);
+                            break;
+                        case 2:
+                            tutorialManager.MostrarPanel(9);
+                            break;
+                        case 3:
+                            tutorialManager.MostrarPanel(10);
+                            break;
+                        case 4:
+                            tutorialManager.MostrarPanel(11);
+                            break;
+                    }
+
+                }
+                else
+                {
+                    Debug.LogWarning("No se encontró TutorialManagerTejo en la escena.");
+                }
                 Debug.Log("¿Activo?: " + mainJoystickControlObject.activeSelf);
                 Debug.Log(" Activado Joystick principal (zona de tiro).");
             }

@@ -53,7 +53,7 @@ public class GameManagerTejo : MonoBehaviour
                     tutorialManager.MostrarPanel(7);
                     break;                
             }
-            tutorialManager.MostrarPanel(0);
+            
         }
         else
         {
