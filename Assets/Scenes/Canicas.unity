@@ -1731,9 +1731,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -1742,18 +1739,12 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!225 &349075977
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2328,9 +2319,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -2339,18 +2327,12 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!225 &433354832
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3251,7 +3233,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &534420146
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3409,9 +3391,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -3420,18 +3399,13 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
+  - {fileID: 0}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 4
 --- !u!225 &581356718
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3792,9 +3766,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -3802,17 +3773,13 @@ MonoBehaviour:
   - {fileID: 2023042661}
   - {fileID: 670561699}
   - {fileID: 1161103513}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
+  - {fileID: 0}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 4
 --- !u!225 &638034337
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3885,9 +3852,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -3896,18 +3860,12 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!225 &659291262
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3968,7 +3926,7 @@ GameObject:
   m_Component:
   - component: {fileID: 670561699}
   - component: {fileID: 670561700}
-  m_Layer: 0
+  m_Layer: 28
   m_Name: Triangle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4421,9 +4379,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -4432,18 +4387,12 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 4
 --- !u!225 &716699823
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -4554,9 +4503,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -4565,18 +4511,13 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
+  - {fileID: 0}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 4
 --- !u!225 &809581901
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -6123,9 +6064,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -6134,18 +6072,13 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
+  - {fileID: 0}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 4
 --- !u!225 &1140323396
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -6206,7 +6139,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1161103513}
   - component: {fileID: 1161103514}
-  m_Layer: 0
+  m_Layer: 28
   m_Name: ForceBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6524,9 +6457,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -6535,18 +6465,13 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
+  - {fileID: 0}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 4
 --- !u!225 &1178183775
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -7345,7 +7270,7 @@ GameObject:
   - component: {fileID: 1259058712}
   - component: {fileID: 1259058714}
   - component: {fileID: 1259058713}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: RedKnob
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7604,7 +7529,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1266665026}
   - component: {fileID: 1266665027}
-  m_Layer: 0
+  m_Layer: 28
   m_Name: Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11855,9 +11780,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -11866,18 +11788,12 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!225 &1996506757
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -13373,9 +13289,6 @@ MonoBehaviour:
   canvas: {fileID: 1074922609}
   raycaster: {fileID: 1074922607}
   worldCamera: {fileID: 1215972837}
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 0
   targets:
   - {fileID: 1424594951}
   - {fileID: 709440961}
@@ -13384,18 +13297,13 @@ MonoBehaviour:
   - {fileID: 670561699}
   - {fileID: 1161103513}
   - {fileID: 1266665026}
-  targetRenderers:
-  - {fileID: 1424594950}
-  - {fileID: 709440965}
-  - {fileID: 1579665507}
-  - {fileID: 2023042665}
-  - {fileID: 1266665027}
-  - {fileID: 670561700}
-  - {fileID: 1161103514}
-  - {fileID: 1161103514}
+  - {fileID: 0}
   visibleAlpha: 1
   hiddenAlpha: 0.2
   lerpSpeed: 10
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 4
 --- !u!225 &2139000411
 CanvasGroup:
   m_ObjectHideFlags: 0
