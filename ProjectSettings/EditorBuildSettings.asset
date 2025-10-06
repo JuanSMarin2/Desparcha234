@@ -21,7 +21,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Tejo(viejo).unity
     guid: 1d56873dc9b918a41b109007e88a7dda
   - enabled: 1
-    path: Assets/Scenes/Tejo.unity
+    path: Assets/Scenes/Tejo1.unity
     guid: f25ce3dd4f75ca641b9eaf13d44f1973
   - enabled: 1
     path: Assets/Scenes/Zancos.unity
@@ -35,6 +35,9 @@ EditorBuildSettings:
   - enabled: 1
     path: "Assets/Jacobo Rodr\xEDguez/PruebaSonidos.unity"
     guid: f93f06d7aedcfd340aafd3084907f47d
+  - enabled: 1
+    path: Assets/Scenes/Tejo.unity
+    guid: ec494ac65d274204b9ec4ff1dc14d469
   m_configObjects:
     com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: d1868e0e4b670844ca3bff0c15221bdb, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: b61060970ed0dee46a738d5a8aa10d7c, type: 2}
