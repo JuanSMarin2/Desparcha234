@@ -612,8 +612,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Jugador 3 Eliminado!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
-  m_sharedMaterial: {fileID: -3534736346125445407, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
+  m_sharedMaterial: {fileID: -6771328589934434636, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -748,8 +748,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Continuar
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
-  m_sharedMaterial: {fileID: -3534736346125445407, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
+  m_sharedMaterial: {fileID: -6771328589934434636, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -880,11 +880,13 @@ MonoBehaviour:
   panelEliminacion: {fileID: 1391231918}
   panelVictoria: {fileID: 180100633}
   eliminationIcons:
-  - {fileID: -1836012908756554960, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: -7311780853768740580, guid: e24c55b9925cecb4fb20370024bd5299, type: 3}
-  - {fileID: -5781588522152963664, guid: e24c55b9925cecb4fb20370024bd5299, type: 3}
-  - {fileID: 3215181741823739300, guid: e24c55b9925cecb4fb20370024bd5299, type: 3}
-  repositionersOnElimination: []
+  - {fileID: -1832221067031316088, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 1190479172476038618, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 7162554072243991052, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 8919797506060606750, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  repositionersOnElimination:
+  - {fileID: 1391231914}
+  - {fileID: 0}
   debugLogs: 1
 --- !u!1 &445327582
 GameObject:
@@ -3096,7 +3098,6 @@ GameObject:
   - component: {fileID: 1306046816}
   - component: {fileID: 1306046815}
   - component: {fileID: 1306046814}
-  - component: {fileID: 1306046813}
   m_Layer: 5
   m_Name: Continuar
   m_TagString: Untagged
@@ -3124,74 +3125,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -330}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1306046813
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1306046811}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fb9771e8c98061449816b21c2a571dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targets:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  usarLocalPosition: 0
-  usarRectTransform: 0
-  usarAnchoredPosition: 1
-  aplicarRotacion: 1
-  usarLocalRotation: 0
-  targetsEnCanvas: 0
-  canvasUI: {fileID: 0}
-  camMundo: {fileID: 0}
-  usarZActualDelObjeto: 1
-  zMundo: 0
-  suavizarMovimiento: 0
-  duracion: 0.25
-  curva:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  animarAlIniciar: 0
-  cambiarColorPorJugador: 1
-  colorJugador1: {r: 1, g: 0.36037737, b: 0.36037737, a: 1}
-  colorJugador2: {r: 0.3830188, g: 0.3830188, b: 1, a: 1}
-  colorJugador3: {r: 1, g: 0.9544464, b: 0.42830187, a: 1}
-  colorJugador4: {r: 0.435849, g: 1, b: 0.435849, a: 1}
-  eliminationTargets:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  usarEliminationTargets: 1
-  recolorAlEvento: 1
-  desaturarEliminado: 0
-  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!114 &1306046814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3261,7 +3194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.28490567, b: 0.28490567, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3511,9 +3444,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   usarLocalPosition: 0
-  usarRectTransform: 0
+  usarRectTransform: 1
   usarAnchoredPosition: 1
-  aplicarRotacion: 1
+  aplicarRotacion: 0
   usarLocalRotation: 0
   targetsEnCanvas: 0
   canvasUI: {fileID: 0}
@@ -3593,7 +3526,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -2479488561180824256, guid: af7bbeffd64e61d4fbde6fadda3c6ad0, type: 3}
+  m_Sprite: {fileID: -6640737084600897689, guid: 1f47f9731ec4d6d458db4dae20c55475, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3630,6 +3563,14 @@ MonoBehaviour:
   formatoMensaje: Jugador {0} eliminado
   fadeIn: 0.15
   fadeOut: 0.15
+  recolorPorJugador: 1
+  fondoRecolorDestino: {fileID: 1391231916}
+  colorJugador1: {r: 0.85, g: 0.25, b: 0.25, a: 1}
+  colorJugador2: {r: 0.25, g: 0.45, b: 0.9, a: 1}
+  colorJugador3: {r: 0.95, g: 0.85, b: 0.2, a: 1}
+  colorJugador4: {r: 0.3, g: 0.85, b: 0.4, a: 1}
+  fondoIntensity: 0.9
+  autoReposicionar: 1
 --- !u!1 &1415108524
 GameObject:
   m_ObjectHideFlags: 0

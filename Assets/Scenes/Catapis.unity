@@ -447,6 +447,15 @@ MonoBehaviour:
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorJugador4: {r: 0, g: 1, b: 0, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &64626969
 GameObject:
   m_ObjectHideFlags: 0
@@ -2207,6 +2216,15 @@ MonoBehaviour:
   colorJugador2: {r: 0.4660377, g: 0.4660377, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.95805454, b: 0.47358483, a: 1}
   colorJugador4: {r: 0.41320753, g: 1, b: 0.41320753, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!114 &417909095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4537,15 +4555,15 @@ MonoBehaviour:
   textoGanar: Bien atrapado!
   textoPerder: Decepcionante...
   iconosFelices:
-  - {fileID: -1836012908756554960, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: -5781588522152963664, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: 3215181741823739300, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: 3232231290688778859, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+  - {fileID: 478838189770312867, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+  - {fileID: -6617828489231529575, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+  - {fileID: 307226126855071095, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
   iconosTristes:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: -1832221067031316088, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 1190479172476038618, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 7162554072243991052, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 8919797506060606750, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
   fadeInDuration: 0.2
   conteoDuration: 0.8
   holdAfterConteo: 2
@@ -4652,6 +4670,15 @@ MonoBehaviour:
   colorJugador2: {r: 0.283681, g: 0.283681, b: 0.8792453, a: 1}
   colorJugador3: {r: 0.90188676, g: 0.86295795, b: 0.4135065, a: 1}
   colorJugador4: {r: 0.36806685, g: 0.9245283, b: 0.36806685, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &874800839
 GameObject:
   m_ObjectHideFlags: 0
@@ -7313,6 +7340,15 @@ MonoBehaviour:
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorJugador4: {r: 0, g: 1, b: 0, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &1361623478
 GameObject:
   m_ObjectHideFlags: 0
@@ -7772,6 +7808,15 @@ MonoBehaviour:
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorJugador4: {r: 0, g: 1, b: 0, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &1418225376
 GameObject:
   m_ObjectHideFlags: 0
@@ -8021,6 +8066,15 @@ MonoBehaviour:
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorJugador4: {r: 0, g: 1, b: 0, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &1419550683
 GameObject:
   m_ObjectHideFlags: 0
@@ -8237,6 +8291,15 @@ MonoBehaviour:
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorJugador4: {r: 0, g: 1, b: 0, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!95 &1445494452
 Animator:
   serializedVersion: 7
@@ -9223,6 +9286,15 @@ MonoBehaviour:
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorJugador4: {r: 0, g: 1, b: 0, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!95 &1592149804
 Animator:
   serializedVersion: 7
@@ -9748,6 +9820,15 @@ MonoBehaviour:
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorJugador4: {r: 0, g: 1, b: 0, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!114 &1716879190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10422,6 +10503,15 @@ MonoBehaviour:
   colorJugador2: {r: 0.33773577, g: 0.33773577, b: 1, a: 1}
   colorJugador3: {r: 1, g: 0.95184904, b: 0.39811313, a: 1}
   colorJugador4: {r: 0.36037737, g: 1, b: 0.36037737, a: 1}
+  eliminationTargets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usarEliminationTargets: 1
+  recolorAlEvento: 1
+  desaturarEliminado: 0
+  desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
 --- !u!1 &1950145470
 GameObject:
   m_ObjectHideFlags: 0

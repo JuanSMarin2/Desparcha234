@@ -157,11 +157,14 @@ public class ReposicionarPorTurno : MonoBehaviour
     /// </summary>
     public void ReposicionarPorEventoJugador(int playerIndexZeroBased, bool mover = true, bool recolorear = true, bool instant = true)
     {
+        Debug.Log($"[ReposicionarPorTurno] ReposicionarPorEventoJugador llamado -> jugador {(playerIndexZeroBased + 1)}, mover={mover}, (recolor desactivado en eventos), instant={instant}, usarEliminationTargets={usarEliminationTargets}, objeto={gameObject.name}");
         if (playerIndexZeroBased < 0 || playerIndexZeroBased >= targets.Length) return;
         Transform targetOverride = null;
         if (usarEliminationTargets && eliminationTargets != null && playerIndexZeroBased < eliminationTargets.Length)
         {
             targetOverride = eliminationTargets[playerIndexZeroBased];
+            if (targetOverride != null)
+                Debug.Log($"[ReposicionarPorTurno] Usando eliminationTarget para jugador {(playerIndexZeroBased + 1)}: {targetOverride.name}");
         }
         if (targetOverride == null)
         {
@@ -171,10 +174,7 @@ public class ReposicionarPorTurno : MonoBehaviour
         {
             ApplyPositionCustom(playerIndexZeroBased, targetOverride, instant);
         }
-        if (recolorear && (cambiarColorPorJugador || recolorAlEvento))
-        {
-            ApplyColorEvento(playerIndexZeroBased);
-        }
+        // Recolor por evento eliminado: desactivado (panel se encarga del color). Intento previo ignorado.
     }
 
     // Versión de ApplyPosition que acepta un target directo (sin usar el array principal)
@@ -241,20 +241,18 @@ public class ReposicionarPorTurno : MonoBehaviour
             }
         }
 
-        if (cambiarColorPorJugador || recolorAlEvento)
-        {
-            ApplyColorEvento(playerIndex);
-        }
+        // (Recolor por evento suprimido) Antes: if (cambiarColorPorJugador || recolorAlEvento) ApplyColorEvento(playerIndex);
     }
 
     private void ApplyColorEvento(int playerIndex)
     {
-        // Reusar ApplyColor pero con posible desaturación
+        Debug.Log($"[ReposicionarPorTurno] ApplyColorEvento inicio jugador {(playerIndex + 1)} (desaturarEliminado={desaturarEliminado}) objeto={gameObject.name}");
         ApplyColor(playerIndex);
         if (desaturarEliminado)
         {
             if (_spriteRenderer != null) _spriteRenderer.color = MultiplyColor(_spriteRenderer.color, desaturadoMultiplier);
             if (_image != null) _image.color = MultiplyColor(_image.color, desaturadoMultiplier);
+            Debug.Log($"[ReposicionarPorTurno] Color desaturado aplicado jugador {(playerIndex + 1)} finalSprite={(_spriteRenderer!=null?_spriteRenderer.color.ToString():"none")} finalImage={(_image!=null?_image.color.ToString():"none")}");
         }
     }
 
@@ -411,6 +409,7 @@ public class ReposicionarPorTurno : MonoBehaviour
 
     private void ApplyColor(int playerIndex)
     {
+        Debug.Log("[ReposicionarPorTurno] Aplicando color para jugador " + (playerIndex + 1));
         Color c = colorJugador1;
         switch (playerIndex)
         {
@@ -422,10 +421,16 @@ public class ReposicionarPorTurno : MonoBehaviour
         if (_spriteRenderer != null)
         {
             _spriteRenderer.color = c;
+            Debug.Log($"[ReposicionarPorTurno] Color aplicado a SpriteRenderer ({gameObject.name}) = {c}");
         }
         if (_image != null)
         {
             _image.color = c;
+            Debug.Log($"[ReposicionarPorTurno] Color aplicado a Image ({gameObject.name}) = {c}");
+        }
+        if (_spriteRenderer == null && _image == null)
+        {
+            Debug.LogWarning("[ReposicionarPorTurno] No se encontró SpriteRenderer ni Image para aplicar color en objeto " + gameObject.name);
         }
     }
 

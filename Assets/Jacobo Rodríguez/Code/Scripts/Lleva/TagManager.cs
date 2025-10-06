@@ -195,7 +195,8 @@ public class TagManager : MonoBehaviour
             {
                 if (rep != null)
                 {
-                    rep.ReposicionarPorEventoJugador(eliminatedIdx0, mover:true, recolorear:true, instant:true);
+                    rep.ReposicionarPorEventoJugador(eliminatedIdx0, mover: true, recolorear: true, instant: true);
+                    Debug.Log("[TagManager] Reposicionando por evento jugador eliminado." + eliminatedIdx0);
                 }
             }
         }
