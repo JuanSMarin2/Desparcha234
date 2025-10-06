@@ -15,7 +15,11 @@ public class PlayerTag : MonoBehaviour
 
     [Header("Transferencia Tag")] 
     [SerializeField] private float transferCooldown = 0.3f;
+    [Tooltip("Usar colisiones físicas (OnCollisionEnter2D) en lugar de triggers para transferir")] [SerializeField] private bool usarColisionFisica = false;
+    [Tooltip("Si true mantiene también el trigger para otras detecciones (dual)")] [SerializeField] private bool mantenerTriggerParaDeteccion = false;
+
     private float _lastTransferTime = -999f;
+    private int _lastTransferFrame = -999;
 
     private bool _isTagged;
     private Movimiento _mov;
@@ -55,19 +59,40 @@ public class PlayerTag : MonoBehaviour
         if (outlineObject) outlineObject.SetActive(_isTagged);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    // Lógica central de transferencia (trigger o colisión)
+    private void HandleTagTransfer(PlayerTag otherTag)
     {
-        if (!_isTagged) return; // sólo el que tiene tag puede transferirlo
-        if (Time.time - _lastTransferTime < transferCooldown) return;
-        var otherTag = other.GetComponentInParent<PlayerTag>();
+        if (!_isTagged) return; // solo el actual taggeado transfiere
         if (otherTag == null || otherTag == this) return;
         if (otherTag._isTagged) return; // ya lo tiene
-        // Transferir
+        if (Time.time - _lastTransferTime < transferCooldown) return;
+        if (Time.frameCount == _lastTransferFrame) return; // evitar doble en mismo frame
+
         _lastTransferTime = Time.time;
-        otherTag._lastTransferTime = Time.time; // protege del rebote inmediato
+        otherTag._lastTransferTime = Time.time;
+        _lastTransferFrame = Time.frameCount;
+        otherTag._lastTransferFrame = Time.frameCount;
+
+        // Transferir: este jugador deja de estar tag y el otro lo recibe
         SetTagged(false);
         otherTag.SetTagged(true);
+        // Rotar 180° al que entregó el tag (media vuelta)
+        transform.Rotate(0f, 0f, 180f);
         TagManager.Instance?.NotifyTagChanged(this, otherTag);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (usarColisionFisica && !mantenerTriggerParaDeteccion) return; // ignorar triggers si se usa colisión física pura
+        var otherTag = other.GetComponentInParent<PlayerTag>();
+        HandleTagTransfer(otherTag);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!usarColisionFisica) return;
+        var otherTag = collision.collider.GetComponentInParent<PlayerTag>();
+        HandleTagTransfer(otherTag);
     }
 
     public void EliminarJugador()
