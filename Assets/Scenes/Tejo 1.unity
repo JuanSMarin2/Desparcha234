@@ -5000,8 +5000,8 @@ MonoBehaviour:
   controlDuration: 3
   startActive: 1
   useLimits: 1
-  minLimits: {x: -5, y: -2}
-  maxLimits: {x: 4.5, y: 3.3}
+  minLimits: {x: -3.33, y: -1.5}
+  maxLimits: {x: 3, y: 2.3}
   tutorialManagerTejo: {fileID: 198426247}
 --- !u!1 &563616302
 GameObject:
@@ -10010,11 +10010,11 @@ MonoBehaviour:
   initialTargetPos: {x: 0.3, y: -2.5, z: 0}
   targetObject: {fileID: 566011067}
   moveRange: 3
-  controlDuration: 3
+  controlDuration: 30
   startActive: 1
   useLimits: 1
-  minLimits: {x: -5, y: -1}
-  maxLimits: {x: 4.5, y: 4.3}
+  minLimits: {x: -3.33, y: -0.3}
+  maxLimits: {x: 3, y: 3.2}
   tutorialManagerTejo: {fileID: 198426247}
 --- !u!1 &1094773918
 GameObject:
@@ -17720,11 +17720,11 @@ MonoBehaviour:
   initialTargetPos: {x: 0.3, y: -0.5, z: 0}
   targetObject: {fileID: 851472993}
   moveRange: 3
-  controlDuration: 30
+  controlDuration: 3
   startActive: 1
   useLimits: 1
-  minLimits: {x: -4, y: -2.3}
-  maxLimits: {x: 3.5, y: 1.4}
+  minLimits: {x: -3.33, y: -2.3}
+  maxLimits: {x: 3, y: 1.4}
   tutorialManagerTejo: {fileID: 198426247}
 --- !u!1 &2131863669
 GameObject:
