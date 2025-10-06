@@ -13113,7 +13113,7 @@ MonoBehaviour:
   velocidadSubida: 1.5
   velocidadBajada: 0.5
   barraDeFuerza: {fileID: 1214087833}
-  barraOffset: {x: 1.7, y: -1.6, z: 0}
+  barraOffset: {x: 1.3, y: -0.8, z: 0}
 --- !u!1 &1521011295
 GameObject:
   m_ObjectHideFlags: 0
