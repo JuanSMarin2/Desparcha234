@@ -48,6 +48,7 @@ public class TagManager : MonoBehaviour
     void Start()
     {
         CollectPlayers();
+        PrunePlayersByRoundData();
         StartNewRoundInitial();
     }
 
@@ -79,14 +80,33 @@ public class TagManager : MonoBehaviour
         if (debugLogs) Debug.Log($"[TagManager] Jugadores detectados: {_players.Count}");
     }
 
+    private void PrunePlayersByRoundData()
+    {
+        var rd = RoundData.instance;
+        if (rd == null) return;
+        int maxPlayers = Mathf.Max(0, rd.numPlayers);
+        int before = _players.Count;
+        _players.RemoveAll(p => p == null || p.PlayerIndex > maxPlayers || p.PlayerIndex <= 0);
+        if (debugLogs && before != _players.Count)
+        {
+            Debug.Log($"[TagManager] PrunePlayersByRoundData: filtrados {before - _players.Count} jugadores fuera de rango (numPlayers={maxPlayers}). Quedan {_players.Count} activos.");
+        }
+    }
+
     private void StartNewRoundInitial()
     {
+        PrunePlayersByRoundData();
         if (_players.Count == 0)
         {
-            if (debugLogs) Debug.LogWarning("[TagManager] No hay jugadores.");
+            if (debugLogs) Debug.LogWarning("[TagManager] No hay jugadores tras prune.");
             return;
         }
-        PlayerTag chosen = DetermineInitialTagged();
+        PlayerTag chosen = DetermineInitialTaggedFromActive();
+        if (chosen == null)
+        {
+            chosen = GetRandomActivePlayer();
+            if (debugLogs) Debug.LogWarning("[TagManager] Fallback a random por chosen null");
+        }
         AssignTag(chosen, null);
         _timeRemaining = roundDuration;
         _roundActive = true;
@@ -95,18 +115,64 @@ public class TagManager : MonoBehaviour
 
     public void RestartRound()
     {
+        PrunePlayersByRoundData();
         if (_players.Count <= 1)
         {
-            // Fin del juego: un solo jugador queda
             if (debugLogs) Debug.Log("[TagManager] Juego terminado. Ganador pendiente de panel.");
             _roundActive = false;
             return;
         }
         _timeRemaining = roundDuration;
-        PlayerTag randomTagged = _players[Random.Range(0, _players.Count)];
+        PlayerTag randomTagged = GetRandomActivePlayer();
         AssignTag(randomTagged, _currentTagged);
         if (debugLogs) Debug.Log($"[TagManager] Nueva ronda. Tagged=Player{randomTagged.PlayerIndex}");
         _roundActive = true;
+    }
+
+    private PlayerTag GetRandomActivePlayer()
+    {
+        var rd = RoundData.instance;
+        int maxPlayers = rd ? rd.numPlayers : 4;
+        List<PlayerTag> pool = _players.FindAll(p => p != null && p.PlayerIndex > 0 && p.PlayerIndex <= maxPlayers);
+        if (pool.Count == 0)
+        {
+            if (debugLogs) Debug.LogWarning("[TagManager] GetRandomActivePlayer sin candidatos válidos.");
+            return null;
+        }
+        return pool[Random.Range(0, pool.Count)];
+    }
+
+    private PlayerTag DetermineInitialTaggedFromActive()
+    {
+        var rd = RoundData.instance;
+        int maxPlayers = rd ? rd.numPlayers : 4;
+        List<PlayerTag> activos = _players.FindAll(p => p != null && p.PlayerIndex <= maxPlayers && p.PlayerIndex > 0);
+        if (activos.Count == 0) return null;
+        if (rd != null && rd.totalPoints != null && rd.totalPoints.Length >= maxPlayers)
+        {
+            int bestIndex1Based = -1;
+            int bestScore = int.MinValue;
+            bool tie = false;
+            foreach (var p in activos)
+            {
+                int idx0 = p.PlayerIndex - 1;
+                if (idx0 < 0 || idx0 >= rd.totalPoints.Length) continue;
+                int sc = rd.totalPoints[idx0];
+                if (sc > bestScore)
+                {
+                    bestScore = sc; bestIndex1Based = p.PlayerIndex; tie = false;
+                }
+                else if (sc == bestScore)
+                {
+                    tie = true;
+                }
+            }
+            if (bestIndex1Based > 0 && !tie)
+            {
+                foreach (var p in activos) if (p.PlayerIndex == bestIndex1Based) return p;
+            }
+        }
+        return activos[Random.Range(0, activos.Count)];
     }
 
     private PlayerTag DetermineInitialTagged()
@@ -154,6 +220,11 @@ public class TagManager : MonoBehaviour
 
     private void AssignTag(PlayerTag newTagged, PlayerTag oldTagged)
     {
+        if (newTagged == null)
+        {
+            if (debugLogs) Debug.LogWarning("[TagManager] AssignTag recibido newTagged null");
+            return;
+        }
         if (oldTagged != null && oldTagged != newTagged)
         {
             oldTagged.SetTagged(false, false);
@@ -225,7 +296,8 @@ public class TagManager : MonoBehaviour
             if (_players.Count == 1)
             {
                 _pendingWinnerIndex0Based = _players[0].PlayerIndex - 1;
-                Time.timeScale = 0f;
+                // Antes: Time.timeScale = 0f;  -> Se elimina para permitir animación a escala normal
+                if (debugLogs) Debug.Log("[TagManager] Un solo jugador restante: no se pausa (timeScale permanece) para reproducir animación de victoria.");
                 if (panelVictoria != null)
                 {
                     panelVictoria.ShowWinner(_players[0].PlayerIndex);

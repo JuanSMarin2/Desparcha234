@@ -513,6 +513,11 @@ MonoBehaviour:
   - {fileID: 1053601456}
   textoGanador: {fileID: 667505619}
   formatoGanador: Jugador {0} gana
+  victoryAnimator: {fileID: 1729735976}
+  victoryStateName: Victory
+  usarTrigger: 0
+  fallbackSiNoEvent: 1
+  fallbackDelay: 4
 --- !u!224 &180100634
 RectTransform:
   m_ObjectHideFlags: 0
@@ -869,7 +874,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05ba35d3d5302094eaf5ac841d56ff46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roundDuration: 10
+  roundDuration: 20
   timerText: {fileID: 787345464}
   playerButtons:
   - {fileID: 1864842365}
@@ -1433,7 +1438,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -1537,8 +1542,8 @@ MonoBehaviour:
   taggedSpeed: 5
   outlineObject: {fileID: 867696804}
   transferCooldown: 0.3
-  usarColisionFisica: 0
-  mantenerTriggerParaDeteccion: 1
+  usarColisionFisica: 1
+  mantenerTriggerParaDeteccion: 0
 --- !u!1 &694211683
 GameObject:
   m_ObjectHideFlags: 0
@@ -2665,8 +2670,8 @@ MonoBehaviour:
   taggedSpeed: 5
   outlineObject: {fileID: 1290906888}
   transferCooldown: 0.3
-  usarColisionFisica: 0
-  mantenerTriggerParaDeteccion: 1
+  usarColisionFisica: 1
+  mantenerTriggerParaDeteccion: 0
 --- !u!1 &1230263819
 GameObject:
   m_ObjectHideFlags: 0
@@ -2849,7 +2854,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -2980,8 +2985,8 @@ MonoBehaviour:
   taggedSpeed: 5
   outlineObject: {fileID: 155387638}
   transferCooldown: 0.3
-  usarColisionFisica: 0
-  mantenerTriggerParaDeteccion: 1
+  usarColisionFisica: 1
+  mantenerTriggerParaDeteccion: 0
 --- !u!1 &1290906888
 GameObject:
   m_ObjectHideFlags: 0
@@ -3788,7 +3793,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -3892,8 +3897,8 @@ MonoBehaviour:
   taggedSpeed: 5
   outlineObject: {fileID: 1230263819}
   transferCooldown: 0.3
-  usarColisionFisica: 0
-  mantenerTriggerParaDeteccion: 1
+  usarColisionFisica: 1
+  mantenerTriggerParaDeteccion: 0
 --- !u!1 &1687227326
 GameObject:
   m_ObjectHideFlags: 0

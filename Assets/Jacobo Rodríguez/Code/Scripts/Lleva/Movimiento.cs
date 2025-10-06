@@ -29,6 +29,8 @@ public class Movimiento : MonoBehaviour
     private ContactFilter2D _contactFilter;
     private RaycastHit2D[] _hits = new RaycastHit2D[8];
 
+    private int _rotationDir = -1; // dirección actual (1 o -1)
+
     private void Awake()
     {
         int idx = Mathf.Clamp(PlayerIndex1Based,1,4) - 1;
@@ -59,7 +61,7 @@ public class Movimiento : MonoBehaviour
         // Rotación idle sólo visual aquí (física en FixedUpdate) cuando no se sostiene
         if (!_holdRequested)
         {
-            transform.Rotate(0f, 0f, -rotationSpeed * Time.deltaTime);
+            transform.Rotate(0f, 0f, _rotationDir * rotationSpeed * Time.deltaTime);
         }
 
         // Soporte alternativo: barra espaciadora controla al jugador 1 (hold)
@@ -142,7 +144,7 @@ public class Movimiento : MonoBehaviour
     }
 
     // Iniciar movimiento (pointer down / button down)
-    public void StartHoldMove() { _holdRequested = true; }
+    public void StartHoldMove() { if(!_holdRequested){ _rotationDir *= -1; } _holdRequested = true; }
     // Detener movimiento (pointer up / button up)
     public void StopHoldMove() { _holdRequested = false; }
 
