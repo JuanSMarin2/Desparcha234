@@ -14,7 +14,11 @@ public class UiManager : MonoBehaviour
     [SerializeField] private TMP_Text puntosJugador3;
     [SerializeField] private TMP_Text puntosJugador4;
 
-    [Header("Intentos restantes (opcional)")]
+    [Header("Ronda (etapa global)")]
+    [Tooltip("Texto único que muestra la ronda actual (Stage)")]
+    [SerializeField] private TMP_Text rondaTexto;
+
+    [Header("Intentos restantes (opcional / obsoleto)")]
     [SerializeField] private TMP_Text intentosJugador1;
     [SerializeField] private TMP_Text intentosJugador2;
     [SerializeField] private TMP_Text intentosJugador3;
@@ -26,10 +30,11 @@ public class UiManager : MonoBehaviour
     [SerializeField] private GameObject botonJugador3;
     [SerializeField] private GameObject botonJugador4;
 
-    [Header("Advertencia recoger bola")]
+    [Header("Advertencias")]
     [Tooltip("UI de advertencia para avisar que recoja la bola (activar/desactivar)")]
     [SerializeField] private GameObject panelAdvertenciaRecoger;
 
+    [SerializeField] private GameObject AdvertenciaAtrapa;
   
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -56,6 +61,28 @@ public class UiManager : MonoBehaviour
 
         // Asegurar que el panel de advertencia inicie oculto
         if (panelAdvertenciaRecoger != null) panelAdvertenciaRecoger.SetActive(false);
+
+        if (bolita == null) bolita = FindAnyObjectByType<Bolita>();
+        if (bolita != null)
+        {
+            bolita.OnEstadoCambio += OnBolitaEstadoCambio;
+            // Forzar estado inicial
+            OnBolitaEstadoCambio(bolita.Estado);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (bolita != null) bolita.OnEstadoCambio -= OnBolitaEstadoCambio;
+    }
+
+    private void OnBolitaEstadoCambio(Bolita.EstadoLanzamiento estado)
+    {
+        if (rondaTexto == null) return;
+        // Ocultar mientras esté en el aire, mostrar en otros estados
+        bool visible = estado != Bolita.EstadoLanzamiento.EnElAire;
+        if (rondaTexto.gameObject.activeSelf != visible)
+            rondaTexto.gameObject.SetActive(visible);
     }
 
     private static int GetSafe(int[] arr, int idx)
@@ -66,16 +93,6 @@ public class UiManager : MonoBehaviour
 
     // Update is called once per frame
   
-
-   
-
-  
-
-   
-
-
-
-
     public void MostrarBotonJugadorActivo(int turnoActual)
     {
         // Ocultar todos primero
@@ -133,20 +150,35 @@ public class UiManager : MonoBehaviour
                 return;
         }
     }
+    public void MostrarTextoAtrapa()
+    {
+        if (AdvertenciaAtrapa != null)
+        {
+            AdvertenciaAtrapa.SetActive(true);
+        Debug.Log("Advertencia Atrapa Activada");
+        }     
+    }
 
+    public void OcultarTextoAtrapa()
+    {
+        if (AdvertenciaAtrapa != null)
+        {
+            AdvertenciaAtrapa.SetActive(false);
+        Debug.Log("Advertencia Atrapa Desactivada");
+        }     
+    }
     // Nuevo: actualizar intentos para un jugador (índice 0-based)
     public void ActualizarIntentosJugador(int playerIndexZeroBased, int intentosRestantes)
     {
-        TMP_Text target = null;
-        switch (playerIndexZeroBased)
+        // Obsoleto: ya no se muestran intentos por jugador; se conserva para evitar errores de referencias.
+    }
+
+    public void ActualizarRonda(int ronda)
+    {
+        if (rondaTexto != null)
         {
-            case 0: target = intentosJugador1; break;
-            case 1: target = intentosJugador2; break;
-            case 2: target = intentosJugador3; break;
-            case 3: target = intentosJugador4; break;
+            rondaTexto.text = "Ronda " + Mathf.Max(1, ronda) + "/3";
         }
-        if (target == null) return; // opcional, no hay UI asignada
-        target.text = "Tiros(" + Mathf.Max(0, intentosRestantes)+")";
     }
 
     // Mostrar/ocultar advertencia de recoger la bola

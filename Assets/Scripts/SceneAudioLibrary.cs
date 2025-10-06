@@ -20,15 +20,45 @@ public class SceneAudioLibrary : MonoBehaviour
     public string autoPlayMusicKey;
     public bool autoLoopMusic = true;
 
+    [Header("Persistencia Opcional")]
+    [Tooltip("Si está activo, este contenedor NO se destruye al cambiar de escena y sólo registra sus clips una vez.")]
+    [SerializeField] private bool persistAcrossScenes = false;
+
+    // Guard para no registrar/autoplay dos veces cuando es persistente
+    private bool _alreadyRegisteredPersistent = false;
+
+    private void Awake()
+    {
+        if (persistAcrossScenes)
+        {
+            // Garantizar que sobreviva a los loads de escena
+            DontDestroyOnLoad(gameObject);
+        }
+    }
+
     private void OnEnable()
     {
         if (SoundManager.instance != null)
         {
-            SoundManager.instance.RegisterBatch(this);
-            if (!string.IsNullOrWhiteSpace(autoPlayMusicKey))
+            // Evitar doble registro si es persistente y ya se registró antes
+            if (!persistAcrossScenes || !_alreadyRegisteredPersistent)
             {
-                string full = BuildKey(autoPlayMusicKey);
-                SoundManager.instance.PlayMusic(full, autoLoopMusic);
+                SoundManager.instance.RegisterBatch(this);
+                if (!string.IsNullOrWhiteSpace(autoPlayMusicKey))
+                {
+                    string full = BuildKey(autoPlayMusicKey);
+                    SoundManager.instance.PlayMusic(full, autoLoopMusic);
+                }
+                if (persistAcrossScenes)
+                {
+                    _alreadyRegisteredPersistent = true;
+                    Debug.Log($"[SceneAudioLibrary] Registro persistente inicial de '{gameId}' completado.");
+                }
+            }
+            else
+            {
+                // Omitimos registro repetido (clips ya están en diccionario)
+                //Debug.Log($"[SceneAudioLibrary] '{gameId}' persistente ya registrado previamente: se omite.");
             }
         }
     }
@@ -37,6 +67,11 @@ public class SceneAudioLibrary : MonoBehaviour
     {
         if (SoundManager.instance != null)
         {
+            // Bibliotecas persistentes mantienen sus clips incluso si se desactivan manualmente (evita cortes).
+            if (persistAcrossScenes)
+            {
+                return; // no desregistrar
+            }
             SoundManager.instance.UnregisterBatch(this);
         }
     }
