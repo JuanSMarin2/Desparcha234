@@ -7,6 +7,9 @@ public class StartTimintg : MonoBehaviour
     [SerializeField] private float delaySeconds = 3f;
 
     [SerializeField] TMP_Text text;
+    // Expose remaining and total seconds so other scripts (like Semaforo) can read the timer
+    public float RemainingSeconds { get; private set; }
+    public float TotalSeconds => delaySeconds;
     void Start()
     {
         StartCoroutine(DisableAfterDelay());
@@ -18,6 +21,9 @@ public class StartTimintg : MonoBehaviour
         // Update the text each frame until the delay elapses
         while (remaining > 0f)
         {
+            // expose current remaining time
+            RemainingSeconds = remaining;
+
             if (text != null)
             {
                 // Show seconds left as an integer (ceil to show 3..2..1)
@@ -28,8 +34,9 @@ public class StartTimintg : MonoBehaviour
             yield return null;
         }
 
-        // Final update to show 0
-        if (text != null) text.text = "0";
+    // Final update to show 0
+    RemainingSeconds = 0f;
+    if (text != null) text.text = "0";
 
         if (pantalla != null)
         {
