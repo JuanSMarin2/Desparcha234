@@ -1923,13 +1923,13 @@ MonoBehaviour:
   - {fileID: 1465349375}
   skinPrices: 000000000a000000
   skinVisuals:
-  - buttonImage: {fileID: 1363840301}
+  - buttonImage: {fileID: 1289760920}
     spritePerPlayer:
     - {fileID: 3232231290688778859, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: 478838189770312867, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: -6617828489231529575, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: 307226126855071095, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
-  - buttonImage: {fileID: 1465349378}
+  - buttonImage: {fileID: 347624814}
     spritePerPlayer:
     - {fileID: -9142250121294296064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: 6022938833314608076, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}

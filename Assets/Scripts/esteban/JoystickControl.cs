@@ -205,7 +205,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         if (col != null) col.enabled = false;
 
         Vector3 start = spawnPoint.position;
-        float distanciaMax = 10f;
+        float distanciaMax = 5f;
         float distancia = Mathf.Lerp(0.001f, distanciaMax, valor);
         Vector3 end = start + new Vector3(0f, 1f, 0f) * distancia;
 
