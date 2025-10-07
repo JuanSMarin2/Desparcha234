@@ -124,7 +124,7 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
 
         // ocultamos el texto al acabar
         if (timerText != null)
-            timerText.text = "0.0";
+            timerText.text = "0.0";        
 
         // Reactivar el botón de reactivación del tutorial
         if (tutorialManagerTejo != null && tutorialManagerTejo.ContinuarButton != null)

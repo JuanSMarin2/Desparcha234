@@ -16,7 +16,7 @@ public class TutorialManagerTejo : MonoBehaviour
          //MostrarPanel(0);      
     }
 
-    private void MostrarPanel(int index)
+    public void MostrarPanel(int index)
     {
         if (index >= 0 && index < tutorialPanels.Length)
         {
