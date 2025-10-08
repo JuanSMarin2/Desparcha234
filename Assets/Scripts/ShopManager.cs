@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class ShopManager : MonoBehaviour
 {
@@ -19,20 +20,30 @@ public class ShopManager : MonoBehaviour
     [Tooltip("Precio por skin, por índice")]
     [SerializeField] private int[] skinPrices;
 
+    [System.Serializable]
+    public class ShopSkinVisual
+    {
+        [Tooltip("Image que muestra el sprite de este botón de compra")]
+        public Image buttonImage;
+        [Tooltip("Sprites por jugador para este botón de skin. Index 0..3 = Jugador 1..4")]
+        public Sprite[] spritePerPlayer = new Sprite[4];
+    }
+
+    [Header("Visual por skin y jugador")]
+    [Tooltip("Debe alinear su longitud con buyButtons/skinPrices por índice de skin")]
+    [SerializeField] private ShopSkinVisual[] skinVisuals;
+
     [Header("Feedback opcional")]
     [SerializeField] private TMP_Text infoText;
     [SerializeField] private GameObject selectPlayerPanel;
 
     private int selectedPlayer = 0;
 
-
-
     void Start()
     {
- 
-
-
+        if (selectPlayerPanel) selectPlayerPanel.SetActive(true);
         RefreshMoneyUI();
+  
     }
 
     public void SelectBuyer(int playerIndex)
@@ -40,7 +51,17 @@ public class ShopManager : MonoBehaviour
         selectedPlayer = Mathf.Clamp(playerIndex, 0, 3);
         RefreshShopButtons();
         if (infoText) infoText.text = "Comprador: Jugador " + (selectedPlayer + 1);
-        selectPlayerPanel.gameObject.SetActive(false);
+        TogglePanel();
+    }
+
+    public void TogglePanel()
+    {
+        if (selectPlayerPanel) selectPlayerPanel.SetActive(!selectPlayerPanel.activeSelf);
+    }
+
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void BuySkin(int number)
@@ -54,7 +75,6 @@ public class ShopManager : MonoBehaviour
         if (gd.IsOwned(selectedPlayer, number))
         {
             if (infoText) infoText.text = "Ya posees esta skin.";
-            // Desactivar botón por si quedó activo
             SetBuyButtonActive(number, false);
             return;
         }
@@ -66,13 +86,10 @@ public class ShopManager : MonoBehaviour
             return;
         }
 
-        // Comprar
         gd.SetOwned(selectedPlayer, number, true);
         if (infoText) infoText.text = "Comprada skin " + number + " para Jugador " + (selectedPlayer + 1);
 
-        // Desactivar botón de comprar para esta skin
         SetBuyButtonActive(number, false);
-
         RefreshMoneyUI();
     }
 
@@ -107,25 +124,39 @@ public class ShopManager : MonoBehaviour
             Debug.LogWarning("Indice de skin fuera de rango: " + index);
             return false;
         }
-        // buyButtons puede ser menor si algunas skins no tienen botón. Solo se validará en SetBuyButtonActive.
         return true;
     }
 
     private void RefreshShopButtons()
     {
         var gd = GameData.instance;
-        if (gd == null || buyButtons == null) return;
+        if (gd == null) return;
 
-        for (int i = 0; i < buyButtons.Length; i++)
+        int skinsCount = skinPrices != null ? skinPrices.Length : 0;
+
+        for (int i = 0; i < skinsCount; i++)
         {
             bool owned = gd.IsOwned(selectedPlayer, i);
             SetBuyButtonActive(i, !owned);
+
+            // Actualizar sprite del botón según el jugador seleccionado
+            if (skinVisuals != null && i < skinVisuals.Length && skinVisuals[i] != null)
+            {
+                var vis = skinVisuals[i];
+                if (vis.buttonImage != null &&
+                    vis.spritePerPlayer != null &&
+                    selectedPlayer < vis.spritePerPlayer.Length &&
+                    vis.spritePerPlayer[selectedPlayer] != null)
+                {
+                    vis.buttonImage.sprite = vis.spritePerPlayer[selectedPlayer];
+                }
+            }
         }
     }
 
     private void SetBuyButtonActive(int index, bool active)
     {
-        if (index < 0 || index >= buyButtons.Length) return;
+        if (buyButtons == null || index < 0 || index >= buyButtons.Length) return;
         if (buyButtons[index] != null)
             buyButtons[index].SetActive(active);
     }
@@ -135,7 +166,4 @@ public class ShopManager : MonoBehaviour
         if (moneyText && GameData.instance != null)
             moneyText.text = "Dinero: " + GameData.instance.Money;
     }
- 
-
-
 }

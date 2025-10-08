@@ -16,12 +16,12 @@ public class FinalResultsManager : MonoBehaviour
     [SerializeField] private Button mainMenuButton;           // Se activa al terminar conversion
 
     [Header("Flujo")]
-    [SerializeField] private string shopSceneName = "Shop";
+    [SerializeField] private string shopSceneName = "Tienda";
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
     [Header("Economia")]
     [SerializeField] private int coinsPerPoint = 10;          // Monedas por punto
-    [SerializeField] private float conversionRate = 5f;      // Puntos convertidos por segundo en la animacion
+    [SerializeField] private float conversionRate = 10f;      // Puntos convertidos por segundo en la animacion
     [SerializeField] private GameObject[] icons;
 
     private bool conversionRunning = false;
@@ -116,13 +116,13 @@ public class FinalResultsManager : MonoBehaviour
 
         // Mensaje inicial
         if (winnerText)
-            winnerText.text = "Los puntos ganados se convierten en dinero...";
+            winnerText.text = "";
 
         if (conversionText) conversionText.gameObject.SetActive(true);
         if (continueButton) continueButton.gameObject.SetActive(false);
 
         // Duración fija de animación
-        float duration = 5f;
+        float duration = 1f;
         float elapsed = 0f;
 
         while (elapsed < duration)
@@ -135,14 +135,14 @@ public class FinalResultsManager : MonoBehaviour
             int shownMoney = Mathf.RoundToInt(Mathf.Lerp(baseMoney, baseMoney + coinsTotal, t));
 
             if (conversionText)
-                conversionText.text = $"PuntosTotales: {shownPoints} --- Dinero: {shownMoney}";
+                conversionText.text = $"Puntos: {shownPoints} --- Dinero: {shownMoney}";
 
             yield return null;
         }
 
         // Final fijo
         if (conversionText)
-            conversionText.text = $"PuntosTotales: 0 --- Dinero: {baseMoney + coinsTotal}";
+            conversionText.text = $"Puntos: 0 --- Dinero: {baseMoney + coinsTotal}";
 
         if (GameData.instance != null && coinsTotal > 0)
             GameData.instance.AddMoney(coinsTotal);

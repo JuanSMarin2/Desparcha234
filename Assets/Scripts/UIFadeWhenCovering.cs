@@ -6,20 +6,22 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CanvasGroup))]
 public class UIFadeWhenCovering : MonoBehaviour
 {
-    [SerializeField] private RectTransform uiRect;
-    [SerializeField] private Canvas canvas;
-    [SerializeField] private GraphicRaycaster raycaster;
-    [SerializeField] private Camera worldCamera;
-    [SerializeField] private LayerMask ignoreLayers = 10;
+    [Header("Referencias")]
+    [SerializeField] private RectTransform uiRect;       // El panel UI que se va a volver transparente
+    [SerializeField] private Canvas canvas;              // El canvas donde vive
+    [SerializeField] private GraphicRaycaster raycaster; // Para detectar UI debajo del puntero
+    [SerializeField] private Camera worldCamera;         // Cámara ortográfica 2D
 
-    [Header("Objetos a NO tapar")]
-    [SerializeField] private Transform[] targets;        // objetos del mundo
-    [SerializeField] private Renderer[] targetRenderers; // opcional: para usar bounds.center
+    [Header("Objetos que NO debe tapar")]
+    [SerializeField] private Transform[] targets;        // Objetos del mundo 2D (ej: personajes, ítems)
 
-    [Header("Ajustes")]
-    [SerializeField] private float visibleAlpha = 1f;
-    [SerializeField] private float hiddenAlpha = 0.2f;
-    [SerializeField] private float lerpSpeed = 10f;
+    [Header("Ajustes de transparencia")]
+    [SerializeField] private float visibleAlpha = 1f;    // Opacidad normal
+    [SerializeField] private float hiddenAlpha = 0.2f;   // Opacidad cuando tapa algo
+    [SerializeField] private float lerpSpeed = 10f;      // Velocidad de transición
+
+    [Header("Capas a ignorar (por ejemplo, UI_Joystick)")]
+    [SerializeField] private LayerMask ignoreLayers;
 
     private CanvasGroup group;
     private PointerEventData ped;
@@ -32,6 +34,7 @@ public class UIFadeWhenCovering : MonoBehaviour
         if (!raycaster) raycaster = canvas?.GetComponent<GraphicRaycaster>();
         if (!worldCamera) worldCamera = Camera.main;
         if (!uiRect) uiRect = GetComponent<RectTransform>();
+
         ped = new PointerEventData(EventSystem.current);
     }
 
@@ -44,14 +47,10 @@ public class UIFadeWhenCovering : MonoBehaviour
         for (int i = 0; i < targets.Length; i++)
         {
             var t = targets[i];
-            if (!t || !t.gameObject.activeInHierarchy) 
+            if (!t || !t.gameObject.activeInHierarchy)
                 continue;
 
-            Vector3 worldPoint = (targetRenderers != null && i < targetRenderers.Length && targetRenderers[i] != null)
-                ? targetRenderers[i].bounds.center
-                : t.position;
-
-            Vector3 sp = worldCamera.WorldToScreenPoint(worldPoint);
+            Vector3 sp = worldCamera.WorldToScreenPoint(t.position);
             if (sp.z <= 0f) continue;
 
             bool insideRect = RectTransformUtility.RectangleContainsScreenPoint(
@@ -59,30 +58,32 @@ public class UIFadeWhenCovering : MonoBehaviour
                 sp,
                 canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera
             );
+
             if (!insideRect) continue;
 
             ped.position = sp;
             hits.Clear();
             raycaster.Raycast(ped, hits);
 
-            if (hits.Count > 0)
+            foreach (var hit in hits)
             {
-                // --- CAMBIO PRINCIPAL: Filtrado por capa ---
-                foreach (var hit in hits)  // Iteramos todos los hits, no solo el primero
-                {
-                    // Si el objeto está en una capa ignorada, lo saltamos
-                    if (ignoreLayers == (ignoreLayers | (1 << hit.gameObject.layer)))
-                        continue;
+                // Opción 2 — Ignorar la capa del joystick
+                if ((ignoreLayers.value & (1 << hit.gameObject.layer)) != 0)
+                    continue;
 
-                    var top = hit.gameObject.transform;
-                    if (top == uiRect || top.IsChildOf(uiRect))
-                    {
-                        shouldHide = true;
-                        break;  // Salir del foreach si encontramos un hit válido
-                    }
+                // Opción 4 — Debug visual rápido
+                Debug.Log("Bloqueado por: " + hit.gameObject.name);
+
+                // Si el hit pertenece a este UI o sus hijos, significa que está tapando
+                if (hit.gameObject.transform == uiRect || hit.gameObject.transform.IsChildOf(uiRect))
+                {
+                    shouldHide = true;
+                    break;
                 }
-                if (shouldHide) break;  // Salir del for si ya debemos ocultar
             }
+
+            if (shouldHide)
+                break;
         }
 
         float targetAlpha = shouldHide ? hiddenAlpha : visibleAlpha;
