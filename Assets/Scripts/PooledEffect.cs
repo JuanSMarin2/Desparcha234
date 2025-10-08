@@ -1,29 +1,27 @@
-// PooledEffect.cs
 using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Animator))]
 public class PooledEffect : MonoBehaviour
 {
-    private SpriteRenderer sr;
+    private Animator animator;
     private Coroutine fadeRoutine;
 
     void Awake()
     {
-        sr = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     // Llamado por el pool al activar
-    public void Play(Sprite sprite, float delay, float fadeDuration)
+    public void Play(string trigger, float delay, float fadeDuration)
     {
         gameObject.SetActive(true);
 
-        if (sr)
+        if (animator)
         {
-            sr.sprite = sprite;
-            var c = sr.color;
-            c.a = 1f;
-            sr.color = c;
+            animator.ResetTrigger("Launch");
+            animator.ResetTrigger("Impact");
+            animator.SetTrigger(trigger);
         }
 
         if (fadeRoutine != null) StopCoroutine(fadeRoutine);
@@ -33,21 +31,7 @@ public class PooledEffect : MonoBehaviour
     private IEnumerator FadeAndRecycle(float delay, float fadeDuration)
     {
         yield return new WaitForSeconds(delay);
-
-        if (sr)
-        {
-            float t = 0f;
-            Color c = sr.color;
-            while (t < fadeDuration)
-            {
-                t += Time.deltaTime;
-                c.a = Mathf.Lerp(1f, 0f, t / fadeDuration);
-                sr.color = c;
-                yield return null;
-            }
-        }
-
-        // Devolver al pool sin destruir
+        yield return new WaitForSeconds(fadeDuration);
         EffectPool.Instance.Recycle(this);
     }
 }

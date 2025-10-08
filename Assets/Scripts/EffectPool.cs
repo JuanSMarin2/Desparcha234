@@ -1,4 +1,3 @@
-// EffectPool.cs
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -14,7 +13,11 @@ public class EffectPool : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
 
         // Precalentar
@@ -26,23 +29,39 @@ public class EffectPool : MonoBehaviour
         }
     }
 
-    public void Spawn(Vector3 position, Sprite sprite, float delay = 0.2f, float fade = 0.3f)
+    /// <summary>
+    /// Spawnea un efecto que reproduce un trigger del Animator (Launch, Impact, etc.).
+    /// </summary>
+    public PooledEffect SpawnTrigger(Vector3 position, string trigger, float delay = 0.2f, float fade = 0.3f)
+    {
+        var effect = GetAvailable();
+        if (effect == null) return null;
+
+        effect.transform.position = position;
+        effect.Play(trigger, delay, fade);
+        return effect;
+    }
+
+    /// <summary>
+    /// Obtiene un efecto libre del pool o crea uno nuevo si se agotaron.
+    /// </summary>
+    private PooledEffect GetAvailable()
     {
         if (pool.Count == 0)
         {
-            // Si se agota, instanciamos uno extra (o puedes ignorar el spawn)
             var extra = Instantiate(effectPrefab, transform);
             extra.gameObject.SetActive(false);
             pool.Enqueue(extra);
         }
-
-        var eff = pool.Dequeue();
-        eff.transform.position = position;
-        eff.Play(sprite, delay, fade);
+        return pool.Dequeue();
     }
 
+    /// <summary>
+    /// Devuelve un efecto al pool.
+    /// </summary>
     public void Recycle(PooledEffect effect)
     {
+        if (effect == null) return;
         effect.gameObject.SetActive(false);
         pool.Enqueue(effect);
     }

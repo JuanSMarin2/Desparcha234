@@ -196,6 +196,7 @@ public class GameRoundManager : MonoBehaviour
 
     private void LoadResultsScene()
     {
+        StopAllCoroutines();
         SceneManager.LoadScene("ResultadosMinijuego");
     }
 }
