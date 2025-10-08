@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1488767644323637426}
   - component: {fileID: 7312748914154842753}
   - component: {fileID: 403891918661951426}
+  - component: {fileID: 5106955560939796511}
   m_Layer: 0
   m_Name: Bomba 1
   m_TagString: Untagged
@@ -68,8 +69,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.74, y: -0.57}
-  m_Radius: 0.6
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.44562173
 --- !u!114 &403891918661951426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,10 +86,10 @@ MonoBehaviour:
   jackSpritesNormal: []
   jackSpritesEspecial: []
   jackSpritesBomba:
-  - {fileID: -7415375663567640634, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
-  - {fileID: -3183247706017676327, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
-  - {fileID: -4571584923481145164, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
-  - {fileID: 5550822443121170120, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
+  - {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
+  - {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
+  - {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
+  - {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
   jackSpritesNormalAmarillo: []
   jackSpritesNormalRojo: []
   jackSpritesNormalVerde: []
@@ -100,6 +101,33 @@ MonoBehaviour:
   _animator: {fileID: 5750589041403251944}
   bolaEnElAireBool: EnElAire
   visualRoot: {fileID: 1488767644323637426}
+--- !u!50 &5106955560939796511
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386566979726624608}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.3
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1001 &6606851564315476777
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -112,17 +140,29 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bomba
       objectReference: {fileID: 0}
+    - target: {fileID: 1033401982420425805, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
+    - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.73
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.59
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.21015857
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
       propertyPath: m_LocalRotation.w
