@@ -27,6 +27,13 @@ public class TagManager : MonoBehaviour
     [Tooltip("Objetos con ReposicionarPorTurno que se ajustarán al target del jugador eliminado")] 
     [SerializeField] private ReposicionarPorTurno[] repositionersOnElimination;
 
+    [Header("Inicio Diferido por Gate")]
+    [Tooltip("Si se asigna y 'esperarDesactivacionGate' es true, la ronda inicia cuando este objeto se desactiva (activeInHierarchy=false)." )]
+    [SerializeField] private GameObject objetoGateInicio; 
+    [SerializeField] private bool esperarDesactivacionGate = true;
+    [Tooltip("Timeout máximo esperando desactivación del gate; si se excede se inicia igualmente.")]
+    [SerializeField] private float gateTimeoutSeconds = 10f;
+
     [Header("Debug")] [SerializeField] private bool debugLogs = true;
 
     private List<PlayerTag> _players = new List<PlayerTag>();
@@ -49,7 +56,17 @@ public class TagManager : MonoBehaviour
     {
         CollectPlayers();
         PrunePlayersByRoundData();
-        StartNewRoundInitial();
+        // Nueva lógica: esperar desactivación de un GameObject gate
+        if (esperarDesactivacionGate && objetoGateInicio != null)
+        {
+            StartCoroutine(CoEsperarDesactivacionEIniciar());
+        }
+        else
+        {
+            if (debugLogs && esperarDesactivacionGate && objetoGateInicio == null)
+                Debug.LogWarning("[TagManager] 'esperarDesactivacionGate' activo pero 'objetoGateInicio' no asignado. Inicia inmediatamente.");
+            StartNewRoundInitial();
+        }
     }
 
     void Update()
@@ -347,5 +364,26 @@ public class TagManager : MonoBehaviour
         if (debugLogs) Debug.Log($"[TagManager] Transferencia tag: {(oldTagged?"P"+oldTagged.PlayerIndex:"none")} -> P{newTagged.PlayerIndex}");
         _currentTagged = newTagged;
         OnTagChanged?.Invoke(oldTagged, newTagged);
+    }
+
+    // Nueva coroutine que reemplaza dependencia de StartTimintg
+    private System.Collections.IEnumerator CoEsperarDesactivacionEIniciar()
+    {
+        if (debugLogs) Debug.Log("[TagManager] Esperando desactivación de gate para iniciar ronda...");
+        float elapsed = 0f;
+        while (objetoGateInicio != null && objetoGateInicio.activeInHierarchy && elapsed < gateTimeoutSeconds)
+        {
+            elapsed += Time.unscaledDeltaTime; // independiente de timeScale
+            yield return null;
+        }
+        if (objetoGateInicio != null && objetoGateInicio.activeInHierarchy)
+        {
+            if (debugLogs) Debug.LogWarning($"[TagManager] Gate no desactivado tras timeout {gateTimeoutSeconds}s -> iniciando igualmente.");
+        }
+        else if (debugLogs)
+        {
+            Debug.Log("[TagManager] Gate desactivado -> inicia Tag round.");
+        }
+        StartNewRoundInitial();
     }
 }

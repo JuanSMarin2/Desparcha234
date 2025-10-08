@@ -24,6 +24,10 @@ public class Semaforo : MonoBehaviour
 		// If timer not set, attempt to find one in scene
 		if (timer == null)
 			timer = Object.FindFirstObjectByType<StartTimintg>();
+
+		var sm = FindFirstObjectByType<SoundManager>();
+		if (sm != null)
+			sm.PlaySfx("semaforo:semaforo");
 	}
 
 	void Update()
