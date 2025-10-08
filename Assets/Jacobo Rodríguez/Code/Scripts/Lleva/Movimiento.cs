@@ -3,7 +3,11 @@ using UnityEngine;
 public class Movimiento : MonoBehaviour
 {
     public enum PlayerSlot { Player1 = 1, Player2 = 2, Player3 = 3, Player4 = 4 }
+    public enum FacingAxis { Up, Right, Down, Left, Custom }
     [Header("Jugador")] [SerializeField] private PlayerSlot playerSlot = PlayerSlot.Player1; // Dropdown en Inspector
+    [Header("Frente / Dirección Local")]
+    [Tooltip("Eje local que se considera 'frente' para avanzar")] [SerializeField] private FacingAxis facingAxis = FacingAxis.Up;
+    [Tooltip("Vector2 local usado si FacingAxis=Custom (ej: (-1,0) para izquierda). Se normaliza automáticamente")] [SerializeField] private Vector2 customLocalForward = Vector2.up;
     [Header("Movimiento Continuo")] [SerializeField] private float moveSpeed = 1.2f; // unidades/seg
     [Header("Rotación Idle")] [SerializeField] private float rotationSpeed = 120f; // grados/seg mientras está quieto
 
@@ -72,6 +76,24 @@ public class Movimiento : MonoBehaviour
         }
     }
 
+    private Vector2 GetForwardDir()
+    {
+        Vector2 localDir;
+        switch (facingAxis)
+        {
+            case FacingAxis.Right: localDir = Vector2.right; break;
+            case FacingAxis.Down: localDir = Vector2.down; break;
+            case FacingAxis.Left: localDir = Vector2.left; break;
+            case FacingAxis.Custom: localDir = customLocalForward; break;
+            case FacingAxis.Up:
+            default: localDir = Vector2.up; break;
+        }
+        if (localDir.sqrMagnitude < 0.0001f) localDir = Vector2.up;
+        // Transformar dirección local a mundo considerando la rotación actual del objeto
+        Vector3 world = transform.TransformDirection(new Vector3(localDir.x, localDir.y, 0f));
+        return ((Vector2)world).normalized;
+    }
+
     private void FixedUpdate()
     {
         if (!_holdRequested)
@@ -81,7 +103,8 @@ public class Movimiento : MonoBehaviour
         }
 
         Vector2 startPos = _rb.position;
-        Vector2 desired = (Vector2)transform.up * (moveSpeed * Time.fixedDeltaTime);
+        Vector2 forward = GetForwardDir();
+        Vector2 desired = forward * (moveSpeed * Time.fixedDeltaTime);
 
         if (usePhysicsSlide && desired.sqrMagnitude > 0f)
         {
@@ -91,12 +114,10 @@ public class Movimiento : MonoBehaviour
                 int hitCount = _rb.Cast(remaining.normalized, _contactFilter, _hits, remaining.magnitude + wallPadding);
                 if (hitCount == 0)
                 {
-                    // No colisión, mover todo lo restante
                     _rb.MovePosition(_rb.position + remaining);
                     remaining = Vector2.zero;
                     break;
                 }
-                // Seleccionar el hit más cercano válido
                 RaycastHit2D closest = default;
                 float minDist = float.MaxValue;
                 bool found = false;
@@ -114,24 +135,16 @@ public class Movimiento : MonoBehaviour
                     _rb.MovePosition(_rb.position + remaining);
                     remaining = Vector2.zero; break;
                 }
-                // Mover hasta justo antes de la pared
                 float travel = Mathf.Max(0f, minDist - wallPadding);
                 Vector2 advance = remaining.normalized * travel;
                 _rb.MovePosition(_rb.position + advance);
                 remaining -= advance;
-                // Proyectar el resto sobre el plano tangente para deslizar
-                Vector2 n = closest.normal; // normal externa de la pared
-                // Eliminar componente contra la normal
+                Vector2 n = closest.normal;
                 float into = Vector2.Dot(remaining, n);
                 if (into < 0f)
                 {
-                    remaining -= n * into; // quita componente perpendicular
+                    remaining -= n * into;
                 }
-                else
-                {
-                    // Si ya no empuja hacia la pared, podemos aplicar directamente en siguiente iter.
-                }
-                // Seguridad para evitar bucle: si el ajuste es muy pequeño, terminar
                 if (remaining.magnitude < 0.0001f) { remaining = Vector2.zero; break; }
             }
         }
@@ -143,9 +156,7 @@ public class Movimiento : MonoBehaviour
         if (!_isMoving) { _isMoving = true; OnMoveStarted?.Invoke(); }
     }
 
-    // Iniciar movimiento (pointer down / button down)
     public void StartHoldMove() { if(!_holdRequested){ _rotationDir *= -1; } _holdRequested = true; }
-    // Detener movimiento (pointer up / button up)
     public void StopHoldMove() { _holdRequested = false; }
 
     public static void StartHoldForPlayer(int playerIdx1Based)
