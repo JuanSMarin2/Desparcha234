@@ -550,8 +550,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Bien atrapado!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
-  m_sharedMaterial: {fileID: -3534736346125445407, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
+  m_sharedMaterial: {fileID: -6771328589934434636, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1479,17 +1479,6 @@ MonoBehaviour:
     normal: 12
     special: 3
     bomb: 0
-  preventOverlap: 1
-  separationPadding: 2
-  maxResolveIterations: 195
-  clampDuringResolve: 1
-  postSpawnValidation: 1
-  postSpawnValidationPasses: 2
-  logPostValidation: 0
-  extraGlobalRelaxation: 1
-  extraSeparationPasses: 3
-  maxPairIterationsPerPass: 600
-  logGlobalRelaxation: 0
 --- !u!4 &235918252
 Transform:
   m_ObjectHideFlags: 0
@@ -2392,7 +2381,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.05212736, y: 0.073915064}
+  m_Offset: {x: -0.063413024, y: 0.095252275}
   m_SpriteTilingProperty:
     border: {x: 0.049999997, y: 0.049999997, z: 0.049999997, w: 0.049999997}
     pivot: {x: 0.5, y: 0.5}
@@ -2402,7 +2391,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.2780132, y: 3.2792354}
+  m_Size: {x: 2.93944, y: 2.511097}
   m_EdgeRadius: 0
 --- !u!212 &443601732
 SpriteRenderer:
@@ -3745,7 +3734,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5550822443121170120, guid: 39e646b9476e82145a2d76bd94702fa0, type: 3}
+  m_Sprite: {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4401,8 +4390,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Pierdes: 22 Puntos'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
-  m_sharedMaterial: {fileID: -3534736346125445407, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
+  m_sharedMaterial: {fileID: -6771328589934434636, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6204,7 +6193,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -68, y: 399}
+  m_AnchoredPosition: {x: -128, y: 387}
   m_SizeDelta: {x: 112.9948, y: 143.2044}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1101618273
@@ -7947,7 +7936,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.2542305, y: 2.95018}
+  m_Offset: {x: -0.19842911, y: 2.8769095}
   m_SpriteTilingProperty:
     border: {x: 0.049999997, y: 0.049999997, z: 0.049999997, w: 0.049999997}
     pivot: {x: 0.5, y: 0.5}
@@ -7957,7 +7946,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 15.925547, y: 8.531383}
+  m_Size: {x: 14.742561, y: 7.532513}
   m_EdgeRadius: 0
 --- !u!212 &1418225378
 SpriteRenderer:
@@ -8908,7 +8897,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1548038419
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9224,9 +9213,9 @@ MonoBehaviour:
   gravedadVirtualZ: -9.81
   dragZ: 3
   limitDescentSpeed: 1
-  maxDescentSpeed: 4
+  maxDescentSpeed: 3.88
   dragOnlyOnDescent: 1
-  distanciaAdvertenciaZ: 3.36
+  distanciaAdvertenciaZ: 5.38
   permitirRecogerPorToque: 0
   inputImage: {fileID: 58468174}
   _animator: {fileID: 1592149804}
