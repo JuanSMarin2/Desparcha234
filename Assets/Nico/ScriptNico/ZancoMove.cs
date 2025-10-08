@@ -10,10 +10,11 @@ public class ZancoMove : MonoBehaviour
 
     bool puedeMover = true;
     bool llegoMeta = false;
-    int saltosMax = 15;
+    // Exposed max jumps and current consecutive jumps so other classes can read them
+    public int saltosMax = 15;
 
- 
-    float saltosSeguidos = 0f;
+    // saltosSeguidos is increased when the player jumps; make it public so StaminaManager can read it
+    public float saltosSeguidos = 0f;
 
     bool isHot = false;
 
@@ -44,7 +45,12 @@ public class ZancoMove : MonoBehaviour
     void Update()
     {
      
-        sm.setStamina(saltosSeguidos);
+        if (sm != null)
+        {
+            // Make sure the StaminaManager knows which ZancoMove to read from
+            if (sm.zn == null) sm.zn = this;
+            sm.UpdateFromZanco();
+        }
 
         float sinceLastClick = Time.time - lastValidClickTime;
 

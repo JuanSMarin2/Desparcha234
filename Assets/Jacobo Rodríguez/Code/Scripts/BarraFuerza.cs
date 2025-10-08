@@ -403,6 +403,7 @@ public class BarraFuerza : MonoBehaviour
         if (bolita == null) bolita = FindAnyObjectByType<Bolita>();
         if (bolita != null && bolita.Estado != Bolita.EstadoLanzamiento.EnElAire)
         {
+           
             bolita.ReiniciarBola();
         }
         fuerzaActual = 0f; // Reiniciar fuerza

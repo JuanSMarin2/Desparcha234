@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class Progression : MonoBehaviour
 {
-  
     public int stage = 0;
     private const int MaxStage = 3;
 
@@ -19,7 +18,6 @@ public class Progression : MonoBehaviour
     private long[] _playerCurrentScores; // puntaje actual por jugador (para ranking)
 
     [Header("Configuración Etapas / Intentos")]
-    
     [SerializeField] private int attemptsPerPlayer = 2;
     private int[] _attemptsLeft;
 
@@ -37,13 +35,79 @@ public class Progression : MonoBehaviour
     [SerializeField] private Animacionfinal _animacionFinal; // Referencia en escena para animación de ganador
     private bool _endGameAnimationTriggered = false;
 
-    // Nuevo: evento global para notificar que el turno avanzó.
-    // Envía el índice del jugador actual (0-based).
+    [Header("Panel Final de Turno")]
+    [SerializeField] private PanelFinalTurno panelFinalTurno; // asignar en escena
+    private int _lastAttemptPoints = 0;
+    private bool _lastAttemptSuccess = false; // true si recogió, false si cayó
+    private bool _turnPanelShowing = false;
+    // Nuevo: diferir la activación de la pausa pre-lanzamiento si el panel está activo
+    private bool _pendingPreLaunchAfterPanel = false;
+    public bool IsTurnPanelShowing => _turnPanelShowing;
+    public void MarkPendingPreLaunch() { _pendingPreLaunchAfterPanel = true; }
+
     public static event Action<int> OnTurnAdvanced;
 
     private int _lastSpawnFrame = -1; // guard para evitar spawns duplicados en mismo frame
     private string _lastSpawnOrigin = ""; // info debug
     private string _pendingSpawnOrigin = "PendingThrow"; // origen que se usará para el próximo spawn cuando la bola quede pendiente
+
+    #region HelpersPuntaje
+    private int CurrentIdx()
+    {
+        return TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+    }
+
+    private void EnsureUiRef()
+    {
+        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
+    }
+
+    private void SetPlayerScore(int idx, long value)
+    {
+        if (_playerCurrentScores == null) return;
+        if (idx < 0 || idx >= _playerCurrentScores.Length) return;
+        _playerCurrentScores[idx] = value;
+    }
+
+    private long GetPlayerScore(int idx)
+    {
+        if (_playerCurrentScores == null) return 0;
+        if (idx < 0 || idx >= _playerCurrentScores.Length) return 0;
+        return _playerCurrentScores[idx];
+    }
+
+    private void RecalculateCurrentScoreOnly()
+    {
+        currentScore = _baseScore + _attemptScore;
+    }
+
+    private void SyncCurrentPlayerScoreAndUi()
+    {
+        int idx = CurrentIdx();
+        if (idx >= 0) SetPlayerScore(idx, currentScore);
+        EnsureUiRef();
+        if (_ui != null && TurnManager.instance != null)
+        {
+            _ui.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
+        }
+    }
+
+    private void ResetAttemptScore()
+    {
+        _attemptScore = 0;
+        RecalculateCurrentScoreOnly();
+        SyncCurrentPlayerScoreAndUi();
+    }
+
+    private void ConsolidarIntentoSimplificado()
+    {
+        if (_attemptScore <= 0) return;
+        _baseScore += _attemptScore;
+        _attemptScore = 0;
+        RecalculateCurrentScoreOnly();
+        SyncCurrentPlayerScoreAndUi();
+    }
+    #endregion
 
     void Awake()
     {
@@ -57,14 +121,13 @@ public class Progression : MonoBehaviour
     {
         if (stage < 1) stage = 1;
         if (stage > MaxStage) stage = MaxStage;
-     
 
         int n = RoundData.instance != null ? Mathf.Max(0, RoundData.instance.numPlayers) : 0;
         if (n > 0)
         {
             _attemptsLeft = new int[n];
             for (int i = 0; i < n; i++) _attemptsLeft[i] = Mathf.Max(1, attemptsPerPlayer);
-            _playerCurrentScores = new long[n]; // iniciar en 0; no escribir en RoundData.currentPoints
+            _playerCurrentScores = new long[n];
         }
 
         int idx0 = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : 0;
@@ -76,46 +139,30 @@ public class Progression : MonoBehaviour
 
         _ui?.ActualizarPuntos(TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1, currentScore);
         ActualizarUiIntentos(true);
+        _ui?.ActualizarRonda(stage);
 
-        // Notificar turno actual SOLO una vez
         if (TurnManager.instance != null)
         {
             int idx = TurnManager.instance.GetCurrentPlayerIndex();
             if (idx >= 0) OnTurnAdvanced?.Invoke(idx);
         }
-        
-        // Activar pausa pre-lanzamiento antes de spawnear
+
         if (!_preLaunchPaused)
         {
             ActivarPausaPreLanzamiento();
         }
-        // Evitar que Time.timeScale quede pausado si se usa lógica distinta: dejamos el timeScale en 1 (el bloqueo es con flag)
         Time.timeScale = 1f;
-        // Spawnear jacks iniciales en estado transparente: sólo si aún no se han spawneado
         if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
-        SpawnearJacksTransparentes("Start"); // spawn inicial bajo bloqueo
+        SpawnearJacksTransparentes("Start");
     }
-
-   
 
     public void NotificarJackTocado(Jack jack)
     {
-        if (jack != null)
-        {
-            jacksCounter++;
-            _attemptScore += jack.Puntos;
-            currentScore = _baseScore + _attemptScore;
-            if (TurnManager.instance != null && _playerCurrentScores != null)
-            {
-                int idx0 = TurnManager.instance.GetCurrentPlayerIndex();
-                if (idx0 >= 0 && idx0 < _playerCurrentScores.Length) _playerCurrentScores[idx0] = currentScore;
-            }
-        }
-        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
-        if (_ui != null && TurnManager.instance != null)
-        {
-            _ui.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
-        }  
+        if (jack == null) return;
+        jacksCounter++;
+        _attemptScore += jack.Puntos;
+        RecalculateCurrentScoreOnly();
+        SyncCurrentPlayerScoreAndUi();
     }
 
     public void OnBallLaunched()
@@ -124,23 +171,21 @@ public class Progression : MonoBehaviour
         _spawner?.EnableJacks();
     }
 
-   
-
-    // Alias con ortografía correcta por si se usa desde otros lugares
     public void OnBallPendingThrow()
     {
-        if (_bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar) //Validacion de estado
+        if (_bolita.Estado == Bolita.EstadoLanzamiento.PendienteDeLanzar)
         {
-            // 1) Pausar primero para bloquear cualquier input hasta confirmar
+            // Si el panel de fin de turno aún se está mostrando, diferir.
+            if (_turnPanelShowing)
+            {
+                _pendingPreLaunchAfterPanel = true;
+                Debug.Log("[Progression] OnBallPendingThrow diferido (panel activo)");
+                return;
+            }
             ActivarPausaPreLanzamiento();
-
-            // 2) Spawnear jacks transparentes bajo la pausa (sin ventana de input abierta)
             var usedOrigin = _pendingSpawnOrigin;
             SpawnearJacksTransparentes(usedOrigin);
-
-            // 3) Resetear origen por defecto para el siguiente ciclo
             _pendingSpawnOrigin = "PendingThrow";
-
             Debug.Log($"[Progression] OnBallPendingThrow -> Pause then Spawn (originUsed={usedOrigin})");
         }
     }
@@ -148,7 +193,6 @@ public class Progression : MonoBehaviour
     public void SpawnearJacksTransparentes(string origin = "Unknown")
     {
         if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
-        // Guard: evitar doble spawn en mismo frame (p.ej. Reiniciar + llamada redundante)
         if (Time.frameCount == _lastSpawnFrame)
         {
             Debug.Log($"[Progression][SpawnGuard] Ignorado spawn duplicado mismo frame. Origen nuevo={origin} previo={_lastSpawnOrigin}");
@@ -162,10 +206,15 @@ public class Progression : MonoBehaviour
 
     private void ActivarPausaPreLanzamiento()
     {
+        // Evitar mostrar el botón si el panel está activo o el juego terminó.
+        if (_turnPanelShowing || _endGameAnimationTriggered)
+        {
+            Debug.Log("[Progression] ActivarPausaPreLanzamiento ignorado (panel activo o fin de juego)");
+            return;
+        }
         if (botonListo != null) botonListo.SetActive(true);
         _preLaunchPaused = true;
         global::BarraFuerza.SetGlobalShakeBlocked(true);
-        // Time.timeScale = 0f; //// No se pausa porque caga las animaciones.
         Debug.Log("[Progression] Juego pausado esperando botonListo");
     }
 
@@ -174,7 +223,6 @@ public class Progression : MonoBehaviour
         if (!_preLaunchPaused) return;
         _preLaunchPaused = false;
         if (botonListo != null) botonListo.SetActive(false);
-        // Antes de desbloquear los shakes, limpiar estado y aplicar cooldown anti-lanzamiento accidental
         if (_barra == null) _barra = FindAnyObjectByType<BarraFuerza>();
         _barra?.PostResumeReset(0.3f);
         BarraFuerza.SetGlobalShakeBlocked(false);
@@ -184,139 +232,164 @@ public class Progression : MonoBehaviour
 
     private void ConsolidarIntento()
     {
-        if (_attemptScore <= 0) return;
-        _baseScore += _attemptScore;
-        _attemptScore = 0;
-        currentScore = _baseScore;
-        if (TurnManager.instance != null && _playerCurrentScores != null)
+        ConsolidarIntentoSimplificado();
+    }
+
+    public void NotificarBolitaTocada()
+    {
+        _pendingSpawnOrigin = "Pickup";
+        touchedBall = true;
+        var smSingleton = SoundManager.instance;
+        if (smSingleton != null)
         {
-            int idx0 = TurnManager.instance.GetCurrentPlayerIndex();
-            if (idx0 >= 0 && idx0 < _playerCurrentScores.Length) _playerCurrentScores[idx0] = currentScore;
+            smSingleton.PlaySfx("catapis:atrapada");
         }
-        _ui?.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
+        // Guardar puntos del intento antes de consolidar
+        _lastAttemptPoints = (int)_attemptScore;
+        _lastAttemptSuccess = true;
+        ConsolidarIntentoSimplificado();
+        
+        TerminarTurno();
+        touchedBall = false;
+    }
+
+    public void PerderPorTocarSuelo()
+    {
+        _pendingSpawnOrigin = "GroundFail";
+        // Guardar puntos que iba acumulando (los pierde)
+        _lastAttemptPoints = (int)_attemptScore;
+        _lastAttemptSuccess = false;
+        _attemptScore = 0;
+        RecalculateCurrentScoreOnly();
+        SyncCurrentPlayerScoreAndUi();
+        TerminarTurno();
     }
 
     public void TerminarTurno()
     {
-        _barra?.Reiniciar();
-        // Ya no destruimos aquí: ReiniciarBola llama a OnballePendingThrow que spawnea nuevos jacks.
+        // Si ya estamos mostrando el panel (evitar reentradas)
+        if (_turnPanelShowing)
+            return;
 
+        // IMPORTANTE: Ya no reiniciamos aquí la barra/bolita para evitar que OnBallPendingThrow
+        // dispare la pausa pre-lanzamiento ANTES de que termine el panel.
+        _ui?.OcultarTextoAtrapa();
+
+        // Pausar juego antes de avanzar turnos/etapas
+        Time.timeScale = 0f;
+
+        // Mostrar panel si existe (también en último turno según requerimiento)
+        if (panelFinalTurno != null)
+        {
+            _turnPanelShowing = true; // marcar antes de cualquier posible reinicio externo
+            int jugadorActual1Based = TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1;
+            panelFinalTurno.Show(jugadorActual1Based, _lastAttemptSuccess, _lastAttemptPoints, () =>
+            {
+                // Callback luego de panel
+                Time.timeScale = 1f;
+                _turnPanelShowing = false;
+                ContinuarDespuesPanelTurno();
+            });
+            return; // no continuar aún
+        }
+
+        // Fallback sin panel
+        ContinuarDespuesPanelTurno();
+    }
+
+    private void ContinuarDespuesPanelTurno()
+    {
         if (TurnManager.instance != null)
         {
-            // Guardar índice previo para detectar wrap-around de ronda completa
-            int idxPrev = TurnManager.instance.GetCurrentPlayerIndex();
-
-            int idx0 = idxPrev;
-            if (_attemptsLeft != null && idx0 >= 0 && idx0 < _attemptsLeft.Length)
+            int idxPrev = CurrentIdx();
+            HandleAttemptsAndAdvanceTurn();
+            if (_endGameAnimationTriggered)
             {
-                _attemptsLeft[idx0] = Mathf.Max(0, _attemptsLeft[idx0] - 1);
-                ActualizarUiIntentos();
-
-                int totalRestantes = 0;
-                for (int i = 0; i < _attemptsLeft.Length; i++) totalRestantes += _attemptsLeft[i];
-                if (totalRestantes <= 0)
-                {
-                    MostrarAnimacionGanadorYOtorgarCierre();
-                    return;
-                }
-
-                int safety = _attemptsLeft.Length;
-                do
-                {
-                    TurnManager.instance.NextTurn();
-                    safety--;
-                } while (safety > 0 && _attemptsLeft[TurnManager.instance.GetCurrentPlayerIndex()] <= 0);
+                _pendingPreLaunchAfterPanel = false; // limpiar cualquier diferido
+                return;
             }
-            else
-            {
-                TurnManager.instance.NextTurn();
-            }
-
-            // Detectar fin de vuelta completa (wrap a índice menor o igual)
-            int idxActual = TurnManager.instance.GetCurrentPlayerIndex();
-            if (idxActual <= idxPrev)
+            int idxActual = CurrentIdx(); // restaurado
+            if (idxActual <= idxPrev && idxActual != -1)
             {
                 int prevStage = stage;
                 stage = Mathf.Min(stage + 1, MaxStage);
                 if (stage != prevStage)
                 {
                     Debug.Log($"[Progression] Avance de etapa: {prevStage} -> {stage} (fin de vuelta)");
+                    _ui?.ActualizarRonda(stage);
                 }
             }
-
-            // Notificar que el turno avanzó (índice 0-based del jugador actual)
             if (idxActual >= 0) OnTurnAdvanced?.Invoke(idxActual);
-
             _bolita?.ActualizarSpritePorTurno();
         }
 
-        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
+        EnsureUiRef();
         if (TurnManager.instance != null)
         {
-            int idxNuevo = TurnManager.instance.GetCurrentPlayerIndex();
-            _attemptScore = 0;
-            _baseScore = (_playerCurrentScores != null && idxNuevo >= 0 && idxNuevo < _playerCurrentScores.Length) ? _playerCurrentScores[idxNuevo] : 0;
-            currentScore = _baseScore;
-            _ui?.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
+            int idxNuevo = CurrentIdx();
+            _attemptScore = 0; // nuevo turno empieza sin puntaje intento
+            _baseScore = GetPlayerScore(idxNuevo);
+            RecalculateCurrentScoreOnly();
+            SyncCurrentPlayerScoreAndUi();
             ActualizarUiIntentos();
         }
 
-        // Forzar reposicionamiento incluso en objetos inactivos que tengan ReposicionarPorTurno
         ForceApplyRepositionAll();
 
-        // Reiniciar explícitamente la bola UNA sola vez aquí
-        _bolita?.ReiniciarBola(); // Esto disparará OnBallPendingThrow con guard de frame
-    }
-
-
-    // Nuevo: devuelve todos los ganadores (1-based) en caso de empate
-    private int[] CalcularGanadoresIndex1Based()
-    {
-        if (_playerCurrentScores == null || _playerCurrentScores.Length == 0)
-            return new[] { 1 };
-
-        long max = _playerCurrentScores[0];
-        for (int i = 1; i < _playerCurrentScores.Length; i++)
-        {
-            if (_playerCurrentScores[i] > max)
-                max = _playerCurrentScores[i];
-        }
-
-        List<int> ganadores = new List<int>();
-        for (int i = 0; i < _playerCurrentScores.Length; i++)
-        {
-            if (_playerCurrentScores[i] == max)
-                ganadores.Add(i + 1); // 1-based
-        }
-        Debug.Log($"[Progression] Ganadores calculados (1-based): [{string.Join(",", ganadores)}] con scoreMax={max}");
-        return ganadores.ToArray();
-    }
-
-    private void PrepararFinDeJuegoVisual()
-    {
-        // Bloquear inputs por shake
-        BarraFuerza.SetGlobalShakeBlocked(true);
-
-        // Ocultar botón "Listo"
-        if (botonListo != null) botonListo.SetActive(false);
-
-        // Ocultar barra de fuerza por completo
+        // Ahora sí reiniciar barra (lo cual reinicia bolita internamente) para el siguiente intento.
         if (_barra == null) _barra = FindAnyObjectByType<BarraFuerza>();
-        _barra?.OcultarUIBarra();
+        _barra?.Reiniciar();
 
-        // Limpiar todos los jacks (disable)
-        if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
-        _spawner?.DisableAll();
+        // Caso especial: si la bola seguía marcada EnElAire (captura exitosa no cambiaba estado),
+        // la barra NO llamó a ReiniciarBola y por tanto no se disparó OnBallPendingThrow.
+        // Forzamos reinicio manual para que se muestre el botón Listo y spawneen jacks transparentes.
+        if (_bolita != null && _bolita.Estado == Bolita.EstadoLanzamiento.EnElAire)
+        {
+            Debug.Log("[Progression] Bola permanecía EnElAire tras panel (captura). Forzando reinicio y gating pre-lanzamiento.");
+            _bolita.ReiniciarBola(); // esto disparará OnBallPendingThrow -> ActivarPausaPreLanzamiento
+        }
 
-        // Ocultar la bolita para evitar interacción/visual residual
-        if (_bolita == null) _bolita = FindAnyObjectByType<Bolita>();
-        if (_bolita != null) _bolita.gameObject.SetActive(false);
+        // Si había un pre-launch diferido porque el panel estaba abierto, procesarlo ahora
+        if (_pendingPreLaunchAfterPanel)
+        {
+            _pendingPreLaunchAfterPanel = false;
+            OnBallPendingThrow();
+        }
 
-        // Mostrar/"highlight" de todos los botones de jugador
-        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
-        _ui?.MostrarTodosBotonesJugadores();
+        _lastAttemptPoints = 0;
+        _lastAttemptSuccess = false;
+    }
 
-        Debug.Log("[Progression] Preparación visual de fin de juego aplicada (jacks deshabilitados, bolita oculta, botones resaltados, listo/barra ocultos).");
+    private void HandleAttemptsAndAdvanceTurn()
+    {
+        int idx = CurrentIdx();
+        if (_attemptsLeft == null)
+        {
+            TurnManager.instance.NextTurn();
+            return;
+        }
+        if (idx < 0 || idx >= _attemptsLeft.Length)
+        {
+            TurnManager.instance.NextTurn();
+            return;
+        }
+        _attemptsLeft[idx] = Mathf.Max(0, _attemptsLeft[idx] - 1);
+        ActualizarUiIntentos();
+
+        int totalRestantes = 0;
+        for (int i = 0; i < _attemptsLeft.Length; i++) totalRestantes += _attemptsLeft[i];
+        if (totalRestantes <= 0)
+        {
+            MostrarAnimacionGanadorYOtorgarCierre();
+            return;
+        }
+
+        int safety = _attemptsLeft.Length;
+        do
+        {
+            TurnManager.instance.NextTurn();
+            safety--;
+        } while (safety > 0 && _attemptsLeft[CurrentIdx()] <= 0);
     }
 
     private void MostrarAnimacionGanadorYOtorgarCierre()
@@ -328,31 +401,15 @@ public class Progression : MonoBehaviour
         }
         _endGameAnimationTriggered = true;
 
-        // Preparar fin de juego a nivel visual (ocultar UI y limpiar jacks)
         PrepararFinDeJuegoVisual();
-
-        // Consolidar intento en curso por seguridad antes de mostrar ganador
-        if (_attemptScore > 0)
-        {
-            _baseScore += _attemptScore;
-            _attemptScore = 0;
-            currentScore = _baseScore;
-            if (TurnManager.instance != null && _playerCurrentScores != null)
-            {
-                int idx = TurnManager.instance.GetCurrentPlayerIndex();
-                if (idx >= 0 && idx < _playerCurrentScores.Length)
-                    _playerCurrentScores[idx] = currentScore;
-            }
-        }
+        ConsolidarIntentoSimplificado();
 
         var ganadores = CalcularGanadoresIndex1Based();
         if (_animacionFinal == null) _animacionFinal = FindAnyObjectByType<Animacionfinal>();
-
         if (_animacionFinal != null)
         {
             Debug.Log($"[Progression] Mostrando animación de ganador(es) [{string.Join(",", ganadores)}]. Esperando Animation Event para finalizar.");
             _animacionFinal.AnimacionFinal(ganadores);
-            // No finalizamos aquí; se llamará a FinalizarPorAnimacion() desde un Animation Event.
         }
         else
         {
@@ -369,24 +426,9 @@ public class Progression : MonoBehaviour
 
     private void FinalizarMiniJuegoPorPuntaje()
     {
-        // Preparar fin de juego visual por si no fue preparado aún (fallback)
         PrepararFinDeJuegoVisual();
+        ConsolidarIntentoSimplificado();
 
-        // Asegurar que el intento en curso quede consolidado para el jugador actual
-        if (_attemptScore > 0)
-        {
-            _baseScore += _attemptScore;
-            _attemptScore = 0;
-            currentScore = _baseScore;
-            if (TurnManager.instance != null && _playerCurrentScores != null)
-            {
-                int idx = TurnManager.instance.GetCurrentPlayerIndex();
-                if (idx >= 0 && idx < _playerCurrentScores.Length)
-                    _playerCurrentScores[idx] = currentScore;
-            }
-        }
-
-        // Intentar finalizar la ronda con los puntajes acumulados
         var grm = FindAnyObjectByType<GameRoundManager>();
         if (grm != null && _playerCurrentScores != null && _playerCurrentScores.Length > 0)
         {
@@ -395,7 +437,6 @@ public class Progression : MonoBehaviour
         }
         else
         {
-            // Fallback: recargar la escena actual si no hay gestor o puntajes
             Debug.LogWarning("[Progression] No se pudo usar GameRoundManager. Recargando escena actual como fallback.");
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
@@ -403,14 +444,12 @@ public class Progression : MonoBehaviour
 
     private void ForceApplyRepositionAll()
     {
-        // Buscar también deshabilitados
         var all = Resources.FindObjectsOfTypeAll<ReposicionarPorTurno>();
         if (all == null || all.Length == 0) return;
         int idx = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
         foreach (var r in all)
         {
             if (r == null) continue;
-            // Evitar tocar prefabs (sin escena) o assets
             if (r.gameObject.scene.IsValid())
             {
                 r.ApplyForPlayerIndexInstant(idx);
@@ -419,54 +458,56 @@ public class Progression : MonoBehaviour
         Debug.Log($"[Progression] ForceApplyRepositionAll aplicado a {all.Length} componentes (incluye inactivos). Jugador idx={idx}");
     }
 
-    public void NotificarBolitaTocada()
-    {
-        _pendingSpawnOrigin = "Pickup";
-        touchedBall = true;
-        ConsolidarIntento();
-        var smSingleton = SoundManager.instance;
-        if (smSingleton != null)
-        {
-            smSingleton.PlaySfx("catapis:bolitatocada");
-        }
-        TerminarTurno();
-        touchedBall = false;
-    }
-
-    public void PerderPorTocarSuelo()
-    {
-        // Origen del siguiente spawn: fallo por tocar suelo
-        _pendingSpawnOrigin = "GroundFail";
-        _attemptScore = 0;
-        currentScore = _baseScore;
-        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
-        if (_ui != null && TurnManager.instance != null)
-        {
-            _ui.ActualizarPuntos(TurnManager.instance.CurrentTurn(), currentScore);
-        }
-        if (TurnManager.instance != null && _playerCurrentScores != null)
-        {
-            int idx0 = TurnManager.instance.GetCurrentPlayerIndex();
-            if (idx0 >= 0 && idx0 < _playerCurrentScores.Length) _playerCurrentScores[idx0] = currentScore;
-        }
-        TerminarTurno();
-    }
-
     private void ActualizarUiIntentos()
     {
-        if (_attemptsLeft == null || TurnManager.instance == null) return;
-        int idx = TurnManager.instance.GetCurrentPlayerIndex();
-        if (idx < 0 || idx >= _attemptsLeft.Length) return;
-        _ui?.ActualizarIntentosJugador(idx, _attemptsLeft[idx]);
+        // Obsoleto: ya no se muestran intentos; método vacío para evitar referencias.
     }
 
     private void ActualizarUiIntentos(bool inicializarTodos)
     {
-        if (!inicializarTodos) { ActualizarUiIntentos(); return; }
-        if (_attemptsLeft == null || _ui == null) return;
-        for (int i = 0; i < _attemptsLeft.Length && i < 4; i++)
+        // Obsoleto: ignorado
+    }
+
+    private int[] CalcularGanadoresIndex1Based()
+    {
+        if (_playerCurrentScores == null || _playerCurrentScores.Length == 0)
+            return new[] { 1 };
+
+        long max = _playerCurrentScores[0];
+        for (int i = 1; i < _playerCurrentScores.Length; i++)
         {
-            _ui.ActualizarIntentosJugador(i, _attemptsLeft[i]);
+            if (_playerCurrentScores[i] > max)
+                max = _playerCurrentScores[i];
         }
+
+        List<int> ganadores = new List<int>();
+        for (int i = 0; i < _playerCurrentScores.Length; i++)
+        {
+            if (_playerCurrentScores[i] == max)
+                ganadores.Add(i + 1);
+        }
+        Debug.Log($"[Progression] Ganadores calculados (1-based): [{string.Join(",", ganadores)}] con scoreMax={max}");
+        return ganadores.ToArray();
+    }
+
+    private void PrepararFinDeJuegoVisual()
+    {
+        BarraFuerza.SetGlobalShakeBlocked(true);
+
+        if (botonListo != null) botonListo.SetActive(false);
+
+        if (_barra == null) _barra = FindAnyObjectByType<BarraFuerza>();
+        _barra?.OcultarUIBarra();
+
+        if (_spawner == null) _spawner = FindAnyObjectByType<JackSpawner>();
+        _spawner?.DisableAll();
+
+        if (_bolita == null) _bolita = FindAnyObjectByType<Bolita>();
+        if (_bolita != null) _bolita.gameObject.SetActive(false);
+
+        if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
+        _ui?.MostrarTodosBotonesJugadores();
+
+        Debug.Log("[Progression] Preparación visual de fin de juego aplicada (jacks deshabilitados, bolita oculta, botones resaltados, listo/barra ocultos).");
     }
 }

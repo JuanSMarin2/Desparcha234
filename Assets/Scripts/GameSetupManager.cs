@@ -2,12 +2,13 @@ using UnityEngine;
 
 public class GameSetupManager : MonoBehaviour
 {
-    [Header("Configuración de Objetos por Número de Jugadores")]
-   
+    public static GameSetupManager Instance { get; private set; }
 
+    [Header("ConfiguraciÃ³n de Objetos por NÃºmero de Jugadores")]
+   
     [Space(10)]
     [Header("Objetos que solo se activan si el numero de jugadores es 3 o 4. ")]
-    [Tooltip("Objetos que solo se activan si el numero de jugadores es 3 o 4. ") ]
+    [Tooltip("Objetos que solo se activan si el numero de jugadores es 3 o 4. ")]
     [SerializeField] private GameObject[] objectsFor3Players;
 
     [Space(10)]
@@ -15,21 +16,26 @@ public class GameSetupManager : MonoBehaviour
     [Tooltip("Objetos que solo se activan si el numero de jugadores es 4. ")]
     [SerializeField] private GameObject[] objectsFor4Players;
 
+    public int NumActivePlayers { get; private set; } = 0; // leÃ­do por TagManager
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
     void Start()
     {
-
-        int numPlayers = RoundData.instance.numPlayers;
+        int numPlayers = (RoundData.instance != null) ? RoundData.instance.numPlayers : 0;
+        NumActivePlayers = numPlayers;
 
         switch (numPlayers)
         {
             case 2:
-
                 SetObjectsActive(objectsFor3Players, false);
                 SetObjectsActive(objectsFor4Players, false);
                 break;
             case 3:
-
-
                 SetObjectsActive(objectsFor3Players, true);
                 SetObjectsActive(objectsFor4Players, false);
                 break;
@@ -38,9 +44,11 @@ public class GameSetupManager : MonoBehaviour
                 SetObjectsActive(objectsFor4Players, true);
                 break;
             default:
-                Debug.LogError("Número de jugadores no válido: " + numPlayers);
+                Debug.LogError("NÃºmero de jugadores no vÃ¡lido: " + numPlayers);
                 break;
         }
+
+        Debug.Log("[GameSetupManager] NumActivePlayers=" + NumActivePlayers);
     }
 
     private void SetObjectsActive(GameObject[] objects, bool isActive)

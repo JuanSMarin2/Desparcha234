@@ -40,7 +40,7 @@ public class BarraDeFuerza : MonoBehaviour
 
         barraPoder.fillAmount = valorActual;
 
-        
+
     }
 
     private void CambiarColorPorTurno()
@@ -49,7 +49,7 @@ public class BarraDeFuerza : MonoBehaviour
         if (TurnManager.instance != null)
             turnoActual = TurnManager.instance.CurrentTurn() - 1; // 0-based
 
-        
+
 
         if (coloresPorTurno != null && coloresPorTurno.Length > turnoActual)
             barraPoder.color = coloresPorTurno[turnoActual];

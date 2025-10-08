@@ -9,10 +9,10 @@ public class GameRoundManager : MonoBehaviour
 
     [SerializeField] private bool advanceTurnOnRemove = false;
 
-    [Tooltip("Índices de los jugadores que han ganado, en orden de llegada (1º, 2º, etc.).")]
+    [Tooltip("ï¿½ndices de los jugadores que han ganado, en orden de llegada (1ï¿½, 2ï¿½, etc.).")]
     [SerializeField] private List<int> winners = new List<int>();
 
-    [Tooltip("Índices de los jugadores que han perdido, en orden de llegada.")]
+    [Tooltip("ï¿½ndices de los jugadores que han perdido, en orden de llegada.")]
     [SerializeField] private List<int> losers = new List<int>();
 
     void Awake()
@@ -34,10 +34,10 @@ public class GameRoundManager : MonoBehaviour
         // reubicar indice de lista si hace falta
         if (TurnManager.instance.GetActivePlayerCount() > 0)
         {
-            // normalizar activePlayerListIndex si usas ese patrón internamente
+            // normalizar activePlayerListIndex si usas ese patrï¿½n internamente
         }
 
-        // IMPORTANTE: solo avanzar si está permitido (en Canicas: false)
+        // IMPORTANTE: solo avanzar si estï¿½ permitido (en Canicas: false)
         if (advanceTurnOnRemove)
         {
             TurnManager.instance.NextTurn();
@@ -47,7 +47,7 @@ public class GameRoundManager : MonoBehaviour
     public void PlayerWin(int winningPlayerIndex)
     {
         winners.Add(winningPlayerIndex);
-        Debug.Log("¡El Jugador " + (winningPlayerIndex + 1) + " ha ganado! Posición: " + winners.Count);
+        Debug.Log("ï¿½El Jugador " + (winningPlayerIndex + 1) + " ha ganado! Posiciï¿½n: " + winners.Count);
         TurnManager.instance.RemovePlayerFromTurn(winningPlayerIndex);
         CheckForRoundEnd();
     }
@@ -94,11 +94,11 @@ public class GameRoundManager : MonoBehaviour
         int numPlayers = RoundData.instance.numPlayers;
         if (scores.Length < numPlayers)
         {
-            Debug.LogWarning("Scores no coincide con numPlayers; se ajustará al mínimo disponible.");
+            Debug.LogWarning("Scores no coincide con numPlayers; se ajustarï¿½ al mï¿½nimo disponible.");
             numPlayers = scores.Length;
         }
 
-        // Índices 0..n-1 ordenados por score DESC, luego índice ASC
+        // ï¿½ndices 0..n-1 ordenados por score DESC, luego ï¿½ndice ASC
         int[] order = new int[numPlayers];
         for (int i = 0; i < numPlayers; i++) order[i] = i;
         System.Array.Sort(order, (a, b) =>
@@ -112,7 +112,7 @@ public class GameRoundManager : MonoBehaviour
         RoundData.instance.finalPositions.Clear();
         for (int i = 0; i < order.Length; i++) RoundData.instance.finalPositions.Add(order[i]);
 
-        // Asignar puntos por rango con empates: 1º=3, 2º=2, 3º=1, 4º+=0
+        // Asignar puntos por rango con empates: 1ï¿½=3, 2ï¿½=2, 3ï¿½=1, 4ï¿½+=0
         int rank = 1; // rango actual (1-based)
         for (int i = 0; i < order.Length;)
         {
@@ -129,7 +129,7 @@ public class GameRoundManager : MonoBehaviour
                     RoundData.instance.currentPoints[player] = points;
             }
 
-            rank += groupSize; // siguiente rango salta el tamaño del grupo empatado (1,1,3,...) 
+            rank += groupSize; // siguiente rango salta el tamaï¿½o del grupo empatado (1,1,3,...) 
             i = j;
         }
 
@@ -148,20 +148,20 @@ public class GameRoundManager : MonoBehaviour
         }
         else
         {
-            // 2) Fallback: unificar winners/losers (flujo de eliminación clásico)
+            // 2) Fallback: unificar winners/losers (flujo de eliminaciï¿½n clï¿½sico)
             finalPositions.AddRange(winners);
             losers.Reverse();
             finalPositions.AddRange(losers);
         }
 
-        // Asegurar tamaño acorde a numPlayers
+        // Asegurar tamaï¿½o acorde a numPlayers
         int numPlayers = RoundData.instance != null ? RoundData.instance.numPlayers : finalPositions.Count;
         if (RoundData.instance != null)
         {
             RoundData.instance.currentPoints = new int[numPlayers]; // limpiar puntaje de ronda (3/2/1/0)
         }
 
-        // 3) Asignar puntos de ronda según orden (top1->3, top2->2, top3->1, top4->0)
+        // 3) Asignar puntos de ronda segï¿½n orden (top1->3, top2->2, top3->1, top4->0)
         for (int i = 0; i < finalPositions.Count && i < numPlayers; i++)
         {
             int playerIndex = finalPositions[i];
@@ -172,7 +172,7 @@ public class GameRoundManager : MonoBehaviour
             }
         }
 
-        // 4) Guardar clasificación en RoundData (ya viene del ranking si existía)
+        // 4) Guardar clasificaciï¿½n en RoundData (ya viene del ranking si existï¿½a)
         if (RoundData.instance != null)
         {
             RoundData.instance.finalPositions.Clear();
@@ -196,6 +196,59 @@ public class GameRoundManager : MonoBehaviour
 
     private void LoadResultsScene()
     {
+        StopAllCoroutines();
         SceneManager.LoadScene("ResultadosMinijuego");
+    }
+
+    // Nuevo: Finalizar ronda para modo Tag (sin dependencia de TurnManager)
+    // eliminationOrder0Based: primer elemento = primer eliminado (Ãºltimo lugar)
+    // winner0Based: Ã­ndice 0-based del ganador (Ãºltimo sobreviviente)
+    public void FinalizeTagRound(List<int> eliminationOrder0Based, int winner0Based)
+    {
+        if (RoundData.instance == null)
+        {
+            Debug.LogWarning("[GameRoundManager] No RoundData para FinalizeTagRound");
+            return;
+        }
+        int numPlayers = RoundData.instance.numPlayers;
+        if (numPlayers <= 0)
+        {
+            Debug.LogWarning("[GameRoundManager] numPlayers invÃ¡lido en RoundData");
+            return;
+        }
+        List<int> finalPositions = new List<int>(numPlayers);
+        // 1) Ganador primero
+        if (winner0Based >= 0 && winner0Based < numPlayers)
+            finalPositions.Add(winner0Based);
+        else
+            Debug.LogWarning($"[GameRoundManager] winner0Based {winner0Based} fuera de rango");
+        // 2) Resto: eliminados en orden inverso para reflejar posiciones (Ãºltimo eliminado = 2do lugar)
+        if (eliminationOrder0Based != null)
+        {
+            for (int i = eliminationOrder0Based.Count - 1; i >= 0; i--)
+            {
+                int idx = eliminationOrder0Based[i];
+                if (idx >= 0 && idx < numPlayers && !finalPositions.Contains(idx))
+                    finalPositions.Add(idx);
+            }
+        }
+        // 3) Validar faltantes (en caso de inconsistencia)
+        for (int i = 0; i < numPlayers; i++)
+        {
+            if (!finalPositions.Contains(i)) finalPositions.Add(i);
+        }
+        // 4) Asignar puntos (3/2/1/0)
+        RoundData.instance.currentPoints = new int[numPlayers];
+        for (int pos = 0; pos < finalPositions.Count && pos < numPlayers; pos++)
+        {
+            int pIdx = finalPositions[pos];
+            int pts = PointsForRank(pos + 1);
+            if (pIdx >= 0 && pIdx < numPlayers) RoundData.instance.currentPoints[pIdx] = pts;
+        }
+        // 5) Guardar finalPositions
+        RoundData.instance.finalPositions.Clear();
+        RoundData.instance.finalPositions.AddRange(finalPositions);
+        Debug.Log("[GameRoundManager] FinalizeTagRound -> ranking: " + string.Join(",", finalPositions));
+        LoadResultsScene();
     }
 }
