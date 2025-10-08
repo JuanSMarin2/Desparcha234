@@ -1,14 +1,14 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
-using TMPro;  
+using TMPro;
 
 public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     [Header("UI")]
     public RectTransform background;
     public RectTransform handle;
-    public TextMeshProUGUI timerText;   // <-- referencia al UI del contador
+    public TextMeshProUGUI timerText;
 
     [SerializeField] private Vector3 initialTargetPos;
 
@@ -22,7 +22,7 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
 
     public Action<JoystickUnit> OnFinished;
 
-    [Header("Límites de movimiento del target")]
+    [Header("Limites de movimiento del target")]
     public bool useLimits = true;
     public Vector2 minLimits = new Vector2(-5f, -5f);
     public Vector2 maxLimits = new Vector2(5f, 5f);
@@ -36,6 +36,13 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
     bool isDragging;
 
     public TutorialManagerTejo tutorialManagerTejo;
+
+    [Header("Gizmos de editor")]
+    [SerializeField] private bool showGizmos = true;
+    [SerializeField] private Color limitsColor = new Color(0f, 0.75f, 1f, 0.75f);
+    [SerializeField] private Color limitsWireColor = new Color(0f, 0.5f, 1f, 1f);
+    [SerializeField] private Color initialCrossColor = new Color(1f, 0.2f, 0.2f, 1f);
+    [SerializeField] private float initialCrossSize = 0.3f;
 
     void Awake()
     {
@@ -55,7 +62,6 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
     {
         if (!IsActive || IsFinished) return;
 
-        // mover target
         if (inputVector.magnitude > 0.01f && targetObject != null)
         {
             Vector3 delta = new Vector3(inputVector.x, inputVector.y, 0f) * moveRange * Time.deltaTime;
@@ -69,16 +75,14 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
             }
         }
 
-        // contador de tiempo
         if (timer > 0f && !IsFinished)
         {
             timer += Time.deltaTime;
 
             float remaining = Mathf.Max(0, controlDuration - timer);
 
-            // mostrar tiempo en pantalla
             if (timerText != null)
-                timerText.text = remaining.ToString("F1"); // con 1 decimal
+                timerText.text = remaining.ToString("F1");
 
             if (timer >= controlDuration)
             {
@@ -106,7 +110,6 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
                 targetObject.position = initialTargetPos;
         }
 
-        // resetear texto del timer
         if (timerText != null)
             timerText.text = controlDuration.ToString("F1");
     }
@@ -122,11 +125,9 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
 
         gameObject.SetActive(false);
 
-        // ocultamos el texto al acabar
         if (timerText != null)
             timerText.text = "0.0";
 
-        // Reactivar el botón de reactivación del tutorial
         if (tutorialManagerTejo != null && tutorialManagerTejo.ContinuarButton != null)
             tutorialManagerTejo.ContinuarButton.interactable = true;
     }
@@ -140,7 +141,6 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         if (timer == 0f)
             timer = 0.0001f;
 
-        // Desactivar el botón de reactivación del tutorial
         if (tutorialManagerTejo != null && tutorialManagerTejo.ContinuarButton != null)
             tutorialManagerTejo.ContinuarButton.interactable = false;
     }
@@ -165,5 +165,53 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         isDragging = false;
         if (handle != null) handle.anchoredPosition = Vector2.zero;
         inputVector = Vector2.zero;
+    }
+
+    void OnValidate()
+    {
+        if (useLimits)
+        {
+            if (maxLimits.x < minLimits.x) maxLimits.x = minLimits.x;
+            if (maxLimits.y < minLimits.y) maxLimits.y = minLimits.y;
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!showGizmos) return;
+
+        Vector3 basePos = initialTargetPos;
+        if (targetObject != null && initialTargetPos == default)
+            basePos = targetObject.position;
+
+        if (useLimits)
+        {
+            Vector3 minWorld = new Vector3(basePos.x + minLimits.x, basePos.y + minLimits.y, basePos.z);
+            Vector3 maxWorld = new Vector3(basePos.x + maxLimits.x, basePos.y + maxLimits.y, basePos.z);
+
+            Vector3 center = (minWorld + maxWorld) * 0.5f;
+            Vector3 size = new Vector3(Mathf.Abs(maxWorld.x - minWorld.x), Mathf.Abs(maxWorld.y - minWorld.y), 0.01f);
+
+            Color prev = Gizmos.color;
+
+            Gizmos.color = limitsColor;
+            Gizmos.DrawCube(center, size);
+
+            Gizmos.color = limitsWireColor;
+            Gizmos.DrawWireCube(center, size);
+
+            Gizmos.color = prev;
+        }
+
+        {
+            Color prev = Gizmos.color;
+            Gizmos.color = initialCrossColor;
+
+            float s = Mathf.Max(0.01f, initialCrossSize);
+            Gizmos.DrawLine(basePos + new Vector3(-s, 0f, 0f), basePos + new Vector3(s, 0f, 0f));
+            Gizmos.DrawLine(basePos + new Vector3(0f, -s, 0f), basePos + new Vector3(0f, s, 0f));
+
+            Gizmos.color = prev;
+        }
     }
 }
