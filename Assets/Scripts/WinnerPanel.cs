@@ -8,11 +8,13 @@ public class WinnerPanel : MonoBehaviour
 
     [Header("Iconos de jugadores (UI)")]
     [SerializeField] private GameObject[] playerIcons;    // 0=J1, 1=J2, 2=J3, 3=J4
+    [SerializeField] private IconMover iconMover;
 
     [Header("Opcional")]
     [SerializeField] private bool reparentToAnchor = false;   // si quieres que el icono quede hijo del panel
     [SerializeField] private bool hideOthers = false;         // si quieres ocultar otros iconos mientras se muestra el ganador
     [SerializeField] private GameObject blocker;
+
 
     [Header("Colores por jugador")]
     [SerializeField] private Color colorJugador1 = Color.red;
@@ -34,6 +36,7 @@ public class WinnerPanel : MonoBehaviour
 
     private void Start()
     {
+ 
         blocker.SetActive(true);
         if (anchor == null) anchor = GetComponent<RectTransform>();
         panelImage = GetComponent<Image>(); // obtiene el Image de "this"
@@ -44,6 +47,7 @@ public class WinnerPanel : MonoBehaviour
 
     private void ApplyWinner(int winnerIndex)
     {
+        iconMover.IsFinishing();
         if (playerIcons == null || winnerIndex < 0 || winnerIndex >= playerIcons.Length) return;
         var iconGO = playerIcons[winnerIndex];
         if (!iconGO) return;

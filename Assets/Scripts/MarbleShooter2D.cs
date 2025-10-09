@@ -238,32 +238,31 @@ public class MarbleShooter2D : MonoBehaviour
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (ExitManager.ForceReturnToMainMenu) return;
-        if (!collision.CompareTag("SafeZone")) return;
 
-        AwardBonusToCurrentTurnIfEliminatedNotCurrent(playerIndex);
-        marblePower?.ApplyPower(MarblePowerType.None);
+        if (collision.CompareTag("SafeZone"))
+        {
+            // bonus, poderes, etc. (lo que ya tengas)
+            AwardBonusToCurrentTurnIfEliminatedNotCurrent(playerIndex);
+            marblePower?.ApplyPower(MarblePowerType.None);
 
-        if (!isEnding && gameObject.activeInHierarchy)
+            // arrancamos la espera/mostrar panel si aplica
+
+            if (!isEnding && gameObject.activeInHierarchy)
             StartCoroutine(HandleEliminationRoutine());
+        }
     }
+
 
     private IEnumerator HandleEliminationRoutine()
     {
-        // Cachea la posición YA MISMO; evita leer transform luego si el GO es destruido
-        Vector3 cachedPos = transform.position;
 
-        // Deshabilita interacción y visual de la canica
-        var col = GetComponent<Collider2D>(); if (col) col.enabled = false;
-        var sr = GetComponentInChildren<SpriteRenderer>(); if (sr) sr.enabled = false;
-        if (marble != null) { marble.linearVelocity = Vector2.zero; marble.angularVelocity = 0f; }
-
-        // Efecto de explosión (si existe)
-        if (marbleExplosion != null)
-        {
-            Transform eT = marbleExplosion.transform;
-            if (eT != null) eT.position = cachedPos;
-            marbleExplosion.SetActive(true);
-        }
+        marbleExplosion.transform.position = transform.position;
+        marbleExplosion.SetActive(true);
+        // que la canica deje de “molestar” pero sin desactivar este GO (para que la corrutina corra)
+        var col = GetComponent<Collider2D>();
+        if (col) col.enabled = false;
+        var sr = GetComponentInChildren<SpriteRenderer>();
+        if (sr) sr.enabled = false;
 
         bool willEndRound = false;
         int winnerIndex = -1;
@@ -283,50 +282,26 @@ public class MarbleShooter2D : MonoBehaviour
             }
         }
 
-        if (willEndRound && winnerIndex >= 0)
+        if (willEndRound && winnerIndex >= 0 && winnerPanel != null && winnerPanelRoot != null)
         {
-            // Verifica que los refs sigan vivos antes de usarlos
-            if (winnerPanel != null && winnerPanelRoot != null)
-            {
-                // Todavía estamos activos?
-                if (!this || !gameObject) yield break;
-
-                // Prepara y activa el panel
-                winnerPanel.Prepare(winnerIndex);
-                winnerPanelRoot.SetActive(true);
-
-                // Espera de exhibición
-                float wait = 2f;
-                float t = 0f;
-                while (t < wait)
-                {
-                    // Si en medio de la espera destruyen este GO/escena, salir
-                    if (!this || !gameObject) yield break;
-                    t += Time.deltaTime;
-                    yield return null;
-                }
-            }
+            // le pasamos el ganador ANTES de activar el panel
+            winnerPanel.Prepare(winnerIndex);
+            winnerPanelRoot.SetActive(true);   // Start del panel corre ahora
+            yield return new WaitForSeconds(2f);
         }
 
-        if (!isEnding) EndRound();
+        if(!isEnding)
+       EndRound();
+     
     }
 
     private void EndRound()
     {
         isEnding = true;
-
-        // Intenta apagar el efecto si sigue vivo
-        if (marbleExplosion != null)
-        {
-            // null-check extra por si fue destruido en el cambio de escena
-            var go = marbleExplosion.gameObject;
-            if (go != null) go.SetActive(false);
-        }
-
+        StopAllCoroutines();
         GameRoundManager.instance.PlayerLose(playerIndex);
-        // No toques más nada aquí; la escena puede cambiar inmediatamente
-    }
 
+    }
 
 }
 

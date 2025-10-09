@@ -12,9 +12,11 @@ public class IconMover : MonoBehaviour
     private bool isMoving;
     private bool systemActive; // <- Solo se moverá después de la señal inicial
     private int lastMovedPlayer = -1; // Para evitar repetir el mismo turno
+    private bool isFinishing;
 
     void Start()
     {
+        isFinishing = false;
         // Guardar posiciones iniciales
         originalPositions = new Vector3[playerIcons.Length];
         for (int i = 0; i < playerIcons.Length; i++)
@@ -35,7 +37,8 @@ public class IconMover : MonoBehaviour
 
     void Update()
     {
-        if (!systemActive || isMoving) return;
+      
+        if (!systemActive || isMoving || isFinishing) return;
 
         int current = TurnManager.instance.GetCurrentPlayerIndex();
         if (current != lastMovedPlayer && current >= 0 && current < playerIcons.Length)
@@ -74,5 +77,10 @@ public class IconMover : MonoBehaviour
 
         playerIcons[index].localPosition = startPos;
         isMoving = false;
+    }
+
+    public void IsFinishing()
+    {
+        isFinishing = true;
     }
 }

@@ -2541,6 +2541,7 @@ MonoBehaviour:
   - {fileID: 891918638}
   - {fileID: 764751262}
   - {fileID: 1273445351}
+  iconMover: {fileID: 164397062}
   reparentToAnchor: 0
   hideOthers: 0
   blocker: {fileID: 977760025}
