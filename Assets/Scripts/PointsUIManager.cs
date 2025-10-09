@@ -18,39 +18,88 @@ public class PointsUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI gain3Text;
     [SerializeField] private TextMeshProUGUI gain4Text;
 
-    [Header("Fondo")]
-    [SerializeField] private Image backgroundImage;
-    [SerializeField] private Sprite baseSprite;
-    [SerializeField] private Sprite p1Sprite;
-    [SerializeField] private Sprite p2Sprite;
-    [SerializeField] private Sprite p3Sprite;
-    [SerializeField] private Sprite p4Sprite;
+    [Header("Cuadrantes (1 objeto por jugador)")]
+    [SerializeField] private RectTransform quadP1; // rojo (abajo-izq)
+    [SerializeField] private RectTransform quadP2; // azul (arriba-der)
+    [SerializeField] private RectTransform quadP3; // amarillo (arriba-izq)
+    [SerializeField] private RectTransform quadP4; // verde (abajo-der)
 
-    [Header("Íconos por jugador (0..3)")]
-    [SerializeField] private GameObject[] icons = new GameObject[4];
+    [Header("Colores")]
+    [SerializeField] private Image quadP1Img;
+    [SerializeField] private Image quadP2Img;
+    [SerializeField] private Image quadP3Img;
+    [SerializeField] private Image quadP4Img;
+
+    [SerializeField] private Color p1Color = Color.red;
+    [SerializeField] private Color p2Color = Color.blue;
+    [SerializeField] private Color p3Color = Color.yellow;
+    [SerializeField] private Color p4Color = Color.green;
 
     [Header("Tiempos")]
-    [SerializeField] private float baseDuration = 3f;
-    [SerializeField] private float perPlayerDuration = 3f;
-    [SerializeField] private float holdBeforeAnim = 1f;
-    [SerializeField] private float midBaseDuration = 0.5f;
-    [SerializeField] private float finalBaseDuration = 3f;
+    [SerializeField] private float baseDuration = 1.0f;      // estado base entre etapas
+    [SerializeField] private float growDuration = 0.30f;     // crece a 1.5x
+    [SerializeField] private float holdDuration = 1.0f;      // tiempo que se mantiene grande
+    [SerializeField] private float shrinkDuration = 0.30f;   // vuelve a 1x
+    [SerializeField] private float midBaseDuration = 0.50f;  // base entre jugadores
+    [SerializeField] private float finalBaseDuration = 2.0f; // base final
 
     [Header("Flujo siguiente escena")]
     [SerializeField] private MinigameChooser minigameChooser;
 
     private TextMeshProUGUI[] playerTexts;
     private TextMeshProUGUI[] gainTexts;
+    private RectTransform[] quads;
+    private Image[] quadImages;
+
+    private Vector3 one = Vector3.one;
+    private Vector3 onePointFive = Vector3.one * 1.5f;
+    private int[] originalSiblings;
 
     void Awake()
     {
         playerTexts = new[] { player1Text, player2Text, player3Text, player4Text };
         gainTexts = new[] { gain1Text, gain2Text, gain3Text, gain4Text };
+        quads = new[] { quadP1, quadP2, quadP3, quadP4 };
+        quadImages = new[] { quadP1Img, quadP2Img, quadP3Img, quadP4Img };
     }
 
     void Start()
     {
+        // Asignar colores
+        if (quadP1Img) quadP1Img.color = p1Color;
+        if (quadP2Img) quadP2Img.color = p2Color;
+        if (quadP3Img) quadP3Img.color = p3Color;
+        if (quadP4Img) quadP4Img.color = p4Color;
+
+        // Configurar cuadrantes
+        SetupQuadrants();
+
+        // Guardar orden original
+        originalSiblings = new int[quads.Length];
+        for (int i = 0; i < quads.Length; i++)
+            if (quads[i]) originalSiblings[i] = quads[i].GetSiblingIndex();
+
         StartCoroutine(FlowRoutine());
+    }
+
+    private void SetupQuadrants()
+    {
+        SetupQuad(quadP1, new Vector2(0f, 0f), new Vector2(0.5f, 0.5f)); // abajo-izq
+        SetupQuad(quadP2, new Vector2(0.5f, 0.5f), new Vector2(1f, 1f));   // arriba-der
+        SetupQuad(quadP3, new Vector2(0f, 0.5f), new Vector2(0.5f, 1f));   // arriba-izq
+        SetupQuad(quadP4, new Vector2(0.5f, 0f), new Vector2(1f, 0.5f));   // abajo-der
+    }
+
+    private void SetupQuad(RectTransform rt, Vector2 min, Vector2 max)
+    {
+        if (!rt) return;
+        rt.anchorMin = min;
+        rt.anchorMax = max;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        rt.localScale = one;
+        rt.localRotation = Quaternion.identity;
     }
 
     private IEnumerator FlowRoutine()
@@ -61,7 +110,6 @@ public class PointsUIManager : MonoBehaviour
 
         int numPlayers = Mathf.Clamp(rd.numPlayers, 2, 4);
 
-        // Ocultar textos extra y limpiar +N
         for (int i = 0; i < playerTexts.Length; i++)
         {
             bool active = (i < numPlayers);
@@ -69,7 +117,6 @@ public class PointsUIManager : MonoBehaviour
             if (gainTexts[i]) gainTexts[i].gameObject.SetActive(false);
         }
 
-        // Copias locales
         int[] baseTotals = new int[numPlayers];
         int[] gains = new int[numPlayers];
         int[] targetTotals = new int[numPlayers];
@@ -81,13 +128,11 @@ public class PointsUIManager : MonoBehaviour
             targetTotals[i] = baseTotals[i] + gains[i];
         }
 
-        // Estado neutro inicial
-        SetBackground(baseSprite);
-        SetIconsNeutral(numPlayers);
         WriteTotals(baseTotals, numPlayers);
+        ResetAllQuadScales();
+
         yield return new WaitForSeconds(baseDuration);
 
-        // Orden por menos puntos ganados
         var order = Enumerable.Range(0, numPlayers)
                               .Select(i => new { idx = i, pts = gains[i] })
                               .OrderBy(x => x.pts)
@@ -99,11 +144,6 @@ public class PointsUIManager : MonoBehaviour
             int i = entry.idx;
             int gained = entry.pts;
 
-            // Fondo e ícono del jugador
-            SetBackground(PerPlayerSprite(i));
-            SetIconsOnly(i, numPlayers);
-
-            // Mostrar +N del jugador i
             SetAllGainsActive(false);
             if (gainTexts[i])
             {
@@ -111,80 +151,54 @@ public class PointsUIManager : MonoBehaviour
                 gainTexts[i].gameObject.SetActive(true);
             }
 
-            // Escribir totales actuales locales
-            WriteTotals(baseTotals, numPlayers);
+            // traer al frente
+            BringToFront(i);
 
-            // Espera previa a la animación en su etapa
-            float stageTotal = Mathf.Max(0f, perPlayerDuration);
-            float wait = Mathf.Min(holdBeforeAnim, stageTotal);
-            yield return new WaitForSeconds(wait);
+            // crecer
+            yield return ScaleQuad(quads[i], 1f, 1.5f, growDuration);
 
-            // Animar solo el total del jugador i
-            float animDur = Mathf.Max(0f, stageTotal - wait);
-            if (animDur > 0f)
-            {
-                float t = 0f;
-                while (t < animDur)
-                {
-                    t += Time.deltaTime;
-                    float k = Mathf.Clamp01(t / animDur);
+            // mantener 1s grande
+            WriteTotalsWithSolo(i, baseTotals, targetTotals, numPlayers);
+            yield return new WaitForSeconds(holdDuration);
 
-                    int shown = Mathf.RoundToInt(Mathf.Lerp(baseTotals[i], targetTotals[i], k));
+            // encoger
+            yield return ScaleQuad(quads[i], 1.5f, 1f, shrinkDuration);
 
-                    for (int j = 0; j < numPlayers; j++)
-                    {
-                        int val = (j == i) ? shown : baseTotals[j];
-                        if (playerTexts[j]) playerTexts[j].text = $"{val} pts";
-                    }
-                    yield return null;
-                }
-            }
-
-            // Consolidar localmente
             baseTotals[i] = targetTotals[i];
-
-            // Vuelta a neutro entre jugadores
             SetAllGainsActive(false);
-            SetBackground(baseSprite);
-            SetIconsNeutral(numPlayers);
+            RestoreOriginalOrder();
+            ResetAllQuadScales();
             WriteTotals(baseTotals, numPlayers);
+
             yield return new WaitForSeconds(midBaseDuration);
         }
 
-        // Base final con totales finales y neutro
+        // final neutro
         SetAllGainsActive(false);
-        SetBackground(baseSprite);
-        SetIconsNeutral(numPlayers);
+        RestoreOriginalOrder();
+        ResetAllQuadScales();
         WriteTotals(targetTotals, numPlayers);
 
-        // Aplicar la suma real a RoundData dentro de esta rutina (y esperar 1s)
         yield return StartCoroutine(CommitTotalsAfterOneSecond());
-
-        // Espera final y pasar a siguiente
         yield return new WaitForSeconds(finalBaseDuration);
+
         if (minigameChooser)
             minigameChooser.LoadNextScheduledOrFinish();
-    }
-
-    private IEnumerator CommitTotalsAfterOneSecond()
-    {
-        var rd = RoundData.instance;
-        if (rd != null)
-        {
-            rd.GetTotalPoints(); // esta corrutina ya espera 1s internamente
-            yield return new WaitForSeconds(1f);
-        }
     }
 
     private void WriteTotals(int[] totals, int numPlayers)
     {
         for (int i = 0; i < numPlayers; i++)
-        {
             if (playerTexts[i])
-            {
                 playerTexts[i].text = $"{totals[i]} pts";
-                playerTexts[i].gameObject.SetActive(true);
-            }
+    }
+
+    private void WriteTotalsWithSolo(int soloIdx, int[] baseTotals, int[] targetTotals, int numPlayers)
+    {
+        for (int j = 0; j < numPlayers; j++)
+        {
+            int val = (j == soloIdx) ? targetTotals[j] : baseTotals[j];
+            if (playerTexts[j]) playerTexts[j].text = $"{val} pts";
         }
     }
 
@@ -194,42 +208,61 @@ public class PointsUIManager : MonoBehaviour
             if (t) t.gameObject.SetActive(active);
     }
 
-    private void SetBackground(Sprite s)
+    private IEnumerator CommitTotalsAfterOneSecond()
     {
-        if (backgroundImage && s) backgroundImage.sprite = s;
-    }
-
-    private Sprite PerPlayerSprite(int playerIndex)
-    {
-        switch (playerIndex)
+        var rd = RoundData.instance;
+        if (rd != null)
         {
-            case 0: return p1Sprite ? p1Sprite : baseSprite;
-            case 1: return p2Sprite ? p2Sprite : baseSprite;
-            case 2: return p3Sprite ? p3Sprite : baseSprite;
-            case 3: return p4Sprite ? p4Sprite : baseSprite;
-            default: return baseSprite;
+            rd.GetTotalPoints();
+            yield return new WaitForSeconds(1f);
         }
     }
 
-    // Activa solo el ícono del jugador indicado; desactiva el resto
-    private void SetIconsOnly(int playerIndex, int numPlayers)
+    private void BringToFront(int i)
     {
-        for (int i = 0; i < icons.Length; i++)
+        if (i < 0 || i >= quads.Length) return;
+        if (!quads[i]) return;
+        quads[i].SetAsLastSibling();
+    }
+
+    private void RestoreOriginalOrder()
+    {
+        if (originalSiblings == null) return;
+        for (int i = 0; i < quads.Length; i++)
         {
-            if (!icons[i]) continue;
-            bool shouldBeActive = (i == playerIndex) && (i < numPlayers);
-            icons[i].SetActive(shouldBeActive);
+            if (quads[i] && originalSiblings[i] >= 0)
+            {
+                int max = quads[i].parent != null ? quads[i].parent.childCount : 0;
+                int idx = Mathf.Clamp(originalSiblings[i], 0, Mathf.Max(0, max - 1));
+                quads[i].SetSiblingIndex(idx);
+            }
         }
     }
 
-    // Estado neutro: activa todos los íconos de jugadores participantes; desactiva el resto
-    private void SetIconsNeutral(int numPlayers)
+    private void ResetAllQuadScales()
     {
-        for (int i = 0; i < icons.Length; i++)
+        for (int i = 0; i < quads.Length; i++)
+            if (quads[i]) quads[i].localScale = one;
+    }
+
+    private IEnumerator ScaleQuad(RectTransform rt, float from, float to, float duration)
+    {
+        if (!rt) yield break;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+
+        float t = 0f;
+        Vector3 start = Vector3.one * from;
+        Vector3 end = Vector3.one * to;
+        rt.localScale = start;
+
+        while (t < duration)
         {
-            if (!icons[i]) continue;
-            bool shouldBeActive = (i < numPlayers);
-            icons[i].SetActive(shouldBeActive);
+            t += Time.deltaTime;
+            float k = Mathf.Clamp01(t / duration);
+            rt.localScale = Vector3.Lerp(start, end, k);
+            yield return null;
         }
+
+        rt.localScale = end;
     }
 }

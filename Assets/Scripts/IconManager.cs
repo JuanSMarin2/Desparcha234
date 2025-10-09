@@ -1,23 +1,28 @@
 // IconManager.cs
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class IconManager : MonoBehaviour
 {
     [System.Serializable]
     public class PlayerIconSet
     {
-        public Image icon;               // Image del jugador en la UI
-        public Sprite[] skinSprites;     // Sprites normales por número de skin
-        public Sprite[] sadSkinSprites;  // Sprites "tristes" por número de skin
+        public Image icon;              // Image del jugador en la UI
+        public Sprite[] skinSprites;    // Sprites normales por numero de skin
+        public Sprite[] sadSkinSprites; // Sprites tristes por numero de skin
     }
 
     [Header("Iconos y skins por jugador (0..3)")]
     [SerializeField] private PlayerIconSet[] players = new PlayerIconSet[4];
 
     [Header("Usar resultados de la ronda para tristeza")]
-    [Tooltip("Si está activo, y hay RoundData.currentPoints, el jugador que quede último mostrará su ícono 'triste'. Si todos empatan, nadie está triste.")]
+    [Tooltip("Si esta activo y hay RoundData.currentPoints, el ultimo lugar de la ronda actual se muestra triste. Si todos empatan, nadie se muestra triste.")]
     [SerializeField] private bool useRoundResultsForSad = false;
+
+    [Header("Escena de resultados finales")]
+    [Tooltip("Si esta activo, todos se muestran tristes excepto el o los ganadores segun RoundData.totalPoints.")]
+    [SerializeField] private bool isFinalResultsScene = false;
 
     void Start()
     {
@@ -27,6 +32,12 @@ public class IconManager : MonoBehaviour
     public void SetUseRoundResults(bool value)
     {
         useRoundResultsForSad = value;
+        RefreshAllIcons();
+    }
+
+    public void SetIsFinalResultsScene(bool value)
+    {
+        isFinalResultsScene = value;
         RefreshAllIcons();
     }
 
@@ -50,13 +61,30 @@ public class IconManager : MonoBehaviour
 
         bool showSad = false;
 
-        if (useRoundResultsForSad &&
-            RoundData.instance != null &&
-            RoundData.instance.currentPoints != null &&
-            RoundData.instance.currentPoints.Length > playerIndex)
+        var rd = RoundData.instance;
+
+        // Modo resultados finales: todos tristes menos el o los ganadores por totalPoints
+        if (isFinalResultsScene && rd != null && rd.totalPoints != null && rd.totalPoints.Length > 0)
         {
-            int numPlayers = Mathf.Clamp(RoundData.instance.numPlayers, 1, RoundData.instance.currentPoints.Length);
-            showSad = IsLastPlace(playerIndex, RoundData.instance.currentPoints, numPlayers);
+            HashSet<int> winners = GetWinnersByTotal(rd.totalPoints, Mathf.Clamp(rd.numPlayers, 1, rd.totalPoints.Length));
+            // Si hay ganadores validos, solo ellos no estan tristes
+            if (winners.Count > 0)
+                showSad = !winners.Contains(playerIndex);
+            else
+                showSad = false; // sin datos consistentes, no marcar triste
+        }
+        // Modo ronda actual: ultimo lugar por currentPoints
+        else if (useRoundResultsForSad &&
+                 rd != null &&
+                 rd.currentPoints != null &&
+                 rd.currentPoints.Length > playerIndex)
+        {
+            int numPlayers = Mathf.Clamp(rd.numPlayers, 1, rd.currentPoints.Length);
+            showSad = IsLastPlace(playerIndex, rd.currentPoints, numPlayers);
+        }
+        else
+        {
+            showSad = false;
         }
 
         Sprite spriteToUse = null;
@@ -72,6 +100,7 @@ public class IconManager : MonoBehaviour
                 spriteToUse = set.skinSprites[equipped];
         }
 
+        // Fallback por seguridad
         if (spriteToUse == null && set.skinSprites != null && equipped >= 0 && equipped < set.skinSprites.Length)
             spriteToUse = set.skinSprites[equipped];
 
@@ -106,5 +135,22 @@ public class IconManager : MonoBehaviour
 
         int myPts = currentPoints[playerIndex];
         return myPts == min;
+    }
+
+    private HashSet<int> GetWinnersByTotal(int[] totalPoints, int numPlayers)
+    {
+        var winners = new HashSet<int>();
+        if (totalPoints == null || totalPoints.Length == 0) return winners;
+
+        numPlayers = Mathf.Clamp(numPlayers, 1, Mathf.Min(totalPoints.Length, players != null ? players.Length : totalPoints.Length));
+
+        int max = int.MinValue;
+        for (int i = 0; i < numPlayers; i++)
+            if (totalPoints[i] > max) max = totalPoints[i];
+
+        for (int i = 0; i < numPlayers; i++)
+            if (totalPoints[i] == max) winners.Add(i);
+
+        return winners;
     }
 }
