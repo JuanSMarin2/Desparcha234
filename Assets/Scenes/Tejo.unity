@@ -14937,13 +14937,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameId: Tejo
   sfxClips:
-  - key: Impacto
+  - key: Impacto-Arena
     clip: {fileID: 8300000, guid: ad2794b99e417384597ff5e83bac28aa, type: 3}
   - key: Cronometro
     clip: {fileID: 8300000, guid: f0790687d0215d947bc2a3758e2bc650, type: 3}
   - key: Warning
     clip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
   - key: Explosion
+    clip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
+  - key: Impacto-Other
     clip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
   musicClips: []
   autoPlayMusicKey: 

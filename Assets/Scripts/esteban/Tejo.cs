@@ -45,6 +45,12 @@ public class Tejo : MonoBehaviour
         // Si choca con la zona configurada para destruir tejos, lo destruimos (con delay)
         if (!string.IsNullOrEmpty(destroyZoneTag) && other.CompareTag(destroyZoneTag))
         {
+            // reproducir SFX al terminar la animación de vuelo (impacto visual)
+            var sm = FindAnyObjectByType<SoundManager>();
+            if (sm != null)
+            {
+                sm.PlaySfx("Tejo:Impacto-Other");
+            }
             Destroy(gameObject, destroyDelay);
             return;
         }
@@ -59,6 +65,12 @@ public class Tejo : MonoBehaviour
         //  Papeleta neutra
         if (other.CompareTag("Papeleta"))
         {
+            // reproducir SFX de explosión al impactar una papeleta
+            var sm = FindAnyObjectByType<SoundManager>();
+            if (sm != null)
+            {
+                sm.PlaySfx("Tejo:Explosion");
+            }
             Debug.Log($"Jugador {jugadorID} golpeó papeleta");
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
             // En vez de SetActive(false), ocultamos su sprite y collider
@@ -73,6 +85,12 @@ public class Tejo : MonoBehaviour
         //  Papeletas especiales (restan al dueño de esa papeleta)
         if (other.CompareTag("Papeleta1"))
         {
+            // reproducir SFX de explosión al impactar una papeleta
+            var sm = FindAnyObjectByType<SoundManager>();
+            if (sm != null)
+            {
+                sm.PlaySfx("Tejo:Explosion");
+            }
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
             GameManagerTejo.instance.RestarPuntos(0, 2);
             other.gameObject.SetActive(false);
@@ -81,6 +99,12 @@ public class Tejo : MonoBehaviour
 
         if (other.CompareTag("Papeleta2"))
         {
+            // reproducir SFX de explosión al impactar una papeleta
+            var sm = FindAnyObjectByType<SoundManager>();
+            if (sm != null)
+            {
+                sm.PlaySfx("Tejo:Explosion");
+            }
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
             GameManagerTejo.instance.RestarPuntos(1, 2);
             other.gameObject.SetActive(false);
@@ -89,6 +113,12 @@ public class Tejo : MonoBehaviour
 
         if (other.CompareTag("Papeleta3"))
         {
+            // reproducir SFX de explosión al impactar una papeleta
+            var sm = FindAnyObjectByType<SoundManager>();
+            if (sm != null)
+            {
+                sm.PlaySfx("Tejo:Explosion");
+            }
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
             GameManagerTejo.instance.RestarPuntos(2, 2);
             other.gameObject.SetActive(false);
@@ -97,6 +127,12 @@ public class Tejo : MonoBehaviour
 
         if (other.CompareTag("Papeleta4"))
         {
+            // reproducir SFX de explosión al impactar una papeleta
+            var sm = FindAnyObjectByType<SoundManager>();
+            if (sm != null)
+            {
+                sm.PlaySfx("Tejo:Explosion");
+            }
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
             GameManagerTejo.instance.RestarPuntos(3, 2);
             other.gameObject.SetActive(false);
