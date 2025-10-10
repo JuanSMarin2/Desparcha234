@@ -159,7 +159,7 @@ public class Jack : MonoBehaviour, IPointerDownHandler
             switch (tipoJack)
             {
                 case tipo.bomba:
-                    sm.PlaySfx("catapis:bombatocado");
+                    sm.PlaySfx("catapis:bombatocado", 2f);
                     break;
                 case tipo.Especial:
                     sm.PlaySfx("catapis:especialtocado");
