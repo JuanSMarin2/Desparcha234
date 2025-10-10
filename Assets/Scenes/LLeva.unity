@@ -1205,8 +1205,7 @@ MonoBehaviour:
   esperarDesactivacionGate: 1
   gateTimeoutSeconds: 10
   sfxCountdownKey: lleva:cronometro
-  countdownTickInterval: 0.25
-  countdownSfxVolume: 1
+  countdownSfxVolume: 0.55
   debugLogs: 1
 --- !u!1 &445327582
 GameObject:
@@ -4426,53 +4425,6 @@ MonoBehaviour:
   objectsFor4Players:
   - {fileID: 694211683}
   - {fileID: 693602405}
---- !u!1 &1316995052
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1316995054}
-  - component: {fileID: 1316995053}
-  m_Layer: 0
-  m_Name: SoundManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1316995053
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1316995052}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41ba789b5b6eeab4ba66e98071d5a1f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sfxVolume: 1
-  musicVolume: 1
-  musicLoopDefault: 1
---- !u!4 &1316995054
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1316995052}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.916919, y: -1.2834053, z: 2357.5044}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1365148589
 GameObject:
   m_ObjectHideFlags: 0
@@ -4941,6 +4893,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timer: {fileID: 1508140862}
+  semaforoSound: {fileID: 0}
+  globalASource: {fileID: 0}
   image0: {fileID: 21300000, guid: f9cbbc2b16067bf4e9ed2cf4406a6f9b, type: 3}
   image1: {fileID: 21300000, guid: 23a074952b2638241a880c4454c8b7d0, type: 3}
   image2: {fileID: 21300000, guid: 42fe261584838dd499d03c64ec83ba3c, type: 3}
@@ -6591,4 +6545,3 @@ SceneRoots:
   - {fileID: 1646927164}
   - {fileID: 1658887029}
   - {fileID: 1124897805}
-  - {fileID: 1316995054}
