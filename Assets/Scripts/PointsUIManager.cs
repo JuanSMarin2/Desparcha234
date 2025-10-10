@@ -36,9 +36,9 @@ public class PointsUIManager : MonoBehaviour
     [SerializeField] private Color p4Color = Color.green;
 
     [Header("Tiempos")]
-    [SerializeField] private float baseDuration = 1.0f;      // estado base entre etapas
+    [SerializeField] private float baseDuration = 1.0f;      // estado base inicial
     [SerializeField] private float growDuration = 0.30f;     // crece a 1.5x
-    [SerializeField] private float holdDuration = 1.0f;      // tiempo que se mantiene grande
+    [SerializeField] private float holdDuration = 1.0f;      // ventana para sumar puntos
     [SerializeField] private float shrinkDuration = 0.30f;   // vuelve a 1x
     [SerializeField] private float midBaseDuration = 0.50f;  // base entre jugadores
     [SerializeField] private float finalBaseDuration = 2.0f; // base final
@@ -52,7 +52,6 @@ public class PointsUIManager : MonoBehaviour
     private Image[] quadImages;
 
     private Vector3 one = Vector3.one;
-    private Vector3 onePointFive = Vector3.one * 1.5f;
     private int[] originalSiblings;
 
     void Awake()
@@ -65,16 +64,16 @@ public class PointsUIManager : MonoBehaviour
 
     void Start()
     {
-        // Asignar colores
+        // Colores
         if (quadP1Img) quadP1Img.color = p1Color;
         if (quadP2Img) quadP2Img.color = p2Color;
         if (quadP3Img) quadP3Img.color = p3Color;
         if (quadP4Img) quadP4Img.color = p4Color;
 
-        // Configurar cuadrantes
+        // Cuadrantes
         SetupQuadrants();
 
-        // Guardar orden original
+        // Orden original
         originalSiblings = new int[quads.Length];
         for (int i = 0; i < quads.Length; i++)
             if (quads[i]) originalSiblings[i] = quads[i].GetSiblingIndex();
@@ -85,9 +84,9 @@ public class PointsUIManager : MonoBehaviour
     private void SetupQuadrants()
     {
         SetupQuad(quadP1, new Vector2(0f, 0f), new Vector2(0.5f, 0.5f)); // abajo-izq
-        SetupQuad(quadP2, new Vector2(0.5f, 0.5f), new Vector2(1f, 1f));   // arriba-der
-        SetupQuad(quadP3, new Vector2(0f, 0.5f), new Vector2(0.5f, 1f));   // arriba-izq
-        SetupQuad(quadP4, new Vector2(0.5f, 0f), new Vector2(1f, 0.5f));   // abajo-der
+        SetupQuad(quadP2, new Vector2(0.5f, 0.5f), new Vector2(1f, 1f));     // arriba-der
+        SetupQuad(quadP3, new Vector2(0f, 0.5f), new Vector2(0.5f, 1f));     // arriba-izq
+        SetupQuad(quadP4, new Vector2(0.5f, 0f), new Vector2(1f, 0.5f));     // abajo-der
     }
 
     private void SetupQuad(RectTransform rt, Vector2 min, Vector2 max)
@@ -110,6 +109,7 @@ public class PointsUIManager : MonoBehaviour
 
         int numPlayers = Mathf.Clamp(rd.numPlayers, 2, 4);
 
+        // Ocultar +N extra
         for (int i = 0; i < playerTexts.Length; i++)
         {
             bool active = (i < numPlayers);
@@ -117,6 +117,7 @@ public class PointsUIManager : MonoBehaviour
             if (gainTexts[i]) gainTexts[i].gameObject.SetActive(false);
         }
 
+        // Copias locales
         int[] baseTotals = new int[numPlayers];
         int[] gains = new int[numPlayers];
         int[] targetTotals = new int[numPlayers];
@@ -128,11 +129,12 @@ public class PointsUIManager : MonoBehaviour
             targetTotals[i] = baseTotals[i] + gains[i];
         }
 
+        // Estado base
         WriteTotals(baseTotals, numPlayers);
         ResetAllQuadScales();
-
         yield return new WaitForSeconds(baseDuration);
 
+        // Orden por menos puntos ganados
         var order = Enumerable.Range(0, numPlayers)
                               .Select(i => new { idx = i, pts = gains[i] })
                               .OrderBy(x => x.pts)
@@ -147,24 +149,26 @@ public class PointsUIManager : MonoBehaviour
             SetAllGainsActive(false);
             if (gainTexts[i])
             {
-                gainTexts[i].text = gained >= 0 ? $"+{gained}" : gained.ToString();
+                gainTexts[i].text = (gained >= 0) ? $"+{gained}" : gained.ToString();
                 gainTexts[i].gameObject.SetActive(true);
             }
 
-            // traer al frente
+            // Llevar al frente
             BringToFront(i);
 
-            // crecer
+            // Crecer (a 1.5x)
             yield return ScaleQuad(quads[i], 1f, 1.5f, growDuration);
 
-            // mantener 1s grande
-            WriteTotalsWithSolo(i, baseTotals, targetTotals, numPlayers);
-            yield return new WaitForSeconds(holdDuration);
+            // Sumar puntos de forma DISCRETA durante la ventana holdDuration
+            yield return AddPointsDiscrete(i, baseTotals, targetTotals[i], numPlayers, holdDuration);
 
-            // encoger
+            // Encoger a 1x
             yield return ScaleQuad(quads[i], 1.5f, 1f, shrinkDuration);
 
+            // Consolidar localmente
             baseTotals[i] = targetTotals[i];
+
+            // Reset visual
             SetAllGainsActive(false);
             RestoreOriginalOrder();
             ResetAllQuadScales();
@@ -173,19 +177,61 @@ public class PointsUIManager : MonoBehaviour
             yield return new WaitForSeconds(midBaseDuration);
         }
 
-        // final neutro
+        // Final neutro
         SetAllGainsActive(false);
         RestoreOriginalOrder();
         ResetAllQuadScales();
         WriteTotals(targetTotals, numPlayers);
 
+        // Aplicar a RoundData (incluye su 1s interno)
         yield return StartCoroutine(CommitTotalsAfterOneSecond());
-        yield return new WaitForSeconds(finalBaseDuration);
 
+        yield return new WaitForSeconds(finalBaseDuration);
         if (minigameChooser)
             minigameChooser.LoadNextScheduledOrFinish();
     }
 
+    // ---- Animación discreta de puntos (+1 por tick con SFX) ----
+    private IEnumerator AddPointsDiscrete(int playerIdx, int[] baseTotals, int targetTotal, int numPlayers, float windowSeconds)
+    {
+        int current = baseTotals[playerIdx];
+        int delta = targetTotal - current;
+
+        // Si no hay cambio, solo espera la ventana para respetar el “hold”
+        if (delta == 0 || windowSeconds <= 0f)
+        {
+            WriteTotalsWithSolo(playerIdx, baseTotals, targetTotal, numPlayers);
+            yield return new WaitForSeconds(Mathf.Max(0f, windowSeconds));
+            yield break;
+        }
+
+        int steps = Mathf.Abs(delta);
+        // Queremos que sea “rápido”, pero caber dentro de la ventana
+        float stepDelay = Mathf.Clamp(windowSeconds / steps, 0.02f, 0.10f); // 10–50 ticks por segundo
+
+        int direction = (delta > 0) ? 1 : -1;
+
+        for (int s = 0; s < steps; s++)
+        {
+            current += direction;
+            baseTotals[playerIdx] = current;
+
+            // Actualiza textos (solo este jugador cambia)
+            WriteTotals(baseTotals, numPlayers);
+
+            // Sonido por punto
+            SoundManager.instance?.PlaySfx("Puntos:point");
+
+            // Espera breve entre puntos
+            yield return new WaitForSeconds(stepDelay);
+        }
+
+        // Asegurar el valor exacto final
+        baseTotals[playerIdx] = targetTotal;
+        WriteTotals(baseTotals, numPlayers);
+    }
+
+    // ---- Utilidades de UI / orden / escalado ----
     private void WriteTotals(int[] totals, int numPlayers)
     {
         for (int i = 0; i < numPlayers; i++)
@@ -193,11 +239,11 @@ public class PointsUIManager : MonoBehaviour
                 playerTexts[i].text = $"{totals[i]} pts";
     }
 
-    private void WriteTotalsWithSolo(int soloIdx, int[] baseTotals, int[] targetTotals, int numPlayers)
+    private void WriteTotalsWithSolo(int soloIdx, int[] baseTotals, int targetTotalForSolo, int numPlayers)
     {
         for (int j = 0; j < numPlayers; j++)
         {
-            int val = (j == soloIdx) ? targetTotals[j] : baseTotals[j];
+            int val = (j == soloIdx) ? targetTotalForSolo : baseTotals[j];
             if (playerTexts[j]) playerTexts[j].text = $"{val} pts";
         }
     }
@@ -213,7 +259,7 @@ public class PointsUIManager : MonoBehaviour
         var rd = RoundData.instance;
         if (rd != null)
         {
-            rd.GetTotalPoints();
+            rd.GetTotalPoints(); // ya espera 1s internamente
             yield return new WaitForSeconds(1f);
         }
     }
@@ -248,7 +294,6 @@ public class PointsUIManager : MonoBehaviour
     private IEnumerator ScaleQuad(RectTransform rt, float from, float to, float duration)
     {
         if (!rt) yield break;
-        rt.pivot = new Vector2(0.5f, 0.5f);
 
         float t = 0f;
         Vector3 start = Vector3.one * from;

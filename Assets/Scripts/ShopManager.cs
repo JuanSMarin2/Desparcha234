@@ -89,6 +89,7 @@ public class ShopManager : MonoBehaviour
         gd.SetOwned(selectedPlayer, number, true);
         if (infoText) infoText.text = "Comprada skin " + number + " para Jugador " + (selectedPlayer + 1);
 
+        SoundManager.instance.PlaySfx("ui:comprar");
         SetBuyButtonActive(number, false);
         RefreshMoneyUI();
     }

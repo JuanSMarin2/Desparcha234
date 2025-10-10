@@ -9,19 +9,22 @@ using UnityEngine.SceneManagement;
 public class FinalResultsManager : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private TextMeshProUGUI winnerText;      // Se reutiliza para mensaje de ganadores y texto informativo
-    [SerializeField] private TextMeshProUGUI conversionText;  // Solo numeros: PuntosTotales: PT --- Dinero: D
-    [SerializeField] private Button continueButton;           // Boton para iniciar la conversion
-    [SerializeField] private Button shopButton;               // Se activa al terminar conversion
-    [SerializeField] private Button mainMenuButton;           // Se activa al terminar conversion
+    [SerializeField] private TextMeshProUGUI winnerText;
+    [SerializeField] private TextMeshProUGUI conversionText;
+    [SerializeField] private Button continueButton;
+    [SerializeField] private Button shopButton;
+    [SerializeField] private Button mainMenuButton;
 
     [Header("Flujo")]
     [SerializeField] private string shopSceneName = "Tienda";
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
     [Header("Economia")]
-    [SerializeField] private int coinsPerPoint = 10;          // Monedas por punto
-    [SerializeField] private float conversionRate = 10f;      // Puntos convertidos por segundo en la animacion
+    [SerializeField] private int coinsPerPoint = 10;
+    [Tooltip("Duración objetivo (seg) para la animación de conversión.")]
+    [SerializeField] private float conversionDuration = 1.2f;
+
+    [Header("Iconos de ganadores (opcional)")]
     [SerializeField] private GameObject[] icons;
 
     private bool conversionRunning = false;
@@ -29,14 +32,19 @@ public class FinalResultsManager : MonoBehaviour
     void Start()
     {
         if (continueButton) continueButton.onClick.AddListener(OnContinuePressed);
-        if (shopButton) shopButton.onClick.AddListener(() => { if (!string.IsNullOrEmpty(shopSceneName)) SceneManager.LoadScene(shopSceneName); });
-        if (mainMenuButton) mainMenuButton.onClick.AddListener(() => { if (!string.IsNullOrEmpty(mainMenuSceneName)) SceneManager.LoadScene(mainMenuSceneName); });
+        if (shopButton) shopButton.onClick.AddListener(() =>
+        {
+            if (!string.IsNullOrEmpty(shopSceneName)) SceneManager.LoadScene(shopSceneName);
+        });
+        if (mainMenuButton) mainMenuButton.onClick.AddListener(() =>
+        {
+            if (!string.IsNullOrEmpty(mainMenuSceneName)) SceneManager.LoadScene(mainMenuSceneName);
+        });
 
         if (shopButton) shopButton.gameObject.SetActive(false);
         if (mainMenuButton) mainMenuButton.gameObject.SetActive(false);
         if (conversionText) { conversionText.gameObject.SetActive(false); conversionText.text = ""; }
 
-        // Desactiva todos los iconos de forma segura
         if (icons != null)
         {
             for (int i = 0; i < icons.Length; i++)
@@ -45,7 +53,6 @@ public class FinalResultsManager : MonoBehaviour
 
         ShowWinners();
     }
-
 
     private void ShowWinners()
     {
@@ -60,22 +67,14 @@ public class FinalResultsManager : MonoBehaviour
         int[] puntos = rd.totalPoints;
         int maxPoints = puntos.Max();
 
-        var ganadores = new System.Collections.Generic.List<int>();
+        var ganadores = new List<int>();
         for (int i = 0; i < puntos.Length; i++)
             if (puntos[i] == maxPoints) ganadores.Add(i);
 
-        if (ganadores.Count == 1)
-        {
-            int jugador = ganadores[0] + 1;
-            if (winnerText) winnerText.text = "Ganador: Jugador " + jugador;
-        }
-        else
-        {
-            string jugadores = string.Join(" y ", ganadores.ConvertAll(g => "Jugador " + (g + 1)));
-            if (winnerText) winnerText.text = "Ganadores: " + jugadores;
-        }
+        // Mensaje (si no quieres texto, déjalo vacío)
+        if (winnerText) winnerText.text = "";
 
-        // Activa iconos de ganadores de forma segura
+        // Iconos ganadores
         if (icons != null)
         {
             foreach (int ganadorIndex in ganadores)
@@ -86,16 +85,13 @@ public class FinalResultsManager : MonoBehaviour
         }
     }
 
-
     private void OnContinuePressed()
     {
         if (conversionRunning) return;
-        StartCoroutine(AnimateConversion());
+        StartCoroutine(AnimateConversionDiscrete());
     }
 
-
-
-    private IEnumerator AnimateConversion()
+    private IEnumerator AnimateConversionDiscrete()
     {
         conversionRunning = true;
 
@@ -103,10 +99,10 @@ public class FinalResultsManager : MonoBehaviour
         if (rd == null || rd.totalPoints == null || rd.totalPoints.Length == 0)
         {
             if (winnerText) winnerText.text = "No hay puntos para convertir.";
+            conversionRunning = false;
             yield break;
         }
 
-        // Sumamos puntos de la última ronda
         int pointsTotal = 0;
         for (int i = 0; i < rd.totalPoints.Length; i++)
             pointsTotal += rd.totalPoints[i];
@@ -114,50 +110,58 @@ public class FinalResultsManager : MonoBehaviour
         int baseMoney = GameData.instance != null ? GameData.instance.Money : 0;
         int coinsTotal = pointsTotal * Mathf.Max(1, coinsPerPoint);
 
-        // Mensaje inicial
-        if (winnerText)
-            winnerText.text = "";
-
+        if (winnerText) winnerText.text = "";
         if (conversionText) conversionText.gameObject.SetActive(true);
         if (continueButton) continueButton.gameObject.SetActive(false);
 
-        // Duración fija de animación
-        float duration = 1f;
-        float elapsed = 0f;
+  
+        int pointsLeft = pointsTotal;
+        int shownPoints = pointsTotal;
+        int shownMoney = baseMoney;
 
-        while (elapsed < duration)
+        const float minTickDelay = 0.03f;               
+        int maxTicks = Mathf.Max(1, Mathf.FloorToInt(conversionDuration / minTickDelay));
+        int pointsPerTick = Mathf.Max(1, Mathf.CeilToInt((float)pointsLeft / maxTicks));
+        float actualTicks = Mathf.Ceil((float)pointsLeft / pointsPerTick);
+        float tickDelay = (conversionDuration <= 0f) ? 0f : (conversionDuration / actualTicks);
+
+        while (pointsLeft > 0)
         {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / duration);
+            int step = Mathf.Min(pointsPerTick, pointsLeft);
+            pointsLeft -= step;
 
-            // Interpolamos entre inicial y final
-            int shownPoints = Mathf.RoundToInt(Mathf.Lerp(pointsTotal, 0, t));
-            int shownMoney = Mathf.RoundToInt(Mathf.Lerp(baseMoney, baseMoney + coinsTotal, t));
+            shownPoints -= step;
+            shownMoney += step * coinsPerPoint;
 
             if (conversionText)
                 conversionText.text = $"Puntos: {shownPoints} --- Dinero: {shownMoney}";
 
-            yield return null;
+         
+            SoundManager.instance?.PlaySfx("Final:coins");
+
+            if (tickDelay > 0f)
+                yield return new WaitForSeconds(tickDelay);
+            else
+                yield return null;
         }
 
-        // Final fijo
+        // Asegurar valores finales exactos
         if (conversionText)
             conversionText.text = $"Puntos: 0 --- Dinero: {baseMoney + coinsTotal}";
 
+        // Aplicar dinero realmente al final
         if (GameData.instance != null && coinsTotal > 0)
             GameData.instance.AddMoney(coinsTotal);
 
         if (shopButton) shopButton.gameObject.SetActive(true);
         if (mainMenuButton) mainMenuButton.gameObject.SetActive(true);
-        if (winnerText)
-            winnerText.text = "Puedes comprar skins en la tienda";
+        if (winnerText) winnerText.text = "Puedes comprar skins en la tienda";
 
         conversionRunning = false;
     }
 
     public void ShopButton()
     {
-
         SceneManager.LoadScene("Tienda");
     }
 }

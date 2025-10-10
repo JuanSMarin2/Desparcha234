@@ -190,6 +190,7 @@ public class MarbleShooter2D : MonoBehaviour
     {
         if (playerIndex != TurnManager.instance.GetCurrentPlayerIndex()) return;
 
+        SoundManager.instance.PlaySfx("Canicas:whoosh");
         ShootMarble(fuerza);
         isWaitingToEndTurn = true;
 
@@ -219,7 +220,15 @@ public class MarbleShooter2D : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (marble.linearVelocity.magnitude < impactMinVelocity) return;
+
+
+        if (marble.linearVelocity.magnitude < impactMinVelocity) {
+
+            SoundManager.instance.PlaySfx("Canicas:choqueSuave");
+            return;
+        }
+
+        SoundManager.instance.PlaySfx("Canicas:choqueDuro");
 
         var otherShooter = collision.collider.GetComponent<MarbleShooter2D>();
         if (otherShooter != null)
@@ -241,6 +250,8 @@ public class MarbleShooter2D : MonoBehaviour
 
         if (collision.CompareTag("SafeZone"))
         {
+           
+            
             // bonus, poderes, etc. (lo que ya tengas)
             AwardBonusToCurrentTurnIfEliminatedNotCurrent(playerIndex);
             marblePower?.ApplyPower(MarblePowerType.None);
