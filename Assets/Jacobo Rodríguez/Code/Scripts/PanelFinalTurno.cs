@@ -47,6 +47,8 @@ public class PanelFinalTurno : MonoBehaviour
     private int _player1Based;
     private float _baseIconScale = 1f;
 
+    public static event Action<int, bool> OnPanelShown;
+
     void Awake()
     {
         if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
@@ -101,6 +103,9 @@ public class PanelFinalTurno : MonoBehaviour
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
         }
+
+        // Notificar a escuchas (p.ej. IconManagerCatapis) del resultado de este turno
+        OnPanelShown?.Invoke(_player1Based, _success);
 
         // Deshabilitar todos los jacks existentes al mostrar el panel
         var spawners = UnityEngine.Object.FindObjectsByType<JackSpawner>(FindObjectsSortMode.None);

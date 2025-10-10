@@ -16,10 +16,8 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         Fallado             // "fallado"
     }
 
-    [Header("Física")]
-    [SerializeField] private string tagSuelo = "Suelo"; // Asegúrate de poner este tag al objeto de suelo
+    [Header("Física (Z virtual)")]
     [SerializeField] private Transform puntoReinicio;    // Opcional: posición para reiniciar
-    [SerializeField] private float gravedadAlLanzar = 0.65f; // Gravedad al lanzar
     private Rigidbody2D _rb;
     private EstadoLanzamiento _estado = EstadoLanzamiento.PendienteDeLanzar;
 
@@ -107,6 +105,15 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     [Header("Highlight (resaltado cuando está en suelo)")]
     [Tooltip("Objeto hijo que actúa como highlight/pulso visual. Se activa cuando la bola NO está en el aire.")]
     [SerializeField] private GameObject highlight;
+
+    [Header("Audio")]
+    [Tooltip("Clave de SFX en SoundManager para la advertencia near-ground (ej: 'catapis:warning')")]
+    [SerializeField] private string sfxNearGroundKey = "catapis:warning";
+    [Tooltip("Cooldown (seg) entre advertencias para evitar spam")]
+    [SerializeField] private float nearGroundSfxCooldown = 0.35f;
+    [Tooltip("Clave de SFX en SoundManager al lanzar/woosh (ej: 'catapis:woosh')")]
+    [SerializeField] private string sfxLaunchKey = "catapis:woosh";
+    private float _lastNearGroundSfxTime = -999f;
 
     // Eventos estáticos para que cada Jack se suscriba (opción 1)
     public static event System.Action BolaLanzada;   // se dispara justo al lanzar
@@ -223,11 +230,10 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     // Update is called once per frame
     void Update()
     {
-        // Simulación Z virtual: integrar solo cuando está en el aire
-        if (useVirtualZ && _estado == EstadoLanzamiento.EnElAire)
+        // Simulación Z virtual: integrar solo cuando está en el aire (siempre Z virtual)
+        if (_estado == EstadoLanzamiento.EnElAire)
         {
             _vz += gravedadVirtualZ * Time.deltaTime;
-            // Aplicar arrastre en Z; opcionalmente solo al descender
             if (dragZ > 0f)
             {
                 if (!dragOnlyOnDescent || _vz < 0f)
@@ -235,7 +241,6 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
                     _vz -= dragZ * _vz * Time.deltaTime;
                 }
             }
-            // Limitar velocidad de descenso (velocidad terminal)
             if (limitDescentSpeed && _vz < 0f)
             {
                 float minVz = -Mathf.Abs(maxDescentSpeed);
@@ -244,7 +249,6 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
 
             _z += _vz * Time.deltaTime;
 
-            // Asegurar que no se mueva físicamente en Y
             if (_rb != null)
             {
                 var vel = _rb.linearVelocity;
@@ -255,22 +259,19 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
                 }
                 if (_rb.gravityScale != 0f)
                 {
-                    _rb.gravityScale = 0f; // sin gravedad física en modo Z virtual
+                    _rb.gravityScale = 0f;
                 }
             }
 
-            // Advertencia: cercano al suelo (pero aún en el aire) SOLO cuando va bajando
             bool descending = _vz <= 0f;
 
-            // Calcular visibilidad del sprite en base a la escala visual s y el umbral de desaparición
-            float alturaForVis = useVirtualZ ? Mathf.Max(0f, _z) : Mathf.Max(0f, transform.position.y - _launchY);
+            float alturaForVis = Mathf.Max(0f, _z);
             float scalePerUnitVis = Mathf.Lerp(scalePerUnitMin, scalePerUnitMax, Mathf.Clamp01(_launchForceNorm));
             float sVis = Mathf.Clamp(1f + alturaForVis * scalePerUnitVis, 1f, maxVisualScale);
-            bool bolaVisible = sVis < disappearScaleThreshold; // true si no está desaparecida
+            bool bolaVisible = sVis < disappearScaleThreshold;
 
-            // Dos criterios posibles para mostrar advertencia
             bool criterioNearGround = _z > 0f && _z <= distanciaAdvertenciaZ;
-            bool criterioBolaEnPantalla = descending && bolaVisible; // solicitado: descendiendo y visible
+            bool criterioBolaEnPantalla = descending && bolaVisible;
 
             bool mostrarAdvertencia = descending && criterioNearGround;
             if (mostrarAdvertencia != PorTocarSuelo)
@@ -278,7 +279,6 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
                 ComunicarPorTocarSuelo(mostrarAdvertencia);
             }
 
-            // Suelo virtual
             if (_z <= 0f)
             {
                 _z = 0f;
@@ -286,7 +286,6 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
                 CambiarEstado(EstadoLanzamiento.Fallado);
 
                 var smErr = SoundManager.instance; if (smErr != null) smErr.PlaySfx("catapis:error");
-
                 var progressionZ = FindAnyObjectByType<Progression>();
                 progressionZ?.PerderPorTocarSuelo();
             }
@@ -295,9 +294,7 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         // Visual fake 3D: escalar sprite y ajustar sombra mientras esté en el aire
         if (_estado == EstadoLanzamiento.EnElAire && spriteRoot != null)
         {
-            float altura = useVirtualZ
-                ? Mathf.Max(0f, _z)
-                : Mathf.Max(0f, transform.position.y - _launchY);
+            float altura = Mathf.Max(0f, _z);
 
             // Efecto depende de fuerza: interpola scalePerUnit por fuerza normalizada
             float scalePerUnit = Mathf.Lerp(scalePerUnitMin, scalePerUnitMax, Mathf.Clamp01(_launchForceNorm));
@@ -314,7 +311,7 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
             if (keepSpriteAtGround && spriteRoot != transform)
             {
                 var lp = spriteRoot.localPosition;
-                lp.y = useVirtualZ ? _spriteBaseLocalPos.y : _spriteBaseLocalPos.y - altura; // cancelar solo si sube físicamente
+                lp.y = _spriteBaseLocalPos.y; // cancelar solo si sube físicamente
                 spriteRoot.localPosition = lp;
             }
 
@@ -344,72 +341,36 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         }
     }
 
-    // Nuevo: lanzar hacia ARRIBA.
+    // Nuevo: lanzar hacia ARRIBA (solo Z virtual)
     public void DarVelocidadHaciaArriba(float fuerza)
     {
         if (_rb == null) return;
 
         CambiarEstado(EstadoLanzamiento.EnElAire);
         ComunicarPorTocarSuelo(false); // al iniciar el vuelo, aún lejos del suelo
+        // SFX de lanzamiento (woosh)
+        var smLaunch = SoundManager.instance; if (smLaunch != null && !string.IsNullOrWhiteSpace(sfxLaunchKey)) smLaunch.PlaySfx(sfxLaunchKey);
         UiManager ui_ = FindAnyObjectByType<UiManager>();
         ui_?.MostrarTextoAtrapa();
 
-        if (useVirtualZ)
-        {
-            // En modo Z virtual: no usar Y física ni gravedad 2D
-            _rb.gravityScale = 0f;
-            Vector2 v2 = _rb.linearVelocity;
-            v2.y = 0f; // no subir en Y
-            _rb.linearVelocity = v2;
-
-            _z = 0f;                       // partimos del suelo virtual
-            _vz = Mathf.Abs(fuerza);       // velocidad inicial en Z virtual
-        }
-        else
-        {
-            _rb.gravityScale = gravedadAlLanzar; // Activar gravedad al lanzar (física 2D)
-            // Interpretamos "fuerza" como velocidad objetivo en m/s hacia arriba
-            Vector2 v = _rb.linearVelocity;
-            v.y = Mathf.Abs(fuerza);
-            _rb.linearVelocity = v;
-        }
+        // En modo Z virtual siempre
+        _rb.gravityScale = 0f;
+        Vector2 v2 = _rb.linearVelocity; v2.y = 0f; _rb.linearVelocity = v2;
+        _z = 0f;                       // partimos del suelo virtual
+        _vz = Mathf.Abs(fuerza);       // velocidad inicial en Z virtual
 
         // Base para "altura visual" y fuerza
         _launchY = transform.position.y;
         _launchForce = Mathf.Abs(fuerza);
         _launchForceNorm = maxExpectedForce > 0f ? Mathf.Clamp01(_launchForce / maxExpectedForce) : 1f;
 
-        // Nuevo: notificar a Progression que la bola fue lanzada para que habilite los Jacks
         var progression = FindAnyObjectByType<Progression>();
         progression?.OnBallLaunched();
-
-        // Iniciar animación local
         empezarAnimacion();
-        // Notificar a los jacks
         BolaLanzada?.Invoke();
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        // En modo Z virtual, ignorar colisiones físicas con el suelo; el contacto se maneja por z<=0
-        if (useVirtualZ) return;
-        if (_estado != EstadoLanzamiento.EnElAire) return;
-        if (!collision.collider.CompareTag(tagSuelo)) return;
-
-        // Toca suelo -> pierde turno
-        CambiarEstado(EstadoLanzamiento.Fallado);
-        ComunicarPorTocarSuelo(false);
-
-        var smErr2 = SoundManager.instance; if (smErr2 != null) smErr2.PlaySfx("catapis:error");
-
-        Progression progression = FindAnyObjectByType<Progression>();
-        if (progression != null)
-        {
-            progression.PerderPorTocarSuelo();
-        }
-    }
-
-    // Nuevo: interacción táctil / click para recoger la bola (alternativa al shake lateral)
+    // Implementación requerida por IPointerDownHandler debe ser pública
     public void OnPointerDown(PointerEventData eventData)
     {
         if (!permitirRecogerPorToque) return;
@@ -428,8 +389,8 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         if (_yaRecogida) return;
         if (_estado != EstadoLanzamiento.EnElAire) return; // solo en vuelo
         if (!PorTocarSuelo) return; // debe estar en ventana near-ground
-        // Debe estar descendiendo
-        bool descending = useVirtualZ ? (_vz <= 0f) : (_rb != null ? _rb.linearVelocity.y <= 0f : true);
+        // Debe estar descendiendo (Z virtual)
+        bool descending = _vz <= 0f;
         if (!descending) return;
 
         _yaRecogida = true; // bloquear múltiples
@@ -547,6 +508,16 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     public void ComunicarPorTocarSuelo(bool valor)
     {
         PorTocarSuelo = valor;
+        // disparar SFX cuando entra a ventana near-ground
+        if (valor)
+        {
+            if (Time.unscaledTime - _lastNearGroundSfxTime >= nearGroundSfxCooldown)
+            {
+                var sm = SoundManager.instance;
+                if (sm != null && !string.IsNullOrWhiteSpace(sfxNearGroundKey)) sm.PlaySfx(sfxNearGroundKey);
+                _lastNearGroundSfxTime = Time.unscaledTime;
+            }
+        }
         if (_ui == null) _ui = FindAnyObjectByType<UiManager>();
         if (_ui != null)
         {

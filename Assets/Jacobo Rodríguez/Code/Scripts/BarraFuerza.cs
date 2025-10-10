@@ -44,6 +44,8 @@ public class BarraFuerza : MonoBehaviour
     [Header("Gesto único (arriba)")]
     [SerializeField] private float upShakeThreshold = 1.6f;    // umbral para lanzar
     [SerializeField] private float pickupShakeThreshold = 1.2f; // umbral para atrapar (más permisivo)
+    [Tooltip("Umbral para atrapar agitando hacia abajo (ligeramente más alto que hacia arriba)")]
+    [SerializeField] private float downPickupThreshold = 1.6f;
     [SerializeField] private float lateralShakeDelay = 0.15f;  // pequeña espera tras lanzar
     private bool _lateralTapArmed = false;     // habilita pickup tras lanzar por shake
     private bool _lastLaunchWasByShake = false;
@@ -299,8 +301,11 @@ public class BarraFuerza : MonoBehaviour
         bool isAirTapWindow = bolita.Estado == Bolita.EstadoLanzamiento.EnElAire;
         bool cooldownReady = (Time.time - _ultimoShakeTime) >= shakeCooldown;
         bool delayReady = (Time.time - _launchByShakeTime) >= lateralShakeDelay;
-        bool upOK = Mathf.Abs(upComponent) >= upShakeThreshold;           // lanzar
-        bool upPickupOK = Mathf.Abs(upComponent) >= pickupShakeThreshold; // atrapar
+        bool upOK = upComponent >= upShakeThreshold;           // lanzar SOLO si la componente es hacia arriba
+        // Ajuste: permitir atrapar tanto hacia arriba como hacia abajo, con umbral mayor para abajo
+        bool upPickupOK = (upComponent >= 0f)
+            ? (upComponent >= pickupShakeThreshold)
+            : (-upComponent >= downPickupThreshold);
         bool resetGuardReady = Time.time >= _shakeBlockedUntil; // guardado post-reset
 
         bool touchActive = false;

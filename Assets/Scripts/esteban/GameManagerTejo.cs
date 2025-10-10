@@ -37,7 +37,7 @@ public class GameManagerTejo : MonoBehaviour
         if (tutorialManager != null)
         {
             int numJugador = TurnManager.instance.CurrentTurn();
-            switch 
+            switch
                 (numJugador)
             {
                 case 1:
@@ -51,9 +51,9 @@ public class GameManagerTejo : MonoBehaviour
                     break;
                 case 4:
                     tutorialManager.MostrarPanel(7);
-                    break;                
+                    break;
             }
-            
+
         }
         else
         {
@@ -66,7 +66,7 @@ public class GameManagerTejo : MonoBehaviour
         Debug.Log($"Jugador {jugadorID} gana {puntos} puntos");
         puntajes[jugadorID] += puntos;
         if (puntajeTextos != null && jugadorID >= 0 && jugadorID < puntajeTextos.Length)
-            puntajeTextos[jugadorID].text = $"J{jugadorID + 1}: {puntajes[jugadorID]}";
+            puntajeTextos[jugadorID].text = $"{puntajes[jugadorID]}";
 
         // Victoria inmediata por puntaje máximo
         if (puntajes[jugadorID] >= puntajeMaximo)
@@ -86,7 +86,7 @@ public class GameManagerTejo : MonoBehaviour
     {
         puntajes[jugadorID] -= puntos;
         if (puntajeTextos != null && jugadorID >= 0 && jugadorID < puntajeTextos.Length)
-            puntajeTextos[jugadorID].text = $"J{jugadorID + 1}: {puntajes[jugadorID]}";
+            puntajeTextos[jugadorID].text = $"{puntajes[jugadorID]}";
     }
 
     // Caso especial: cuando nadie cae en centro ni toca papeletas
@@ -140,6 +140,11 @@ public class GameManagerTejo : MonoBehaviour
     public void RegistrarTejoLanzado()
     {
         tirosRealizados++;
+
+        // Notificar UI (si existe el JoystickControl principal)
+        var jc = FindObjectOfType<JoystickControl>();
+        if (jc != null)
+            jc.RefreshTirosPanel();
 
         if (tirosRealizados >= maxTiros)
         {
@@ -214,4 +219,13 @@ public class GameManagerTejo : MonoBehaviour
         //  Desbloquear joysticks al iniciar turno
         if (blocker != null) blocker.SetActive(false);
     }
+
+    // Método público para que otros scripts puedan consultar cuántos tiros quedan
+    public int ShotsRemaining()
+    {
+        return Mathf.Max(0, maxTiros - tirosRealizados);
+    }
+
+    // (Opcional) Exponer maxTiros si hace falta
+    public int MaxTiros => maxTiros;
 }

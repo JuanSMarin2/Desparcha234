@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System; // agregado para eventos
+using System.Collections; // para IEnumerators locales
 
 public class SoundManager : MonoBehaviour
 {
@@ -206,6 +207,28 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    // Detiene inmediatamente cualquier SFX en reproducción en el canal compartido
+    public void StopSfx()
+    {
+        if (_sfxSource != null) _sfxSource.Stop();
+    }
+
+    // Dispara un SFX cuando el juego esté "despausado" (timeScale >= 1)
+    // Útil para que los sonidos de salida de pantallas/gates ocurran al reanudar.
+    public void PlaySfxWhenUnpaused(string key, float volumeScale = 1f)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        StartCoroutine(CoPlaySfxWhenUnpaused(key, volumeScale));
+    }
+
+    private IEnumerator CoPlaySfxWhenUnpaused(string key, float volumeScale)
+    {
+        // Esperar a que timeScale sea 1 (o mayor) usando frames en tiempo real (no dependemos de WaitForSeconds)
+        while (Time.timeScale < 1f)
+            yield return null; // avanza por frame aunque timeScale=0
+        PlaySfx(key, volumeScale);
+    }
+
     // ================== PLAYBACK MÚSICA ==================
     public void PlayMusic(string key, bool loop = true)
     {
@@ -220,6 +243,20 @@ public class SoundManager : MonoBehaviour
         _musicSource.clip = clip;
         _musicSource.volume = musicVolume;
         _musicSource.Play();
+    }
+
+    // Inicia música cuando el juego vuelva a estar despausado
+    public void PlayMusicWhenUnpaused(string key, bool loop = true)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        StartCoroutine(CoPlayMusicWhenUnpaused(key, loop));
+    }
+
+    private IEnumerator CoPlayMusicWhenUnpaused(string key, bool loop)
+    {
+        while (Time.timeScale < 1f)
+            yield return null;
+        PlayMusic(key, loop);
     }
 
     public void StopMusic()
