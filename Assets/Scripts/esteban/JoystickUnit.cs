@@ -139,7 +139,16 @@ public class JoystickUnit : MonoBehaviour, IPointerDownHandler, IDragHandler, IP
         isDragging = true;
 
         if (timer == 0f)
+        {
             timer = 0.0001f;
+
+            // reproducir SFX de cronómetro al iniciar el temporizador
+            var sm = FindAnyObjectByType<SoundManager>();
+            if (sm != null)
+            {
+                sm.PlaySfx("Tejo:Cronometro");
+            }
+        }
 
         if (tutorialManagerTejo != null && tutorialManagerTejo.ContinuarButton != null)
             tutorialManagerTejo.ContinuarButton.interactable = false;

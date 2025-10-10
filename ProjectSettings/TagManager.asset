@@ -14,6 +14,12 @@ TagManager:
   - Tejo
   - Centro
   - Papeleta
+  - Papeleta4
+  - Papeleta1
+  - Papeleta3
+  - Papeleta2
+  - DestroyZone
+  - Tablero
   layers:
   - Default
   - TransparentFX
