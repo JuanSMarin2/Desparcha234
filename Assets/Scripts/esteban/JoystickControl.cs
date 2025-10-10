@@ -186,6 +186,12 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        // reproducir SFX al terminar la animación de vuelo (impacto visual)
+        var sm = FindAnyObjectByType<SoundManager>();
+        if (sm != null)
+        {
+            sm.PlaySfx("Tejo:Woosh");
+        }
         if (lanzando) return; // protege de dobles taps mientras vuela el tejo
 
         IsDragging = false;
