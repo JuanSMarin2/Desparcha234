@@ -37,20 +37,84 @@ public class GameManagerTejo : MonoBehaviour
         if (tutorialManager != null)
         {
             int numJugador = TurnManager.instance.CurrentTurn();
+            int numPlayers = (RoundData.instance != null) ? RoundData.instance.numPlayers : 0;
+            int NumActivePlayers = numPlayers;
             switch
                 (numJugador)
             {
                 case 1:
-                    tutorialManager.MostrarPanel(4);
+                    
+
+                    switch (numPlayers)
+                    {
+                        case 2:
+                            tutorialManager.MostrarPanel(12);
+                            break;
+                        case 3:
+                            tutorialManager.MostrarPanel(1);
+                            break;
+                        case 4:
+                            tutorialManager.MostrarPanel(4);
+                            break;
+                        default:
+                            Debug.LogError("Número de jugadores no válido: " + numPlayers);
+                            break;
+                    }
+                    
                     break;
-                case 2:
-                    tutorialManager.MostrarPanel(5);
+                case 2:                    
+                    switch (numPlayers)
+                    {
+                        case 2:
+                            tutorialManager.MostrarPanel(0);
+                            break;
+                        case 3:
+                            tutorialManager.MostrarPanel(2);
+                            break;
+                        case 4:
+                            tutorialManager.MostrarPanel(5);
+                            break;
+                        default:
+                            Debug.LogError("Número de jugadores no válido: " + numPlayers);
+                            break;
+                    }
+                    
                     break;
                 case 3:
-                    tutorialManager.MostrarPanel(6);
+                    switch (numPlayers)
+                    {
+                        case 2:
+                            //No aplica
+                            break;
+                        case 3:
+                            tutorialManager.MostrarPanel(3);
+                            break;
+                        case 4:
+                            tutorialManager.MostrarPanel(6);
+                            break;
+                        default:
+                            Debug.LogError("Número de jugadores no válido: " + numPlayers);
+                            break;
+                    }
+                    
                     break;
                 case 4:
-                    tutorialManager.MostrarPanel(7);
+                    switch (numPlayers)
+                    {
+                        case 2:
+                            //No aplica
+                            break;
+                        case 3:
+                            //No aplica
+                            break;
+                        case 4:
+                            tutorialManager.MostrarPanel(7);
+                            break;
+                        default:
+                            Debug.LogError("Número de jugadores no válido: " + numPlayers);
+                            break;
+                    }
+                    
                     break;
             }
 
