@@ -6,8 +6,12 @@ public class Semaforo : MonoBehaviour
 	[Header("Timer reference")]
 	[SerializeField] private StartTimintg timer;
 
+	[Header("Sound")]
+	[SerializeField] public AudioClip semaforoSound;
+	[SerializeField] private AudioSource globalASource;
+
 	[Header("Sprites for seconds 0..3")]
-	[SerializeField] private Sprite image0;
+ 	[SerializeField] private Sprite image0;
 	[SerializeField] private Sprite image1;
 	[SerializeField] private Sprite image2;
 	[SerializeField] private Sprite image3;
@@ -17,6 +21,7 @@ public class Semaforo : MonoBehaviour
 
 	void Start()
 	{
+		globalASource.PlayOneShot(semaforoSound);
 		// If no explicit targetImage set, try to get one from this GameObject
 		if (targetImage == null)
 			targetImage = GetComponent<Image>();
