@@ -19,6 +19,7 @@ TagManager:
   - Papeleta3
   - Papeleta2
   - DestroyZone
+  - Tablero
   layers:
   - Default
   - TransparentFX

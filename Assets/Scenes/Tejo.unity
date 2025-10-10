@@ -4271,7 +4271,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'J3: 0'
+  m_Text: 0
 --- !u!222 &437441275
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4856,7 +4856,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'J4: 0'
+  m_Text: 0
 --- !u!222 &516274328
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13600,8 +13600,6 @@ MonoBehaviour:
   velocidadBajada: 0.5
   barraDeFuerza: {fileID: 1214087833}
   barraOffset: {x: 1.3, y: -0.8, z: 0}
-  tirosPanel: {fileID: 1208883789}
-  tirosText: {fileID: 1538073490}
   playerTurnPanels:
   - {fileID: 1208883789}
   - {fileID: 1905743865}
@@ -14938,13 +14936,11 @@ MonoBehaviour:
   gameId: Tejo
   sfxClips:
   - key: Impacto-Arena
-    clip: {fileID: 8300000, guid: ad2794b99e417384597ff5e83bac28aa, type: 3}
+    clip: {fileID: 8300000, guid: 76a6d9516f8e5174cacb4380ff57781c, type: 3}
   - key: Cronometro
-    clip: {fileID: 8300000, guid: f0790687d0215d947bc2a3758e2bc650, type: 3}
-  - key: Warning
-    clip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
+    clip: {fileID: 8300000, guid: cc1dfd3ebf6a3eb42a3fe7303fe4c8a7, type: 3}
   - key: Explosion
-    clip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
+    clip: {fileID: 8300000, guid: 8df8917c75bf40949a76f1606f46f4d7, type: 3}
   - key: Impacto-Other
     clip: {fileID: 8300000, guid: b9fdf2f73d477794ca691fa8b7255514, type: 3}
   musicClips: []
@@ -15036,7 +15032,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'J2: 0'
+  m_Text: 0
 --- !u!222 &1719764866
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -15935,7 +15931,7 @@ GameObject:
   - component: {fileID: 1813263143}
   m_Layer: 0
   m_Name: RecTablero (1)
-  m_TagString: Untagged
+  m_TagString: Tablero
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -16069,6 +16065,53 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1830111807
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1830111809}
+  - component: {fileID: 1830111808}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1830111808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1830111807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41ba789b5b6eeab4ba66e98071d5a1f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sfxVolume: 1
+  musicVolume: 1
+  musicLoopDefault: 1
+--- !u!4 &1830111809
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1830111807}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.861932, y: -0.061880607, z: -0.04032733}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1872303036
 GameObject:
   m_ObjectHideFlags: 0
@@ -16347,7 +16390,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'J1: 0'
+  m_Text: 0
 --- !u!222 &1883893404
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -19014,3 +19057,4 @@ SceneRoots:
   - {fileID: 538332544}
   - {fileID: 1684835216}
   - {fileID: 1312708042}
+  - {fileID: 1830111809}

@@ -55,6 +55,18 @@ public class Tejo : MonoBehaviour
             return;
         }
 
+
+        //  Tablero
+        if (other.CompareTag("Tablero"))
+        {
+            // reproducir SFX al terminar la animación de vuelo (impacto visual)
+            var sm = FindAnyObjectByType<SoundManager>();
+            if (sm != null)
+            {
+                sm.PlaySfx("Tejo:Impacto-Arena");
+            }
+            return;
+        }
         
 
         //  Centro

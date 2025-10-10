@@ -51,10 +51,6 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     [SerializeField] private Vector3 barraOffset = new Vector3(1f, 0f, 0f);
     // mueve la barra a la derecha por defecto
 
-    [Header("Tiros UI")]
-    [SerializeField] private GameObject tirosPanel; // panel que contiene el contador de tiros (fallback)
-    [SerializeField] private Text tirosText; // texto que muestra cuántos tiros quedan (fallback)
-
     [Header("Panels por jugador (opcional)")]
     [Tooltip("Paneles (0..3) que se activan según el jugador en turno. Asignar 4 GameObjects.")]
     [SerializeField] private GameObject[] playerTurnPanels;
@@ -85,6 +81,13 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         if (blocker != null)
             blocker.SetActive(false);
 
+        // Validación útil: asegúrate de que el array tenga al menos la cantidad esperada
+        if (playerTurnPanels != null && playerTurnPanels.Length < 4)
+            Debug.LogWarning($"JoystickControl: playerTurnPanels length = {playerTurnPanels.Length}. Esperado 4. Revisa asignaciones en el inspector.");
+
+        if (playerPanelTexts != null && playerPanelTexts.Length < 4)
+            Debug.LogWarning($"JoystickControl: playerPanelTexts length = {playerPanelTexts.Length}. Esperado 4 si usas textos por jugador.");
+
         // Aseguramos estado inicial de panels por jugador
         UpdatePlayerPanels();
         RefreshTirosPanel();
@@ -114,19 +117,19 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         {
             case 1:
                 transform.position = wheel0.position;
-                Image.sprite = playerSprites[0]; // Sprite del jugador 1
+                if (playerSprites != null && playerSprites.Length > 0) Image.sprite = playerSprites[0]; // Sprite del jugador 1
                 break;
             case 2:
                 transform.position = wheel1.position;
-                Image.sprite = playerSprites[1]; // Sprite del jugador 2
+                if (playerSprites != null && playerSprites.Length > 1) Image.sprite = playerSprites[1]; // Sprite del jugador 2
                 break;
             case 3:
                 transform.position = wheel2.position;
-                Image.sprite = playerSprites[2]; // Sprite del jugador 3
+                if (playerSprites != null && playerSprites.Length > 2) Image.sprite = playerSprites[2]; // Sprite del jugador 3
                 break;
             case 4:
                 transform.position = wheel3.position;
-                Image.sprite = playerSprites[3]; // Sprite del jugador 4
+                if (playerSprites != null && playerSprites.Length > 3) Image.sprite = playerSprites[3]; // Sprite del jugador 4
                 break;
         }
 
@@ -139,7 +142,6 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerDown(PointerEventData eventData)
     {
-
         // Solo permitir mover el centro si NO se está lanzando
         if (!lanzando)
         {
@@ -270,9 +272,6 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         // reactivar la barra de fuerza sólo si el joystick sigue activo en la jerarquía
         if (barraFuerza != null && gameObject.activeInHierarchy)
             barraFuerza.gameObject.SetActive(true);
-
-        // ⚠️ Ya NO contamos tiros aquí. El control está en GameManagerTejo.
-        //    Tampoco cambiamos de ronda aquí: se hace cuando el último tejo se DETIENE (TejoTermino).
     }
 
     /// <summary>
@@ -285,27 +284,22 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         int remaining = GameManagerTejo.instance.ShotsRemaining();
 
-        int turno = (TurnManager.instance != null) ? TurnManager.instance.CurrentTurn() : -1;
-        int idx = turno - 1;
+        int playerIdx = -1;
+        if (TurnManager.instance != null)
+            playerIdx = TurnManager.instance.GetCurrentPlayerIndex(); // 0-based
 
         // Si hay textos por panel configurados, escribir en el correspondiente
-        if (playerPanelTexts != null && idx >= 0 && idx < playerPanelTexts.Length && playerPanelTexts[idx] != null)
+        if (playerPanelTexts != null && playerIdx >= 0 && playerIdx < playerPanelTexts.Length && playerPanelTexts[playerIdx] != null)
         {
-            playerPanelTexts[idx].text = $"Tiros: {remaining}";
-            // Asegurar visibilidad del panel del jugador (UpdatePlayerPanels controla activación)
-            if (playerTurnPanels != null && idx < playerTurnPanels.Length && playerTurnPanels[idx] != null)
-                playerTurnPanels[idx].SetActive(true);
-            // ocultar el panel fallback si existe
-            if (tirosPanel != null) tirosPanel.SetActive(false);
+            playerPanelTexts[playerIdx].text = $"Tiros: {remaining}";
+            // aseguramos que el panel del jugador esté activo
+            if (playerTurnPanels != null && playerIdx < playerTurnPanels.Length && playerTurnPanels[playerIdx] != null)
+                playerTurnPanels[playerIdx].SetActive(true);
         }
         else
         {
-            // fallback: usar el tirosPanel y tirosText únicos
-            if (tirosText != null)
-                tirosText.text = remaining.ToString();
-
-            if (tirosPanel != null)
-                tirosPanel.SetActive(gameObject.activeInHierarchy);
+            if (playerIdx < 0)
+                Debug.LogWarning("JoystickControl.RefreshTirosPanel: TurnManager no disponible o no hay jugador en turno.");
         }
     }
 
@@ -317,13 +311,24 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     {
         if (playerTurnPanels == null || playerTurnPanels.Length == 0) return;
 
-        int turno = (TurnManager.instance != null) ? TurnManager.instance.CurrentTurn() : -1;
+        int playerIdx = -1;
+        if (TurnManager.instance != null)
+            playerIdx = TurnManager.instance.GetCurrentPlayerIndex(); // 0-based
+
+        if (playerIdx < 0)
+        {
+            // no hay jugador válido; desactivar todos
+            DeactivateAllPlayerPanels();
+            return;
+        }
+
         for (int i = 0; i < playerTurnPanels.Length; i++)
         {
             GameObject panel = playerTurnPanels[i];
             if (panel == null) continue;
 
-            bool shouldBeActive = (turno - 1) == i && gameObject.activeInHierarchy;
+            // No depender del estado del joystick: si es el índice del jugador en turno, activar.
+            bool shouldBeActive = (playerIdx == i);
             panel.SetActive(shouldBeActive);
 
             // aplicar color al texto del panel si existe
@@ -338,12 +343,9 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
                 playerPanelTexts[i].color = colorToApply;
             }
 
-            // Si el panel no es el activo, limpiar su texto de tiros para evitar confusión
-            if (!(turno - 1 == i) && playerPanelTexts != null && i < playerPanelTexts.Length && playerPanelTexts[i] != null)
-            {
-                // opcional: dejar el texto normal o vacío; aquí lo limpiamos
-                // playerPanelTexts[i].text = string.Empty;
-            }
+            // Si el panel no es el activo, opcionalmente limpiar su texto de tiros
+            // if (!(playerIdx == i) && playerPanelTexts != null && i < playerPanelTexts.Length && playerPanelTexts[i] != null)
+            //     playerPanelTexts[i].text = string.Empty;
         }
     }
 
@@ -404,29 +406,18 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     void OnEnable()
     {
-        // Mostrar y refrescar panel de tiros cuando se activa el joystick principal
-        if (tirosPanel != null)
-            tirosPanel.SetActive(true);
-
         RefreshTirosPanel();
-
-        // actualizar panels por jugador al activarse
         UpdatePlayerPanels();
 
         if (barraFuerza != null)
             barraFuerza.gameObject.SetActive(true);
 
         if (objectToActivateWhenEnabled != null)
-        {
             objectToActivateWhenEnabled.SetActive(true);
-        }
     }
 
     void OnDisable()
     {
-        if (tirosPanel != null)
-            tirosPanel.SetActive(false);
-
         // desactivar panels por jugador cuando se desactiva el joystick
         DeactivateAllPlayerPanels();
 
@@ -434,8 +425,6 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
             barraFuerza.gameObject.SetActive(false);
 
         if (objectToActivateWhenEnabled != null && deactivateOnDisable)
-        {
             objectToActivateWhenEnabled.SetActive(false);
-        }
     }
 }

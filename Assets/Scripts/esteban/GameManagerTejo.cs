@@ -66,7 +66,7 @@ public class GameManagerTejo : MonoBehaviour
         Debug.Log($"Jugador {jugadorID} gana {puntos} puntos");
         puntajes[jugadorID] += puntos;
         if (puntajeTextos != null && jugadorID >= 0 && jugadorID < puntajeTextos.Length)
-            puntajeTextos[jugadorID].text = $"J{jugadorID + 1}: {puntajes[jugadorID]}";
+            puntajeTextos[jugadorID].text = $"{puntajes[jugadorID]}";
 
         // Victoria inmediata por puntaje máximo
         if (puntajes[jugadorID] >= puntajeMaximo)
@@ -86,7 +86,7 @@ public class GameManagerTejo : MonoBehaviour
     {
         puntajes[jugadorID] -= puntos;
         if (puntajeTextos != null && jugadorID >= 0 && jugadorID < puntajeTextos.Length)
-            puntajeTextos[jugadorID].text = $"J{jugadorID + 1}: {puntajes[jugadorID]}";
+            puntajeTextos[jugadorID].text = $"{puntajes[jugadorID]}";
     }
 
     // Caso especial: cuando nadie cae en centro ni toca papeletas
