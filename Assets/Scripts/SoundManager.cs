@@ -206,6 +206,12 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    // Detiene inmediatamente cualquier SFX en reproducción en el canal compartido
+    public void StopSfx()
+    {
+        if (_sfxSource != null) _sfxSource.Stop();
+    }
+
     // ================== PLAYBACK MÚSICA ==================
     public void PlayMusic(string key, bool loop = true)
     {

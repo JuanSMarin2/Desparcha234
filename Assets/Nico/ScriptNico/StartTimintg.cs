@@ -17,6 +17,7 @@ public class StartTimintg : MonoBehaviour
 
     private System.Collections.IEnumerator DisableAfterDelay()
     {
+      
         float remaining = delaySeconds;
         // Update the text each frame until the delay elapses
         while (remaining > 0f)
