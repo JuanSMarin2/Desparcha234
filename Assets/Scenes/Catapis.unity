@@ -2941,6 +2941,7 @@ GameObject:
   - component: {fileID: 862109079}
   - component: {fileID: 862109078}
   - component: {fileID: 862109082}
+  - component: {fileID: 862109083}
   m_Layer: 5
   m_Name: PanelPostTurno
   m_TagString: Untagged
@@ -3125,6 +3126,42 @@ MonoBehaviour:
   recolorAlEvento: 1
   desaturarEliminado: 0
   desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+--- !u!114 &862109083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 862109076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d1b12cee7e360046bb76f91c9856168, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icon: {fileID: 216101705}
+  defaultProvider: {fileID: 862109079}
+  players:
+  - happyBySkin:
+    - {fileID: -9142250121294296064, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+    sadBySkin:
+    - {fileID: 4613267395866423043, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - happyBySkin:
+    - {fileID: 6022938833314608076, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+    sadBySkin:
+    - {fileID: -5587926677601744592, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - happyBySkin:
+    - {fileID: 2952744490144450112, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+    sadBySkin:
+    - {fileID: -6235709884887125464, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - happyBySkin:
+    - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    sadBySkin:
+    - {fileID: -8531155124128328185, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  cupImages:
+  - {fileID: 559868339}
+  - {fileID: 2146188791}
+  - {fileID: 790351023}
+  - {fileID: 515388866}
 --- !u!1 &881824594
 GameObject:
   m_ObjectHideFlags: 0
@@ -6221,6 +6258,7 @@ MonoBehaviour:
   ObjetoOcultar:
   - {fileID: 417909093}
   - {fileID: 572626908}
+  - {fileID: 907830083}
 --- !u!1 &1585000447
 GameObject:
   m_ObjectHideFlags: 0
@@ -6397,17 +6435,17 @@ MonoBehaviour:
   _sprite: {fileID: 1592149801}
   spriteRoot: {fileID: 1592149802}
   shadow: {fileID: 376087871}
-  scalePerUnitMin: 2.2
-  scalePerUnitMax: 5.6
-  maxVisualScale: 20
-  disappearScaleThreshold: 8.8
+  scalePerUnitMin: 1.92
+  scalePerUnitMax: 4.08
+  maxVisualScale: 19.1
+  disappearScaleThreshold: 9.43
   alphaEnElAire: 1
   alphaEnSuelo: 1
   colorJugador1: {r: 0.8862745, g: 0.16078432, b: 0.24313726, a: 1}
   colorJugador2: {r: 0, g: 0.3882353, b: 0.76862746, a: 1}
   colorJugador3: {r: 0.8784314, g: 0.8862745, b: 0.2784314, a: 1}
   colorJugador4: {r: 0.20784314, g: 0.68235296, b: 0, a: 1}
-  maxExpectedForce: 200
+  maxExpectedForce: 156.1
   keepSpriteAtGround: 0
   shadowShrinkPerUnit: 0.28
   shadowMinScale: 0.55
@@ -6416,9 +6454,9 @@ MonoBehaviour:
   gravedadVirtualZ: -9.81
   dragZ: 3
   limitDescentSpeed: 1
-  maxDescentSpeed: 3.88
+  maxDescentSpeed: 3.18
   dragOnlyOnDescent: 1
-  distanciaAdvertenciaZ: 5.05
+  distanciaAdvertenciaZ: 3.85
   permitirRecogerPorToque: 0
   inputImage: {fileID: 58468174}
   _animator: {fileID: 1592149804}
@@ -6525,8 +6563,8 @@ MonoBehaviour:
   camMundo: {fileID: 1215972837}
   usarZActualDelObjeto: 1
   zMundo: 0
-  suavizarMovimiento: 0
-  duracion: 0.15
+  suavizarMovimiento: 1
+  duracion: 0.1
   curva:
     serializedVersion: 2
     m_Curve:
@@ -7164,8 +7202,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 3845272114
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 0.8980392}
+    rgba: 3858759679
+  m_fontColor: {r: 1, g: 1, b: 1, a: 0.8980392}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -8761,6 +8799,10 @@ PrefabInstance:
     - target: {fileID: 5028761856368308527, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_Name
       value: PanelTutorial
+      objectReference: {fileID: 0}
+    - target: {fileID: 5028761856368308527, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5701598928051905175, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_Pivot.x
