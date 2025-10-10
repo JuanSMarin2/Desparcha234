@@ -1204,6 +1204,9 @@ MonoBehaviour:
   objetoGateInicio: {fileID: 1508140859}
   esperarDesactivacionGate: 1
   gateTimeoutSeconds: 10
+  sfxCountdownKey: lleva:cronometro
+  countdownTickInterval: 0.25
+  countdownSfxVolume: 1
   debugLogs: 1
 --- !u!1 &445327582
 GameObject:
@@ -3358,7 +3361,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameId: lleva
-  sfxClips: []
+  sfxClips:
+  - key: TagTransfer
+    clip: {fileID: 8300000, guid: bb51f5dece8ad70448780eae91dbf49f, type: 3}
+  - key: Eliminado
+    clip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
+  - key: cronometro
+    clip: {fileID: 8300000, guid: cc1dfd3ebf6a3eb42a3fe7303fe4c8a7, type: 3}
   musicClips: []
   autoPlayMusicKey: 
   autoLoopMusic: 1
@@ -4951,7 +4960,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pantalla:
   - {fileID: 1508140859}
-  delaySeconds: 3.5
+  delaySeconds: 3
   text: {fileID: 1880612007}
 --- !u!222 &1508140863
 CanvasRenderer:
@@ -5451,7 +5460,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameId: semaforo
   sfxClips:
-  - key: semaforo
+  - key: Start
     clip: {fileID: 8300000, guid: f3057f0053b86544f86c8a07b2fde300, type: 3}
   musicClips: []
   autoPlayMusicKey: 

@@ -108,7 +108,7 @@ public class PanelFinalTurno : MonoBehaviour
         OnPanelShown?.Invoke(_player1Based, _success);
 
         // Deshabilitar todos los jacks existentes al mostrar el panel
-        var spawners = UnityEngine.Object.FindObjectsByType<JackSpawner>(FindObjectsSortMode.None);
+        var spawners = FindObjectsByType<JackSpawner>(FindObjectsSortMode.None);
         foreach (var sp in spawners)
         {
             if (sp != null) sp.DisableAll();

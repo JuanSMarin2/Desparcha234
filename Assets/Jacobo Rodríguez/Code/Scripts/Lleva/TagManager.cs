@@ -34,6 +34,11 @@ public class TagManager : MonoBehaviour
     [Tooltip("Timeout máximo esperando desactivación del gate; si se excede se inicia igualmente.")]
     [SerializeField] private float gateTimeoutSeconds = 10f;
 
+    [Header("Audio")]
+    [SerializeField] private string sfxCountdownKey = "lleva:cronometro";
+    [SerializeField] private float countdownTickInterval = 0.25f;
+    [SerializeField] private float countdownSfxVolume = 0.44f;
+
     [Header("Debug")] [SerializeField] private bool debugLogs = true;
 
     private List<PlayerTag> _players = new List<PlayerTag>();
@@ -42,6 +47,8 @@ public class TagManager : MonoBehaviour
     private bool _roundActive = false;
     private int _pendingWinnerIndex0Based = -1; // almacenado hasta animación final
     private List<int> _eliminationOrder0Based = new List<int>(); // orden cronológico de eliminados (0-based)
+
+    private float _nextCountdownTickTime = 0f;
 
     public System.Action<PlayerTag> OnPlayerEliminated; // callback externo (futuro panel)
     public System.Action<PlayerTag, PlayerTag> OnTagChanged; // old,new
@@ -79,6 +86,14 @@ public class TagManager : MonoBehaviour
             float clamped = Mathf.Max(0f, _timeRemaining);
             timerText.text = clamped.ToString("F1");
         }
+
+        // Reproducir SFX de cronómetro a intervalos mientras corre la ronda
+        if (!string.IsNullOrEmpty(sfxCountdownKey) && Time.time >= _nextCountdownTickTime)
+        {
+            var sm = SoundManager.instance; if (sm != null) sm.PlaySfx(sfxCountdownKey, countdownSfxVolume);
+            _nextCountdownTickTime = Time.time + Mathf.Max(0.01f, countdownTickInterval);
+        }
+
         if (_timeRemaining <= 0f)
         {
             HandleTimeExpired();
@@ -128,6 +143,7 @@ public class TagManager : MonoBehaviour
         AssignTag(chosen, null);
         _timeRemaining = roundDuration;
         _roundActive = true;
+        _nextCountdownTickTime = Time.time; // iniciar ticks ya
         if (debugLogs) Debug.Log($"[TagManager] Ronda inicial comenzada. Tagged=Player{chosen.PlayerIndex}");
     }
 
@@ -145,6 +161,7 @@ public class TagManager : MonoBehaviour
         AssignTag(randomTagged, _currentTagged);
         if (debugLogs) Debug.Log($"[TagManager] Nueva ronda. Tagged=Player{randomTagged.PlayerIndex}");
         _roundActive = true;
+        _nextCountdownTickTime = Time.time; // reiniciar ticks
     }
 
     private PlayerTag GetRandomActivePlayer()
@@ -296,6 +313,9 @@ public class TagManager : MonoBehaviour
         _roundActive = false; // detener timer hasta decidir siguiente paso
         if (_players.Count > 1)
         {
+            // Detener cualquier SFX pendiente del cronómetro al abrir el panel
+            var sm = SoundManager.instance; if (sm != null) sm.StopSfx();
+
             Time.timeScale = 0f;
             if (panelEliminacion != null)
             {
@@ -314,7 +334,7 @@ public class TagManager : MonoBehaviour
             if (_players.Count == 1)
             {
                 _pendingWinnerIndex0Based = _players[0].PlayerIndex - 1;
-                // Antes: Time.timeScale = 0f;  -> Se elimina para permitir animación a escala normal
+                // Antes: Time.timeScale = 0f;  -> Se elimina para permitir animación de victoria.
                 if (debugLogs) Debug.Log("[TagManager] Un solo jugador restante: no se pausa (timeScale permanece) para reproducir animación de victoria.");
                 if (panelVictoria != null)
                 {

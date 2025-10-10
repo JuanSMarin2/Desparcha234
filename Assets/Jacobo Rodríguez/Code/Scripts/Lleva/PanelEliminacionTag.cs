@@ -59,6 +59,9 @@ public class PanelEliminacionTag : MonoBehaviour
         gameObject.SetActive(true);
         _visible = true;
 
+        // Reproducir SFX de eliminación al abrir el panel
+        var sm = SoundManager.instance; if (sm != null) sm.PlaySfx("lleva:Eliminado");
+
         if (recolorPorJugador)
         {
             Color c = ColorForPlayer(playerIndex1Based - 1) * fondoIntensity;
