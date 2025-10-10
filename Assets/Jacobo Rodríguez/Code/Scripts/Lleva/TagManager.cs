@@ -55,6 +55,7 @@ public class TagManager : MonoBehaviour
     void Start()
     {
         CollectPlayers();
+        timerText.text = roundDuration.ToString("F1");
         PrunePlayersByRoundData();
         // Nueva lógica: esperar desactivación de un GameObject gate
         if (esperarDesactivacionGate && objetoGateInicio != null)
