@@ -6595,7 +6595,7 @@ MonoBehaviour:
 
     3
 
-    Apunte y lanze su tejo:
+    Apunte y lance su tejo:
 
 
     Y destruya todas las
@@ -12560,6 +12560,84 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305783909}
   m_CullTransparentMesh: 1
+--- !u!1 &1312708040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1312708042}
+  - component: {fileID: 1312708041}
+  m_Layer: 0
+  m_Name: death-zone
+  m_TagString: DestroyZone
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!61 &1312708041
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1312708040}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.06773305, y: 1.4393239}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 12.9887295, y: 10.719678}
+  m_EdgeRadius: 0
+--- !u!4 &1312708042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1312708040}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.015013039, y: -1.3667527, z: 0.0152545255}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1346445820
 GameObject:
   m_ObjectHideFlags: 0
@@ -13815,7 +13893,7 @@ MonoBehaviour:
 
     2
 
-    Apunte y lanze su tejo:
+    Apunte y lance su tejo:
 
 
     Y destruya todas las
@@ -14828,6 +14906,64 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1666297652}
   m_CullTransparentMesh: 1
+--- !u!1 &1684835214
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1684835216}
+  - component: {fileID: 1684835215}
+  m_Layer: 0
+  m_Name: LibreriaSonidos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1684835215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684835214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c4fd8d572e5f174a9f3e59f1a3dfbad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameId: Tejo
+  sfxClips:
+  - key: Impacto
+    clip: {fileID: 8300000, guid: ad2794b99e417384597ff5e83bac28aa, type: 3}
+  - key: Cronometro
+    clip: {fileID: 8300000, guid: f0790687d0215d947bc2a3758e2bc650, type: 3}
+  - key: Warning
+    clip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
+  - key: Explosion
+    clip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
+  musicClips: []
+  autoPlayMusicKey: 
+  autoLoopMusic: 1
+  persistAcrossScenes: 0
+--- !u!4 &1684835216
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684835214}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1246.6144, y: 736.2165, z: -6.3509536}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1719764863
 GameObject:
   m_ObjectHideFlags: 0
@@ -15864,7 +16000,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.020000935, y: 0.26259246}
+  m_Offset: {x: -0.0060537755, y: -0.115352035}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -15874,7 +16010,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 1
-  m_Size: {x: 1.7358046, y: 1.6228178}
+  m_Size: {x: 1.0243509, y: 0.6621263}
   m_EdgeRadius: 0
 --- !u!212 &1813263145
 SpriteRenderer:
@@ -16333,7 +16469,7 @@ MonoBehaviour:
 
     1
 
-    Apunte y lanze su tejo:
+    Apunte y lance su tejo:
 
 
     Y destruya todas las
@@ -16479,7 +16615,7 @@ MonoBehaviour:
 
     4
 
-    Apunte y lanze su tejo:
+    Apunte y lance su tejo:
 
 
     Y destruya todas las
@@ -17868,7 +18004,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.26375002, y: 0.7972115}
   m_AnchorMax: {x: 0.26375002, y: 0.7972115}
-  m_AnchoredPosition: {x: 0.65548706, y: 1.1000061}
+  m_AnchoredPosition: {x: 0.65545654, y: 1.1000061}
   m_SizeDelta: {x: 100, y: 47.7103}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2051678069
@@ -18874,3 +19010,5 @@ SceneRoots:
   - {fileID: 576462444}
   - {fileID: 198426248}
   - {fileID: 538332544}
+  - {fileID: 1684835216}
+  - {fileID: 1312708042}

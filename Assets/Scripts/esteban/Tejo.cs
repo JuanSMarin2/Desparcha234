@@ -4,6 +4,12 @@ public class Tejo : MonoBehaviour
 {
     [HideInInspector] public int jugadorID; // quién lanzó este tejo
 
+    [Header("Destrucción por zonas")]
+    [Tooltip("Tag del collider que hace desaparecer el tejo al entrar (ej: 'DestroyZone').")]
+    public string destroyZoneTag = "DestroyZone";
+    [Tooltip("Retraso en segundos antes de destruir el tejo al entrar en la zona")]
+    public float destroyDelay = 0.5f;
+
     private Rigidbody2D rb;
     private bool yaParo = false;
 
@@ -36,10 +42,18 @@ public class Tejo : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // Si choca con la zona configurada para destruir tejos, lo destruimos (con delay)
+        if (!string.IsNullOrEmpty(destroyZoneTag) && other.CompareTag(destroyZoneTag))
+        {
+            Destroy(gameObject, destroyDelay);
+            return;
+        }
+
         //  Centro
         if (other.CompareTag("Centro"))
         {
             GameManagerTejo.instance.SumarPuntos(jugadorID, 6);
+            return;
         }
 
         //  Papeleta neutra
@@ -53,6 +67,7 @@ public class Tejo : MonoBehaviour
 
             Collider2D col = other.GetComponent<Collider2D>();
             if (col != null) col.enabled = false;
+            return;
         }
 
         //  Papeletas especiales (restan al dueño de esa papeleta)
@@ -61,6 +76,7 @@ public class Tejo : MonoBehaviour
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
             GameManagerTejo.instance.RestarPuntos(0, 2);
             other.gameObject.SetActive(false);
+            return;
         }
 
         if (other.CompareTag("Papeleta2"))
@@ -68,6 +84,7 @@ public class Tejo : MonoBehaviour
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
             GameManagerTejo.instance.RestarPuntos(1, 2);
             other.gameObject.SetActive(false);
+            return;
         }
 
         if (other.CompareTag("Papeleta3"))
@@ -75,6 +92,7 @@ public class Tejo : MonoBehaviour
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
             GameManagerTejo.instance.RestarPuntos(2, 2);
             other.gameObject.SetActive(false);
+            return;
         }
 
         if (other.CompareTag("Papeleta4"))
@@ -82,6 +100,7 @@ public class Tejo : MonoBehaviour
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
             GameManagerTejo.instance.RestarPuntos(3, 2);
             other.gameObject.SetActive(false);
+            return;
         }
     }
 }
