@@ -255,12 +255,7 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         if (col != null) col.enabled = true;
 
-        // reproducir SFX al terminar la animación de vuelo (impacto visual)
-        var sm = FindAnyObjectByType<SoundManager>();
-        if (sm != null)
-        {
-            sm.PlaySfx("Tejo:Impacto-Arena");
-        }
+        
 
         // Espera 2 pasos de física para que se procesen colisiones/puntos antes de mover el centro
         yield return new WaitForFixedUpdate();

@@ -55,6 +55,8 @@ public class Tejo : MonoBehaviour
             return;
         }
 
+        
+
         //  Centro
         if (other.CompareTag("Centro"))
         {

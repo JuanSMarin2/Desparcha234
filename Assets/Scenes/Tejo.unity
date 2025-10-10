@@ -14946,7 +14946,7 @@ MonoBehaviour:
   - key: Explosion
     clip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
   - key: Impacto-Other
-    clip: {fileID: 8300000, guid: 63a9c3827ecc68643a82e67c340b46d3, type: 3}
+    clip: {fileID: 8300000, guid: b9fdf2f73d477794ca691fa8b7255514, type: 3}
   musicClips: []
   autoPlayMusicKey: 
   autoLoopMusic: 1
