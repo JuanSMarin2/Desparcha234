@@ -2610,22 +2610,22 @@ MonoBehaviour:
   gameId: catapis
   sfxClips:
   - key: normaltocado
-    clip: {fileID: 8300000, guid: b9fdf2f73d477794ca691fa8b7255514, type: 3}
+    clip: {fileID: 8300000, guid: beb7e757ec1799646b475e1c164f9614, type: 3}
   - key: especialtocado
     clip: {fileID: 8300000, guid: 8f18cb177ce733845ac15db6527fe6bd, type: 3}
   - key: bombatocado
-    clip: {fileID: 8300000, guid: 6fe1c26fac4ea224c908140f55a692bc, type: 3}
+    clip: {fileID: 8300000, guid: 8df8917c75bf40949a76f1606f46f4d7, type: 3}
   - key: error
     clip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
   - key: atrapada
     clip: {fileID: 8300000, guid: 486ca3a5b2f10434ca52d9c0f1e35144, type: 3}
   - key: tick
     clip: {fileID: 8300000, guid: 307d1648e906c2641a1ead77c5cf29ae, type: 3}
-  musicClips:
-  - key: bgmusic
-    clip: {fileID: 8300000, guid: e35b57fb9d591974d8c4535e52fe134e, type: 3}
+  - key: warning
+    clip: {fileID: 8300000, guid: c8a33cd540db6c84a951cd74e8b4aba2, type: 3}
+  musicClips: []
   autoPlayMusicKey: 
-  autoLoopMusic: 1
+  autoLoopMusic: 0
   persistAcrossScenes: 0
 --- !u!4 &786171956
 Transform:
@@ -3776,6 +3776,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947265968}
   m_CullTransparentMesh: 1
+--- !u!1 &999913476
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 999913478}
+  - component: {fileID: 999913477}
+  m_Layer: 0
+  m_Name: SoundManagerProvisional
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &999913477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 999913476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41ba789b5b6eeab4ba66e98071d5a1f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sfxVolume: 0.7
+  musicVolume: 1
+  musicLoopDefault: 1
+--- !u!4 &999913478
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 999913476}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1004946182
 GameObject:
   m_ObjectHideFlags: 0
@@ -5389,7 +5436,7 @@ MonoBehaviour:
   camMundo: {fileID: 1215972837}
   usarZActualDelObjeto: 1
   zMundo: 0
-  suavizarMovimiento: 1
+  suavizarMovimiento: 0
   duracion: 0.15
   curva:
     serializedVersion: 2
@@ -6370,7 +6417,7 @@ MonoBehaviour:
   limitDescentSpeed: 1
   maxDescentSpeed: 3.88
   dragOnlyOnDescent: 1
-  distanciaAdvertenciaZ: 5.38
+  distanciaAdvertenciaZ: 5.05
   permitirRecogerPorToque: 0
   inputImage: {fileID: 58468174}
   _animator: {fileID: 1592149804}
@@ -8691,6 +8738,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1074922606}
     m_Modifications:
+    - target: {fileID: 351638682852354717, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 351638682852354717, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 351638682852354717, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 351638682852354717, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5028761856368308527, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_Name
       value: PanelTutorial
@@ -8775,6 +8838,38 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6936871515678500234, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6936871515678500234, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6936871515678500234, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6936871515678500234, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7535253175520332650, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7535253175520332650, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7535253175520332650, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7535253175520332650, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8796,3 +8891,4 @@ SceneRoots:
   - {fileID: 235918252}
   - {fileID: 883950609}
   - {fileID: 786171956}
+  - {fileID: 999913478}
