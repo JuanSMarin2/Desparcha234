@@ -373,6 +373,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7283fef31607d544c8875a152728a73c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  volumen: 0.55
 --- !u!114 &84118947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -388,7 +389,7 @@ MonoBehaviour:
   gameId: ui
   sfxClips:
   - key: select
-    clip: {fileID: 8300000, guid: 6e800f75a713a874cb408604725743e5, type: 3}
+    clip: {fileID: 8300000, guid: de69e7c7e0086f648879f9d639889e44, type: 3}
   musicClips: []
   autoPlayMusicKey: 
   autoLoopMusic: 1
@@ -3173,6 +3174,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 927982959}
   m_CullTransparentMesh: 1
+--- !u!1 &933341171
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 933341172}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &933341172
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 933341171}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.601335, y: 3.2541175, z: -0.09912274}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &958596619
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4942,18 +4974,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 84118946}
-        m_TargetAssemblyTypeName: SonidosUI, Assembly-CSharp
-        m_MethodName: ClickBoton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &1606411927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6278,3 +6298,4 @@ SceneRoots:
   - {fileID: 958596619}
   - {fileID: 343697561}
   - {fileID: 84118948}
+  - {fileID: 933341172}

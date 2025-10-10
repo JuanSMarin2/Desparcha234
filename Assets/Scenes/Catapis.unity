@@ -2616,13 +2616,15 @@ MonoBehaviour:
   - key: bombatocado
     clip: {fileID: 8300000, guid: 8df8917c75bf40949a76f1606f46f4d7, type: 3}
   - key: error
-    clip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
+    clip: {fileID: 8300000, guid: cf3697b7e2bbc8c4ba56d75bdd37d4dc, type: 3}
   - key: atrapada
-    clip: {fileID: 8300000, guid: 486ca3a5b2f10434ca52d9c0f1e35144, type: 3}
+    clip: {fileID: 8300000, guid: bb51f5dece8ad70448780eae91dbf49f, type: 3}
   - key: tick
     clip: {fileID: 8300000, guid: 307d1648e906c2641a1ead77c5cf29ae, type: 3}
   - key: warning
     clip: {fileID: 8300000, guid: c8a33cd540db6c84a951cd74e8b4aba2, type: 3}
+  - key: woosh
+    clip: {fileID: 8300000, guid: 30fcb8f45fdd53d4f873c8cd28ec80b2, type: 3}
   musicClips: []
   autoPlayMusicKey: 
   autoLoopMusic: 0
@@ -5365,6 +5367,7 @@ MonoBehaviour:
   lowPassFactor: 0.15
   upShakeThreshold: 0.75
   pickupShakeThreshold: 1.2
+  downPickupThreshold: 1.6
   lateralShakeDelay: 0.15
   postResetShakeDelay: 1
   debugShakes: 1
@@ -6390,9 +6393,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ac87a2ed1bbee54298a49ecd2a40d6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tagSuelo: Suelo
   puntoReinicio: {fileID: 542914545}
-  gravedadAlLanzar: 0.65
   _sprite: {fileID: 1592149801}
   spriteRoot: {fileID: 1592149802}
   shadow: {fileID: 376087871}
@@ -6423,6 +6424,9 @@ MonoBehaviour:
   _animator: {fileID: 1592149804}
   animatorBoolEnElAire: EnElAire
   highlight: {fileID: 907830083}
+  sfxNearGroundKey: catapis:warning
+  nearGroundSfxCooldown: 0.35
+  sfxLaunchKey: catapis:woosh
 --- !u!212 &1592149801
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -6521,7 +6525,7 @@ MonoBehaviour:
   camMundo: {fileID: 1215972837}
   usarZActualDelObjeto: 1
   zMundo: 0
-  suavizarMovimiento: 1
+  suavizarMovimiento: 0
   duracion: 0.15
   curva:
     serializedVersion: 2
