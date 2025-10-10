@@ -37,7 +37,7 @@ public class GameManagerTejo : MonoBehaviour
         if (tutorialManager != null)
         {
             int numJugador = TurnManager.instance.CurrentTurn();
-            switch 
+            switch
                 (numJugador)
             {
                 case 1:
@@ -51,9 +51,9 @@ public class GameManagerTejo : MonoBehaviour
                     break;
                 case 4:
                     tutorialManager.MostrarPanel(7);
-                    break;                
+                    break;
             }
-            
+
         }
         else
         {
@@ -141,6 +141,11 @@ public class GameManagerTejo : MonoBehaviour
     {
         tirosRealizados++;
 
+        // Notificar UI (si existe el JoystickControl principal)
+        var jc = FindObjectOfType<JoystickControl>();
+        if (jc != null)
+            jc.RefreshTirosPanel();
+
         if (tirosRealizados >= maxTiros)
         {
             // Bloqueamos los joysticks activando el Blocker
@@ -214,4 +219,13 @@ public class GameManagerTejo : MonoBehaviour
         //  Desbloquear joysticks al iniciar turno
         if (blocker != null) blocker.SetActive(false);
     }
+
+    // Método público para que otros scripts puedan consultar cuántos tiros quedan
+    public int ShotsRemaining()
+    {
+        return Mathf.Max(0, maxTiros - tirosRealizados);
+    }
+
+    // (Opcional) Exponer maxTiros si hace falta
+    public int MaxTiros => maxTiros;
 }

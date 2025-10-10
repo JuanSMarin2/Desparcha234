@@ -51,6 +51,18 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     [SerializeField] private Vector3 barraOffset = new Vector3(1f, 0f, 0f);
     // mueve la barra a la derecha por defecto
 
+    [Header("Tiros UI")]
+    [SerializeField] private GameObject tirosPanel; // panel que contiene el contador de tiros (fallback)
+    [SerializeField] private Text tirosText; // texto que muestra cuántos tiros quedan (fallback)
+
+    [Header("Panels por jugador (opcional)")]
+    [Tooltip("Paneles (0..3) que se activan según el jugador en turno. Asignar 4 GameObjects.")]
+    [SerializeField] private GameObject[] playerTurnPanels;
+    [Tooltip("Text dentro de cada panel para cambiar su color (opcional) y mostrar tiros.")]
+    [SerializeField] private Text[] playerPanelTexts;
+    [Tooltip("Color para el texto de cada panel (opcional).")]
+    [SerializeField] private Color[] playerPanelTextColors;
+
     private bool lanzando = false; // evita dobles tiros mientras corre la corrutina
     public bool IsDragging { get; private set; }
     public Vector2 inputVector { get; private set; }
@@ -72,6 +84,10 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         if (blocker != null)
             blocker.SetActive(false);
+
+        // Aseguramos estado inicial de panels por jugador
+        UpdatePlayerPanels();
+        RefreshTirosPanel();
     }
 
     private void Update()
@@ -86,7 +102,12 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         int currentTurn = TurnManager.instance.CurrentTurn();
 
         if (previousTurn != currentTurn)
+        {
             DisableBlocker();
+            // actualizar UI cuando cambia el turno
+            UpdatePlayerPanels();
+            RefreshTirosPanel();
+        }
 
         // Cambiar base según turno
         switch (currentTurn)
@@ -200,12 +221,16 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     {
         lanzando = true;
 
+        // ocultar la barra de fuerza mientras dura el lanzamiento
+        if (barraFuerza != null)
+            barraFuerza.gameObject.SetActive(false);
+
         Transform tejo = obj.transform;
         Collider2D col = obj.GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
         Vector3 start = spawnPoint.position;
-        float distanciaMax = 5f;
+        float distanciaMax = 10f;
         float distancia = Mathf.Lerp(0.001f, distanciaMax, valor);
         Vector3 end = start + new Vector3(0f, 1f, 0f) * distancia;
 
@@ -240,8 +265,91 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         lanzando = false;
 
+        // reactivar la barra de fuerza sólo si el joystick sigue activo en la jerarquía
+        if (barraFuerza != null && gameObject.activeInHierarchy)
+            barraFuerza.gameObject.SetActive(true);
+
         // ⚠️ Ya NO contamos tiros aquí. El control está en GameManagerTejo.
         //    Tampoco cambiamos de ronda aquí: se hace cuando el último tejo se DETIENE (TejoTermino).
+    }
+
+    /// <summary>
+    /// Actualiza el panel de tiros (lo llama GameManagerTejo y también OnEnable)
+    /// Ahora escribe el texto en el panel del jugador que tiene el turno (si está configurado).
+    /// </summary>
+    public void RefreshTirosPanel()
+    {
+        if (GameManagerTejo.instance == null) return;
+
+        int remaining = GameManagerTejo.instance.ShotsRemaining();
+
+        int turno = (TurnManager.instance != null) ? TurnManager.instance.CurrentTurn() : -1;
+        int idx = turno - 1;
+
+        // Si hay textos por panel configurados, escribir en el correspondiente
+        if (playerPanelTexts != null && idx >= 0 && idx < playerPanelTexts.Length && playerPanelTexts[idx] != null)
+        {
+            playerPanelTexts[idx].text = $"Tiros: {remaining}";
+            // Asegurar visibilidad del panel del jugador (UpdatePlayerPanels controla activación)
+            if (playerTurnPanels != null && idx < playerTurnPanels.Length && playerTurnPanels[idx] != null)
+                playerTurnPanels[idx].SetActive(true);
+            // ocultar el panel fallback si existe
+            if (tirosPanel != null) tirosPanel.SetActive(false);
+        }
+        else
+        {
+            // fallback: usar el tirosPanel y tirosText únicos
+            if (tirosText != null)
+                tirosText.text = remaining.ToString();
+
+            if (tirosPanel != null)
+                tirosPanel.SetActive(gameObject.activeInHierarchy);
+        }
+    }
+
+    /// <summary>
+    /// Activa el panel correspondiente al jugador en turno y desactiva los demás.
+    /// También aplica color al Text del panel si se configuró.
+    /// </summary>
+    private void UpdatePlayerPanels()
+    {
+        if (playerTurnPanels == null || playerTurnPanels.Length == 0) return;
+
+        int turno = (TurnManager.instance != null) ? TurnManager.instance.CurrentTurn() : -1;
+        for (int i = 0; i < playerTurnPanels.Length; i++)
+        {
+            GameObject panel = playerTurnPanels[i];
+            if (panel == null) continue;
+
+            bool shouldBeActive = (turno - 1) == i && gameObject.activeInHierarchy;
+            panel.SetActive(shouldBeActive);
+
+            // aplicar color al texto del panel si existe
+            if (playerPanelTexts != null && i < playerPanelTexts.Length && playerPanelTexts[i] != null)
+            {
+                Color colorToApply = Color.white;
+                if (playerPanelTextColors != null && i < playerPanelTextColors.Length)
+                    colorToApply = playerPanelTextColors[i];
+
+                // forzamos alfa a 1 para evitar invisibilidad accidental
+                colorToApply.a = 1f;
+                playerPanelTexts[i].color = colorToApply;
+            }
+
+            // Si el panel no es el activo, limpiar su texto de tiros para evitar confusión
+            if (!(turno - 1 == i) && playerPanelTexts != null && i < playerPanelTexts.Length && playerPanelTexts[i] != null)
+            {
+                // opcional: dejar el texto normal o vacío; aquí lo limpiamos
+                // playerPanelTexts[i].text = string.Empty;
+            }
+        }
+    }
+
+    private void DeactivateAllPlayerPanels()
+    {
+        if (playerTurnPanels == null) return;
+        foreach (var p in playerTurnPanels)
+            if (p != null) p.SetActive(false);
     }
 
     private void UpdateTarget()
@@ -295,6 +403,15 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     void OnEnable()
     {
+        // Mostrar y refrescar panel de tiros cuando se activa el joystick principal
+        if (tirosPanel != null)
+            tirosPanel.SetActive(true);
+
+        RefreshTirosPanel();
+
+        // actualizar panels por jugador al activarse
+        UpdatePlayerPanels();
+
         if (barraFuerza != null)
             barraFuerza.gameObject.SetActive(true);
 
@@ -306,6 +423,12 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     void OnDisable()
     {
+        if (tirosPanel != null)
+            tirosPanel.SetActive(false);
+
+        // desactivar panels por jugador cuando se desactiva el joystick
+        DeactivateAllPlayerPanels();
+
         if (barraFuerza != null)
             barraFuerza.gameObject.SetActive(false);
 
