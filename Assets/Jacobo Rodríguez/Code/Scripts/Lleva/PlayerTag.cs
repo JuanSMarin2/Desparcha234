@@ -75,6 +75,11 @@ public class PlayerTag : MonoBehaviour
 
         // Transferir: este jugador deja de estar tag y el otro lo recibe
         SetTagged(false);
+        var sm = SoundManager.instance;
+        if (sm != null)
+        {
+            sm.PlaySfx("lleva:TagTransfer");
+        }
         otherTag.SetTagged(true);
         // Rotar 180° al que entregó el tag (media vuelta)
         transform.Rotate(0f, 0f, 180f);

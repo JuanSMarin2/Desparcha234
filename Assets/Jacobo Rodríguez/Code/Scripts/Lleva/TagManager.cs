@@ -34,6 +34,10 @@ public class TagManager : MonoBehaviour
     [Tooltip("Timeout máximo esperando desactivación del gate; si se excede se inicia igualmente.")]
     [SerializeField] private float gateTimeoutSeconds = 10f;
 
+    [Header("Audio")]
+    [SerializeField] private string sfxCountdownKey = "lleva:cronometro";
+    [SerializeField] private float countdownSfxVolume = 0.44f;
+
     [Header("Debug")] [SerializeField] private bool debugLogs = true;
 
     private List<PlayerTag> _players = new List<PlayerTag>();
@@ -79,6 +83,7 @@ public class TagManager : MonoBehaviour
             float clamped = Mathf.Max(0f, _timeRemaining);
             timerText.text = clamped.ToString("F1");
         }
+
         if (_timeRemaining <= 0f)
         {
             HandleTimeExpired();
@@ -128,6 +133,14 @@ public class TagManager : MonoBehaviour
         AssignTag(chosen, null);
         _timeRemaining = roundDuration;
         _roundActive = true;
+        
+        // Reproducir sonido una sola vez al inicio
+        if (!string.IsNullOrEmpty(sfxCountdownKey))
+        {
+            var sm = SoundManager.instance;
+            if (sm != null) sm.PlaySfx(sfxCountdownKey, countdownSfxVolume);
+        }
+        
         if (debugLogs) Debug.Log($"[TagManager] Ronda inicial comenzada. Tagged=Player{chosen.PlayerIndex}");
     }
 
@@ -145,6 +158,13 @@ public class TagManager : MonoBehaviour
         AssignTag(randomTagged, _currentTagged);
         if (debugLogs) Debug.Log($"[TagManager] Nueva ronda. Tagged=Player{randomTagged.PlayerIndex}");
         _roundActive = true;
+        
+        // Reproducir sonido una sola vez al reiniciar
+        if (!string.IsNullOrEmpty(sfxCountdownKey))
+        {
+            var sm = SoundManager.instance;
+            if (sm != null) sm.PlaySfx(sfxCountdownKey, countdownSfxVolume);
+        }
     }
 
     private PlayerTag GetRandomActivePlayer()
@@ -296,6 +316,9 @@ public class TagManager : MonoBehaviour
         _roundActive = false; // detener timer hasta decidir siguiente paso
         if (_players.Count > 1)
         {
+            // Detener cualquier SFX pendiente del cronómetro al abrir el panel
+            var sm = SoundManager.instance; if (sm != null) sm.StopSfx();
+
             Time.timeScale = 0f;
             if (panelEliminacion != null)
             {
@@ -314,7 +337,7 @@ public class TagManager : MonoBehaviour
             if (_players.Count == 1)
             {
                 _pendingWinnerIndex0Based = _players[0].PlayerIndex - 1;
-                // Antes: Time.timeScale = 0f;  -> Se elimina para permitir animación a escala normal
+                // Antes: Time.timeScale = 0f;  -> Se elimina para permitir animación de victoria.
                 if (debugLogs) Debug.Log("[TagManager] Un solo jugador restante: no se pausa (timeScale permanece) para reproducir animación de victoria.");
                 if (panelVictoria != null)
                 {
