@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.Events;
 
 public class CircleGameManagerUI : MonoBehaviour
 {
@@ -21,6 +22,9 @@ public class CircleGameManagerUI : MonoBehaviour
 
     private int currentIndex = 0;
     private bool gameActive = false;
+
+    [Header("Events")]
+    public UnityEvent onGameFinished;
 
     // 🔹 Llamar a esta función para iniciar el juego manualmente
     public void StartGame()
@@ -121,6 +125,7 @@ public class CircleGameManagerUI : MonoBehaviour
                 Debug.Log("🎉 ¡Juego completado!");
                 gameActive = false;
                 Invoke(nameof(ClearAllCircles), 0.6f); // 🔹 limpia los círculos al terminar
+                onGameFinished?.Invoke();
             }
         }
     }

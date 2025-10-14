@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine.Events;
 using System.Collections.Generic;
 
 public class BotonReducible : MonoBehaviour
@@ -20,6 +21,9 @@ public class BotonReducible : MonoBehaviour
     [SerializeField] private int maxPlacementAttempts = 40;
 
     private List<ButtonPressRelay> buttons = new List<ButtonPressRelay>();
+
+    [Header("Events")]
+    public UnityEvent onGameFinished;
 
     [ContextMenu("Iniciar Juego")]
     public void StartGame()
@@ -106,6 +110,7 @@ public class BotonReducible : MonoBehaviour
         if (buttons.Count == 0)
         {
             Debug.Log("🎉 ¡Ganaste! Todos los botones desaparecieron.");
+            onGameFinished?.Invoke();
             // Aquí puedes mostrar una UI de victoria, animación, etc.
         }
     }

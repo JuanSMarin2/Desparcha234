@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 public class JOrden: MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class JOrden: MonoBehaviour
 
     private readonly List<ButtonClickRelay> buttons = new();
     private int nextExpected = 1;
+    [Header("Events")]
+    public UnityEvent onGameFinished;
 
     // ====== INICIAR SECUENCIA ======
     [ContextMenu("Start Sequence")]
@@ -103,6 +106,7 @@ public class JOrden: MonoBehaviour
             {
                 Debug.Log("🎉 ¡Victoria! Secuencia completada.");
                 ClearExisting();
+                onGameFinished?.Invoke();
             }
         }
         else
