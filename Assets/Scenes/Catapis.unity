@@ -3047,16 +3047,6 @@ MonoBehaviour:
   textoPuntos: {fileID: 855494759}
   textoGanar: Bien atrapado!
   textoPerder: Decepcionante...
-  iconosFelices:
-  - {fileID: 3232231290688778859, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
-  - {fileID: 478838189770312867, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
-  - {fileID: -6617828489231529575, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
-  - {fileID: 307226126855071095, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
-  iconosTristes:
-  - {fileID: -1832221067031316088, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  - {fileID: 1190479172476038618, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  - {fileID: 7162554072243991052, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  - {fileID: 8919797506060606750, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
   fadeInDuration: 0.2
   conteoDuration: 0.8
   holdAfterConteo: 2
@@ -3204,6 +3194,16 @@ MonoBehaviour:
     - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     sadBySkin:
     - {fileID: -8531155124128328185, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  defaultHappy:
+  - {fileID: -1836012908756554960, guid: e24c55b9925cecb4fb20370024bd5299, type: 3}
+  - {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: -6617828489231529575, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+  - {fileID: 307226126855071095, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+  defaultSad:
+  - {fileID: -1832221067031316088, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - {fileID: 1190479172476038618, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 7162554072243991052, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 8919797506060606750, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
   cupImages:
   - {fileID: 559868339}
   - {fileID: 2146188791}

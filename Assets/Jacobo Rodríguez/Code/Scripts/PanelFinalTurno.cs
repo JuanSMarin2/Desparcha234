@@ -12,20 +12,17 @@ public class PanelFinalTurno : MonoBehaviour
     [SerializeField] private TMP_Text textoResultado;
     [SerializeField] private TMP_Text textoPuntos;
 
-    
-   [Header("Textos")]
-   [SerializeField] private string textoGanar;
-   [SerializeField] private string textoPerder;
+    [Header("Textos")]
+    [SerializeField] private string textoGanar;
+    [SerializeField] private string textoPerder;
 
-    [Header("Sprites Jugadores (feliz)")]
-    [Tooltip("Orden: Jugador 1..4")] public Sprite[] iconosFelices = new Sprite[4];
+    // Sprites por jugador ahora se inyectan en runtime (no serializados aquí)
+    private Sprite[] _iconosFelices = new Sprite[4];
+    private Sprite[] _iconosTristes = new Sprite[4];
 
-    [Header("Sprites Jugadores (triste) - opcional")] 
-    [Tooltip("Orden: Jugador 1..4")] public Sprite[] iconosTristes = new Sprite[4];
-
-    [Header("Tiempos")] 
-    [SerializeField] private float fadeInDuration = 0.2f; 
-    [SerializeField] private float conteoDuration = 0.8f; 
+    [Header("Tiempos")]
+    [SerializeField] private float fadeInDuration = 0.2f;
+    [SerializeField] private float conteoDuration = 0.8f;
     [SerializeField] private float holdAfterConteo = 2f; // configurable por diseñador
     [SerializeField] private float fadeOutDuration = 0.25f;
 
@@ -69,6 +66,19 @@ public class PanelFinalTurno : MonoBehaviour
         iconImage.rectTransform.localScale = new Vector3(s, s, 1f);
     }
 
+    // Nuevo: recibir sprites default desde otro gestor (IconManagerCatapis)
+    public void SetDefaultIcons(Sprite[] felices, Sprite[] tristes)
+    {
+        if (felices != null)
+        {
+            for (int i = 0; i < 4; i++) _iconosFelices[i] = (i < felices.Length) ? felices[i] : null;
+        }
+        if (tristes != null)
+        {
+            for (int i = 0; i < 4; i++) _iconosTristes[i] = (i < tristes.Length) ? tristes[i] : null;
+        }
+    }
+
     public void Show(int playerIndex1Based, bool success, int puntos, Action onFinished)
     {
         if (_running) return; // evitar solapado
@@ -80,12 +90,12 @@ public class PanelFinalTurno : MonoBehaviour
         _ultimoValorTick = -1; // reset para conteo
         _lastTickTime = Time.unscaledTime;
 
-        // Seleccionar sprite
+        // Seleccionar sprite usando arrays internos
         Sprite spriteElegido = null;
         int idx = _player1Based - 1;
-        if (success && idx < iconosFelices.Length) spriteElegido = iconosFelices[idx];
-        if (!success && idx < iconosTristes.Length && iconosTristes[idx] != null) spriteElegido = iconosTristes[idx];
-        if (!success && spriteElegido == null && idx < iconosFelices.Length) spriteElegido = iconosFelices[idx]; // fallback feliz si falta triste
+        if (success && idx < _iconosFelices.Length) spriteElegido = _iconosFelices[idx];
+        if (!success && idx < _iconosTristes.Length && _iconosTristes[idx] != null) spriteElegido = _iconosTristes[idx];
+        if (!success && spriteElegido == null && idx < _iconosFelices.Length) spriteElegido = _iconosFelices[idx]; // fallback feliz si falta triste
         if (iconImage != null) iconImage.sprite = spriteElegido;
 
         // Texto resultado
@@ -104,23 +114,19 @@ public class PanelFinalTurno : MonoBehaviour
             {
                 if (_puntos > 0)
                 {
-                    // caso normal: ganancia positiva, iniciamos conteo desde 0
                     textoPuntos.text = $"Ganas: 0 puntos";
                 }
                 else if (_puntos < 0)
                 {
-                    // intento exitoso pero puntaje negativo (bombas): mostrar pérdidas
                     textoPuntos.text = $"Pierdes: {Mathf.Abs(_puntos)} puntos";
                 }
                 else
                 {
-                    // cero exacto
                     textoPuntos.text = $"Ganas: 0 puntos";
                 }
             }
             else
             {
-                // intento fallado siempre muestra "Ganas: 0 puntos"
                 textoPuntos.text = $"Ganas: 0 puntos";
             }
         }
