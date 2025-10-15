@@ -69,8 +69,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.44562173
+  m_Offset: {x: -0.16229767, y: -0.16629708}
+  m_Radius: 0.3223648
 --- !u!114 &403891918661951426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86,10 +86,10 @@ MonoBehaviour:
   jackSpritesNormal: []
   jackSpritesEspecial: []
   jackSpritesBomba:
-  - {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
-  - {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
-  - {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
-  - {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
+  - {fileID: -8060460541097302833, guid: 7fdc53bd924dd814ca3aec245a13ab11, type: 3}
+  - {fileID: -8060460541097302833, guid: 7fdc53bd924dd814ca3aec245a13ab11, type: 3}
+  - {fileID: -8060460541097302833, guid: 7fdc53bd924dd814ca3aec245a13ab11, type: 3}
+  - {fileID: -8060460541097302833, guid: 7fdc53bd924dd814ca3aec245a13ab11, type: 3}
   jackSpritesNormalAmarillo: []
   jackSpritesNormalRojo: []
   jackSpritesNormalVerde: []
@@ -141,16 +141,32 @@ PrefabInstance:
       value: Bomba
       objectReference: {fileID: 0}
     - target: {fileID: 1033401982420425805, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
+      propertyPath: m_Size.x
+      value: 4.88
+      objectReference: {fileID: 0}
+    - target: {fileID: 1033401982420425805, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
+      propertyPath: m_Size.y
+      value: 4.88
+      objectReference: {fileID: 0}
+    - target: {fileID: 1033401982420425805, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: -2208854266636358860, guid: 4798a4120ecb7ee4eb19fbf621a8dc67, type: 3}
+      objectReference: {fileID: -8060460541097302833, guid: 7fdc53bd924dd814ca3aec245a13ab11, type: 3}
+    - target: {fileID: 1033401982420425805, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.25
+      value: 0.33
       objectReference: {fileID: 0}
     - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.25
+      value: 0.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.33
       objectReference: {fileID: 0}
     - target: {fileID: 1488767644323637426, guid: a6941348ea9afe945862bbc00b73700c, type: 3}
       propertyPath: m_LocalPosition.x

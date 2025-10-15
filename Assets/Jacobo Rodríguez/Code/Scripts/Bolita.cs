@@ -115,6 +115,10 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     [SerializeField] private string sfxLaunchKey = "catapis:woosh";
     private float _lastNearGroundSfxTime = -999f;
 
+    [Header("Colisión")]
+    [SerializeField] private Collider2D _col2D;
+    private bool _lastShakeBlockedFlag;
+
     // Eventos estáticos para que cada Jack se suscriba (opción 1)
     public static event System.Action BolaLanzada;   // se dispara justo al lanzar
     public static event System.Action BolaReiniciada; // se dispara al reiniciar la bolita
@@ -144,6 +148,7 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     {
         _rb = GetComponent<Rigidbody2D>();
         if (_sprite == null) _sprite = GetComponent<SpriteRenderer>();
+        if (_col2D == null) _col2D = GetComponent<Collider2D>();
 
         // Inicialización visual
         if (spriteRoot == null)
@@ -171,6 +176,16 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     private void OnEnable()
     {
         SetupInputImage();
+        ApplyPrelaunchColliderState();
+    }
+
+    private void ApplyPrelaunchColliderState()
+    {
+        _lastShakeBlockedFlag = BarraFuerza.GlobalShakeBlocked;
+        if (_col2D != null)
+        {
+            _col2D.enabled = !_lastShakeBlockedFlag; // desactivar collider durante pausa pre-lanzamiento
+        }
     }
 
     private void SetupInputImage()
@@ -188,10 +203,32 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
 
     private void OnInputImageClicked()
     {
-        // Si está pendiente, esto cuenta como lanzar; si está en el aire y cerca del suelo, cuenta como recoger
+        // Unificar comportamiento con taps sobre la propia bolita
+        HandleTapInteraction();
+    }
+
+    // Implementación requerida por IPointerDownHandler debe ser pública
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (!permitirRecogerPorToque) return;
+        HandleTapInteraction();
+    }
+
+    // Fallback para editor / mouse si no hay EventSystem (aunque tenemos IPointerDownHandler)
+    private void OnMouseDown()
+    {
+        if (!permitirRecogerPorToque) return;
+        HandleTapInteraction();
+    }
+
+    // Maneja tanto lanzar (si pendiente) como recoger (si en el aire y near-ground)
+    private void HandleTapInteraction()
+    {
+        // Bloquear interacción por toque durante la pausa de pre-lanzamiento
+        if (BarraFuerza.GlobalShakeBlocked) return;
+
         if (_estado == EstadoLanzamiento.PendienteDeLanzar)
         {
-            // Delegar al controlador de la barra para que respete fuerzaMinima/barra
             var barra = FindAnyObjectByType<BarraFuerza>();
             if (barra != null)
             {
@@ -202,9 +239,16 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
                 // Fallback: lanzar con una fuerza media si no hay barra
                 DarVelocidadHaciaArriba(Mathf.Max(30f, maxExpectedForce * 0.5f));
             }
+            return;
         }
-        else if (_estado == EstadoLanzamiento.EnElAire && PorTocarSuelo)
+
+        if (_estado == EstadoLanzamiento.EnElAire && PorTocarSuelo)
         {
+            // Evitar doble recogida
+            if (_yaRecogida) return;
+            bool descending = _vz <= 0f;
+            if (!descending) return;
+            _yaRecogida = true;
             var progression = FindAnyObjectByType<Progression>();
             progression?.NotificarBolitaTocada();
         }
@@ -339,6 +383,11 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
                 }
             }
         }
+
+        if (_lastShakeBlockedFlag != BarraFuerza.GlobalShakeBlocked)
+        {
+            ApplyPrelaunchColliderState();
+        }
     }
 
     // Nuevo: lanzar hacia ARRIBA (solo Z virtual)
@@ -370,39 +419,10 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         BolaLanzada?.Invoke();
     }
 
-    // Implementación requerida por IPointerDownHandler debe ser pública
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (!permitirRecogerPorToque) return;
-        IntentarRecogerPorInteraccion();
-    }
-
-    // Fallback para editor / mouse si no hay EventSystem (aunque tenemos IPointerDownHandler)
-    private void OnMouseDown()
-    {
-        if (!permitirRecogerPorToque) return;
-        IntentarRecogerPorInteraccion();
-    }
-
+    // El método previo solo de recoger queda obsoleto; mantener para compatibilidad si es referenciado
     private void IntentarRecogerPorInteraccion()
     {
-        if (_yaRecogida) return;
-        if (_estado != EstadoLanzamiento.EnElAire) return; // solo en vuelo
-        if (!PorTocarSuelo) return; // debe estar en ventana near-ground
-        // Debe estar descendiendo (Z virtual)
-        bool descending = _vz <= 0f;
-        if (!descending) return;
-
-        _yaRecogida = true; // bloquear múltiples
-
-        var progression = FindAnyObjectByType<Progression>();
-        //_estado = EstadoLanzamiento.PendienteDeLanzar;
-        //NotificarEstado(_estado);
-        progression?.NotificarBolitaTocada();
-        var sm = SoundManager.instance; if (sm != null)
-        sm.PlaySfx("catapis:agarrada");
-
-        Debug.Log("[Bolita] Recogida por toque/click (near-ground descendiendo)");
+        HandleTapInteraction();
     }
 
     public void ReiniciarBola()

@@ -75,7 +75,7 @@ public class PanelFinalTurno : MonoBehaviour
         _running = true;
         _onFinished = onFinished;
         _success = success;
-        _puntos = Mathf.Max(0, puntos);
+        _puntos = puntos; // permitir negativos
         _player1Based = Mathf.Clamp(playerIndex1Based, 1, 4);
         _ultimoValorTick = -1; // reset para conteo
         _lastTickTime = Time.unscaledTime;
@@ -90,10 +90,40 @@ public class PanelFinalTurno : MonoBehaviour
 
         // Texto resultado
         if (textoResultado != null)
-            textoResultado.text = success ? textoGanar : textoPerder;
+        {
+            if (_success)
+                textoResultado.text = (_puntos < 0) ? textoPerder : textoGanar;
+            else
+                textoResultado.text = textoPerder;
+        }
 
+        // Texto puntos inicial
         if (textoPuntos != null)
-            textoPuntos.text = success ? $"Ganas: 0 puntos" : $"Pierdes: {_puntos} puntos"; // inicial según dirección conteo (éxito/fallo formateados)
+        {
+            if (_success)
+            {
+                if (_puntos > 0)
+                {
+                    // caso normal: ganancia positiva, iniciamos conteo desde 0
+                    textoPuntos.text = $"Ganas: 0 puntos";
+                }
+                else if (_puntos < 0)
+                {
+                    // intento exitoso pero puntaje negativo (bombas): mostrar pérdidas
+                    textoPuntos.text = $"Pierdes: {Mathf.Abs(_puntos)} puntos";
+                }
+                else
+                {
+                    // cero exacto
+                    textoPuntos.text = $"Ganas: 0 puntos";
+                }
+            }
+            else
+            {
+                // intento fallado siempre muestra "Ganas: 0 puntos"
+                textoPuntos.text = $"Ganas: 0 puntos";
+            }
+        }
 
         // Preparar canvas
         gameObject.SetActive(true);
@@ -128,28 +158,62 @@ public class PanelFinalTurno : MonoBehaviour
         }
         else if (canvasGroup != null) canvasGroup.alpha = 1f;
 
-        // Conteo
-        if (conteoDuration > 0f && textoPuntos != null && _puntos > 0)
+        // Conteo: positivo (gana) o negativo (pierde)
+        if (conteoDuration > 0f && textoPuntos != null && _success)
         {
-            float t = 0f;
-            while (t < conteoDuration)
+            if (_puntos > 0)
             {
-                t += Time.unscaledDeltaTime;
-                float k = Mathf.Clamp01(t / conteoDuration);
-                int valor = _success ? Mathf.RoundToInt(Mathf.Lerp(0, _puntos, k)) : Mathf.RoundToInt(Mathf.Lerp(_puntos, 0, k));
-                if (valor != _ultimoValorTick && (Time.unscaledTime - _lastTickTime) >= minTickInterval)
+                float t = 0f;
+                while (t < conteoDuration)
                 {
-                    _ultimoValorTick = valor;
-                    _lastTickTime = Time.unscaledTime;
-                    var sm = SoundManager.instance; if (sm) sm.PlaySfx(sfxTickKey,0.75f);
+                    t += Time.unscaledDeltaTime;
+                    float k = Mathf.Clamp01(t / conteoDuration);
+                    int valor = Mathf.RoundToInt(Mathf.Lerp(0, _puntos, k));
+                    if (valor != _ultimoValorTick && (Time.unscaledTime - _lastTickTime) >= minTickInterval)
+                    {
+                        _ultimoValorTick = valor;
+                        _lastTickTime = Time.unscaledTime;
+                        var sm = SoundManager.instance; if (sm) sm.PlaySfx(sfxTickKey, 0.75f);
+                    }
+                    textoPuntos.text = $"Ganas: {valor} puntos";
+                    yield return null;
                 }
-                textoPuntos.text = _success ? $"Ganas: {valor} puntos" : $"Pierdes: {valor} puntos";
-                yield return null;
+            }
+            else if (_puntos < 0)
+            {
+                int maxLoss = Mathf.Abs(_puntos);
+                float t = 0f;
+                while (t < conteoDuration)
+                {
+                    t += Time.unscaledDeltaTime;
+                    float k = Mathf.Clamp01(t / conteoDuration);
+                    int valor = Mathf.RoundToInt(Mathf.Lerp(maxLoss, 0, k));
+                    if (valor != _ultimoValorTick && (Time.unscaledTime - _lastTickTime) >= minTickInterval)
+                    {
+                        _ultimoValorTick = valor;
+                        _lastTickTime = Time.unscaledTime;
+                        var sm = SoundManager.instance; if (sm) sm.PlaySfx(sfxTickKey, 0.75f);
+                    }
+                    textoPuntos.text = $"Pierdes: {valor} puntos";
+                    yield return null;
+                }
             }
         }
         
+        // Texto final según caso
         if (textoPuntos != null)
-            textoPuntos.text = _success ? $"Ganas: {_puntos} puntos" : "Pierdes: 0 puntos";
+        {
+            if (_success)
+            {
+                if (_puntos > 0) textoPuntos.text = $"Ganas: {_puntos} puntos";
+                else if (_puntos < 0) textoPuntos.text = $"Pierdes: {Mathf.Abs(_puntos)} puntos";
+                else textoPuntos.text = $"Ganas: 0 puntos";
+            }
+            else
+            {
+                textoPuntos.text = $"Ganas: 0 puntos";
+            }
+        }
 
         // Espera
         if (holdAfterConteo > 0f) yield return new WaitForSecondsRealtime(holdAfterConteo);

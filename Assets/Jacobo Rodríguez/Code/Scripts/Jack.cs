@@ -87,7 +87,7 @@ public class Jack : MonoBehaviour, IPointerDownHandler
     private Sprite PickRandom(Sprite[] opciones)
     {
         if (opciones == null || opciones.Length == 0) return null;
-        int idx = Random.Range(0, opciones.Length);
+        int idx = UnityEngine.Random.Range(0, opciones.Length);
         return opciones[idx];
     }
 
@@ -173,6 +173,37 @@ public class Jack : MonoBehaviour, IPointerDownHandler
         {
             Debug.LogWarning("[Jack] SoundManager.instance no encontrado para reproducir SFX.");
         }
+
+        // Popup de puntuación (llamada directa al singleton)
+        Color? tint = null;
+        // Prioridad por tipo de Jack
+        if (tipoJack == tipo.Especial)
+        {
+            // Dorado
+            tint = new Color(1f, 0.84f, 0f);
+        }
+        else if (tipoJack == tipo.bomba)
+        {
+            // Negro
+            tint = Color.black;
+        }
+        else
+        {
+            // Normal: color por jugador actual
+            if (TurnManager.instance != null)
+            {
+                switch (TurnManager.instance.CurrentTurn())
+                {
+                    case 1: tint = new Color(0.9f, 0.2f, 0.2f); break; // rojo
+                    case 2: tint = new Color(0.2f, 0.45f, 0.95f); break; // azul
+                    case 3: tint = new Color(0.95f, 0.85f, 0.2f); break; // amarillo
+                    case 4: tint = new Color(0.3f, 0.85f, 0.4f); break; // verde
+                }
+            }
+        }
+        var spm = ScorePopupManager.instance;
+        if (spm != null) spm.Spawn(transform.position, this.puntos, tint);
+
         disable();
     }
 
