@@ -26,9 +26,31 @@ public class CircleGameManagerUI : MonoBehaviour
     [Header("Events")]
     public UnityEvent onGameFinished;
 
+    [Header("Temporizadores")]
+    [Tooltip("Tiempo de espera antes de reiniciar los fallados, para que el jugador vea los círculos rojos.")]
+    [SerializeField] private float failRestartDelay = 1f;
+    [Tooltip("Tiempo de espera antes de limpiar al completar todos correctamente, para que se vea el verde.")]
+    [SerializeField] private float successCleanupDelay = 0.5f;
+
+    // API pública unificada para iniciar el minijuego
+    [ContextMenu("PlayMiniGamen")]
+    public void PlayMiniGamen()
+    {
+        StartGame();
+    }
+
+    [ContextMenu("Play")]
+    public void Play()
+    {
+        PlayMiniGamen();
+    }
+
     // 🔹 Llamar a esta función para iniciar el juego manualmente
     public void StartGame()
     {
+        // Cancelar invocaciones pendientes por seguridad
+        CancelInvoke();
+
         if (circlePrefab == null || spawnArea == null)
         {
             Debug.LogError("❌ Asigna el prefab y el área de aparición en el inspector.");
@@ -117,15 +139,28 @@ public class CircleGameManagerUI : MonoBehaviour
         {
             if (failedCircles.Count > 0)
             {
-                Debug.Log("🔁 Repitiendo los círculos fallados...");
-                Invoke(nameof(RestartFailedCircles), 0.8f);
+                // Reiniciar los círculos fallados tras una breve pausa de feedback
+                // 1) Mantener visibles los correctos (verdes) y los fallados (rojos) durante el delay
+                foreach (var c in allCircles)
+                {
+                    if (c != null && failedCircles.Contains(c))
+                    {
+                        // Asegurar que los fallados estén visibles en rojo
+                        c.gameObject.SetActive(true);
+                    }
+                }
+                // 2) Pausa breve para feedback y luego reiniciar solo con los fallados (ahí se destruirán los correctos)
+                gameActive = false;
+                CancelInvoke(nameof(RestartFailedCircles));
+                Invoke(nameof(RestartFailedCircles), failRestartDelay);
             }
             else
             {
-                Debug.Log("🎉 ¡Juego completado!");
                 gameActive = false;
-                Invoke(nameof(ClearAllCircles), 0.6f); // 🔹 limpia los círculos al terminar
-                onGameFinished?.Invoke();
+                // Pequeña pausa para que el jugador vea el verde antes de limpiar y pasar al siguiente
+                CancelInvoke(nameof(ClearAllCircles));
+                CancelInvoke(nameof(FinishSuccess));
+                Invoke(nameof(FinishSuccess), successCleanupDelay);
             }
         }
     }
@@ -144,8 +179,12 @@ public class CircleGameManagerUI : MonoBehaviour
     // 🔹 Destruye todos los círculos que no fallaron (los correctos)
     foreach (var c in allCircles)
     {
-        if (c != null && !failedCircles.Contains(c))
-            Destroy(c.gameObject);
+            if (c != null && !failedCircles.Contains(c))
+            {
+                // Ocultar inmediatamente y destruir
+                c.gameObject.SetActive(false);
+                Destroy(c.gameObject);
+            }
     }
 
     // 🔹 Ahora solo trabajamos con los círculos fallados
@@ -154,8 +193,15 @@ public class CircleGameManagerUI : MonoBehaviour
     currentIndex = 0;
 
     // 🔹 Reinicia los fallados para un nuevo intento
-    foreach (var c in allCircles)
-        c.ResetForRetry();
+        foreach (var c in allCircles)
+        {
+            if (c != null)
+            {
+                // Reactivar por si fueron ocultados durante la espera
+                c.gameObject.SetActive(true);
+                c.ResetForRetry();
+            }
+        }
 
     ActivateNextCircle();
 }
@@ -163,12 +209,40 @@ public class CircleGameManagerUI : MonoBehaviour
     // 🔹 Nueva función: elimina todos los círculos al completar el juego
     void ClearAllCircles()
     {
+        // Cancelar invocaciones pendientes antes de limpiar
+        CancelInvoke();
+
         foreach (var c in allCircles)
         {
             if (c != null)
+            {
+                // Ocultar inmediatamente para evitar parpadeos
+                c.gameObject.SetActive(false);
                 Destroy(c.gameObject);
+            }
         }
         allCircles.Clear();
+
+        // Limpieza extra por seguridad: cualquier círculo bajo el spawnArea que no esté en la lista
+        if (spawnArea != null)
+        {
+            var extraTargets = spawnArea.GetComponentsInChildren<CircleTarget>(true);
+            foreach (var t in extraTargets)
+            {
+                if (t != null && !allCircles.Contains(t))
+                {
+                    t.gameObject.SetActive(false);
+                    Destroy(t.gameObject);
+                }
+            }
+        }
         Debug.Log("🧹 Todos los círculos eliminados. Fin del juego.");
+    }
+
+    // 🔹 Envuelve la limpieza y notifica finalización tras el delay de éxito
+    void FinishSuccess()
+    {
+        ClearAllCircles();
+        onGameFinished?.Invoke();
     }
 }

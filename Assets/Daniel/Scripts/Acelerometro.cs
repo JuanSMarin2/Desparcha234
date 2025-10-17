@@ -73,6 +73,13 @@ public class AccelerometerGame : MonoBehaviour
         Calibrate();
     }
 
+    // API pública unificada para iniciar el minijuego
+    [ContextMenu("PlayMiniGamen")]
+    public void PlayMiniGamen()
+    {
+        Play();
+    }
+
     // 🔹 Llamar desde botón u otro script para iniciar el juego
     public void Play()
     {

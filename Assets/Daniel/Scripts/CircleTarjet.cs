@@ -51,12 +51,13 @@ public class CircleTarget : MonoBehaviour
     {
         active = state;
 
+        // No sobrescribir colores finales (rojo/verde) cuando ya terminó
         if (finished) return;
 
         if (state)
-            innerCircle.color = new Color(0.6f, 0.6f, 0.6f); // gris apagado inicial (o color activo si prefieres)
+            innerCircle.color = new Color(0.6f, 0.6f, 0.6f); // gris activo
         else
-            innerCircle.color = new Color(0.3f, 0.3f, 0.3f); // gris oscuro para pausados
+            innerCircle.color = new Color(0.3f, 0.3f, 0.3f); // gris inactivo
     }
 
     void Update()
@@ -92,7 +93,7 @@ public class CircleTarget : MonoBehaviour
     {
         finished = true;
         innerCircle.color = Color.green;
-        Debug.Log($"✔ Acierto en círculo {orderIndex + 1}");
+    // acierto: feedback visual verde ya aplicado
         active = false;
         manager.OnCircleResult(this, true);
     }
@@ -101,7 +102,7 @@ public class CircleTarget : MonoBehaviour
     {
         finished = true;
         innerCircle.color = Color.red;
-        Debug.Log($"❌ Fallo en círculo {orderIndex + 1}");
+    // fallo: feedback visual rojo ya aplicado
         active = false;
         manager.OnCircleResult(this, false);
     }
@@ -113,7 +114,7 @@ public class CircleTarget : MonoBehaviour
         targetSize = Random.Range(70f, 90f);
         currentSize = startSize;
         outerRT.sizeDelta = new Vector2(currentSize, currentSize);
-        innerCircle.color = new Color(0.3f, 0.3f, 0.3f); // gris oscuro
+        innerCircle.color = new Color(0.3f, 0.3f, 0.3f); // gris inactivo
         active = false;
     }
 }

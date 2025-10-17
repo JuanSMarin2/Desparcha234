@@ -25,6 +25,19 @@ public class BotonReducible : MonoBehaviour
     [Header("Events")]
     public UnityEvent onGameFinished;
 
+    // API pública unificada para iniciar el minijuego
+    [ContextMenu("PlayMiniGamen")]
+    public void PlayMiniGamen()
+    {
+        StartGame();
+    }
+
+    [ContextMenu("Play")]
+    public void Play()
+    {
+        PlayMiniGamen();
+    }
+
     [ContextMenu("Iniciar Juego")]
     public void StartGame()
     {
@@ -109,7 +122,6 @@ public class BotonReducible : MonoBehaviour
 
         if (buttons.Count == 0)
         {
-            Debug.Log("🎉 ¡Ganaste! Todos los botones desaparecieron.");
             onGameFinished?.Invoke();
             // Aquí puedes mostrar una UI de victoria, animación, etc.
         }
@@ -120,6 +132,28 @@ public class BotonReducible : MonoBehaviour
         foreach (var b in buttons)
             if (b != null) Destroy(b.gameObject);
         buttons.Clear();
+
+        // Limpieza robusta: eliminar cualquier botón/relay que quede bajo el parent
+        if (spawnParent != null)
+        {
+            var relays = spawnParent.GetComponentsInChildren<ButtonPressRelay>(true);
+            foreach (var r in relays)
+            {
+                if (r != null) Destroy(r.gameObject);
+            }
+        }
+    }
+
+    // Finalizar/abortar minijuego por eventos externos (timeout, cambio de turno, etc.)
+    public void StopGame()
+    {
+        ClearExisting();
+        // No invocamos onGameFinished aquí para evitar dobles señales; la secuencia ya controla el avance
+    }
+
+    private void OnDisable()
+    {
+        ClearExisting();
     }
 }
 

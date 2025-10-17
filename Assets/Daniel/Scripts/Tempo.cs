@@ -11,17 +11,22 @@ public class Tempo : MonoBehaviour
     [SerializeField, Tooltip("Desviación estándar para la distribución Gaussiana")]
     private float stdDev = 10f;
 
-    [SerializeField, Tooltip("TextMeshPro Text para mostrar el tiempo transcurrido")]
+    [SerializeField, Tooltip("TextMeshPro Text (opcional) para mostrar el tiempo restante")]
     private TMP_Text timerText;
 
-    [SerializeField, Tooltip("Si se activa, el temporizador reinicia automáticamente con un nuevo límite cuando termina")]
-    private bool autoRestart = false;
-
-    [SerializeField, Tooltip("Forzar límite mínimo positivo (evita valores negativos o cero)")]
-    private bool clampPositive = true;
-
+    [Header("Eventos")]
     [SerializeField, Tooltip("Evento que se invoca cuando termina el temporizador")]
     private UnityEvent onTimerFinished;
+
+    [Tooltip("Evento estándar para integración con la secuencia de minijuegos")]
+    public UnityEvent onGameFinished;
+
+    [Tooltip("Si es true, el GameSequenceController NO llamará a NextTurn cuando este minijuego termine.")]
+    public bool skipNextTurnOnFinish = true;
+
+    [Header("Inicio")]
+    [SerializeField, Tooltip("Si está activo, el temporizador inicia automáticamente al activar el objeto.")]
+    private bool autoStart = false;
 
     // Estado interno
     private float limit;
@@ -42,8 +47,8 @@ public class Tempo : MonoBehaviour
                 Debug.LogWarning("Tempo: timerText no asignado y no se encontró TMP_Text en el mismo GameObject.");
         }
 
-        // Iniciar temporizador automáticamente con un límite muestreado
-        StartTimer();
+        // Iniciar automáticamente si está habilitado; sino, usar PlayMiniGamen()/StartTimer desde fuera
+        if (autoStart) StartTimer();
     }
 
     void Update()
@@ -58,8 +63,15 @@ public class Tempo : MonoBehaviour
         if (remaining <= 0f)
         {
             running = false;
+            // Si hay sistemas de turnos activos, eliminar al jugador actual
+            int current = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+            if (current >= 0 && GameRoundManager.instance != null)
+            {
+                GameRoundManager.instance.PlayerLose(current);
+            }
+
             onTimerFinished?.Invoke();
-            if (autoRestart) StartTimer();
+            onGameFinished?.Invoke();
         }
     }
 
@@ -67,7 +79,8 @@ public class Tempo : MonoBehaviour
     public void StartTimer()
     {
         limit = SampleGaussian(mean, stdDev);
-        if (clampPositive && limit < 0.1f) limit = 0.1f;
+        // Mantener tiempo mínimo positivo fijo para evitar 0 o negativos
+        if (limit < 0.1f) limit = 0.1f;
         remaining = limit;
         running = true;
         UpdateText();
@@ -92,6 +105,8 @@ public class Tempo : MonoBehaviour
         timerText.text = $"{remaining:F2} seg";
     }
 
+    // (sin throttling) mantenerlo simple
+
     // Muestra una muestra de una normal con media mu y desviación sigma (Box-Muller)
     private float SampleGaussian(float mu, float sigma)
     {
@@ -101,5 +116,12 @@ public class Tempo : MonoBehaviour
         double stdNormal = System.Math.Sqrt(-2.0 * System.Math.Log(u1)) * System.Math.Sin(2.0 * System.Math.PI * u2);
         double value = mu + sigma * stdNormal;
         return (float)value;
+    }
+
+    // (Sin integración de minijuegos) Este componente actúa solo como temporizador.
+    [ContextMenu("PlayMiniGamen")]
+    public void PlayMiniGamen()
+    {
+        StartTimer();
     }
 }

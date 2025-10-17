@@ -22,6 +22,19 @@ public class JOrden: MonoBehaviour
     [Header("Events")]
     public UnityEvent onGameFinished;
 
+    // ====== API pública para iniciar el minijuego ======
+    [ContextMenu("PlayMiniGamen")]
+    public void PlayMiniGamen()
+    {
+        StartSequence();
+    }
+
+    [ContextMenu("Play")]
+    public void Play()
+    {
+        PlayMiniGamen();
+    }
+
     // ====== INICIAR SECUENCIA ======
     [ContextMenu("Start Sequence")]
     public void StartSequence()
@@ -30,7 +43,7 @@ public class JOrden: MonoBehaviour
 
         if (!buttonPrefab || !spawnParent)
         {
-            Debug.LogError("BotonJugadpr: Falta asignar el prefab o el parent.");
+            Debug.LogError("JOrden: Falta asignar el prefab o el parent.");
             return;
         }
 
@@ -104,15 +117,13 @@ public class JOrden: MonoBehaviour
             nextExpected++;
             if (nextExpected > buttonCount)
             {
-                Debug.Log("🎉 ¡Victoria! Secuencia completada.");
                 ClearExisting();
                 onGameFinished?.Invoke();
             }
         }
         else
         {
-            Debug.Log("❌ Orden incorrecto.");
-            if (restartOnFail) StartSequence();
+            if (restartOnFail) PlayMiniGamen();
         }
     }
 
@@ -121,11 +132,34 @@ public class JOrden: MonoBehaviour
         foreach (var b in buttons)
             if (b != null) Destroy(b.gameObject);
         buttons.Clear();
+
+        // Limpieza robusta: por si quedaron hijos sin registrar
+        if (spawnParent != null)
+        {
+            var relays = spawnParent.GetComponentsInChildren<ButtonClickRelay>(true);
+            foreach (var r in relays)
+            {
+                if (r != null) Destroy(r.gameObject);
+            }
+        }
     }
 
     private void OnValidate()
     {
         buttonCount = Mathf.Clamp(buttonCount, 1, 5);
+    }
+
+    // Finalizar/abortar minijuego por eventos externos (p.ej., fin de turno/timeout)
+    public void StopGame()
+    {
+        ClearExisting();
+        // No invocar onGameFinished aquí para evitar duplicidad con el controlador de secuencia
+    }
+
+    private void OnDisable()
+    {
+        // Asegurar limpieza si el componente se desactiva externamente
+        ClearExisting();
     }
 }
 
