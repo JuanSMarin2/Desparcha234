@@ -17,24 +17,24 @@ public class MapDestroyer : MonoBehaviour
     [SerializeField] private GameObject explosion;
     [SerializeField] private float explosionLifetime = 1.25f; // 0 = no auto-apagar
 
-    // Deteccion de fin de ciclo de turnos
+    // Seguimiento de ciclo
     private HashSet<int> seenThisCycle = new HashSet<int>();
-    private int lastObservedPlayer = -99;   // para detectar cambio de jugador
+    private int lastObservedPlayer = -99;   // para detectar cambios
 
     // Progreso de destruccion
     private int currentSlotIndex = 0;
 
     void Start()
     {
-        // Si ya hay TurnManager, arrancamos el set con el jugador actual
-        if (TurnManager.instance != null)
+        var tm = TurnManager.instance;
+        if (tm != null)
         {
-            int cur = TurnManager.instance.GetCurrentPlayerIndex();
+            int cur = tm.GetCurrentPlayerIndex();
             if (cur >= 0)
             {
-                seenThisCycle.Clear();
-                seenThisCycle.Add(cur);
                 lastObservedPlayer = cur;
+                seenThisCycle.Clear();
+                seenThisCycle.Add(cur); // arrancamos el ciclo “observando” al actual
             }
         }
         else
@@ -50,46 +50,55 @@ public class MapDestroyer : MonoBehaviour
         if (tm == null) return;
 
         int activeCount = tm.GetActivePlayerCount();
-        if (activeCount <= 1) return; // nada que ciclar con 0/1 jugadores
+        if (activeCount <= 1) return; // sin ciclo con 0/1
 
         int cur = tm.GetCurrentPlayerIndex();
         if (cur < 0) return;
 
-        // Si es la primera vez que tomamos referencia (Start pudo llegar antes que TM)
+        // Primer frame útil si Start no alcanzó a fijarlo
         if (lastObservedPlayer == -99)
         {
+            lastObservedPlayer = cur;
             seenThisCycle.Clear();
             seenThisCycle.Add(cur);
-            lastObservedPlayer = cur;
             return;
         }
 
-        // ¿cambió el jugador?
-        if (cur != lastObservedPlayer)
+        // Solo actuamos ante cambio de jugador
+        if (cur == lastObservedPlayer) return;
+        lastObservedPlayer = cur;
+
+        // Recortar a jugadores activos (si hubo eliminaciones en medio)
+        TrimSeenToActive(tm.GetActivePlayerIndices());
+
+        // ¿Ya vimos a todos los activos y estamos viendo un jugador repetido?
+        bool setCompleto = seenThisCycle.Count >= activeCount;
+        bool esRepetido = seenThisCycle.Contains(cur);
+
+        if (setCompleto && esRepetido)
         {
-            lastObservedPlayer = cur;
+            // Wrap robusto: cerró el ciclo
+            OnFullTurnCycle();
 
-            // Mantener el set solo con jugadores activos (por si alguien fue eliminado)
-            TrimSeenToActive(tm.GetActivePlayerIndices());
-
-            // Añadir el actual a los vistos del ciclo
+            // Reiniciar ciclo arrancando con el jugador actual
+            seenThisCycle.Clear();
             seenThisCycle.Add(cur);
-
-            // Si ya vimos a TODOS los activos al menos una vez, el ciclo está completo -> destruir slot
-            if (seenThisCycle.Count >= activeCount)
-            {
-                OnFullTurnCycle();
-
-                // Reiniciar ciclo empezando desde el jugador actual (el que acaba de entrar)
-                seenThisCycle.Clear();
-                seenThisCycle.Add(cur);
-            }
+        }
+        else
+        {
+            // Aún no cerramos ciclo: marcamos al actual como visto
+            seenThisCycle.Add(cur);
         }
     }
 
     private void TrimSeenToActive(List<int> active)
     {
-        if (active == null) return;
+        if (active == null)
+        {
+            seenThisCycle.Clear();
+            return;
+        }
+
         var kept = new HashSet<int>();
         for (int i = 0; i < active.Count; i++)
         {
@@ -139,15 +148,14 @@ public class MapDestroyer : MonoBehaviour
         currentSlotIndex++;
         if (currentSlotIndex >= slots.Length)
         {
-            // Puedes deshabilitar el componente si no quieres más destrucciones:
-            // enabled = false;
+            // enabled = false; // si no quieres más destrucciones
             currentSlotIndex = slots.Length - 1;
         }
     }
 
     private int GetActiveMapIndex(GameObject[] perMap)
     {
-        // Deducimos el mapa activo por cuál de estos objetos está activo en jerarquía
+        // Deducimos el mapa activo por cuál de estos objetos está activo
         for (int i = 0; i < perMap.Length; i++)
         {
             var go = perMap[i];
