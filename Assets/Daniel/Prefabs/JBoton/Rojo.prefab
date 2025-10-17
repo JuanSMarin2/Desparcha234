@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2914987391367918854}
   - component: {fileID: 2819346239926103243}
   m_Layer: 5
-  m_Name: Button
+  m_Name: Rojo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,7 +67,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7448113381798972013, guid: 03297dda8b43e8b47af729b99ca7d447, type: 3}
+  m_Sprite: {fileID: -4816770991657585070, guid: 63abc96eb7ba3da48bec64718dc1684f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

@@ -3,11 +3,14 @@ using UnityEngine.EventSystems;
 using TMPro;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using System.Collections;
 
 public class BotonReducible : MonoBehaviour
 {
     [Header("Configuración general")]
     [SerializeField] private GameObject buttonPrefab;
+    [SerializeField, Tooltip("Prefabs por jugador (0-based). Si existe en la posición del jugador actual, se usa ese en lugar del prefab por defecto.")]
+    private GameObject[] buttonPrefabsByPlayer;
     [SerializeField] private RectTransform spawnParent;
     [SerializeField, Range(1, 10)] private int buttonCount = 5;
 
@@ -43,17 +46,36 @@ public class BotonReducible : MonoBehaviour
     {
         ClearExisting();
 
-        if (buttonPrefab == null || spawnParent == null)
+        if (spawnParent == null)
         {
-            Debug.LogError("Asigna el prefab y el spawnParent en el inspector.");
+            Debug.LogError("Asigna el spawnParent en el inspector.");
             return;
+        }
+
+        StartCoroutine(StartGameDeferred());
+    }
+
+    private IEnumerator StartGameDeferred()
+    {
+        float waited = 0f;
+        while ((TurnManager.instance == null || TurnManager.instance.GetCurrentPlayerIndex() < 0) && waited < 1f)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+
+        GameObject prefabToUse = ResolveButtonPrefab();
+        if (prefabToUse == null)
+        {
+            Debug.LogError("No hay prefab válido para el jugador actual ni prefab por defecto.");
+            yield break;
         }
 
         List<Vector2> placed = new List<Vector2>();
 
         for (int i = 0; i < buttonCount; i++)
         {
-            GameObject go = Instantiate(buttonPrefab, spawnParent);
+            GameObject go = Instantiate(prefabToUse, spawnParent);
             RectTransform rt = go.GetComponent<RectTransform>();
             TMP_Text text = go.GetComponentInChildren<TMP_Text>();
             if (text != null) text.text = "PRESIONA";
@@ -80,6 +102,17 @@ public class BotonReducible : MonoBehaviour
 
             buttons.Add(relay);
         }
+    }
+
+    private GameObject ResolveButtonPrefab()
+    {
+        int playerIdx = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (playerIdx >= 0 && buttonPrefabsByPlayer != null && playerIdx < buttonPrefabsByPlayer.Length)
+        {
+            var p = buttonPrefabsByPlayer[playerIdx];
+            if (p != null) return p;
+        }
+        return buttonPrefab;
     }
 
     private Vector2 SampleLocalPosition()

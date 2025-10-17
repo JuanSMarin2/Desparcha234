@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.Events;
@@ -7,6 +8,8 @@ public class CircleGameManagerUI : MonoBehaviour
 {
     [Header("Prefabs y zona de aparición")]
     public GameObject circlePrefab;
+    [SerializeField, Tooltip("Prefabs por jugador (0-based). Si existe uno en el índice del jugador actual, se usará en lugar del prefab por defecto.")]
+    private GameObject[] circlePrefabsByPlayer;
     public RectTransform spawnArea;
 
     [Header("Configuración de aparición")]
@@ -51,9 +54,9 @@ public class CircleGameManagerUI : MonoBehaviour
         // Cancelar invocaciones pendientes por seguridad
         CancelInvoke();
 
-        if (circlePrefab == null || spawnArea == null)
+        if (spawnArea == null)
         {
-            Debug.LogError("❌ Asigna el prefab y el área de aparición en el inspector.");
+            Debug.LogError("❌ Asigna el área de aparición en el inspector.");
             return;
         }
 
@@ -66,6 +69,20 @@ public class CircleGameManagerUI : MonoBehaviour
         usedPositions.Clear();
         currentIndex = 0;
 
+        // Esperar a que TurnManager tenga un índice válido antes de spawnear (para usar el prefab por jugador)
+        StartCoroutine(StartGameDeferred());
+    }
+
+    private IEnumerator StartGameDeferred()
+    {
+        float waited = 0f;
+        // Espera hasta 1s a que TurnManager esté listo y reporte índice >= 0
+        while ((TurnManager.instance == null || TurnManager.instance.GetCurrentPlayerIndex() < 0) && waited < 1f)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+
         SpawnCircles();
         ActivateNextCircle();
         gameActive = true;
@@ -75,10 +92,16 @@ public class CircleGameManagerUI : MonoBehaviour
     {
         Rect rect = spawnArea.rect;
 
+        var prefabToUse = ResolveCirclePrefab();
+        if (prefabToUse == null)
+        {
+            Debug.LogError("❌ No hay prefab de círculo válido (por jugador o por defecto).");
+            return;
+        }
         for (int i = 0; i < numberOfCircles; i++)
         {
             Vector2 pos = GetNonOverlappingPosition();
-            GameObject circleObj = Instantiate(circlePrefab, spawnArea);
+            GameObject circleObj = Instantiate(prefabToUse, spawnArea);
             RectTransform rt = circleObj.GetComponent<RectTransform>();
             rt.anchoredPosition = pos;
 
@@ -244,5 +267,15 @@ public class CircleGameManagerUI : MonoBehaviour
     {
         ClearAllCircles();
         onGameFinished?.Invoke();
+    }
+    private GameObject ResolveCirclePrefab()
+    {
+        int playerIdx = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (playerIdx >= 0 && circlePrefabsByPlayer != null && playerIdx < circlePrefabsByPlayer.Length)
+        {
+            var p = circlePrefabsByPlayer[playerIdx];
+            if (p != null) return p;
+        }
+        return circlePrefab;
     }
 }

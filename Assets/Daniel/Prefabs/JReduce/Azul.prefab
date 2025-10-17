@@ -92,8 +92,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -149,7 +149,7 @@ GameObject:
   - component: {fileID: 3630277035810326046}
   - component: {fileID: 4566376009652772845}
   m_Layer: 5
-  m_Name: Button 1
+  m_Name: Azul
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -173,7 +173,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 189.84229, y: -100.206436}
-  m_SizeDelta: {x: 135.2845, y: 125.4129}
+  m_SizeDelta: {x: 135, y: 135}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1736282810360103159
 CanvasRenderer:
@@ -203,7 +203,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1292473709232041094, guid: 2bd5fbc6e420e394ba1ad4363ff7e685, type: 3}
+  m_Sprite: {fileID: 2794127181586071130, guid: 4fbee80c155183d4da3d146efbce2cf5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

@@ -3,11 +3,14 @@ using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using System.Collections;
 
 public class JOrden: MonoBehaviour
 {
     [Header("Configuración")]
     [SerializeField] private GameObject buttonPrefab;
+    [SerializeField, Tooltip("Prefabs por jugador según índice (0-based). Si está asignado y no es nulo en la posición del jugador actual, se usará este en lugar del prefab por defecto.")]
+    private GameObject[] buttonPrefabsByPlayer;
     [SerializeField] private RectTransform spawnParent;
     [SerializeField, Range(1, 5)] private int buttonCount = 3;
     [SerializeField] private bool restartOnFail = true;
@@ -41,10 +44,31 @@ public class JOrden: MonoBehaviour
     {
         ClearExisting();
 
-        if (!buttonPrefab || !spawnParent)
+        if (!spawnParent)
         {
-            Debug.LogError("JOrden: Falta asignar el prefab o el parent.");
+            Debug.LogError("JOrden: Falta asignar el parent para los botones (spawnParent).");
             return;
+        }
+
+        // Asegurar que TurnManager tenga un índice válido antes de resolver el prefab por jugador
+        StartCoroutine(StartSequenceDeferred());
+    }
+
+    private IEnumerator StartSequenceDeferred()
+    {
+        float waited = 0f;
+        while ((TurnManager.instance == null || TurnManager.instance.GetCurrentPlayerIndex() < 0) && waited < 1f)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+
+        GameObject prefabToUse = ResolveButtonPrefab();
+
+        if (!prefabToUse)
+        {
+            Debug.LogError("JOrden: No hay prefab válido (por jugador o por defecto).");
+            yield break;
         }
 
         buttonCount = Mathf.Clamp(buttonCount, 1, 5);
@@ -53,7 +77,7 @@ public class JOrden: MonoBehaviour
         for (int i = 0; i < buttonCount; i++)
         {
             // Crear botón
-            GameObject go = Instantiate(buttonPrefab, spawnParent);
+            GameObject go = Instantiate(prefabToUse, spawnParent);
             RectTransform rt = go.GetComponent<RectTransform>();
             Vector2 pos = GetNonOverlappingPosition(rt, placedPositions);
             rt.anchoredPosition = pos;
@@ -71,6 +95,18 @@ public class JOrden: MonoBehaviour
         }
 
         nextExpected = 1;
+    }
+
+    // ====== SELECCIÓN DE PREFAB POR JUGADOR ======
+    private GameObject ResolveButtonPrefab()
+    {
+        int playerIdx = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (playerIdx >= 0 && buttonPrefabsByPlayer != null && playerIdx < buttonPrefabsByPlayer.Length)
+        {
+            var p = buttonPrefabsByPlayer[playerIdx];
+            if (p != null) return p;
+        }
+        return buttonPrefab;
     }
 
     // ====== GENERADOR DE POSICIONES ======
