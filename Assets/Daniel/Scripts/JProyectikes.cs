@@ -135,7 +135,8 @@ public class JProyectikes : MonoBehaviour
         }
 
         // Movimiento de proyectiles
-        float dt = Time.unscaledDeltaTime;
+        // Usar deltaTime (no unscaled) para que el tiempo en 0 pause el movimiento
+        float dt = Time.deltaTime;
         for (int i = active.Count - 1; i >= 0; i--)
         {
             Projectile p = active[i];
@@ -194,26 +195,25 @@ public class JProyectikes : MonoBehaviour
     // ===================== LÓGICA DEL MINIJUEGO =====================
     private IEnumerator InitializeGameDeferred()
     {
-        const float maxWait = 1.0f; // máx 1s para esperar TurnManager
+        // Esperar hasta 1s en tiempo de juego (respetando pausa) a que TurnManager exista y tenga índice válido
+        float maxWait = 1.0f;
         float elapsed = 0f;
         while ((TurnManager.instance == null) && elapsed < maxWait)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += Time.deltaTime;
             yield return null;
         }
         if (TurnManager.instance != null)
         {
-            // Esperar a que el índice sea válido
             while (TurnManager.instance.GetCurrentPlayerIndex() < 0 && elapsed < maxWait)
             {
-                elapsed += Time.unscaledDeltaTime;
+                elapsed += Time.deltaTime;
                 yield return null;
             }
             startedPlayerIndex = TurnManager.instance.GetCurrentPlayerIndex();
         }
         else
         {
-            // No hay TM; seguiremos pero usaremos fallback
             startedPlayerIndex = -1;
         }
 
