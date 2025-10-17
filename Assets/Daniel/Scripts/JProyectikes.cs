@@ -71,6 +71,9 @@ public class JProyectikes : MonoBehaviour
 
     private List<float> rowYPositions = new List<float>();
     private readonly List<Projectile> active = new List<Projectile>();
+    [Header("Animación de captura")]
+    [Tooltip("Duración del encogimiento al atrapar (segundos)")]
+    public float catchShrinkDuration = 0.25f;
 
     // Estructura interna para proyectiles activos
     private class Projectile
@@ -436,15 +439,18 @@ public class JProyectikes : MonoBehaviour
         {
             if (active[i].go == go)
             {
-                // Eliminar
-                if (go != null) Destroy(go);
+                // Quitar del pool activo e incrementar contador antes de animar
                 active.RemoveAt(i);
                 caughtSoFar++;
 
-                // ¿Terminó el juego?
+                // Deshabilitar interacción durante la animación
+                var btn = go.GetComponent<Button>();
+                if (btn != null) btn.interactable = false;
+
+                // ¿Último proyectil? entonces terminar tras animación
                 if (caughtSoFar >= totalToCatch)
                 {
-                    FinishSuccess();
+                    StartCoroutine(AnimateCatchThenFinish(go));
                     return;
                 }
 
@@ -457,8 +463,35 @@ public class JProyectikes : MonoBehaviour
                         TrySpawnProjectile();
                     }
                 }
+
+                // Animar y destruir
+                StartCoroutine(AnimateCatchAndDestroy(go));
                 return;
             }
         }
+    }
+
+    private IEnumerator AnimateCatchAndDestroy(GameObject go)
+    {
+        if (go == null) yield break;
+        RectTransform rt = go.GetComponent<RectTransform>();
+        if (rt == null) rt = go.GetComponentInChildren<RectTransform>();
+        Vector3 initial = rt != null ? rt.localScale : Vector3.one;
+        float t = 0f;
+        float dur = Mathf.Max(0.01f, catchShrinkDuration);
+        while (t < dur)
+        {
+            t += Time.deltaTime;
+            float k = 1f - Mathf.Clamp01(t / dur);
+            if (rt != null) rt.localScale = initial * k;
+            yield return null;
+        }
+        if (go != null) Destroy(go);
+    }
+
+    private IEnumerator AnimateCatchThenFinish(GameObject go)
+    {
+        yield return AnimateCatchAndDestroy(go);
+        FinishSuccess();
     }
 }

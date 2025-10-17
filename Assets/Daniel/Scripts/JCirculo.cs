@@ -25,6 +25,11 @@ public class CircleGameManagerUI : MonoBehaviour
 
     private int currentIndex = 0;
     private bool gameActive = false;
+    [Header("Animaciones")]
+    [SerializeField, Tooltip("Duración del 'pop' de éxito (crecer y luego desaparecer)")]
+    private float successPopDuration = 0.35f;
+    [SerializeField, Tooltip("Factor de escala máximo durante el pop de éxito")]
+    private float successPopScale = 1.2f;
 
     [Header("Events")]
     public UnityEvent onGameFinished;
@@ -156,6 +161,11 @@ public class CircleGameManagerUI : MonoBehaviour
 
         if (currentIndex < allCircles.Count)
         {
+            // Si acertó, hacer pop del círculo tocado antes de continuar
+            if (success && circle != null)
+            {
+                StartCoroutine(PlaySuccessPop(circle));
+            }
             ActivateNextCircle();
         }
         else
@@ -186,6 +196,38 @@ public class CircleGameManagerUI : MonoBehaviour
                 Invoke(nameof(FinishSuccess), successCleanupDelay);
             }
         }
+    }
+
+    private IEnumerator PlaySuccessPop(CircleTarget circle)
+    {
+        if (circle == null) yield break;
+        var rt = circle.GetComponent<RectTransform>();
+        if (rt == null) rt = circle.GetComponentInChildren<RectTransform>();
+        if (rt == null) yield break;
+
+        Vector3 start = rt.localScale;
+        Vector3 peak = start * successPopScale;
+        float half = Mathf.Max(0.01f, successPopDuration * 0.5f);
+        float t = 0f;
+        // crecer
+        while (t < half)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.Clamp01(t / half);
+            rt.localScale = Vector3.Lerp(start, peak, k);
+            yield return null;
+        }
+        // reducir a cero y desaparecer
+        t = 0f;
+        while (t < half)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.Clamp01(t / half);
+            rt.localScale = Vector3.Lerp(peak, Vector3.zero, k);
+            yield return null;
+        }
+        circle.gameObject.SetActive(false);
+        Destroy(circle.gameObject);
     }
 
     void ActivateNextCircle()

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.Events;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.UI;
 
 public class BotonReducible : MonoBehaviour
 {

@@ -22,6 +22,16 @@ public class JOrden: MonoBehaviour
 
     private readonly List<ButtonClickRelay> buttons = new();
     private int nextExpected = 1;
+    [Header("Animación de guía")]
+    [SerializeField, Tooltip("Activar pulso lento en el botón esperado.")]
+    private bool pulseExpected = true;
+    [SerializeField, Tooltip("Velocidad del pulso (ciclos/seg).")]
+    private float pulseSpeed = 1.0f;
+    [SerializeField, Tooltip("Escala mínima del pulso.")]
+    private float pulseScaleMin = 0.9f;
+    [SerializeField, Tooltip("Escala máxima del pulso.")]
+    private float pulseScaleMax = 1.1f;
+    private float pulsePhase = 0f;
     [Header("Events")]
     public UnityEvent onGameFinished;
 
@@ -156,6 +166,7 @@ public class JOrden: MonoBehaviour
                 ClearExisting();
                 onGameFinished?.Invoke();
             }
+            pulsePhase = 0f; // reiniciar animación para el siguiente esperado
         }
         else
         {
@@ -196,6 +207,21 @@ public class JOrden: MonoBehaviour
     {
         // Asegurar limpieza si el componente se desactiva externamente
         ClearExisting();
+    }
+
+    private void Update()
+    {
+        if (!pulseExpected) return;
+        if (nextExpected < 1 || nextExpected > buttons.Count) return;
+        var relay = buttons[nextExpected - 1];
+        if (relay == null || relay.gameObject == null) return;
+        var rt = relay.GetComponent<RectTransform>();
+        if (rt == null) rt = relay.GetComponentInChildren<RectTransform>();
+        if (rt == null) return;
+
+        pulsePhase += Time.deltaTime * Mathf.Max(0f, pulseSpeed) * Mathf.PI * 2f;
+        float s = Mathf.Lerp(pulseScaleMin, pulseScaleMax, (Mathf.Sin(pulsePhase) + 1f) * 0.5f);
+        rt.localScale = new Vector3(s, s, 1f);
     }
 }
 

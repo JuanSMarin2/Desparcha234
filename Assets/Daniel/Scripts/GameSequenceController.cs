@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
@@ -27,6 +28,8 @@ public class GameSequenceController : MonoBehaviour
     private MonoBehaviour _current;
     private int _lastPlayedIndex = -1; // para no repetir consecutivo
     private int _lastPlayerIndex = -2; // rastrear cambios de jugador para logs
+    private MinigameInstructionUI _instructionUI; // cache perezoso
+    private bool _hasStartedSequence = false; // evita dobles inicios
 
     void Awake()
     {
@@ -47,6 +50,12 @@ public class GameSequenceController : MonoBehaviour
     [ContextMenu("Play Sequence")]
     public void PlaySequence()
     {
+        if (_hasStartedSequence)
+        {
+            Debug.Log("[Sequence] PlaySequence ignorado: la secuencia ya fue iniciada.");
+            return;
+        }
+        _hasStartedSequence = true;
         // Registrar jugador actual al inicio para logs
         if (TurnManager.instance != null)
         {
@@ -104,6 +113,13 @@ public class GameSequenceController : MonoBehaviour
 
         // No tocar el cronómetro aquí: se controla al inicio y cuando llega a 0
 
+        // Mostrar instrucciones para el minijuego actual (si hay UI presente)
+    TryShowInstructionsFor(comp);
+    // Si aún no hay índice válido, intentar refrescar el icono en breve
+    TryScheduleIconRefresh();
+    // Incluso si hay índice, hacer un refresco corto por si el binding de sprites tarda un frame
+    TryScheduleLateIconRefresh();
+
         // 1) Escuchar onGameFinished si existe
         var finishField = t.GetField("onGameFinished", BindingFlags.Public | BindingFlags.Instance);
         if (finishField != null && typeof(UnityEvent).IsAssignableFrom(finishField.FieldType))
@@ -139,6 +155,7 @@ public class GameSequenceController : MonoBehaviour
     private void OnMinigameFinished()
     {
         // No detener ni reiniciar el cronómetro en final normal de minijuego
+        HideInstructions();
         TryNextTurnFor(_current);
         UnsubscribeCurrent();
         PlayNext();
@@ -180,6 +197,9 @@ public class GameSequenceController : MonoBehaviour
                 _lastPlayerIndex = now;
             }
         }
+
+        // Ocultar instrucciones del minijuego que terminó por timeout
+        HideInstructions();
 
         // Avanzar inmediatamente al siguiente minijuego y reiniciar cronómetro para el nuevo turno
         if (turnTimer != null)
@@ -242,6 +262,114 @@ public class GameSequenceController : MonoBehaviour
         {
             int j = Random.Range(0, i + 1);
             (list[i], list[j]) = (list[j], list[i]);
+        }
+    }
+
+    // ================= Instrucciones centralizadas =================
+    private void TryShowInstructionsFor(MonoBehaviour comp)
+    {
+        if (comp == null) return;
+        var ui = GetInstructionUI();
+        if (ui == null) return;
+
+        // Obtener índice si está disponible; si no, usar -1 para que al menos se actualice el texto
+        int idx = -1;
+        if (TurnManager.instance != null)
+        {
+            idx = TurnManager.instance.GetCurrentPlayerIndex();
+        }
+
+        if (TryResolveKind(comp, out var kind))
+        {
+            ui.Show(kind, idx);
+        }
+    }
+
+    private void HideInstructions()
+    {
+        var ui = GetInstructionUI();
+        if (ui != null) ui.Hide();
+    }
+
+    private MinigameInstructionUI GetInstructionUI()
+    {
+        if (_instructionUI == null)
+        {
+            _instructionUI = FindFirstObjectByType<MinigameInstructionUI>();
+        }
+        return _instructionUI;
+    }
+
+    private bool TryResolveKind(MonoBehaviour comp, out MinigameKind kind)
+    {
+        // Mapear tipos concretos a MinigameKind. Ampliar según nuevos minijuegos.
+        var type = comp.GetType();
+        string name = type.Name;
+        // Comparar por nombre para evitar dependencias de namespaces
+        if (name == nameof(JProyectikes)) { kind = MinigameKind.Proyectiles; return true; }
+        if (name == nameof(JOrden)) { kind = MinigameKind.Orden; return true; }
+        if (name == nameof(CircleGameManagerUI) || name.Contains("Circulo")) { kind = MinigameKind.Circulos; return true; }
+        if (name == nameof(BotonReducible) || name.Contains("Reduce")) { kind = MinigameKind.Reducir; return true; }
+
+        kind = default;
+        return false;
+    }
+
+    // Si el índice no está listo al mostrar las instrucciones, refrescar icono cuando lo esté
+    private void TryScheduleIconRefresh()
+    {
+        if (TurnManager.instance == null) return;
+        if (TurnManager.instance.GetCurrentPlayerIndex() >= 0) return; // ya es válido
+        StopCoroutineSafe(nameof(RefreshIconWhenReady));
+        StartCoroutine(RefreshIconWhenReady());
+    }
+
+    private IEnumerator RefreshIconWhenReady()
+    {
+        float waited = 0f;
+        const float maxWait = 1.0f;
+        while (TurnManager.instance != null && TurnManager.instance.GetCurrentPlayerIndex() < 0 && waited < maxWait)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+        var ui = GetInstructionUI();
+        if (ui != null && TurnManager.instance != null)
+        {
+            int idx = TurnManager.instance.GetCurrentPlayerIndex();
+            if (idx >= 0)
+            {
+                ui.UpdatePlayerIcon(idx);
+            }
+        }
+    }
+
+    private void StopCoroutineSafe(string routineName)
+    {
+        try { StopCoroutine(routineName); } catch { /* ignore */ }
+    }
+
+    private void TryScheduleLateIconRefresh()
+    {
+        StopCoroutineSafe(nameof(LateIconRefresh));
+        StartCoroutine(LateIconRefresh());
+    }
+
+    private IEnumerator LateIconRefresh()
+    {
+        // Espera un frame en tiempo de juego para asegurar que los bindings de UI estén listos
+        yield return null;
+        if (TurnManager.instance != null)
+        {
+            int idx = TurnManager.instance.GetCurrentPlayerIndex();
+            if (idx >= 0)
+            {
+                var ui = GetInstructionUI();
+                if (ui != null)
+                {
+                    ui.UpdatePlayerIcon(idx);
+                }
+            }
         }
     }
 }
