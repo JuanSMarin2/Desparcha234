@@ -12,7 +12,7 @@ public class JOrden: MonoBehaviour
     [SerializeField, Tooltip("Prefabs por jugador según índice (0-based). Si está asignado y no es nulo en la posición del jugador actual, se usará este en lugar del prefab por defecto.")]
     private GameObject[] buttonPrefabsByPlayer;
     [SerializeField] private RectTransform spawnParent;
-    [SerializeField, Range(1, 5)] private int buttonCount = 3;
+    [SerializeField, Range(1, 10)] private int buttonCount = 3;
     [SerializeField] private bool restartOnFail = true;
     [SerializeField] private RectTransform spawnZone;
 
@@ -60,6 +60,9 @@ public class JOrden: MonoBehaviour
             return;
         }
 
+        // Ajustar dificultad por cantidad de jugadores activos
+        ApplyDifficulty();
+
         // Asegurar que TurnManager tenga un índice válido antes de resolver el prefab por jugador
         StartCoroutine(StartSequenceDeferred());
     }
@@ -81,7 +84,7 @@ public class JOrden: MonoBehaviour
             yield break;
         }
 
-        buttonCount = Mathf.Clamp(buttonCount, 1, 5);
+    buttonCount = Mathf.Clamp(buttonCount, 1, 10);
         List<Vector2> placedPositions = new();
 
         for (int i = 0; i < buttonCount; i++)
@@ -193,7 +196,25 @@ public class JOrden: MonoBehaviour
 
     private void OnValidate()
     {
-        buttonCount = Mathf.Clamp(buttonCount, 1, 5);
+        buttonCount = Mathf.Clamp(buttonCount, 1, 10);
+    }
+
+    private void ApplyDifficulty()
+    {
+        int players = Dificultad.GetActivePlayersCount();
+        switch (players)
+        {
+            case 4:
+                buttonCount = 4; break;
+            case 3:
+                buttonCount = 5; break;
+            case 2:
+                buttonCount = 7; break;
+            default:
+                // fallback razonable
+                buttonCount = Mathf.Clamp(buttonCount, 1, 10);
+                break;
+        }
     }
 
     // Finalizar/abortar minijuego por eventos externos (p.ej., fin de turno/timeout)

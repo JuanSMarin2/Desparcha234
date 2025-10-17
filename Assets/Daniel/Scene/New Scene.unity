@@ -323,7 +323,7 @@ MonoBehaviour:
   playerIconObjects: []
   textProyectiles: Pilla las navecitas
   textOrden: Oprime en orden
-  textCirculos: Tocalo en el momento correcto
+  textCirculos: Acierta cuando cierre
   textReducir: Desaparece los botones
 --- !u!114 &119842136
 MonoBehaviour:
@@ -1300,7 +1300,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Acierta cuando cierre
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
   m_sharedMaterial: {fileID: -3534736346125445407, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
@@ -1547,7 +1547,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &673126002
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2790,7 +2790,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1366515551
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2824,7 +2824,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mean: 50
-  stdDev: 1
+  stdDev: 4
   timerText: {fileID: 2094689689}
   tingoText: '!!Tingo!!'
   tangoText: '!!Tango!!'
@@ -2887,8 +2887,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 3.7012, y: 1.2337}
-  m_SizeDelta: {x: 420.7704, y: 119.7397}
+  m_AnchoredPosition: {x: 13.2409, y: -37.7638}
+  m_SizeDelta: {x: 660.662, y: 134.9336}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1482003310
 GameObject:
@@ -3112,7 +3112,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1594797852
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3611,7 +3611,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1719946851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4331,8 +4331,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 14.9688, y: 1.5004}
-  m_SizeDelta: {x: 533.6344, y: 200.6261}
+  m_AnchoredPosition: {x: 14.9687, y: -43.653004}
+  m_SizeDelta: {x: 675.4436, y: 187.31}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

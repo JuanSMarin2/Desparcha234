@@ -114,6 +114,9 @@ public class JProyectikes : MonoBehaviour
         gameActive = true;
         startedPlayerIndex = -1; // se fijará cuando TurnManager esté listo
 
+        // Ajustar dificultad por cantidad de jugadores activos
+        ApplyDifficulty();
+
         // Diferir inicio hasta que TurnManager esté listo para evitar prefabs por defecto inconsistentes
         StartCoroutine(InitializeGameDeferred());
     }
@@ -259,6 +262,35 @@ public class JProyectikes : MonoBehaviour
         for (int i = 0; i < cap; i++)
         {
             TrySpawnProjectile();
+        }
+    }
+
+    private void ApplyDifficulty()
+    {
+        int players = Dificultad.GetActivePlayersCount();
+        switch (players)
+        {
+            case 4:
+                minProjectiles = 5;
+                maxProjectiles = 5;
+                minSpeed = 260f;
+                maxSpeed = 400f;
+                break;
+            case 3:
+                minProjectiles = 10;
+                maxProjectiles = 10;
+                minSpeed = 300f;
+                maxSpeed = 400f;
+                break;
+            case 2:
+                minProjectiles = 20;
+                maxProjectiles = 20;
+                minSpeed = 320f;
+                maxSpeed = 450f;
+                break;
+            default:
+                // mantener valores del inspector como fallback
+                break;
         }
     }
 

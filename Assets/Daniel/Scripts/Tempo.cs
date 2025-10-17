@@ -43,6 +43,8 @@ public class Tempo : MonoBehaviour
     private bool running = false;
     private bool finishing = false; // evitando doble finalización
     private int eliminatedPlayerIndex = -1; // se usa al finalizar tras el hold
+    // Hitos de log (múltiplos de 10s)
+    private int nextLogMilestone = -1;
 
     [Header("Animación 'Tingo' (pulso)")]
     [SerializeField, Tooltip("Si está activo, el texto '¡¡Tingo!!' hará un pulso de escala en bucle mientras el tiempo corre.")]
@@ -140,18 +142,41 @@ public class Tempo : MonoBehaviour
                 StartCoroutine(FinishAfterDelay());
             }
         }
+        else
+        {
+            // Log cuando pasamos por múltiplos de 10 (50, 40, 30, ...)
+            while (nextLogMilestone >= 10 && remaining <= nextLogMilestone)
+            {
+                Debug.Log($"[Tempo] Quedan {nextLogMilestone} segundos.");
+                nextLogMilestone -= 10;
+            }
+        }
     }
 
     // Inicia o reinicia el temporizador muestreando un nuevo límite gaussiano
     public void StartTimer()
     {
-        limit = SampleGaussian(mean, stdDev);
+        // Ajustar media según cantidad de jugadores activos
+        float adjustedMean = mean;
+        int players = Dificultad.GetActivePlayersCount();
+        switch (players)
+        {
+            case 4: adjustedMean = 60f; break;
+            case 3: adjustedMean = 50f; break;
+            case 2: adjustedMean = 35f; break;
+            default: adjustedMean = mean; break;
+        }
+
+        limit = SampleGaussian(adjustedMean, stdDev);
         // Mantener tiempo mínimo positivo fijo para evitar 0 o negativos
         if (limit < 0.1f) limit = 0.1f;
         remaining = limit;
         running = true;
         finishing = false;
         tingoPulsePhase = 0f;
+        // Preparar siguiente múltiplo de 10 a reportar (50,40,30,...)
+        nextLogMilestone = Mathf.FloorToInt((remaining - 0.0001f) / 10f) * 10;
+        if (nextLogMilestone < 10) nextLogMilestone = -1; // desactivar si menor a 10
         ResetTextScale();
         UpdateText();
     }
@@ -161,6 +186,7 @@ public class Tempo : MonoBehaviour
         running = false;
         finishing = false;
         EndHoldState();
+        nextLogMilestone = -1;
         ResetTextScale();
     }
 

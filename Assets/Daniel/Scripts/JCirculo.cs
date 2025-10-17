@@ -65,6 +65,9 @@ public class CircleGameManagerUI : MonoBehaviour
             return;
         }
 
+        // Ajustar dificultad por cantidad de jugadores activos
+        ApplyDifficulty();
+
         // Reinicia si ya había un juego
         foreach (var c in allCircles)
             if (c != null) Destroy(c.gameObject);
@@ -319,5 +322,21 @@ public class CircleGameManagerUI : MonoBehaviour
             if (p != null) return p;
         }
         return circlePrefab;
+    }
+
+    private void ApplyDifficulty()
+    {
+        int players = Dificultad.GetActivePlayersCount();
+        switch (players)
+        {
+            case 4:
+                numberOfCircles = 2; break;
+            case 3:
+                numberOfCircles = 3; break;
+            case 2:
+                numberOfCircles = 4; break;
+            default:
+                numberOfCircles = Mathf.Clamp(numberOfCircles, 1, 10); break;
+        }
     }
 }

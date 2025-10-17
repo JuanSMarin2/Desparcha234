@@ -53,6 +53,9 @@ public class BotonReducible : MonoBehaviour
             return;
         }
 
+        // Ajustar dificultad por cantidad de jugadores activos
+        ApplyDifficulty();
+
         StartCoroutine(StartGameDeferred());
     }
 
@@ -114,6 +117,22 @@ public class BotonReducible : MonoBehaviour
             if (p != null) return p;
         }
         return buttonPrefab;
+    }
+
+    private void ApplyDifficulty()
+    {
+        int players = Dificultad.GetActivePlayersCount();
+        switch (players)
+        {
+            case 4:
+                buttonCount = 4; break;
+            case 3:
+                buttonCount = 6; break;
+            case 2:
+                buttonCount = 8; break;
+            default:
+                buttonCount = Mathf.Clamp(buttonCount, 1, 10); break;
+        }
     }
 
     private Vector2 SampleLocalPosition()
