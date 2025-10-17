@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Unity.VisualScripting;
+using TMPro;
 
 public class MarbleShooter2D : MonoBehaviour
 {
@@ -15,9 +16,12 @@ public class MarbleShooter2D : MonoBehaviour
     [SerializeField] private WinnerPanel winnerPanel;
     [SerializeField] private GameObject winnerPanelRoot;
     private bool isEnding;
- 
 
-
+    [Header("UI Bonus Turn")]
+    [SerializeField] private GameObject bonusTurnText;   // Asigna el objeto UI a mostrar
+    [SerializeField] private TMP_Text bonusTurnTMP;      // (opcional) si quieres cambiar el texto
+    [SerializeField] private string bonusShortText = "¡Tiro extra!";
+    [SerializeField] private float bonusShowSeconds = 2f;
 
     [Header("Fisica")]
     [SerializeField] private float forceMultiplier = 10f;
@@ -44,8 +48,10 @@ public class MarbleShooter2D : MonoBehaviour
     private static bool firstCycleActive = true;
     private static System.Collections.Generic.HashSet<int> shotFirstCycle = new System.Collections.Generic.HashSet<int>();
 
+    // === Evento para avisar UI cuando se otorga bonus ===
+    private static System.Action<int> OnBonusAwarded; // int = playerIndex que recibe el bonus
+    private Coroutine bonusRoutine;
 
-  
     private static bool AllActivePlayersHaveShotOnce()
     {
         if (TurnManager.instance == null) return false;
@@ -76,7 +82,12 @@ public class MarbleShooter2D : MonoBehaviour
         if (current < 0) return;
         if (firstCycleActive) return;
         if (bonusShotForPlayer != -1) return;
-        if (eliminatedPlayerIndex != current) bonusShotForPlayer = current;
+        if (eliminatedPlayerIndex != current)
+        {
+            bonusShotForPlayer = current;
+            // Disparar evento para UI
+            OnBonusAwarded?.Invoke(current);
+        }
     }
 
     private static bool TryConsumeBonus(int playerIdx)
@@ -102,6 +113,16 @@ public class MarbleShooter2D : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        OnBonusAwarded += HandleBonusAwarded;
+    }
+
+    void OnDisable()
+    {
+        OnBonusAwarded -= HandleBonusAwarded;
+    }
+
     void Start()
     {
         bonusShotForPlayer = -1;
@@ -112,6 +133,8 @@ public class MarbleShooter2D : MonoBehaviour
         startAngularDamping = angularDamping;
         forceCharger.OnReleaseForce += TryShoot;
         isEnding = false;
+
+        if (bonusTurnText) bonusTurnText.SetActive(false);
     }
 
     void FixedUpdate()
@@ -241,24 +264,19 @@ public class MarbleShooter2D : MonoBehaviour
 
         if (collision.CompareTag("SafeZone"))
         {
-            // bonus, poderes, etc. (lo que ya tengas)
             AwardBonusToCurrentTurnIfEliminatedNotCurrent(playerIndex);
             marblePower?.ApplyPower(MarblePowerType.None);
 
-            // arrancamos la espera/mostrar panel si aplica
-
             if (!isEnding && gameObject.activeInHierarchy)
-            StartCoroutine(HandleEliminationRoutine());
+                StartCoroutine(HandleEliminationRoutine());
         }
     }
 
-
     private IEnumerator HandleEliminationRoutine()
     {
-
         marbleExplosion.transform.position = transform.position;
         marbleExplosion.SetActive(true);
-        // que la canica deje de “molestar” pero sin desactivar este GO (para que la corrutina corra)
+
         var col = GetComponent<Collider2D>();
         if (col) col.enabled = false;
         var sr = GetComponentInChildren<SpriteRenderer>();
@@ -284,15 +302,13 @@ public class MarbleShooter2D : MonoBehaviour
 
         if (willEndRound && winnerIndex >= 0 && winnerPanel != null && winnerPanelRoot != null)
         {
-            // le pasamos el ganador ANTES de activar el panel
             winnerPanel.Prepare(winnerIndex);
-            winnerPanelRoot.SetActive(true);   // Start del panel corre ahora
+            winnerPanelRoot.SetActive(true);
             yield return new WaitForSeconds(2f);
         }
 
-        if(!isEnding)
-       EndRound();
-     
+        if (!isEnding)
+            EndRound();
     }
 
     private void EndRound()
@@ -300,8 +316,25 @@ public class MarbleShooter2D : MonoBehaviour
         isEnding = true;
         StopAllCoroutines();
         GameRoundManager.instance.PlayerLose(playerIndex);
-
     }
 
-}
+    // === UI: mostrar/ocultar texto de bonus ===
+    private void HandleBonusAwarded(int bonusPlayerIdx)
+    {
+        if (bonusPlayerIdx != playerIndex) return; // solo lo muestra el que recibe el bonus
+        if (bonusTurnText == null) return;
 
+        if (bonusRoutine != null) StopCoroutine(bonusRoutine);
+        bonusRoutine = StartCoroutine(ShowBonusTurnText());
+    }
+
+    private IEnumerator ShowBonusTurnText()
+    {
+        if (bonusTurnTMP != null && !string.IsNullOrWhiteSpace(bonusShortText))
+            bonusTurnTMP.text = bonusShortText;
+
+        bonusTurnText.SetActive(true);
+        yield return new WaitForSeconds(bonusShowSeconds);
+        if (bonusTurnText != null) bonusTurnText.SetActive(false);
+    }
+}

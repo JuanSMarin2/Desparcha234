@@ -71,8 +71,7 @@ public class UIFadeWhenCovering : MonoBehaviour
                 if ((ignoreLayers.value & (1 << hit.gameObject.layer)) != 0)
                     continue;
 
-                // Opción 4 — Debug visual rápido
-                Debug.Log("Bloqueado por: " + hit.gameObject.name);
+      
 
                 // Si el hit pertenece a este UI o sus hijos, significa que está tapando
                 if (hit.gameObject.transform == uiRect || hit.gameObject.transform.IsChildOf(uiRect))
