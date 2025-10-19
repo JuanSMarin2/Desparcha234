@@ -4,7 +4,7 @@ using TMPro;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
+
 
 public class FinalResultsManager : MonoBehaviour
 {
@@ -34,11 +34,11 @@ public class FinalResultsManager : MonoBehaviour
         if (continueButton) continueButton.onClick.AddListener(OnContinuePressed);
         if (shopButton) shopButton.onClick.AddListener(() =>
         {
-            if (!string.IsNullOrEmpty(shopSceneName)) SceneManager.LoadScene(shopSceneName);
+            if (!string.IsNullOrEmpty(shopSceneName)) SceneController.Instance.LoadScene(shopSceneName);
         });
         if (mainMenuButton) mainMenuButton.onClick.AddListener(() =>
         {
-            if (!string.IsNullOrEmpty(mainMenuSceneName)) SceneManager.LoadScene(mainMenuSceneName);
+            if (!string.IsNullOrEmpty(mainMenuSceneName)) SceneController.Instance.LoadScene(mainMenuSceneName);
         });
 
         if (shopButton) shopButton.gameObject.SetActive(false);
@@ -162,6 +162,6 @@ public class FinalResultsManager : MonoBehaviour
 
     public void ShopButton()
     {
-        SceneManager.LoadScene("Tienda");
+        SceneController.Instance.LoadScene("Tienda");
     }
 }

@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
+// OJO: ya no necesitas usar SceneManager aquí para cambiar de escena.
+// using UnityEngine.SceneManagement;  // <- puedes quitarlo si no lo usas en otra parte
 
 public class ShopManager : MonoBehaviour
 {
@@ -15,23 +16,8 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private TMP_Text moneyText;
 
     [Header("Skins")]
-    [Tooltip("Botones de comprar por skin, index = number de la skin")]
     [SerializeField] private GameObject[] buyButtons;
-    [Tooltip("Precio por skin, por índice")]
     [SerializeField] private int[] skinPrices;
-
-    [System.Serializable]
-    public class ShopSkinVisual
-    {
-        [Tooltip("Image que muestra el sprite de este botón de compra")]
-        public Image buttonImage;
-        [Tooltip("Sprites por jugador para este botón de skin. Index 0..3 = Jugador 1..4")]
-        public Sprite[] spritePerPlayer = new Sprite[4];
-    }
-
-    [Header("Visual por skin y jugador")]
-    [Tooltip("Debe alinear su longitud con buyButtons/skinPrices por índice de skin")]
-    [SerializeField] private ShopSkinVisual[] skinVisuals;
 
     [Header("Feedback opcional")]
     [SerializeField] private TMP_Text infoText;
@@ -41,9 +27,9 @@ public class ShopManager : MonoBehaviour
 
     void Start()
     {
-        if (selectPlayerPanel) selectPlayerPanel.SetActive(true);
+        // Si tienes botón para volver al menú, su onClick debe llamar a ReturnToMenu()
+        selectPlayerPanel.SetActive(true);
         RefreshMoneyUI();
-  
     }
 
     public void SelectBuyer(int playerIndex)
@@ -56,12 +42,16 @@ public class ShopManager : MonoBehaviour
 
     public void TogglePanel()
     {
-        if (selectPlayerPanel) selectPlayerPanel.SetActive(!selectPlayerPanel.activeSelf);
+        selectPlayerPanel.gameObject.SetActive(!selectPlayerPanel.activeSelf);
     }
 
+    // ===== CAMBIO IMPORTANTE: usar SceneController para la transición =====
     public void ReturnToMenu()
     {
-        SceneManager.LoadScene("MainMenu");
+        if (SceneController.Instance != null)
+            SceneController.Instance.LoadScene("MainMenu");
+        else
+            Debug.LogWarning("SceneController no existe en la escena. Asegúrate de tener el prefab con TransitionPanel + SceneController persistiendo.");
     }
 
     public void BuySkin(int number)
@@ -89,7 +79,6 @@ public class ShopManager : MonoBehaviour
         gd.SetOwned(selectedPlayer, number, true);
         if (infoText) infoText.text = "Comprada skin " + number + " para Jugador " + (selectedPlayer + 1);
 
-        SoundManager.instance.PlaySfx("ui:comprar");
         SetBuyButtonActive(number, false);
         RefreshMoneyUI();
     }
@@ -131,33 +120,18 @@ public class ShopManager : MonoBehaviour
     private void RefreshShopButtons()
     {
         var gd = GameData.instance;
-        if (gd == null) return;
+        if (gd == null || buyButtons == null) return;
 
-        int skinsCount = skinPrices != null ? skinPrices.Length : 0;
-
-        for (int i = 0; i < skinsCount; i++)
+        for (int i = 0; i < buyButtons.Length; i++)
         {
             bool owned = gd.IsOwned(selectedPlayer, i);
             SetBuyButtonActive(i, !owned);
-
-            // Actualizar sprite del botón según el jugador seleccionado
-            if (skinVisuals != null && i < skinVisuals.Length && skinVisuals[i] != null)
-            {
-                var vis = skinVisuals[i];
-                if (vis.buttonImage != null &&
-                    vis.spritePerPlayer != null &&
-                    selectedPlayer < vis.spritePerPlayer.Length &&
-                    vis.spritePerPlayer[selectedPlayer] != null)
-                {
-                    vis.buttonImage.sprite = vis.spritePerPlayer[selectedPlayer];
-                }
-            }
         }
     }
 
     private void SetBuyButtonActive(int index, bool active)
     {
-        if (buyButtons == null || index < 0 || index >= buyButtons.Length) return;
+        if (index < 0 || index >= buyButtons.Length) return;
         if (buyButtons[index] != null)
             buyButtons[index].SetActive(active);
     }

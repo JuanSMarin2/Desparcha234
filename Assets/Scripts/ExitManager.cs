@@ -37,7 +37,7 @@ public class ExitManager : MonoBehaviour
         if (answer)
         {
             Debug.Log("Cargando escena mainmenu");
-            SceneManager.LoadScene("MainMenu");
+            SceneController.Instance.LoadScene("MainMenu");
         }
     }
 

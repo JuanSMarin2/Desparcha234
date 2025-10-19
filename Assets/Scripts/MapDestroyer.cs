@@ -17,12 +17,17 @@ public class MapDestroyer : MonoBehaviour
     [SerializeField] private GameObject explosion;
     [SerializeField] private float explosionLifetime = 1.25f; // 0 = no auto-apagar
 
+    [Header("Aviso previo (tinte)")]
+    [SerializeField] private Color preDestroyTint = new Color(1f, 0.2f, 0.2f, 1f);
+
     // Seguimiento de ciclo
     private HashSet<int> seenThisCycle = new HashSet<int>();
     private int lastObservedPlayer = -99;   // para detectar cambios
+    private int cyclesCompleted = 0;        // ciclos completos cerrados
 
     // Progreso de destruccion
-    private int currentSlotIndex = 0;
+    private int currentSlotIndex = 0;       // próximo slot a destruir (y a tintear antes)
+    private int activeMapIndexCache = -1;   // caché del índice del mapa activo (se determina al vuelo)
 
     void Start()
     {
@@ -77,9 +82,7 @@ public class MapDestroyer : MonoBehaviour
 
         if (setCompleto && esRepetido)
         {
-            // Wrap robusto: cerró el ciclo
-            OnFullTurnCycle();
-
+            OnFullTurnCycle(); // cerró un ciclo
             // Reiniciar ciclo arrancando con el jugador actual
             seenThisCycle.Clear();
             seenThisCycle.Add(cur);
@@ -110,23 +113,44 @@ public class MapDestroyer : MonoBehaviour
 
     private void OnFullTurnCycle()
     {
+        cyclesCompleted++;
+
+        // 1) A partir del 3er ciclo: destruir el slot actual
+        if (cyclesCompleted >= 3)
+        {
+            TryDestroyCurrentSlot();
+        }
+
+        // 2) A partir del 2º ciclo: tintear el próximo slot a destruir (el actual tras posible avance)
+        if (cyclesCompleted >= 2)
+        {
+            TryTintCurrentSlot();
+        }
+    }
+
+    private void TryDestroyCurrentSlot()
+    {
         if (slots == null || slots.Length == 0) return;
-        if (currentSlotIndex < 0 || currentSlotIndex >= slots.Length) return;
+        ClampCurrentSlotIndex();
 
         var group = slots[currentSlotIndex];
         if (group == null || group.perMap == null || group.perMap.Length == 0) return;
 
+        // Determinar mapa activo para este grupo
         int mapIdx = GetActiveMapIndex(group.perMap);
         if (mapIdx < 0) return; // no se pudo deducir mapa activo
 
         var target = group.perMap[mapIdx];
-        if (target == null) return;
+        if (target == null)
+        {
+            AdvanceToNextSlot();
+            return;
+        }
 
         // Si ese slot ya estaba desactivado, avanzar y salir
         if (!target.activeInHierarchy)
         {
-            currentSlotIndex++;
-            if (currentSlotIndex >= slots.Length) currentSlotIndex = slots.Length - 1;
+            AdvanceToNextSlot();
             return;
         }
 
@@ -144,13 +168,41 @@ public class MapDestroyer : MonoBehaviour
         Debug.Log("Desactivando");
         target.SetActive(false);
 
-        // Siguiente slot para la próxima vuelta
+        // Avanzar al siguiente slot
+        AdvanceToNextSlot();
+    }
+
+    private void TryTintCurrentSlot()
+    {
+        if (slots == null || slots.Length == 0) return;
+        ClampCurrentSlotIndex();
+
+        var group = slots[currentSlotIndex];
+        if (group == null || group.perMap == null || group.perMap.Length == 0) return;
+
+        int mapIdx = GetActiveMapIndex(group.perMap);
+        if (mapIdx < 0) return;
+
+        var target = group.perMap[mapIdx];
+        if (target == null || !target.activeInHierarchy) return;
+
+        ApplyTint(target, preDestroyTint);
+    }
+
+    private void AdvanceToNextSlot()
+    {
         currentSlotIndex++;
         if (currentSlotIndex >= slots.Length)
         {
-            // enabled = false; // si no quieres más destrucciones
-            currentSlotIndex = slots.Length - 1;
+            currentSlotIndex = slots.Length - 1; // te quedas en el último; cambia si prefieres desactivar el componente
+            // enabled = false;
         }
+    }
+
+    private void ClampCurrentSlotIndex()
+    {
+        if (currentSlotIndex < 0) currentSlotIndex = 0;
+        if (slots != null && currentSlotIndex >= slots.Length) currentSlotIndex = slots.Length - 1;
     }
 
     private int GetActiveMapIndex(GameObject[] perMap)
@@ -177,6 +229,31 @@ public class MapDestroyer : MonoBehaviour
         if (col2d != null) return (Vector2)col2d.bounds.center;
 
         return go.transform.position;
+    }
+
+    private void ApplyTint(GameObject go, Color tint)
+    {
+        // Intenta SpriteRenderer primero
+        var srs = go.GetComponentsInChildren<SpriteRenderer>(true);
+        if (srs != null && srs.Length > 0)
+        {
+            foreach (var sr in srs) sr.color = tint;
+            return;
+        }
+
+        // Si no hay SpriteRenderer, intenta materiales con _Color en cualquier Renderer
+        var rends = go.GetComponentsInChildren<Renderer>(true);
+        if (rends != null && rends.Length > 0)
+        {
+            foreach (var r in rends)
+            {
+                if (r.sharedMaterial != null && r.sharedMaterial.HasProperty("_Color"))
+                {
+                    // Ojo: esto altera el material; si usas instancing/materiales compartidos, quizá quieras MaterialPropertyBlock
+                    r.material.color = tint;
+                }
+            }
+        }
     }
 
     private System.Collections.IEnumerator AutoDisable(GameObject go, float t)
