@@ -12664,7 +12664,7 @@ MonoBehaviour:
   - {fileID: 1526275155}
   - {fileID: 1450209058}
   - {fileID: 34591702}
-  moveDistance: 40
+  moveDistance: 160
   moveSpeed: 6
   holdTime: 0.25
   trigger: 0

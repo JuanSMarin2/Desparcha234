@@ -130,40 +130,46 @@ public class MoverIconoTejo : MonoBehaviour
         var tut = FindObjectOfType<TutorialManagerTejo>();
         if (tut != null)
         {
-            // Si el blocker está asignado y activo, esperar a que se desactive (usuario avanzó/skip)
-            var blockerField = tut.GetType().GetField("blocker", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            var blockerField = tut.GetType().GetField("blocker",
+                System.Reflection.BindingFlags.NonPublic |
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.Public);
+
             GameObject blocker = null;
-            if (blockerField != null) blocker = blockerField.GetValue(tut) as GameObject;
+            if (blockerField != null)
+                blocker = blockerField.GetValue(tut) as GameObject;
 
             if (blocker != null)
             {
                 while (blocker.activeInHierarchy)
-                {
                     yield return null;
-                }
             }
             else
             {
-                // fallback: esperar PlayerPrefs flag si es que se setea
                 while (PlayerPrefs.GetInt("TutorialMostrado", 0) == 0)
-                {
                     yield return null;
-                }
             }
         }
 
         // Pequeña pausa para asegurar que la UI haya terminado de actualizarse
         yield return new WaitForSecondsRealtime(0.1f);
 
-        // Ejecutar movimiento para los jugadores que NO tienen el turno (secuencial)
+        // Ejecutar movimiento simultáneo para todos los jugadores que NO tienen el turno
         int current = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
         if (iconRects == null || iconRects.Length == 0) yield break;
 
-        for (int i = 0; i < iconRects.Length; i++) 
-        { 
-            if (i == current) continue; // Ejecutar y esperar la animación de ese icono
-            yield return StartCoroutine(MoveIconCoroutine(i)); // Retardo escalonado
-            yield return new WaitForSecondsRealtime(0.06f);
+        // Lista de corrutinas en paralelo
+        var runningCoroutines = new System.Collections.Generic.List<Coroutine>();
+
+        for (int i = 0; i < iconRects.Length; i++)
+        {
+            if (i == current) continue;
+            if (iconRects[i] != null)
+                runningCoroutines.Add(StartCoroutine(MoveIconCoroutine(i)));
         }
+
+        // Esperar a que todas terminen
+        foreach (var co in runningCoroutines)
+            yield return co;
     }
 }
