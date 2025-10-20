@@ -1,14 +1,14 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class Tempo : MonoBehaviour
 {
-    [Header("Gaussian timer settings")]
-    [SerializeField, Tooltip("Media para el tiempo límite (segundos)")]
+    [Header("Tiempo fijo por dificultad (compatibilidad)")]
+    [SerializeField, Tooltip("Media base (ya no se usa con tiempos fijos por jugador). Se mantiene por compatibilidad.")]
     private float mean = 50f;
-
-    [SerializeField, Tooltip("Desviación estándar para la distribución Gaussiana")]
+    [SerializeField, Tooltip("Desviación (ya no se usa). Se mantiene por compatibilidad.")]
     private float stdDev = 10f;
 
     [SerializeField, Tooltip("TextMeshPro Text (opcional) para mostrar el tiempo restante")]
@@ -45,6 +45,49 @@ public class Tempo : MonoBehaviour
     private int eliminatedPlayerIndex = -1; // se usa al finalizar tras el hold
     // Hitos de log (múltiplos de 10s)
     private int nextLogMilestone = -1;
+    private int lastTickPlayerIndex = -1;
+
+    [Header("UI de sliders por jugador")]
+    [SerializeField, Tooltip("Contenedor donde se instancian los sliders (uno por jugador).")]
+    private RectTransform slidersParent;
+    [SerializeField, Tooltip("Prefab por defecto para el slider.")]
+    private GameObject defaultSliderPrefab;
+    [SerializeField, Tooltip("Prefab por índice de jugador (0-based). Si existe, se usará en lugar del prefab por defecto.")]
+    private GameObject[] sliderPrefabsByPlayer;
+    [SerializeField, Tooltip("Segundos extra otorgados a cada jugador activo cuando alguien es eliminado.")]
+    private float bonusOnEliminationSeconds = 10f;
+
+    private class PlayerTimer
+    {
+        public int playerIndex;
+        public float remainingSeconds;
+        public float maxSeconds;
+        public Slider slider;
+        public GameObject go;
+    }
+
+    private readonly System.Collections.Generic.Dictionary<int, PlayerTimer> timers = new System.Collections.Generic.Dictionary<int, PlayerTimer>();
+    private bool timersInitialized = false;
+
+    [Header("Reloj de arena (animación)")]
+    [SerializeField, Tooltip("RectTransform/Imagen del reloj de arena a animar")] 
+    private RectTransform sandClock;
+    [SerializeField, Tooltip("Velocidad base de giro en grados/seg.")] 
+    private float sandClockBaseRotSpeed = 180f;
+    [SerializeField, Tooltip("Velocidad de giro urgente (<10s) en grados/seg.")] 
+    private float sandClockUrgentRotSpeed = 360f;
+    [SerializeField, Tooltip("Frecuencia de rebote (ciclos/seg.)")] 
+    private float sandClockBounceSpeed = 3.5f;
+    [SerializeField, Tooltip("Amplitud de rebote base (escala adicional)")] 
+    private float sandClockBounceAmp = 0.06f;
+    [SerializeField, Tooltip("Amplitud de rebote urgente (<10s)")] 
+    private float sandClockUrgentBounceAmp = 0.12f;
+    [SerializeField, Tooltip("Habilitar animación del reloj de arena")] 
+    private bool enableSandClock = true;
+    private float sandClockBouncePhase = 0f;
+    private Vector3 sandClockOriginalScale = Vector3.one;
+    private Quaternion sandClockOriginalRotation = Quaternion.identity;
+    private bool sandClockWasActive = false;
 
     [Header("Animación 'Tingo' (pulso)")]
     [SerializeField, Tooltip("Si está activo, el texto '¡¡Tingo!!' hará un pulso de escala en bucle mientras el tiempo corre.")]
@@ -96,6 +139,14 @@ public class Tempo : MonoBehaviour
         else
             timerTextOriginalScale = transform.localScale;
 
+        // Guardar estado original del reloj de arena
+        if (sandClock != null)
+        {
+            sandClockOriginalScale = sandClock.localScale;
+            sandClockOriginalRotation = sandClock.localRotation;
+            sandClockWasActive = sandClock.gameObject.activeInHierarchy;
+        }
+
         // Iniciar automáticamente si está habilitado; sino, usar PlayMiniGamen()/StartTimer desde fuera
         if (autoStart) StartTimer();
     }
@@ -104,10 +155,54 @@ public class Tempo : MonoBehaviour
     {
         if (!running) return;
 
+        int currentPlayer = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (currentPlayer < 0) return;
+
+        if (!timersInitialized) SetupTimersIfNeeded();
+
+        if (!timers.TryGetValue(currentPlayer, out var pt))
+        {
+            pt = CreatePlayerTimer(currentPlayer, GetInitialSecondsByDifficulty());
+            timers[currentPlayer] = pt;
+        }
+
+        // Si el reloj de arena acaba de activarse, recalibrar su escala/rotación base desde la del inspector
+        if (sandClock != null)
+        {
+            bool nowActive = sandClock.gameObject.activeInHierarchy;
+            if (nowActive && !sandClockWasActive)
+            {
+                sandClockOriginalScale = sandClock.localScale;
+                sandClockOriginalRotation = sandClock.localRotation;
+                sandClockBouncePhase = 0f;
+            }
+            sandClockWasActive = nowActive;
+        }
+
+        if (lastTickPlayerIndex != currentPlayer)
+        {
+            lastTickPlayerIndex = currentPlayer;
+            nextLogMilestone = Mathf.FloorToInt((pt.remainingSeconds - 0.0001f) / 10f) * 10;
+            if (nextLogMilestone < 10) nextLogMilestone = -1;
+            // Actualizar visibilidad de sliders: mostrar solo el del jugador actual
+            UpdateSlidersVisibility(currentPlayer);
+        }
+
+        // Sincronizar con compatibilidad de variables
+        limit = pt.maxSeconds;
+        remaining = pt.remainingSeconds;
+
         // Decrementar tiempo restante
         remaining -= Time.deltaTime;
         if (remaining < 0f) remaining = 0f;
         UpdateText();
+
+        // Actualizar slider
+        if (pt.slider != null)
+        {
+            pt.slider.maxValue = pt.maxSeconds;
+            pt.slider.value = remaining;
+        }
 
         // Pulso de 'Tingo' mientras el tiempo corre (> 0)
         if (enableTingoPulse && timerText != null && remaining > 0f)
@@ -115,6 +210,19 @@ public class Tempo : MonoBehaviour
             tingoPulsePhase += Time.deltaTime * Mathf.Max(0f, tingoPulseSpeed) * Mathf.PI * 2f; // rad/s
             float s = Mathf.Lerp(tingoScaleMin, tingoScaleMax, (Mathf.Sin(tingoPulsePhase) + 1f) * 0.5f);
             timerText.rectTransform.localScale = new Vector3(s, s, 1f);
+        }
+
+        // Animación del reloj de arena mientras el tiempo corre
+        if (enableSandClock && sandClock != null && remaining > 0f)
+        {
+            float rotSpeed = remaining <= 10f ? sandClockUrgentRotSpeed : sandClockBaseRotSpeed;
+            sandClock.Rotate(0f, 0f, -rotSpeed * Time.deltaTime);
+
+            sandClockBouncePhase += Time.deltaTime * Mathf.Max(0f, sandClockBounceSpeed) * Mathf.PI * 2f;
+            float amp = remaining <= 10f ? sandClockUrgentBounceAmp : sandClockBounceAmp;
+            float bounce = Mathf.Abs(Mathf.Sin(sandClockBouncePhase)); // rebote (solo positivo)
+            float scale = 1f + amp * bounce;
+            sandClock.localScale = sandClockOriginalScale * scale;
         }
 
         if (remaining <= 0f)
@@ -131,6 +239,9 @@ public class Tempo : MonoBehaviour
                 // Registrar jugador a eliminar, pero diferir la eliminación hasta después del hold
                 int current = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
                 eliminatedPlayerIndex = current;
+
+                // Persistir el 0 del jugador actual
+                pt.remainingSeconds = remaining;
 
                 // Bloquear interacción y pausar si procede
                 BeginHoldState();
@@ -151,32 +262,29 @@ public class Tempo : MonoBehaviour
                 nextLogMilestone -= 10;
             }
         }
+
+        // Guardar back en el timer del jugador actual
+        pt.remainingSeconds = remaining;
     }
 
     // Inicia o reinicia el temporizador muestreando un nuevo límite gaussiano
     public void StartTimer()
     {
-        // Ajustar media según cantidad de jugadores activos
-        float adjustedMean = mean;
-        int players = Dificultad.GetActivePlayersCount();
-        switch (players)
+        // Inicializar timers si no existen y reanudar temporizador del jugador actual
+        SetupTimersIfNeeded();
+        int currentPlayer = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (currentPlayer >= 0 && timers.TryGetValue(currentPlayer, out var pt))
         {
-            case 4: adjustedMean = 60f; break;
-            case 3: adjustedMean = 50f; break;
-            case 2: adjustedMean = 35f; break;
-            default: adjustedMean = mean; break;
+            limit = pt.maxSeconds;
+            remaining = pt.remainingSeconds;
+            nextLogMilestone = Mathf.FloorToInt((remaining - 0.0001f) / 10f) * 10;
+            if (nextLogMilestone < 10) nextLogMilestone = -1;
+            lastTickPlayerIndex = currentPlayer;
+            UpdateSlidersVisibility(currentPlayer);
         }
-
-        limit = SampleGaussian(adjustedMean, stdDev);
-        // Mantener tiempo mínimo positivo fijo para evitar 0 o negativos
-        if (limit < 0.1f) limit = 0.1f;
-        remaining = limit;
         running = true;
         finishing = false;
         tingoPulsePhase = 0f;
-        // Preparar siguiente múltiplo de 10 a reportar (50,40,30,...)
-        nextLogMilestone = Mathf.FloorToInt((remaining - 0.0001f) / 10f) * 10;
-        if (nextLogMilestone < 10) nextLogMilestone = -1; // desactivar si menor a 10
         ResetTextScale();
         UpdateText();
     }
@@ -188,6 +296,7 @@ public class Tempo : MonoBehaviour
         EndHoldState();
         nextLogMilestone = -1;
         ResetTextScale();
+        ResetSandClockVisuals();
     }
 
     public void ResetTimer()
@@ -227,15 +336,7 @@ public class Tempo : MonoBehaviour
     // (sin throttling) mantenerlo simple
 
     // Muestra una muestra de una normal con media mu y desviación sigma (Box-Muller)
-    private float SampleGaussian(float mu, float sigma)
-    {
-        // Generar dos uniformes en (0,1]
-        double u1 = 1.0 - rng.NextDouble();
-        double u2 = 1.0 - rng.NextDouble();
-        double stdNormal = System.Math.Sqrt(-2.0 * System.Math.Log(u1)) * System.Math.Sin(2.0 * System.Math.PI * u2);
-        double value = mu + sigma * stdNormal;
-        return (float)value;
-    }
+    private float SampleGaussian(float mu, float sigma) { return mu; } // No-op (compatibilidad)
 
     // (Sin integración de minijuegos) Este componente actúa solo como temporizador.
     [ContextMenu("PlayMiniGamen")]
@@ -253,9 +354,32 @@ public class Tempo : MonoBehaviour
             yield return new WaitForSecondsRealtime(wait);
         }
         // Ejecutar eliminación del jugador ahora, tras mostrar el panel el tiempo requerido
-        if (eliminatedPlayerIndex >= 0 && GameRoundManager.instance != null)
+        if (eliminatedPlayerIndex >= 0)
         {
-            GameRoundManager.instance.PlayerLose(eliminatedPlayerIndex);
+            // Eliminar slider y timer del jugador eliminado
+            if (timers.TryGetValue(eliminatedPlayerIndex, out var eliminated))
+            {
+                if (eliminated.go != null) Destroy(eliminated.go);
+                timers.Remove(eliminatedPlayerIndex);
+            }
+
+            // Aplicar bonus a jugadores restantes
+            foreach (var kv in timers)
+            {
+                var t = kv.Value;
+                t.maxSeconds += bonusOnEliminationSeconds;
+                t.remainingSeconds += bonusOnEliminationSeconds;
+                if (t.slider != null)
+                {
+                    t.slider.maxValue = t.maxSeconds;
+                    t.slider.value = t.remainingSeconds;
+                }
+            }
+
+            if (GameRoundManager.instance != null)
+            {
+                GameRoundManager.instance.PlayerLose(eliminatedPlayerIndex);
+            }
         }
 
         // Restaurar interacción/pausa antes de notificar
@@ -279,6 +403,8 @@ public class Tempo : MonoBehaviour
             prevTimeScale = Time.timeScale;
             Time.timeScale = 0f;
         }
+        // Reset visuals for hourglass during hold
+        ResetSandClockVisuals();
     }
 
     private void EndHoldState()
@@ -328,6 +454,122 @@ public class Tempo : MonoBehaviour
         {
             int idx = rng.Next(0, pityPhrases.Length);
             eliminationPhraseText.text = pityPhrases[idx];
+        }
+    }
+
+    // ========= Timers por jugador =========
+    private void SetupTimersIfNeeded()
+    {
+        if (timersInitialized) return;
+        timersInitialized = true;
+
+        float initialSeconds = GetInitialSecondsByDifficulty();
+        int[] indices = ResolveInitialOrderIndices();
+        if (indices == null || indices.Length == 0)
+        {
+            indices = new int[] { 0, 1, 2, 3 };
+        }
+
+        foreach (var idx in indices)
+        {
+            if (idx < 0) continue;
+            if (!timers.ContainsKey(idx))
+            {
+                timers[idx] = CreatePlayerTimer(idx, initialSeconds);
+            }
+        }
+
+        // Al inicializar, si ya hay jugador actual, ajustar visibilidad
+        int currentPlayer = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (currentPlayer >= 0)
+        {
+            UpdateSlidersVisibility(currentPlayer);
+        }
+    }
+
+    private float GetInitialSecondsByDifficulty()
+    {
+        int players = Dificultad.GetActivePlayersCount();
+        if (players >= 4) return 25f;
+        if (players == 3 || players == 2) return 20f;
+        return 20f;
+    }
+
+    private PlayerTimer CreatePlayerTimer(int playerIndex, float seconds)
+    {
+        GameObject prefab = ResolveSliderPrefab(playerIndex);
+        GameObject go = null;
+        Slider slider = null;
+        if (prefab != null && slidersParent != null)
+        {
+            go = Instantiate(prefab, slidersParent);
+            slider = go.GetComponentInChildren<Slider>(true);
+        }
+        if (slider != null)
+        {
+            slider.minValue = 0f;
+            slider.maxValue = seconds;
+            slider.value = seconds;
+        }
+        return new PlayerTimer
+        {
+            playerIndex = playerIndex,
+            remainingSeconds = seconds,
+            maxSeconds = seconds,
+            slider = slider,
+            go = go
+        };
+    }
+
+    private GameObject ResolveSliderPrefab(int playerIndex)
+    {
+        if (sliderPrefabsByPlayer != null && playerIndex >= 0 && playerIndex < sliderPrefabsByPlayer.Length)
+        {
+            var p = sliderPrefabsByPlayer[playerIndex];
+            if (p != null) return p;
+        }
+        return defaultSliderPrefab;
+    }
+
+    private int[] ResolveInitialOrderIndices()
+    {
+        var tm = TurnManager.instance;
+        if (tm != null)
+        {
+            var methods = new string[] { "GetPlayerOrderIndices", "GetPlayersOrder", "GetActivePlayerIndices", "GetInitialOrder" };
+            foreach (var mName in methods)
+            {
+                var m = tm.GetType().GetMethod(mName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                if (m != null)
+                {
+                    var result = m.Invoke(tm, null);
+                    if (result is int[] arr && arr.Length > 0) return arr;
+                    if (result is System.Collections.Generic.List<int> list && list.Count > 0) return list.ToArray();
+                }
+            }
+        }
+        return null;
+    }
+
+    private void UpdateSlidersVisibility(int activePlayerIndex)
+    {
+        foreach (var kv in timers)
+        {
+            var t = kv.Value;
+            if (t.go != null)
+            {
+                t.go.SetActive(t.playerIndex == activePlayerIndex);
+            }
+        }
+    }
+
+    private void ResetSandClockVisuals()
+    {
+        if (sandClock != null)
+        {
+            sandClock.localScale = sandClockOriginalScale;
+            sandClock.localRotation = sandClockOriginalRotation;
+            sandClockBouncePhase = 0f;
         }
     }
 }

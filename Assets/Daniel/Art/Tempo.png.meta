@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 716e0e6fa853e9849b7984fcac888cd0
+guid: 4505950c9d16f4743812907f1b16dc95
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4279241780906724887
-    second: amarillo_0
+      213: 1002141527020045268
+    second: Tempo_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: amarillo_0
+      name: Tempo_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 12
-        width: 990
-        height: 975
+        x: 110
+        y: 2
+        width: 769
+        height: 995
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9e17b0dc5441d94c0800000000000000
-      internalID: -4279241780906724887
+      spriteID: 4d382b4c86258ed00800000000000000
+      internalID: 1002141527020045268
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: e9b6ff8ea75cda34bbe152aabe3193d1
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      amarillo_0: -4279241780906724887
+      Tempo_0: 1002141527020045268
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

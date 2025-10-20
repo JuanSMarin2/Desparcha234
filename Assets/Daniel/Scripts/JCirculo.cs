@@ -157,6 +157,12 @@ public class CircleGameManagerUI : MonoBehaviour
 
     public void OnCircleResult(CircleTarget circle, bool success)
     {
+        // Siempre reproducir la animación de acierto cuando corresponda (incluye último círculo o reintentos)
+        if (success && circle != null)
+        {
+            StartCoroutine(PlaySuccessPop(circle));
+        }
+
         if (!success)
             failedCircles.Add(circle);
 
@@ -164,11 +170,6 @@ public class CircleGameManagerUI : MonoBehaviour
 
         if (currentIndex < allCircles.Count)
         {
-            // Si acertó, hacer pop del círculo tocado antes de continuar
-            if (success && circle != null)
-            {
-                StartCoroutine(PlaySuccessPop(circle));
-            }
             ActivateNextCircle();
         }
         else
