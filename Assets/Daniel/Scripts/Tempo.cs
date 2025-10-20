@@ -100,6 +100,7 @@ public class Tempo : MonoBehaviour
     private float tingoScaleMax = 1.08f;
     private float tingoPulsePhase = 0f;
     private Vector3 timerTextOriginalScale = Vector3.one;
+    private Color timerTextOriginalColor = Color.white;
 
     [Header("Bloqueo y pausa durante '¡¡Tango!!'")]
     [SerializeField, Tooltip("GameObject UI (por ejemplo, una Image full-screen con Raycast Target) que se activa para bloquear toda interacción mientras se muestra '¡¡Tango!!'.")]
@@ -135,7 +136,10 @@ public class Tempo : MonoBehaviour
 
         // Guardar escala original para restaurar al finalizar
         if (timerText != null)
+        {
             timerTextOriginalScale = timerText.rectTransform.localScale;
+            timerTextOriginalColor = timerText.color;
+        }
         else
             timerTextOriginalScale = transform.localScale;
 
@@ -212,6 +216,9 @@ public class Tempo : MonoBehaviour
             timerText.rectTransform.localScale = new Vector3(s, s, 1f);
         }
 
+        // Titilar color de 'Tingo' cuando falten pocos segundos
+        UpdateUrgentBlinkColor();
+
         // Animación del reloj de arena mientras el tiempo corre
         if (enableSandClock && sandClock != null && remaining > 0f)
         {
@@ -235,6 +242,8 @@ public class Tempo : MonoBehaviour
                 SetText(tangoText);
                 // Restaurar escala del texto para 'Tango'
                 ResetTextScale();
+                // Restaurar color para 'Tango'
+                ResetTextColor();
 
                 // Registrar jugador a eliminar, pero diferir la eliminación hasta después del hold
                 int current = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
@@ -287,6 +296,7 @@ public class Tempo : MonoBehaviour
         tingoPulsePhase = 0f;
         ResetTextScale();
         UpdateText();
+        ResetTextColor();
     }
 
     public void StopTimer()
@@ -296,6 +306,7 @@ public class Tempo : MonoBehaviour
         EndHoldState();
         nextLogMilestone = -1;
         ResetTextScale();
+        ResetTextColor();
         ResetSandClockVisuals();
     }
 
@@ -571,5 +582,39 @@ public class Tempo : MonoBehaviour
             sandClock.localRotation = sandClockOriginalRotation;
             sandClockBouncePhase = 0f;
         }
+    }
+
+    [Header("Urgente: parpadeo de color (< umbral)")]
+    [SerializeField, Tooltip("Habilitar parpadeo de color del texto '¡¡Tingo!!' cuando queden pocos segundos.")]
+    private bool enableUrgentBlink = true;
+    [SerializeField, Tooltip("Umbral en segundos para iniciar el parpadeo.")]
+    private float urgentThresholdSeconds = 5f;
+    [SerializeField, Tooltip("Color de parpadeo (por defecto #EC4949)")]
+    private Color urgentBlinkColor = new Color(0.925f, 0.286f, 0.286f); // #EC4949
+    [SerializeField, Tooltip("Velocidad del parpadeo (ciclos por segundo)")]
+    private float urgentBlinkSpeed = 4f;
+    private float urgentBlinkPhase = 0f;
+
+    private void UpdateUrgentBlinkColor()
+    {
+        if (!enableUrgentBlink || timerText == null) return;
+        if (remaining > 0f && remaining <= urgentThresholdSeconds)
+        {
+            urgentBlinkPhase += Time.deltaTime * Mathf.Max(0f, urgentBlinkSpeed) * Mathf.PI * 2f;
+            float t = (Mathf.Sin(urgentBlinkPhase) + 1f) * 0.5f; // 0..1
+            timerText.color = Color.Lerp(timerTextOriginalColor, urgentBlinkColor, t);
+        }
+        else
+        {
+            // fuera de umbral o ya en Tango: asegurar color original
+            ResetTextColor();
+        }
+    }
+
+    private void ResetTextColor()
+    {
+        if (timerText != null)
+            timerText.color = timerTextOriginalColor;
+        urgentBlinkPhase = 0f;
     }
 }

@@ -2088,7 +2088,7 @@ MonoBehaviour:
   spawnArea: {fileID: 1417153577}
   numberOfCircles: 2
   minDistance: 150
-  maxPlacementAttempts: 50
+  maxPlacementAttempts: 90
   successPopDuration: 0.35
   successPopScale: 1.2
   onGameFinished:
@@ -2872,6 +2872,10 @@ MonoBehaviour:
   - muy mala
   - re mala
   - mucha wb
+  enableUrgentBlink: 1
+  urgentThresholdSeconds: 5
+  urgentBlinkColor: {r: 0.925, g: 0.286, b: 0.286, a: 1}
+  urgentBlinkSpeed: 4
 --- !u!1 &1417153576
 GameObject:
   m_ObjectHideFlags: 0
@@ -4521,8 +4525,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 14.9687, y: -43.653004}
-  m_SizeDelta: {x: 675.4436, y: 187.31}
+  m_AnchoredPosition: {x: 14.9687, y: -27.727}
+  m_SizeDelta: {x: 675.4436, y: 125.55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
