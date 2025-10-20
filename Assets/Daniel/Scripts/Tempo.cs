@@ -584,6 +584,40 @@ public class Tempo : MonoBehaviour
         }
     }
 
+    // ===== API pública: otorgar bonus a un jugador específico =====
+    public void AddBonusForPlayer(int playerIndex, float seconds)
+    {
+        if (playerIndex < 0 || seconds <= 0f) return;
+        SetupTimersIfNeeded();
+        if (!timers.TryGetValue(playerIndex, out var t))
+        {
+            // Si el jugador no tiene timer aún, créalo con los segundos iniciales + bonus
+            float init = GetInitialSecondsByDifficulty();
+            t = CreatePlayerTimer(playerIndex, init + seconds);
+            timers[playerIndex] = t;
+        }
+        else
+        {
+            t.maxSeconds += seconds;
+            t.remainingSeconds += seconds;
+            if (t.slider != null)
+            {
+                t.slider.maxValue = t.maxSeconds;
+                t.slider.value = t.remainingSeconds;
+            }
+        }
+
+        // Si el jugador bonificado es el que está corriendo, sincronizar variables de compatibilidad
+        int currentPlayer = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (currentPlayer == playerIndex)
+        {
+            limit = t.maxSeconds;
+            remaining = t.remainingSeconds;
+            nextLogMilestone = Mathf.FloorToInt((remaining - 0.0001f) / 10f) * 10;
+            if (nextLogMilestone < 10) nextLogMilestone = -1;
+        }
+    }
+
     [Header("Urgente: parpadeo de color (< umbral)")]
     [SerializeField, Tooltip("Habilitar parpadeo de color del texto '¡¡Tingo!!' cuando queden pocos segundos.")]
     private bool enableUrgentBlink = true;

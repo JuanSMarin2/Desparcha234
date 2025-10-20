@@ -30,6 +30,7 @@ public class GameSequenceController : MonoBehaviour
     private int _lastPlayerIndex = -2; // rastrear cambios de jugador para logs
     private MinigameInstructionUI _instructionUI; // cache perezoso
     private bool _hasStartedSequence = false; // evita dobles inicios
+    private bool _firstPickDone = false;       // para forzar el primer minijuego
 
     void Awake()
     {
@@ -63,18 +64,29 @@ public class GameSequenceController : MonoBehaviour
             if (_lastPlayerIndex >= 0)
                 Debug.Log($"[Sequence] Inicia turno del Jugador {_lastPlayerIndex + 1}");
         }
-        // Iniciar cronómetro solo al inicio de la secuencia
-        if (turnTimer != null)
-        {
-            turnTimer.StopTimer();
-            turnTimer.StartTimer();
-        }
+        // El cronómetro se inicia desde PreGameOrderPanel al pulsar Iniciar
         PlayNext();
     }
 
     private int PickRandomIndex()
     {
         if (minigames == null || minigames.Count == 0) return -1;
+        // Forzar que el primer minijuego sea JOrden, BotonReducible o JProyectikes
+        if (!_firstPickDone)
+        {
+            _firstPickDone = true;
+            for (int i = 0; i < minigames.Count; i++)
+            {
+                var m = minigames[i];
+                if (m == null) continue;
+                string n = m.GetType().Name;
+                if (n == nameof(JOrden) || n == nameof(BotonReducible) || n == nameof(JProyectikes))
+                {
+                    return i;
+                }
+            }
+            // Si no se encontró ninguno, cae a la selección normal
+        }
         if (!randomizeOrder)
         {
             // modo determinista: avanzar circular evitando repetir si es posible
@@ -310,6 +322,7 @@ public class GameSequenceController : MonoBehaviour
         if (name == nameof(JOrden)) { kind = MinigameKind.Orden; return true; }
         if (name == nameof(CircleGameManagerUI) || name.Contains("Circulo")) { kind = MinigameKind.Circulos; return true; }
         if (name == nameof(BotonReducible) || name.Contains("Reduce")) { kind = MinigameKind.Reducir; return true; }
+        if (name == nameof(RecordarInsame) || name.Contains("Recordar") || name.Contains("Ritmo")) { kind = MinigameKind.Ritmo; return true; }
 
         kind = default;
         return false;

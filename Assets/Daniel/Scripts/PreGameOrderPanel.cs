@@ -76,6 +76,11 @@ public class PreGameOrderPanel : MonoBehaviour
     public void Show()
     {
         if (panel != null) panel.SetActive(true);
+        // Asegurar que el temporizador no corra hasta que se presione Iniciar
+        if (sequenceController != null && sequenceController.turnTimer != null)
+        {
+            sequenceController.turnTimer.StopTimer();
+        }
         StopAllCoroutines();
         StartCoroutine(SetupWhenReady());
     }
@@ -233,11 +238,17 @@ public class PreGameOrderPanel : MonoBehaviour
             waited += Time.unscaledDeltaTime;
             yield return null;
         }
-    // Asegurar reanudación del tiempo a escala normal
-    Time.timeScale = 1f;
+        // Asegurar reanudación del tiempo a escala normal
+        Time.timeScale = 1f;
 
         if (sequenceController != null)
         {
+            // Iniciar temporizador solo cuando se presiona Iniciar
+            if (sequenceController.turnTimer != null)
+            {
+                sequenceController.turnTimer.StopTimer();
+                sequenceController.turnTimer.StartTimer();
+            }
             sequenceController.PlaySequence();
         }
         else

@@ -7,7 +7,8 @@ public enum MinigameKind
     Proyectiles,
     Orden,
     Circulos,
-    Reducir
+    Reducir,
+    Ritmo
 }
 
 // Componente genérico para mostrar instrucciones por minijuego y activar el icono del jugador
@@ -34,6 +35,7 @@ public class MinigameInstructionUI : MonoBehaviour
     [TextArea] [SerializeField] private string textOrden = "Toca los botones en orden (1..N).";
     [TextArea] [SerializeField] private string textCirculos = "Toca los círculos en el orden correcto.";
     [TextArea] [SerializeField] private string textReducir = "Presiona repetidamente para reducir los botones.";
+    [TextArea] [SerializeField] private string textRitmo = "Mira el patrón y repítelo tocando las celdas en orden.";
 
     public void Show(MinigameKind kind, int playerIndex)
     {
@@ -144,6 +146,7 @@ public class MinigameInstructionUI : MonoBehaviour
             case MinigameKind.Orden: return string.IsNullOrWhiteSpace(textOrden) ? textOrden : textOrden;
             case MinigameKind.Circulos: return string.IsNullOrWhiteSpace(textCirculos) ? textCirculos : textCirculos;
             case MinigameKind.Reducir: return string.IsNullOrWhiteSpace(textReducir) ? textReducir : textReducir;
+            case MinigameKind.Ritmo: return string.IsNullOrWhiteSpace(textRitmo) ? textRitmo : textRitmo;
             default: return string.Empty;
         }
     }
