@@ -2,6 +2,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class FinalResultsLayout : MonoBehaviour
 {
@@ -11,8 +12,8 @@ public class FinalResultsLayout : MonoBehaviour
     [Header("Iconos por jugador (0..3)")]
     [SerializeField] private RectTransform[] playerIcons = new RectTransform[4];
 
-    [Header("Medalla unica")]
-    [SerializeField] private GameObject medal;
+    [Header("Medallas (hasta 4, una por posible ganador)")]
+    [SerializeField] private RectTransform[] medals = new RectTransform[4];
 
     [Header("Plantillas de porcentajes")]
     [SerializeField] private float[] widthsFor2 = new float[] { 0.75f, 0.25f };
@@ -27,7 +28,20 @@ public class FinalResultsLayout : MonoBehaviour
 
     [Header("Medalla dentro de la barra del ganador")]
     [SerializeField] private Vector2 medalAnchoredOffset = new Vector2(0f, -120f);
-    [SerializeField] private bool hideMedalOnTie = true;
+
+    [Header("Pulse (iconos ganadores)")]
+    [SerializeField] private float pulseScale = 1.15f;
+    [SerializeField] private float pulseSpeed = 6f;
+
+    private readonly List<Coroutine> pulseRoutines = new List<Coroutine>();
+
+    void OnDisable()
+    {
+        // detener pulsos si se desactiva el GO
+        for (int i = 0; i < pulseRoutines.Count; i++)
+            if (pulseRoutines[i] != null) StopCoroutine(pulseRoutines[i]);
+        pulseRoutines.Clear();
+    }
 
     void Start()
     {
@@ -44,11 +58,13 @@ public class FinalResultsLayout : MonoBehaviour
         int[] scores = new int[n];
         for (int i = 0; i < n; i++) scores[i] = rd.totalPoints[i];
 
+        // Orden por puntuación desc
         int[] order = Enumerable.Range(0, n)
                                 .OrderByDescending(i => scores[i])
                                 .ThenBy(i => i)
                                 .ToArray();
 
+        // Agrupar empates por rangos
         var groups = new List<List<int>>();
         int idx = 0;
         while (idx < n)
@@ -59,6 +75,7 @@ public class FinalResultsLayout : MonoBehaviour
             idx = j;
         }
 
+        // Plantilla de anchos
         float[] tpl = n == 2 ? widthsFor2 : (n == 3 ? widthsFor3 : widthsFor4);
         if (tpl == null || tpl.Length < n) tpl = Enumerable.Repeat(1f / n, n).ToArray();
 
@@ -76,6 +93,7 @@ public class FinalResultsLayout : MonoBehaviour
         if (groups.Count == 1 && groups[0].Count == n)
             for (int r = 0; r < n; r++) widthByRank[r] = 1f / n;
 
+        // Posicionar barras e iconos
         float x = 0f;
         for (int r = 0; r < n; r++)
         {
@@ -120,39 +138,66 @@ public class FinalResultsLayout : MonoBehaviour
             x += w;
         }
 
+        // Desactivar sobras
         for (int i = n; i < playerBars.Length; i++)
             if (playerBars[i]) playerBars[i].gameObject.SetActive(false);
         for (int i = n; i < playerIcons.Length; i++)
             if (playerIcons[i]) playerIcons[i].gameObject.SetActive(false);
 
-        if (medal)
+        // Medallas e iconos “palpitando” para TODOS los ganadores (grupo 0)
+        var winners = (groups.Count > 0) ? groups[0] : null;
+        if (winners != null && winners.Count > 0)
         {
-            bool singleWinner = groups.Count > 0 && groups[0].Count == 1;
-            if (singleWinner)
+            // Medallas (una por ganador, hasta la cantidad disponible)
+            for (int m = 0; m < medals.Length; m++)
+                if (medals[m]) medals[m].gameObject.SetActive(false);
+
+            int medalSlot = 0;
+            foreach (var winPlayer in winners)
             {
-                int winner = groups[0][0];
-                var winnerBar = playerBars[winner];
-                if (winnerBar)
+                if (medalSlot >= medals.Length) break;
+
+                var bar = playerBars[winPlayer];
+                var medal = medals[medalSlot];
+                if (bar && medal)
                 {
-                    medal.SetActive(true);
-                    var mrt = medal.transform as RectTransform;
-                    medal.transform.SetParent(winnerBar, false);
-                    if (mrt)
-                    {
-                        mrt.anchorMin = new Vector2(0.5f, 0.5f);
-                        mrt.anchorMax = new Vector2(0.5f, 0.5f);
-                        mrt.pivot = new Vector2(0.5f, 0.5f);
-                        mrt.anchoredPosition = medalAnchoredOffset;
-                        mrt.localScale = Vector3.one;
-                    }
+                    medal.gameObject.SetActive(true);
+                    medal.SetParent(bar, false);
+                    medal.anchorMin = medal.anchorMax = medal.pivot = new Vector2(0.5f, 0.5f);
+                    medal.anchoredPosition = medalAnchoredOffset;
+                    medal.localScale = Vector3.one;
                 }
-                else medal.SetActive(false);
-            }
-            else
-            {
-                medal.SetActive(!hideMedalOnTie);
+                medalSlot++;
+
+                // Pulse para el icono del ganador
+                var icon = SafeIcon(winPlayer);
+                if (icon)
+                {
+                    var co = StartCoroutine(PulseIcon(icon));
+                    pulseRoutines.Add(co);
+                }
             }
         }
+        else
+        {
+            // Sin ganadores únicos — ocultar todas las medallas
+            for (int m = 0; m < medals.Length; m++)
+                if (medals[m]) medals[m].gameObject.SetActive(false);
+        }
+    }
+
+    private IEnumerator PulseIcon(RectTransform icon)
+    {
+        // Latido infinito (rápido). Puedes detenerlo en OnDisable.
+        float t = 0f;
+        while (icon && icon.gameObject.activeInHierarchy)
+        {
+            t += Time.deltaTime * pulseSpeed;
+            float s = Mathf.Lerp(1f, pulseScale, 0.5f * (1f + Mathf.Sin(t)));
+            icon.localScale = new Vector3(s, s, 1f);
+            yield return null;
+        }
+        if (icon) icon.localScale = Vector3.one;
     }
 
     private RectTransform SafeIcon(int playerIndex)

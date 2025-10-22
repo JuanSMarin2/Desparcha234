@@ -4,7 +4,6 @@ using TMPro;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 
 public class FinalResultsManager : MonoBehaviour
 {
@@ -27,6 +26,9 @@ public class FinalResultsManager : MonoBehaviour
     [Header("Iconos de ganadores (opcional)")]
     [SerializeField] private GameObject[] icons;
 
+    [Header("Auto-continue")]
+    [SerializeField] private float autoContinueDelay = 5f;
+
     private bool conversionRunning = false;
 
     void Start()
@@ -34,11 +36,11 @@ public class FinalResultsManager : MonoBehaviour
         if (continueButton) continueButton.onClick.AddListener(OnContinuePressed);
         if (shopButton) shopButton.onClick.AddListener(() =>
         {
-            if (!string.IsNullOrEmpty(shopSceneName)) SceneManager.LoadScene(shopSceneName);
+            if (!string.IsNullOrEmpty(shopSceneName)) SceneController.Instance.LoadScene(shopSceneName);
         });
         if (mainMenuButton) mainMenuButton.onClick.AddListener(() =>
         {
-            if (!string.IsNullOrEmpty(mainMenuSceneName)) SceneManager.LoadScene(mainMenuSceneName);
+            if (!string.IsNullOrEmpty(mainMenuSceneName)) SceneController.Instance.LoadScene(mainMenuSceneName);
         });
 
         if (shopButton) shopButton.gameObject.SetActive(false);
@@ -52,6 +54,16 @@ public class FinalResultsManager : MonoBehaviour
         }
 
         ShowWinners();
+
+        // Auto iniciar conversión tras X segundos (si no se ha iniciado manualmente)
+        StartCoroutine(AutoContinueAfterDelay());
+    }
+
+    private IEnumerator AutoContinueAfterDelay()
+    {
+        float t = Mathf.Max(0f, autoContinueDelay);
+        if (t > 0f) yield return new WaitForSeconds(t);
+        if (!conversionRunning) OnContinuePressed();
     }
 
     private void ShowWinners()
@@ -71,10 +83,10 @@ public class FinalResultsManager : MonoBehaviour
         for (int i = 0; i < puntos.Length; i++)
             if (puntos[i] == maxPoints) ganadores.Add(i);
 
-        // Mensaje (si no quieres texto, déjalo vacío)
+        // Sin textos visibles
         if (winnerText) winnerText.text = "";
 
-        // Iconos ganadores
+        // Iconos ganadores visibles
         if (icons != null)
         {
             foreach (int ganadorIndex in ganadores)
@@ -114,12 +126,11 @@ public class FinalResultsManager : MonoBehaviour
         if (conversionText) conversionText.gameObject.SetActive(true);
         if (continueButton) continueButton.gameObject.SetActive(false);
 
-  
         int pointsLeft = pointsTotal;
         int shownPoints = pointsTotal;
         int shownMoney = baseMoney;
 
-        const float minTickDelay = 0.03f;               
+        const float minTickDelay = 0.03f;
         int maxTicks = Mathf.Max(1, Mathf.FloorToInt(conversionDuration / minTickDelay));
         int pointsPerTick = Mathf.Max(1, Mathf.CeilToInt((float)pointsLeft / maxTicks));
         float actualTicks = Mathf.Ceil((float)pointsLeft / pointsPerTick);
@@ -136,20 +147,16 @@ public class FinalResultsManager : MonoBehaviour
             if (conversionText)
                 conversionText.text = $"Puntos: {shownPoints} --- Dinero: {shownMoney}";
 
-         
+            // SFX por “tick” de puntos
             SoundManager.instance?.PlaySfx("Final:coins");
 
-            if (tickDelay > 0f)
-                yield return new WaitForSeconds(tickDelay);
-            else
-                yield return null;
+            if (tickDelay > 0f) yield return new WaitForSeconds(tickDelay);
+            else yield return null;
         }
 
-        // Asegurar valores finales exactos
         if (conversionText)
             conversionText.text = $"Puntos: 0 --- Dinero: {baseMoney + coinsTotal}";
 
-        // Aplicar dinero realmente al final
         if (GameData.instance != null && coinsTotal > 0)
             GameData.instance.AddMoney(coinsTotal);
 
@@ -162,6 +169,6 @@ public class FinalResultsManager : MonoBehaviour
 
     public void ShopButton()
     {
-        SceneManager.LoadScene("Tienda");
+        SceneController.Instance.LoadScene("Tienda");
     }
 }

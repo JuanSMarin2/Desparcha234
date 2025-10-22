@@ -24,12 +24,20 @@ public class IconManagerCatapis : MonoBehaviour
     [Tooltip("Cada entrada corresponde a un jugador; por defecto 1 si todos comparten sprites")]
     [SerializeField] private PlayerSkinSet[] players = new PlayerSkinSet[1];
 
+    [Header("Defaults (si no hay skin)")]
+    [Tooltip("Sprite por defecto cuando no hay skin equipada (feliz) por jugador 1..4")] public Sprite[] defaultHappy = new Sprite[4];
+    [Tooltip("Sprite por defecto cuando no hay skin equipada (triste) por jugador 1..4")] public Sprite[] defaultSad = new Sprite[4];
+
     [Header("Copa Images (Jugador 1..4)")]
     [Tooltip("Si no se asignan, se intentará encontrar objetos por nombre: Copa1..Copa4 (o en minúsculas)")]
     [SerializeField] private Image[] cupImages = new Image[4];
 
     void Awake()
     {
+        // Garantizar GameData
+        var gd = GameData.EnsureInstance();
+        if (gd == null) Debug.LogError("[IconManagerCatapis] GameData.EnsureInstance devolvió null");
+
         // Encontrar el Panel incluso si está inactivo
         if (defaultProvider == null)
         {
@@ -39,6 +47,10 @@ public class IconManagerCatapis : MonoBehaviour
             // Compatibilidad: si el proyecto no soporta FindFirstObjectByType con Include, usar variante sin incluir inactivos
             defaultProvider = FindFirstObjectByType<PanelFinalTurno>();
 #endif
+            if (defaultProvider == null)
+            {
+                Debug.LogWarning("[IconManagerCatapis] PanelFinalTurno no encontrado en escena. Usarás solo sprites de skins si están asignados.");
+            }
         }
         // Si no se asignó un Image, intentar usar el del Panel (si está accesible en la escena)
         if (icon == null && defaultProvider != null)
@@ -51,23 +63,50 @@ public class IconManagerCatapis : MonoBehaviour
 
     void Start()
     {
-        // Asignar sprites de skin a Copa1..Copa4 al iniciar
+        // Construir arrays para el PanelFinalTurno
+        var happyArr = new Sprite[4];
+        var sadArr = new Sprite[4];
+        for (int i = 0; i < 4; i++)
+        {
+            int equippedRaw = (GameData.instance != null) ? GameData.instance.GetEquipped(i) : 0;
+            bool useSkin = equippedRaw > 0; // 1=hay skin, 0=no hay
+            int skinIdx = useSkin ? equippedRaw - 1 : -1; // mapear a 0-based para arrays
+
+            if (useSkin)
+            {
+                happyArr[i] = GetSpriteForPlayer(i, sad: false, skinIdx) ?? defaultHappy[i];
+                sadArr[i] = GetSpriteForPlayer(i, sad: true, skinIdx) ?? (defaultSad[i] != null ? defaultSad[i] : defaultHappy[i]);
+            }
+            else
+            {
+                happyArr[i] = defaultHappy[i];
+                sadArr[i] = defaultSad[i] != null ? defaultSad[i] : defaultHappy[i];
+            }
+        }
+        if (defaultProvider != null) defaultProvider.SetDefaultIcons(happyArr, sadArr);
+
+        // Asignar copas con happy final (post selección)
         for (int i = 0; i < 4; i++)
         {
             var img = EnsureCupImageRef(i);
             if (img != null)
             {
-                // Usar el sprite "feliz" (default) de la skin del jugador i; si no hay skin, cae al default del panel
-                ApplyToImage(img, i, sad: false);
+                img.sprite = happyArr[i];
+                img.enabled = img.sprite != null;
             }
         }
+
+        // Inicial: mostrar jugador del turno actual feliz
+        int currentIdx = (TurnManager.instance != null) ? Mathf.Clamp(TurnManager.instance.GetCurrentPlayerIndex(), 0, 3) : 0;
+        if (icon != null) RefreshForPlayer(currentIdx, forceSad: false);
     }
 
     void OnEnable()
     {
         PanelFinalTurno.OnPanelShown += OnPanelShown;
-        // Inicial: mostrar jugador 1 (0-based) en feliz por defecto
-        if (icon != null) RefreshForPlayer(0, forceSad: false);
+        // Refrescar según turno actual al habilitar
+        int currentIdx = (TurnManager.instance != null) ? Mathf.Clamp(TurnManager.instance.GetCurrentPlayerIndex(), 0, 3) : 0;
+        if (icon != null) RefreshForPlayer(currentIdx, forceSad: false);
     }
 
     void OnDisable()
@@ -85,41 +124,24 @@ public class IconManagerCatapis : MonoBehaviour
     private void RefreshForPlayer(int playerIndexZeroBased, bool forceSad)
     {
         if (icon == null) return;
-
-        // ¿Hay skin equipada? Si no, usar defaults del PanelFinalTurno
-        int equipped = -1;
-        if (GameData.instance != null)
-        {
-            equipped = GameData.instance.GetEquipped(playerIndexZeroBased);
-        }
+        int equippedRaw = (GameData.instance != null) ? GameData.instance.GetEquipped(playerIndexZeroBased) : 0;
+        bool useSkin = equippedRaw > 0; // 1=hay skin, 0=no hay
+        int skinIdx = useSkin ? equippedRaw - 1 : -1;
 
         Sprite chosen = null;
-        if (equipped >= 0)
+        if (useSkin)
         {
-            // Intentar sprite de skin
-            chosen = GetSpriteForPlayer(playerIndexZeroBased, forceSad, equipped);
-            // Fallback: intentar estado opuesto dentro de la misma skin
-            if (chosen == null)
-                chosen = GetSpriteForPlayer(playerIndexZeroBased, !forceSad, equipped);
+            chosen = GetSpriteForPlayer(playerIndexZeroBased, forceSad, skinIdx);
+            if (chosen == null) chosen = GetSpriteForPlayer(playerIndexZeroBased, !forceSad, skinIdx);
         }
-
-        // Si no hay skin válida o faltan sprites, usar defaults del PanelFinalTurno
         if (chosen == null)
         {
             chosen = GetDefaultSpriteFromPanel(playerIndexZeroBased, forceSad);
-            if (chosen == null)
-                chosen = GetDefaultSpriteFromPanel(playerIndexZeroBased, !forceSad); // último recurso: opuesto
+            if (chosen == null) chosen = GetDefaultSpriteFromPanel(playerIndexZeroBased, !forceSad);
         }
 
-        if (chosen != null)
-        {
-            icon.sprite = chosen;
-            icon.enabled = true;
-        }
-        else
-        {
-            icon.enabled = false;
-        }
+        icon.sprite = chosen;
+        icon.enabled = chosen != null;
     }
 
     private Image GetPanelIconImage()
@@ -136,24 +158,11 @@ public class IconManagerCatapis : MonoBehaviour
 
     private Sprite GetDefaultSpriteFromPanel(int playerIndexZeroBased, bool sad)
     {
-        if (defaultProvider == null) return null;
-        // Los arrays en PanelFinalTurno son públicos y el orden es Jugador 1..4
-        var happy = defaultProvider.iconosFelices;
-        var sads = defaultProvider.iconosTristes;
-        Sprite pick = null;
-        if (sad)
-        {
-            if (sads != null && playerIndexZeroBased >= 0 && playerIndexZeroBased < sads.Length)
-                pick = sads[playerIndexZeroBased];
-            if (pick == null && happy != null && playerIndexZeroBased >= 0 && playerIndexZeroBased < happy.Length)
-                pick = happy[playerIndexZeroBased];
-        }
-        else
-        {
-            if (happy != null && playerIndexZeroBased >= 0 && playerIndexZeroBased < happy.Length)
-                pick = happy[playerIndexZeroBased];
-        }
-        return pick;
+        // Como PanelFinalTurno ya no expone arrays públicamente, usamos los defaults que le pasamos en Start
+        // De manera indirecta los obtenemos volviendo a llamar a ApplyToImage si fuese necesario, pero aquí
+        // mantenemos una copia de referencia local en defaultHappy/defaultSad
+        if (sad) return (defaultSad != null && playerIndexZeroBased < defaultSad.Length) ? defaultSad[playerIndexZeroBased] : null;
+        return (defaultHappy != null && playerIndexZeroBased < defaultHappy.Length) ? defaultHappy[playerIndexZeroBased] : null;
     }
 
     public Sprite GetSpriteForPlayer(int playerIndexZeroBased, bool sad)
@@ -168,10 +177,8 @@ public class IconManagerCatapis : MonoBehaviour
 
     public Sprite GetSpriteForPlayer(int playerIndexZeroBased, bool sad, int equipped)
     {
-        // Si no hay skin equipada, no proveemos sprite de skin
-        if (equipped < 0) return null;
+        if (equipped < 0) return null; // mapeado ya a 0-based o -1
         if (players == null || players.Length == 0) return null;
-        // Si solo hay 1 entrada, se reutiliza para todos los jugadores
         int idxPlayer = Mathf.Clamp(playerIndexZeroBased, 0, players.Length - 1);
         var set = players[idxPlayer] != null ? players[idxPlayer] : (players[0] != null ? players[0] : null);
         if (set == null) return null;

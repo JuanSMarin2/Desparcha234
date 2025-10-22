@@ -1975,7 +1975,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 7.2923326, y: 10.531797}
+  m_Size: {x: 5, y: 6.5}
   m_EdgeRadius: 0
 --- !u!212 &693602409
 SpriteRenderer:
@@ -3713,7 +3713,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.09209776, y: -0.03069973}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -3723,7 +3723,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 6.9127035, y: 10.495045}
+  m_Size: {x: 5, y: 6.5}
   m_EdgeRadius: 0
 --- !u!212 &1197602804
 SpriteRenderer:
@@ -4003,7 +4003,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.1245327, y: 0.124528885}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -4013,7 +4013,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 7.238312, y: 11.332649}
+  m_Size: {x: 5, y: 6.5}
   m_EdgeRadius: 0
 --- !u!212 &1246577729
 SpriteRenderer:
@@ -4636,6 +4636,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 1
   colorJugador1: {r: 0.82641506, g: 0.29158416, b: 0.29158416, a: 1}
   colorJugador2: {r: 0.2547169, g: 0.2547169, b: 0.8490566, a: 1}
@@ -5059,7 +5060,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.13154459, y: -0.087694645}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -5069,7 +5070,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 7.0806837, y: 10.46992}
+  m_Size: {x: 5, y: 6.5}
   m_EdgeRadius: 0
 --- !u!212 &1526244086
 SpriteRenderer:

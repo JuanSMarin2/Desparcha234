@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Unity.VisualScripting;
+using TMPro;
 
 public class MarbleShooter2D : MonoBehaviour
 {
@@ -15,9 +16,12 @@ public class MarbleShooter2D : MonoBehaviour
     [SerializeField] private WinnerPanel winnerPanel;
     [SerializeField] private GameObject winnerPanelRoot;
     private bool isEnding;
- 
 
-
+    [Header("UI Bonus Turn")]
+    [SerializeField] private GameObject bonusTurnText;   // Objeto UI
+    [SerializeField] private TMP_Text bonusTurnTMP;      // Texto opcional
+    [SerializeField] private string bonusShortText = "¡Tiro extra!";
+    [SerializeField] private float bonusShowSeconds = 2f;
 
     [Header("Fisica")]
     [SerializeField] private float forceMultiplier = 10f;
@@ -40,12 +44,17 @@ public class MarbleShooter2D : MonoBehaviour
     [SerializeField] private bool spinUseVelocitySign = true;
 
     private static int bonusShotForPlayer = -1;
-
     private static bool firstCycleActive = true;
     private static System.Collections.Generic.HashSet<int> shotFirstCycle = new System.Collections.Generic.HashSet<int>();
 
+    // Evento para UI cuando se otorga bonus
+    private static System.Action<int> OnBonusAwarded;
+    private Coroutine bonusRoutine;
 
-  
+    // --------------------------
+    // Ciclo de turnos y bonus
+    // --------------------------
+
     private static bool AllActivePlayersHaveShotOnce()
     {
         if (TurnManager.instance == null) return false;
@@ -76,7 +85,11 @@ public class MarbleShooter2D : MonoBehaviour
         if (current < 0) return;
         if (firstCycleActive) return;
         if (bonusShotForPlayer != -1) return;
-        if (eliminatedPlayerIndex != current) bonusShotForPlayer = current;
+        if (eliminatedPlayerIndex != current)
+        {
+            bonusShotForPlayer = current;
+            OnBonusAwarded?.Invoke(current); // Notificar UI
+        }
     }
 
     private static bool TryConsumeBonus(int playerIdx)
@@ -92,15 +105,22 @@ public class MarbleShooter2D : MonoBehaviour
     private static void ZeroAllMarbles()
     {
         var shooters = FindObjectsByType<MarbleShooter2D>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        for (int i = 0; i < shooters.Length; i++)
+        foreach (var shooter in shooters)
         {
-            if (shooters[i] != null && shooters[i].marble != null)
+            if (shooter != null && shooter.marble != null)
             {
-                shooters[i].marble.linearVelocity = Vector2.zero;
-                shooters[i].marble.angularVelocity = 0f;
+                shooter.marble.linearVelocity = Vector2.zero;
+                shooter.marble.angularVelocity = 0f;
             }
         }
     }
+
+    // --------------------------
+    // Ciclo de vida
+    // --------------------------
+
+    void OnEnable() => OnBonusAwarded += HandleBonusAwarded;
+    void OnDisable() => OnBonusAwarded -= HandleBonusAwarded;
 
     void Start()
     {
@@ -112,6 +132,8 @@ public class MarbleShooter2D : MonoBehaviour
         startAngularDamping = angularDamping;
         forceCharger.OnReleaseForce += TryShoot;
         isEnding = false;
+
+        if (bonusTurnText) bonusTurnText.SetActive(false);
     }
 
     void FixedUpdate()
@@ -138,6 +160,40 @@ public class MarbleShooter2D : MonoBehaviour
         ChangeDamping();
     }
 
+    // --------------------------
+    // Movimiento y disparo
+    // --------------------------
+
+    private void TryShoot(float fuerza)
+    {
+        if (playerIndex != TurnManager.instance.GetCurrentPlayerIndex()) return;
+
+        SoundManager.instance.PlaySfx("Canicas:whoosh");
+        ShootMarble(fuerza);
+        isWaitingToEndTurn = true;
+
+        RegisterFirstShotIfNeeded(playerIndex);
+
+        EffectPool.Instance?.SpawnTrigger(transform.position, "Launch", 0.3f, 1f);
+    }
+
+    private void ShootMarble(float fuerza)
+    {
+        if (marble == null || arrowObject == null) return;
+
+        Vector2 direction = arrowObject.up.normalized;
+        marble.linearVelocity = Vector2.zero;
+        marble.angularVelocity = 0f;
+        marble.linearDamping = linearDamping;
+        marble.angularDamping = angularDamping;
+
+        float effectiveMultiplier = marblePower
+            ? marblePower.GetLaunchMultiplier(forceMultiplier)
+            : forceMultiplier;
+
+        marble.AddForce(direction * fuerza * effectiveMultiplier, ForceMode2D.Impulse);
+    }
+
     private void UpdateSpin()
     {
         if (marble == null) return;
@@ -157,6 +213,24 @@ public class MarbleShooter2D : MonoBehaviour
         marble.angularVelocity = newAng;
     }
 
+    private void ChangeDamping()
+    {
+        if (playerIndex + 1 != TurnManager.instance.CurrentTurn())
+        {
+            linearDamping = 1f;
+            angularDamping = 0.5f;
+        }
+        else
+        {
+            linearDamping = startLinearDamping;
+            angularDamping = startAngularDamping;
+        }
+    }
+
+    // --------------------------
+    // Turnos y final de ronda
+    // --------------------------
+
     private IEnumerator ResolveEndOfTurnAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -172,104 +246,25 @@ public class MarbleShooter2D : MonoBehaviour
         TurnManager.instance?.NextTurn();
     }
 
-    private void ChangeDamping()
-    {
-        if (playerIndex + 1 != TurnManager.instance.CurrentTurn())
-        {
-            linearDamping = 1f;
-            angularDamping = 0.5f;
-        }
-        else
-        {
-            linearDamping = startLinearDamping;
-            angularDamping = startAngularDamping;
-        }
-    }
-
-    private void TryShoot(float fuerza)
-    {
-        if (playerIndex != TurnManager.instance.GetCurrentPlayerIndex()) return;
-
-        SoundManager.instance.PlaySfx("Canicas:whoosh");
-        ShootMarble(fuerza);
-        isWaitingToEndTurn = true;
-
-        RegisterFirstShotIfNeeded(playerIndex);
-
-        if (EffectPool.Instance != null)
-            EffectPool.Instance.SpawnTrigger(transform.position, "Launch", 0.3f, 1f);
-    }
-
-    private void ShootMarble(float fuerza)
-    {
-        if (marble == null || arrowObject == null) return;
-
-        Vector2 direction = arrowObject.up.normalized;
-
-        marble.linearVelocity = Vector2.zero;
-        marble.angularVelocity = 0f;
-        marble.linearDamping = linearDamping;
-        marble.angularDamping = angularDamping;
-
-        float effectiveMultiplier = marblePower
-            ? marblePower.GetLaunchMultiplier(forceMultiplier)
-            : forceMultiplier;
-
-        marble.AddForce(direction * fuerza * effectiveMultiplier, ForceMode2D.Impulse);
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-
-
-        if (marble.linearVelocity.magnitude < impactMinVelocity) {
-
-            SoundManager.instance.PlaySfx("Canicas:choqueSuave");
-            return;
-        }
-
-        SoundManager.instance.PlaySfx("Canicas:choqueDuro");
-
-        var otherShooter = collision.collider.GetComponent<MarbleShooter2D>();
-        if (otherShooter != null)
-        {
-            if (this.gameObject.GetInstanceID() < otherShooter.gameObject.GetInstanceID())
-                if (EffectPool.Instance != null)
-                    EffectPool.Instance.SpawnTrigger(transform.position, "Impact", 0.3f, 1f);
-        }
-        else
-        {
-            if (EffectPool.Instance != null)
-                EffectPool.Instance.SpawnTrigger(transform.position, "Impact", 0.3f, 1f);
-        }
-    }
-
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (ExitManager.ForceReturnToMainMenu) return;
 
         if (collision.CompareTag("SafeZone"))
         {
-           
-            
-            // bonus, poderes, etc. (lo que ya tengas)
             AwardBonusToCurrentTurnIfEliminatedNotCurrent(playerIndex);
             marblePower?.ApplyPower(MarblePowerType.None);
 
-            // arrancamos la espera/mostrar panel si aplica
-
             if (!isEnding && gameObject.activeInHierarchy)
-            StartCoroutine(HandleEliminationRoutine());
+                StartCoroutine(HandleEliminationRoutine());
         }
     }
 
-
     private IEnumerator HandleEliminationRoutine()
     {
-
         marbleExplosion.transform.position = transform.position;
         marbleExplosion.SetActive(true);
-        // que la canica deje de “molestar” pero sin desactivar este GO (para que la corrutina corra)
+
         var col = GetComponent<Collider2D>();
         if (col) col.enabled = false;
         var sr = GetComponentInChildren<SpriteRenderer>();
@@ -295,15 +290,13 @@ public class MarbleShooter2D : MonoBehaviour
 
         if (willEndRound && winnerIndex >= 0 && winnerPanel != null && winnerPanelRoot != null)
         {
-            // le pasamos el ganador ANTES de activar el panel
             winnerPanel.Prepare(winnerIndex);
-            winnerPanelRoot.SetActive(true);   // Start del panel corre ahora
+            winnerPanelRoot.SetActive(true);
             yield return new WaitForSeconds(2f);
         }
 
-        if(!isEnding)
-       EndRound();
-     
+        if (!isEnding)
+            EndRound();
     }
 
     private void EndRound()
@@ -311,8 +304,54 @@ public class MarbleShooter2D : MonoBehaviour
         isEnding = true;
         StopAllCoroutines();
         GameRoundManager.instance.PlayerLose(playerIndex);
-
     }
 
-}
+    // --------------------------
+    // Colisiones con sonido
+    // --------------------------
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (marble.linearVelocity.magnitude < impactMinVelocity)
+        {
+            SoundManager.instance.PlaySfx("Canicas:choqueSuave");
+            return;
+        }
+
+        SoundManager.instance.PlaySfx("Canicas:choqueDuro");
+
+        var otherShooter = collision.collider.GetComponent<MarbleShooter2D>();
+        if (otherShooter != null)
+        {
+            if (this.gameObject.GetInstanceID() < otherShooter.gameObject.GetInstanceID())
+                EffectPool.Instance?.SpawnTrigger(transform.position, "Impact", 0.3f, 1f);
+        }
+        else
+        {
+            EffectPool.Instance?.SpawnTrigger(transform.position, "Impact", 0.3f, 1f);
+        }
+    }
+
+    // --------------------------
+    // UI del bonus
+    // --------------------------
+
+    private void HandleBonusAwarded(int bonusPlayerIdx)
+    {
+        if (bonusPlayerIdx != playerIndex) return;
+        if (bonusTurnText == null) return;
+
+        if (bonusRoutine != null) StopCoroutine(bonusRoutine);
+        bonusRoutine = StartCoroutine(ShowBonusTurnText());
+    }
+
+    private IEnumerator ShowBonusTurnText()
+    {
+        if (bonusTurnTMP != null && !string.IsNullOrWhiteSpace(bonusShortText))
+            bonusTurnTMP.text = bonusShortText;
+
+        bonusTurnText.SetActive(true);
+        yield return new WaitForSeconds(bonusShowSeconds);
+        if (bonusTurnText != null) bonusTurnText.SetActive(false);
+    }
+}
