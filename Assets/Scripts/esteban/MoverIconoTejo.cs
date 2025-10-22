@@ -1,39 +1,27 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 
 public class MoverIconoTejo : MonoBehaviour
 {
-    public enum TriggerMode { OnTurnAdvanced, OnPreLaunch, Manual }
+    [Header("Referencias de Paneles (solo informativas)")]
+    public GameObject panelTutorial;
+    public GameObject panelTurno;
 
     [Header("Iconos (orden jugador 1..4)")]
     [Tooltip("RectTransforms de cada icono (0 = jugador 1)")]
     public RectTransform[] iconRects;
 
-    [Header("Movimiento")]
-    public float moveDistance = 40f;
-    public float moveSpeed = 6f;
+    [Header("Movimiento Vertical")]
+    [Tooltip("Distancia vertical del movimiento (en unidades locales)")]
+    public float moveDistance = 160f;
+
+    [Tooltip("Velocidad de movimiento (más alto = más rápido)")]
+    public float moveSpeed = 1.5f;
+
+    [Tooltip("Tiempo que permanece arriba antes de volver a su posición original")]
     public float holdTime = 0.25f;
 
-    [Header("Activación")]
-    public TriggerMode trigger = TriggerMode.OnTurnAdvanced;
-    private bool systemActive = true;
-
-    [Header("Sprites por situación (opcional)")]
-    [Tooltip("Cada SituationSet tiene un key y sprites por jugador (0..3).")]
-    public SituationSet[] situations;
-
-    [System.Serializable]
-    public class SituationSet
-    {
-        public string key; // ej: "prelaunch", "caught", "groundfail"
-        public Sprite[] spritesByPlayer = new Sprite[4];
-    }
-
     private Vector3[] originalPositions;
-    private bool isMoving;
-    private int lastMovedPlayer = -1;
-    private Coroutine moveCo;
 
     void Awake()
     {
@@ -41,135 +29,139 @@ public class MoverIconoTejo : MonoBehaviour
         {
             originalPositions = new Vector3[iconRects.Length];
             for (int i = 0; i < iconRects.Length; i++)
-                if (iconRects[i] != null) originalPositions[i] = iconRects[i].localPosition;
+                if (iconRects[i] != null)
+                    originalPositions[i] = iconRects[i].localPosition;
         }
-    }
-
-    void Start()
-    {
-        // Lanzar rutina que espera a que termine el tutorial y luego mueve los iconos de los jugadores que no tienen el turno
-        StartCoroutine(CoWaitForTutorialThenMove());
     }
 
     void OnEnable()
     {
-        if (trigger == TriggerMode.OnTurnAdvanced || trigger == TriggerMode.OnPreLaunch)
-            Progression.OnTurnAdvanced += HandleOnTurnAdvanced;
+        // Suscribir al evento que emite un índice (int) desde TutorialManagerTejo
+        TutorialManagerTejo.OnPanelCerrado += OnPanelCerrado;
     }
 
     void OnDisable()
     {
-        Progression.OnTurnAdvanced -= HandleOnTurnAdvanced;
+        TutorialManagerTejo.OnPanelCerrado -= OnPanelCerrado;
     }
 
-    private void HandleOnTurnAdvanced(int playerIndex)
+    // === EVENTO: Panel cerrado (recibe el índice del panel como hace TutorialManagerTejo) ===
+    private void OnPanelCerrado(int panelID)
     {
-        if (!systemActive) return;
-        if (playerIndex == lastMovedPlayer) return;
-        lastMovedPlayer = playerIndex;
-        // En modo OnPreLaunch se reutiliza este handler; otros sistemas pueden llamar TriggerMoveForCurrentPlayer cuando convenga.
-        StartMoveForPlayer(playerIndex);
-    }
+        Debug.Log($"[MoverIconoTejo] Panel cerrado con ID {panelID}. Ejecutando animaciones...");
 
-    public void SetSystemActive(bool active) => systemActive = active;
-
-    public void TriggerMoveForCurrentPlayer()
-    {
-        int idx = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
-        if (idx >= 0) StartMoveForPlayer(idx);
-    }
-
-    public void TriggerMoveForPlayer(int playerIndexZeroBased) => StartMoveForPlayer(playerIndexZeroBased);
-
-    private void StartMoveForPlayer(int index)
-    {
-        if (iconRects == null || index < 0 || index >= iconRects.Length) return;
-        if (isMoving) return;
-        moveCo = StartCoroutine(MoveIconCoroutine(index));
-    }
-
-    private IEnumerator MoveIconCoroutine(int index)
-    {
-        isMoving = true;
-        var rt = iconRects[index];
-        if (rt == null) { isMoving = false; yield break; }
-
-        Vector3 startPos = (originalPositions != null && index < originalPositions.Length) ? originalPositions[index] : rt.localPosition;
-        float direction = (index == 0 || index == 3) ? 1f : -1f; // misma heurística que IconMover
-        Vector3 targetPos = startPos + Vector3.up * moveDistance * direction;
-
-        while (Vector3.Distance(rt.localPosition, targetPos) > 0.1f)
+        // Decide qué hacer según el panel cerrado (ajusta la lista según tu diseño)
+        switch (panelID)
         {
-            rt.localPosition = Vector3.Lerp(rt.localPosition, targetPos, Time.deltaTime * moveSpeed);
-            yield return null;
+            // si el panel corresponde a "lanzamiento" o paneles que muestran el jugador actual:
+            case 8:  // multi joystick -> mostrar panel lanzamiento jugador 1
+            case 9:
+            case 10:
+            case 11:
+                {
+                    int jugadorTurno = TurnManager.instance != null ? TurnManager.instance.CurrentTurn() : 1;
+                    MoverIconoPorJugador(jugadorTurno - 1);
+                    break;
+                }
+
+            // si el panel corresponde a "papeleta"/otros que deberían mostrar los demás iconos:
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 12:
+                {
+                    MostrarIconosRestantes();
+                    break;
+                }
+
+            default:
+                {
+                    // Por defecto: no hacer nada o mostrar restantes
+                    Debug.Log($"[MoverIconoTejo] Panel {panelID} no mapeado explícitamente. No se realiza acción.");
+                    break;
+                }
         }
-
-        yield return new WaitForSecondsRealtime(holdTime);
-
-        while (Vector3.Distance(rt.localPosition, startPos) > 0.1f)
-        {
-            rt.localPosition = Vector3.Lerp(rt.localPosition, startPos, Time.deltaTime * moveSpeed);
-            yield return null;
-        }
-
-        isMoving = false;
     }
 
-    // Espera a que el tutorial termine (si existe) y luego mueve los iconos de los jugadores que no tienen el turno.
-    private IEnumerator CoWaitForTutorialThenMove()
+    // === MÉTODOS DE ANIMACIÓN ===
+
+    public void MostrarIconosRestantes()
     {
-        // Esperar a que TurnManager esté listo
-        float timeout = 1f;
-        while ((TurnManager.instance == null) && timeout > 0f)
-        {
-            timeout -= Time.unscaledDeltaTime;
-            yield return null;
-        }
-
-        // Esperar tutorial si existe
-        var tut = FindObjectOfType<TutorialManagerTejo>();
-        if (tut != null)
-        {
-            var blockerField = tut.GetType().GetField("blocker",
-                System.Reflection.BindingFlags.NonPublic |
-                System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.Public);
-
-            GameObject blocker = null;
-            if (blockerField != null)
-                blocker = blockerField.GetValue(tut) as GameObject;
-
-            if (blocker != null)
-            {
-                while (blocker.activeInHierarchy)
-                    yield return null;
-            }
-            else
-            {
-                while (PlayerPrefs.GetInt("TutorialMostrado", 0) == 0)
-                    yield return null;
-            }
-        }
-
-        // Pequeña pausa para asegurar que la UI haya terminado de actualizarse
-        yield return new WaitForSecondsRealtime(0.1f);
-
-        // Ejecutar movimiento simultáneo para todos los jugadores que NO tienen el turno
         int current = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
-        if (iconRects == null || iconRects.Length == 0) yield break;
-
-        // Lista de corrutinas en paralelo
-        var runningCoroutines = new System.Collections.Generic.List<Coroutine>();
+        if (iconRects == null || iconRects.Length == 0) return;
 
         for (int i = 0; i < iconRects.Length; i++)
         {
             if (i == current) continue;
             if (iconRects[i] != null)
-                runningCoroutines.Add(StartCoroutine(MoveIconCoroutine(i)));
+                StartCoroutine(MoverIconoAnimado(i, true));
+        }
+    }
+
+    public void OcultarIconosRestantes()
+    {
+        int current = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (iconRects == null || iconRects.Length == 0) return;
+
+        for (int i = 0; i < iconRects.Length; i++)
+        {
+            if (i == current) continue;
+            if (iconRects[i] != null)
+                StartCoroutine(MoverIconoAnimado(i, false));
+        }
+    }
+
+    public void MoverIconoPorJugador(int index)
+    {
+        if (iconRects == null || index < 0 || index >= iconRects.Length) return;
+        StartCoroutine(MoverIconoAnimado(index, true));
+    }
+
+    private IEnumerator MoverIconoAnimado(int index, bool mostrar)
+    {
+        var rt = iconRects[index];
+        if (rt == null) yield break;
+
+        Vector3 startPos = originalPositions[index];
+        float direction = (index == 0 || index == 3) ? 1f : -1f;
+        Vector3 targetPos = startPos + Vector3.up * moveDistance * direction;
+
+        if (mostrar)
+        {
+            yield return MoveBetween(rt, startPos, targetPos);
+            yield return new WaitForSecondsRealtime(holdTime);
+            yield return MoveBetween(rt, targetPos, startPos);
+        }
+        else
+        {
+            Vector3 downPos = startPos - Vector3.up * moveDistance * direction;
+            yield return MoveBetween(rt, startPos, downPos);
+            yield return new WaitForSecondsRealtime(holdTime);
+            yield return MoveBetween(rt, downPos, startPos);
         }
 
-        // Esperar a que todas terminen
-        foreach (var co in runningCoroutines)
-            yield return co;
+        rt.localPosition = startPos;
+    }
+
+    private IEnumerator MoveBetween(RectTransform rt, Vector3 from, Vector3 to)
+    {
+        float duration = 1f / moveSpeed;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float smoothT = Mathf.SmoothStep(0f, 1f, t);
+            rt.localPosition = Vector3.Lerp(from, to, smoothT);
+            yield return null;
+        }
+
+        rt.localPosition = to;
     }
 }

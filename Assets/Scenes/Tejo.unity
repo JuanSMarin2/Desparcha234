@@ -2950,7 +2950,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 991743340426723893, guid: 1db1722f532bbc6478e7712b5d8f7aa9, type: 3}
       propertyPath: numPlayers
-      value: 4
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2401113022653695755, guid: 1db1722f532bbc6478e7712b5d8f7aa9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -10546,6 +10546,7 @@ MonoBehaviour:
   - {fileID: 560638888}
   - {fileID: 0}
   - {fileID: 1401040267}
+  - {fileID: 1450209055}
   objectsFor4Players:
   - {fileID: 6277598649374320817}
   - {fileID: 286465834}
@@ -10553,6 +10554,7 @@ MonoBehaviour:
   - {fileID: 1082137398}
   - {fileID: 0}
   - {fileID: 394373962}
+  - {fileID: 34591699}
 --- !u!4 &1048118533
 Transform:
   m_ObjectHideFlags: 0
@@ -12659,16 +12661,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5639fda8282e4d44a80f585f96394e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  panelTutorial: {fileID: 0}
+  panelTurno: {fileID: 0}
   iconRects:
   - {fileID: 1868428348}
   - {fileID: 1526275155}
   - {fileID: 1450209058}
   - {fileID: 34591702}
   moveDistance: 160
-  moveSpeed: 6
+  moveSpeed: 1
   holdTime: 0.25
-  trigger: 0
-  situations: []
 --- !u!4 &1225390499
 Transform:
   m_ObjectHideFlags: 0
