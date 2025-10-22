@@ -364,6 +364,95 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 119842133}
   m_CullTransparentMesh: 1
+--- !u!1 &160311217
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 160311220}
+  - component: {fileID: 160311219}
+  - component: {fileID: 160311222}
+  m_Layer: 0
+  m_Name: LibreriaSOnido
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &160311219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160311217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c4fd8d572e5f174a9f3e59f1a3dfbad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameId: Tingo
+  sfxClips:
+  - key: Desaparecer1
+    clip: {fileID: 8300000, guid: 30314aca0f570e847822ab08d9fdddef, type: 3}
+  - key: Desaparecer2
+    clip: {fileID: 8300000, guid: 642aeef1a047dd6458446c4fa47716d2, type: 3}
+  - key: Desaparecer3
+    clip: {fileID: 8300000, guid: 5d51f381230ee56448ad5228ed06e812, type: 3}
+  - key: Orden
+    clip: {fileID: 8300000, guid: de69e7c7e0086f648879f9d639889e44, type: 3}
+  - key: Equivocarse
+    clip: {fileID: 8300000, guid: d4b6a99c30f6d694d89f412930a37b0e, type: 3}
+  - key: CBien
+    clip: {fileID: 8300000, guid: fda5ba299a611f04ab677a9aee9d1cfa, type: 3}
+  - key: CMal
+    clip: {fileID: 8300000, guid: 78d71cf80350a0e49864f91630ed4150, type: 3}
+  - key: ProyAgarra
+    clip: {fileID: 8300000, guid: 065597b1f793eaa4a91733bfa15ff514, type: 3}
+  - key: 1
+    clip: {fileID: 8300000, guid: 3950c5d3960dfa044a711bdfbcbcb22b, type: 3}
+  - key: 2
+    clip: {fileID: 8300000, guid: 0405bfdb4ca299a4ebbed8bcdfc84ef0, type: 3}
+  - key: 3
+    clip: {fileID: 8300000, guid: 476864272edf49e499ba04aa8e450167, type: 3}
+  - key: 4
+    clip: {fileID: 8300000, guid: 0da8068bf7c6ca1489c1f54f44ccd60e, type: 3}
+  - key: 5
+    clip: {fileID: 8300000, guid: aa87b342a966d094eacbb3b53c16ade2, type: 3}
+  - key: 6
+    clip: {fileID: 8300000, guid: 6d4254efaddcb574f9f7aad07a770edb, type: 3}
+  musicClips:
+  - key: 
+    clip: {fileID: 0}
+  autoPlayMusicKey: 
+  autoLoopMusic: 1
+  persistAcrossScenes: 0
+--- !u!4 &160311220
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160311217}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 539.62775, y: 567.6506, z: -6.59491}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!81 &160311222
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160311217}
+  m_Enabled: 1
 --- !u!1 &164817311
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,6 +528,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 164817311}
   m_CullTransparentMesh: 1
+--- !u!1 &179114389
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 179114391}
+  m_Layer: 0
+  m_Name: SonidosPremium
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &179114391
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179114389}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 370.13977, y: 521.5018, z: -9.316292}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &194383908
 GameObject:
   m_ObjectHideFlags: 0
@@ -704,6 +824,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   skipNextTurnOnFinish: 0
+  successBonusSeconds: 0.5
   patternGridParent: {fileID: 1435586306}
   inputGridParent: {fileID: 810583378}
   offPrefabsByColor:
@@ -728,6 +849,9 @@ MonoBehaviour:
   replayOnFail: 1
   errorColor: {r: 0.925, g: 0.286, b: 0.286, a: 1}
   errorFlashSeconds: 1
+  notePrefix: 'Tingo:'
+  playNoteOnPlayerPress: 1
+  finalChordVisualTime: 0.5
 --- !u!1 &353434097
 GameObject:
   m_ObjectHideFlags: 0
@@ -1874,6 +1998,9 @@ MonoBehaviour:
       m_Calls: []
   skipNextTurnOnFinish: 0
   catchShrinkDuration: 0.25
+  spawnSfxKey: Tingo:ProyAparecer
+  grabSfxKey: Tingo:ProyAgarra
+  successBonusSeconds: 0.2
 --- !u!1 &804644520
 GameObject:
   m_ObjectHideFlags: 0
@@ -2211,6 +2338,9 @@ MonoBehaviour:
       m_Calls: []
   failRestartDelay: 1
   successCleanupDelay: 0.5
+  correctSfxKey: Tingo:CBien
+  wrongSfxKey: Tingo:CMal
+  successBonusSeconds: 0.2
 --- !u!1 &939819482
 GameObject:
   m_ObjectHideFlags: 0
@@ -3120,6 +3250,8 @@ MonoBehaviour:
   restartOnFail: 1
   spawnZone: {fileID: 2113919577}
   minDistance: 80
+  correctSfxKey: Tingo:Orden
+  wrongSfxKey: Tingo:Equivocarse
   pulseExpected: 1
   pulseSpeed: 1
   pulseScaleMin: 0.9
@@ -3127,6 +3259,7 @@ MonoBehaviour:
   onGameFinished:
     m_PersistentCalls:
       m_Calls: []
+  successBonusSeconds: 0.2
 --- !u!1 &1495726405
 GameObject:
   m_ObjectHideFlags: 0
@@ -3266,6 +3399,7 @@ MonoBehaviour:
   onGameFinished:
     m_PersistentCalls:
       m_Calls: []
+  successBonusSeconds: 0.005
 --- !u!1 &1594797851
 GameObject:
   m_ObjectHideFlags: 0
@@ -3375,7 +3509,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000011444092, y: 0}
+  m_AnchoredPosition: {x: 0.000011444092, y: 6.6}
   m_SizeDelta: {x: 48.7858, y: -53.6092}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1617028147
@@ -3587,7 +3721,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -99.8, y: -158.4}
+  m_AnchoredPosition: {x: -100.4, y: -150.5}
   m_SizeDelta: {x: 35, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &1651474476
@@ -3660,7 +3794,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1674650158}
   - component: {fileID: 1674650157}
-  - component: {fileID: 1674650156}
   - component: {fileID: 1674650159}
   m_Layer: 0
   m_Name: Main Camera
@@ -3669,14 +3802,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &1674650156
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1674650155}
-  m_Enabled: 1
 --- !u!20 &1674650157
 Camera:
   m_ObjectHideFlags: 0
@@ -4685,6 +4810,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 1674650158}
   - {fileID: 804644521}
+  - {fileID: 179114391}
+  - {fileID: 160311220}
   - {fileID: 683584812}
   - {fileID: 959004428}
   - {fileID: 353434099}

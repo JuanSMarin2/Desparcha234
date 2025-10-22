@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Tempo : MonoBehaviour
 {
+    public static Tempo instance;
     [Header("Tiempo fijo por dificultad (compatibilidad)")]
     [SerializeField, Tooltip("Media base (ya no se usa con tiempos fijos por jugador). Se mantiene por compatibilidad.")]
     private float mean = 50f;
@@ -62,6 +63,7 @@ public class Tempo : MonoBehaviour
         public int playerIndex;
         public float remainingSeconds;
         public float maxSeconds;
+        public float initialMaxSeconds; // tiempo original por dificultad
         public Slider slider;
         public GameObject go;
     }
@@ -123,6 +125,16 @@ public class Tempo : MonoBehaviour
 
     // RNG para Box-Muller
     private System.Random rng = new System.Random();
+
+    void Awake()
+    {
+        instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     void Start()
     {
@@ -527,6 +539,7 @@ public class Tempo : MonoBehaviour
             playerIndex = playerIndex,
             remainingSeconds = seconds,
             maxSeconds = seconds,
+            initialMaxSeconds = seconds,
             slider = slider,
             go = go
         };
@@ -571,6 +584,59 @@ public class Tempo : MonoBehaviour
             {
                 t.go.SetActive(t.playerIndex == activePlayerIndex);
             }
+        }
+    }
+
+    // ===== Ventana de cuarto final y bonus por aciertos =====
+    public bool IsInQuarterWindow(int playerIndex)
+    {
+        SetupTimersIfNeeded();
+        if (!timers.TryGetValue(playerIndex, out var t)) return false;
+        float threshold = t.initialMaxSeconds * 0.25f;
+        return t.remainingSeconds > 0f && t.remainingSeconds <= threshold;
+    }
+
+    // Conveniencia: aplicar bonus al jugador actual solo si está en la ventana del 1/4
+    public void TryBonusOnSuccess(float seconds, string source = null)
+    {
+        if (seconds <= 0f) return;
+        int currentPlayer = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (currentPlayer < 0) return;
+        if (IsInQuarterWindow(currentPlayer))
+        {
+            // Agregar solo al tiempo restante del slider actual, sin aumentar el máximo
+            AddRemainingOnlyForPlayer(currentPlayer, seconds);
+            if (timers.TryGetValue(currentPlayer, out var t))
+            {
+                Debug.Log($"[Tempo] Bonus +{seconds:0.###}s aplicado al Jugador {currentPlayer + 1} desde {source ?? "minijuego"}. Restante: {t.remainingSeconds:0.00}s / Max: {t.maxSeconds:0.00}s (umbral 1/4={t.initialMaxSeconds * 0.25f:0.00}s)");
+            }
+        }
+    }
+
+    // Sumar segundos solamente al tiempo restante del jugador, sin modificar el máximo del slider
+    public void AddRemainingOnlyForPlayer(int playerIndex, float seconds)
+    {
+        if (playerIndex < 0 || seconds <= 0f) return;
+        SetupTimersIfNeeded();
+        if (!timers.TryGetValue(playerIndex, out var t))
+        {
+            // Si no existe aún, créalo con los segundos iniciales
+            float init = GetInitialSecondsByDifficulty();
+            t = CreatePlayerTimer(playerIndex, init);
+            timers[playerIndex] = t;
+        }
+
+        t.remainingSeconds = Mathf.Min(t.maxSeconds, t.remainingSeconds + seconds);
+        if (t.slider != null)
+        {
+            t.slider.value = t.remainingSeconds;
+        }
+
+        int currentPlayer = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (currentPlayer == playerIndex)
+        {
+            // Sin tocar el límite; solo sincronizamos el restante
+            remaining = t.remainingSeconds;
         }
     }
 

@@ -95,6 +95,8 @@ public class CircleTarget : MonoBehaviour
         innerCircle.color = Color.green;
     // acierto: feedback visual verde ya aplicado
         active = false;
+        // Sonido de acierto
+        if (manager != null) manager.PlayResultSfx(true);
         manager.OnCircleResult(this, true);
     }
 
@@ -104,6 +106,8 @@ public class CircleTarget : MonoBehaviour
         innerCircle.color = Color.red;
     // fallo: feedback visual rojo ya aplicado
         active = false;
+        // Sonido de fallo
+        if (manager != null) manager.PlayResultSfx(false);
         manager.OnCircleResult(this, false);
     }
 

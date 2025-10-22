@@ -75,6 +75,16 @@ public class JProyectikes : MonoBehaviour
     [Tooltip("Duración del encogimiento al atrapar (segundos)")]
     public float catchShrinkDuration = 0.25f;
 
+    [Header("Sonidos")]
+    [SerializeField, Tooltip("Clave SFX cuando aparece un proyectil en el canvas (usar siempre prefijo 'Tingo:').")]
+    private string spawnSfxKey = "Tingo:ProyectilAparecer";
+    [SerializeField, Tooltip("Clave SFX cuando el jugador agarra un proyectil (usar siempre prefijo 'Tingo:').")]
+    private string grabSfxKey = "Tingo:ProyectilAgarrar";
+
+    [Header("Bonus de tiempo al acertar")]
+    [SerializeField, Tooltip("Segundos a otorgar por atrapar un proyectil durante el último 1/4 de tiempo.")]
+    private float successBonusSeconds = 0.5f;
+
     // Estructura interna para proyectiles activos
     private class Projectile
     {
@@ -271,10 +281,11 @@ public class JProyectikes : MonoBehaviour
         switch (players)
         {
             case 4:
-                minProjectiles = 5;
-                maxProjectiles = 5;
-                minSpeed = 260f;
-                maxSpeed = 400f;
+                // Invertido: usar la dificultad que antes era para 2 jugadores
+                minProjectiles = 20;
+                maxProjectiles = 20;
+                minSpeed = 320f;
+                maxSpeed = 450f;
                 break;
             case 3:
                 minProjectiles = 10;
@@ -283,10 +294,11 @@ public class JProyectikes : MonoBehaviour
                 maxSpeed = 400f;
                 break;
             case 2:
-                minProjectiles = 20;
-                maxProjectiles = 20;
-                minSpeed = 320f;
-                maxSpeed = 450f;
+                // Invertido: usar la dificultad que antes era para 4 jugadores
+                minProjectiles = 5;
+                maxProjectiles = 5;
+                minSpeed = 260f;
+                maxSpeed = 400f;
                 break;
             default:
                 // mantener valores del inspector como fallback
@@ -432,6 +444,9 @@ public class JProyectikes : MonoBehaviour
 
         active.Add(p);
         spawnedSoFar++;
+
+        // Sonido de aparición del proyectil (estilo JOrden/JReduce)
+        PlaySfx(spawnSfxKey);
         return true;
     }
 
@@ -471,6 +486,12 @@ public class JProyectikes : MonoBehaviour
         {
             if (active[i].go == go)
             {
+                // Sonido de agarrar proyectil
+                PlaySfx(grabSfxKey);
+
+                // Bonus de tiempo si estamos en el último cuarto del temporizador
+                if (Tempo.instance != null) Tempo.instance.TryBonusOnSuccess(successBonusSeconds, nameof(JProyectikes));
+
                 // Quitar del pool activo e incrementar contador antes de animar
                 active.RemoveAt(i);
                 caughtSoFar++;
@@ -500,6 +521,16 @@ public class JProyectikes : MonoBehaviour
                 StartCoroutine(AnimateCatchAndDestroy(go));
                 return;
             }
+        }
+    }
+
+    // Helper centralizado para reproducir SFX a través de SoundManager
+    private void PlaySfx(string key, float volume = 1f)
+    {
+        var sm = SoundManager.instance;
+        if (sm != null && !string.IsNullOrWhiteSpace(key))
+        {
+            sm.PlaySfx(key, volume);
         }
     }
 
