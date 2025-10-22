@@ -2,6 +2,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+// === NUEVO BLOQUE A AÑADIR ===
+using System.Collections;
 
 public class IconManager : MonoBehaviour
 {
@@ -23,6 +25,17 @@ public class IconManager : MonoBehaviour
     [Header("Escena de resultados finales")]
     [Tooltip("Si esta activo, todos se muestran tristes excepto el o los ganadores segun RoundData.totalPoints.")]
     [SerializeField] private bool isFinalResultsScene = false;
+
+
+    private void OnEnable()
+    {
+        GameManagerTejo.OnPapeletaDestruida += MostrarIconoTriste;
+    }
+
+    private void OnDisable()
+    {
+        GameManagerTejo.OnPapeletaDestruida -= MostrarIconoTriste;
+    }
 
     void Start()
     {
@@ -152,5 +165,34 @@ public class IconManager : MonoBehaviour
             if (totalPoints[i] == max) winners.Add(i);
 
         return winners;
+    }
+
+    // Este método se ejecutará automáticamente cuando se destruya una papeleta
+    private void MostrarIconoTriste(int jugadorIndex)
+    {
+        if (jugadorIndex < 0 || jugadorIndex >= players.Length) return;
+        StartCoroutine(MostrarIconoTristeTemporal(jugadorIndex, 2f)); // 2 segundos
+    }
+
+    // Corrutina para mostrar el ícono triste temporalmente
+    private IEnumerator MostrarIconoTristeTemporal(int jugadorIndex, float duracion)
+    {
+        var set = players[jugadorIndex];
+        if (set == null || set.icon == null) yield break;
+
+        int equipped = 0;
+        if (GameData.instance != null)
+            equipped = Mathf.Clamp(GameData.instance.GetEquipped(jugadorIndex), 0, 9999);
+
+        // Sprite actual y triste
+        Sprite spriteOriginal = set.icon.sprite;
+        if (set.sadSkinSprites != null && equipped < set.sadSkinSprites.Length)
+            set.icon.sprite = set.sadSkinSprites[equipped];
+
+        yield return new WaitForSeconds(duracion);
+
+        // Restaurar sprite original
+        if (spriteOriginal != null)
+            set.icon.sprite = spriteOriginal;
     }
 }

@@ -21,6 +21,9 @@ public class MoverIconoTejo : MonoBehaviour
     [Tooltip("Tiempo que permanece arriba antes de volver a su posición original")]
     public float holdTime = 0.25f;
 
+    [Header("Iconos tristes")]
+    public GameObject[] iconosTristes; // Solo se usa el registro, no posiciones manuales
+
     private Vector3[] originalPositions;
 
     void Awake()
@@ -36,7 +39,6 @@ public class MoverIconoTejo : MonoBehaviour
 
     void OnEnable()
     {
-        // Suscribir al evento que emite un índice (int) desde TutorialManagerTejo
         TutorialManagerTejo.OnPanelCerrado += OnPanelCerrado;
     }
 
@@ -45,16 +47,14 @@ public class MoverIconoTejo : MonoBehaviour
         TutorialManagerTejo.OnPanelCerrado -= OnPanelCerrado;
     }
 
-    // === EVENTO: Panel cerrado (recibe el índice del panel como hace TutorialManagerTejo) ===
     private void OnPanelCerrado(int panelID)
     {
         Debug.Log($"[MoverIconoTejo] Panel cerrado con ID {panelID}. Ejecutando animaciones...");
 
-        // Decide qué hacer según el panel cerrado (ajusta la lista según tu diseño)
         switch (panelID)
         {
-            // si el panel corresponde a "lanzamiento" o paneles que muestran el jugador actual:
-            case 8:  // multi joystick -> mostrar panel lanzamiento jugador 1
+            // paneles que muestran el jugador actual
+            case 8:
             case 9:
             case 10:
             case 11:
@@ -64,7 +64,7 @@ public class MoverIconoTejo : MonoBehaviour
                     break;
                 }
 
-            // si el panel corresponde a "papeleta"/otros que deberían mostrar los demás iconos:
+            // paneles que muestran los demás jugadores
             case 0:
             case 1:
             case 2:
@@ -80,11 +80,8 @@ public class MoverIconoTejo : MonoBehaviour
                 }
 
             default:
-                {
-                    // Por defecto: no hacer nada o mostrar restantes
-                    Debug.Log($"[MoverIconoTejo] Panel {panelID} no mapeado explícitamente. No se realiza acción.");
-                    break;
-                }
+                Debug.Log($"[MoverIconoTejo] Panel {panelID} no mapeado explícitamente. Sin acción.");
+                break;
         }
     }
 
@@ -163,5 +160,63 @@ public class MoverIconoTejo : MonoBehaviour
         }
 
         rt.localPosition = to;
+    }
+
+    // === NUEVO MÉTODO UNIFICADO: mostrar y mover ícono triste usando el mismo sistema ===
+    public void MostrarYMoverIconoTriste(int jugadorID)
+    {
+        if (iconosTristes == null || jugadorID < 0 || jugadorID >= iconosTristes.Length)
+        {
+            Debug.LogWarning($"[MoverIconoTejo] Índice inválido ({jugadorID}) o iconosTristes no configurados.");
+            return;
+        }
+
+        GameObject icono = iconosTristes[jugadorID];
+        if (icono == null)
+        {
+            Debug.LogWarning($"[MoverIconoTejo] El icono triste del jugador {jugadorID + 1} no está asignado.");
+            return;
+        }
+
+        // Activar el icono triste
+        icono.SetActive(true);
+
+        // Mover usando el mismo sistema de movimiento vertical
+        StartCoroutine(MoverIconoTriste(icono.transform, jugadorID));
+    }
+
+    private IEnumerator MoverIconoTriste(Transform icono, int jugadorID)
+    {
+        Vector3 startPos = icono.localPosition;
+        float direction = (jugadorID == 0 || jugadorID == 3) ? 1f : -1f;
+        Vector3 targetPos = startPos + Vector3.up * moveDistance * direction;
+
+        // Subir
+        yield return MoveBetweenTransform(icono, startPos, targetPos);
+        yield return new WaitForSecondsRealtime(holdTime);
+
+        // Bajar
+        yield return MoveBetweenTransform(icono, targetPos, startPos);
+
+        // Al final lo mantenemos activo (ya que puede permanecer triste)
+        // Si quieres que desaparezca luego, puedes activar la siguiente línea:
+        // icono.gameObject.SetActive(false);
+    }
+
+    private IEnumerator MoveBetweenTransform(Transform tr, Vector3 from, Vector3 to)
+    {
+        float duration = 1f / moveSpeed;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float smoothT = Mathf.SmoothStep(0f, 1f, t);
+            tr.localPosition = Vector3.Lerp(from, to, smoothT);
+            yield return null;
+        }
+
+        tr.localPosition = to;
     }
 }

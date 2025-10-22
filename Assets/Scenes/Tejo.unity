@@ -2950,7 +2950,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 991743340426723893, guid: 1db1722f532bbc6478e7712b5d8f7aa9, type: 3}
       propertyPath: numPlayers
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2401113022653695755, guid: 1db1722f532bbc6478e7712b5d8f7aa9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12669,8 +12669,13 @@ MonoBehaviour:
   - {fileID: 1450209058}
   - {fileID: 34591702}
   moveDistance: 160
-  moveSpeed: 1
-  holdTime: 0.25
+  moveSpeed: 2
+  holdTime: 1
+  iconosTristes:
+  - {fileID: 1868428345}
+  - {fileID: 1526275152}
+  - {fileID: 1450209055}
+  - {fileID: 34591699}
 --- !u!4 &1225390499
 Transform:
   m_ObjectHideFlags: 0

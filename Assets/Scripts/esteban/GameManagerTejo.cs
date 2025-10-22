@@ -1,6 +1,7 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class GameManagerTejo : MonoBehaviour
 {
@@ -26,6 +27,31 @@ public class GameManagerTejo : MonoBehaviour
     private int tirosRealizados = 0;
     private int cambiosDeTurno = 0;
     private bool esperandoCambioTurno = false;
+
+    //  NUEVO EVENTO GLOBAL: se dispara cuando un jugador pierde su papeleta
+    public static event Action<int> OnPapeletaDestruida;
+
+    // ... resto del código del GameManagerTejo ...
+
+    //  Método seguro para notificar (llamado desde Tejo)
+    public void NotificarPapeletaDestruida(int idJugador)
+    {
+        Debug.Log($"[GameManagerTejo] Papeleta del jugador {idJugador + 1} destruida — mostrando icono triste y notificando evento");
+
+        // Dispara el evento global (para que IconManager lo use)
+        OnPapeletaDestruida?.Invoke(idJugador);
+
+        // Mostrar y mover icono triste (para la parte visual)
+        MoverIconoTejo moverIconos = FindAnyObjectByType<MoverIconoTejo>();
+        if (moverIconos != null)
+        {
+            moverIconos.MostrarYMoverIconoTriste(idJugador);
+        }
+        else
+        {
+            Debug.LogWarning("No se encontró MoverIconoTejo en la escena para mostrar el icono triste.");
+        }
+    }
 
     private void Awake()
     {
@@ -106,6 +132,13 @@ public class GameManagerTejo : MonoBehaviour
         puntajes[jugadorID] -= puntos;
         if (puntajeTextos != null && jugadorID >= 0 && jugadorID < puntajeTextos.Length)
             puntajeTextos[jugadorID].text = $"{puntajes[jugadorID]}";
+    }
+
+    // === NUEVO: Llamar cuando una papeleta es destruida ===
+    public void PapeletaDestruidaPorJugador(int jugadorIndex)
+    {
+        Debug.Log($"[GameManagerTejo] Papeleta destruida del jugador {jugadorIndex}");
+        OnPapeletaDestruida?.Invoke(jugadorIndex);
     }
 
     public void DarPuntoAlMasCercano(Vector3[] posicionesTejos, Vector3 centro)
@@ -222,8 +255,8 @@ public class GameManagerTejo : MonoBehaviour
     public int ShotsRemaining() => Mathf.Max(0, maxTiros - tirosRealizados);
     public int MaxTiros => maxTiros;
 
-    
 
     
+
 
 }
