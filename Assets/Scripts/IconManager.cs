@@ -24,9 +24,30 @@ public class IconManager : MonoBehaviour
     [Tooltip("Si esta activo, todos se muestran tristes excepto el o los ganadores segun RoundData.totalPoints.")]
     [SerializeField] private bool isFinalResultsScene = false;
 
+    [Header("Modo especial")]
+    [InspectorName("ForeverTristin:(")]
+    [SerializeField] private bool foreverTristin = false;
+
+    // Estado interno para ForeverTristin
+    private float tristinElapsed = 0f;
+    private bool tristinSad = false; // false = felices, true = tristes
+
     void Start()
     {
         RefreshAllIcons();
+    }
+
+    void Update()
+    {
+        if (!foreverTristin) return;
+
+        tristinElapsed += Time.deltaTime;
+        bool nowSad = tristinElapsed >= 10f; // primeros 10s felices, luego tristes
+        if (nowSad != tristinSad)
+        {
+            tristinSad = nowSad;
+            RefreshAllIcons();
+        }
     }
 
     public void SetUseRoundResults(bool value)
@@ -59,10 +80,15 @@ public class IconManager : MonoBehaviour
         if (GameData.instance != null)
             equipped = Mathf.Clamp(GameData.instance.GetEquipped(playerIndex), 0, 9999);
 
-        bool showSad = false;
+    bool showSad = false;
 
         var rd = RoundData.instance;
 
+        // Modo especial: override de tristeza tras 10s
+        if (foreverTristin)
+        {
+            showSad = tristinSad;
+        }
         // Modo resultados finales: todos tristes menos el o los ganadores por totalPoints
         if (isFinalResultsScene && rd != null && rd.totalPoints != null && rd.totalPoints.Length > 0)
         {
@@ -74,7 +100,7 @@ public class IconManager : MonoBehaviour
                 showSad = false; // sin datos consistentes, no marcar triste
         }
         // Modo ronda actual: ultimo lugar por currentPoints
-        else if (useRoundResultsForSad &&
+        else if (!foreverTristin && useRoundResultsForSad &&
                  rd != null &&
                  rd.currentPoints != null &&
                  rd.currentPoints.Length > playerIndex)
@@ -82,7 +108,7 @@ public class IconManager : MonoBehaviour
             int numPlayers = Mathf.Clamp(rd.numPlayers, 1, rd.currentPoints.Length);
             showSad = IsLastPlace(playerIndex, rd.currentPoints, numPlayers);
         }
-        else
+        else if (!foreverTristin && !isFinalResultsScene)
         {
             showSad = false;
         }
