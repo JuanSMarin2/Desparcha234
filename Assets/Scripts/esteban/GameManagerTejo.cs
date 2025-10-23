@@ -1,59 +1,83 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections; // <- importante para usar coroutines
+using System.Collections;
 
 public class GameManagerTejo : MonoBehaviour
 {
     public static GameManagerTejo instance;
 
     [Header("Puntajes")]
-    public int[] puntajes = new int[4]; // 4 jugadores
+    public int[] puntajes = new int[4];
     public int puntajeMaximo = 21;
 
     [Header("UI Puntajes")]
-    public Text[] puntajeTextos; // Arrastra 4 Text de UI en el inspector
+    public Text[] puntajeTextos;
 
     [Header("Ronda / Turnos")]
-    [SerializeField] private int maxTiros = 3;          // editable desde inspector
-    [SerializeField] private float delayCambioTurno = 2f; // configurable
-    [SerializeField] private float delayMoverCentro = 2f; // configurable para que no se mueva de inmediato
+    [SerializeField] private int maxTiros = 3;
+    [SerializeField] private float delayCambioTurno = 2f;
+    [SerializeField] private float delayMoverCentro = 2f;
 
     [Header("Control de Input")]
-    [SerializeField] private GameObject blocker; // Asigna aquí el objeto bloqueador desde el inspector
+    [SerializeField] private GameObject blocker;
+
+    
 
     private int tirosRealizados = 0;
-    private int cambiosDeTurno = 0;   // cuenta cuántas veces se llamó NextTurn
+    private int cambiosDeTurno = 0;
     private bool esperandoCambioTurno = false;
 
     private void Awake()
     {
         if (instance == null) instance = this;
-    }
+    }   
 
     void Start()
     {
-        // Buscar una instancia de TutorialManagerTejo en la escena antes de llamar a MostrarPanel
+        
+
         TutorialManagerTejo tutorialManager = FindObjectOfType<TutorialManagerTejo>();
         if (tutorialManager != null)
         {
             int numJugador = TurnManager.instance.CurrentTurn();
-            switch
-                (numJugador)
+            int numPlayers = (RoundData.instance != null) ? RoundData.instance.numPlayers : 0;
+
+            switch (numJugador)
             {
                 case 1:
-                    tutorialManager.MostrarPanel(4);
+                    switch (numPlayers)
+                    {
+                        case 2: tutorialManager.MostrarPanel(12); break;
+                        case 3: tutorialManager.MostrarPanel(1); break;
+                        case 4: tutorialManager.MostrarPanel(4); break;
+                        default: Debug.LogError("Número de jugadores no válido: " + numPlayers); break;
+                    }
                     break;
+
                 case 2:
-                    tutorialManager.MostrarPanel(5);
+                    switch (numPlayers)
+                    {
+                        case 2: tutorialManager.MostrarPanel(0); break;
+                        case 3: tutorialManager.MostrarPanel(2); break;
+                        case 4: tutorialManager.MostrarPanel(5); break;
+                        default: Debug.LogError("Número de jugadores no válido: " + numPlayers); break;
+                    }
                     break;
+
                 case 3:
-                    tutorialManager.MostrarPanel(6);
+                    switch (numPlayers)
+                    {
+                        case 3: tutorialManager.MostrarPanel(3); break;
+                        case 4: tutorialManager.MostrarPanel(6); break;
+                        default: Debug.LogError("Número de jugadores no válido: " + numPlayers); break;
+                    }
                     break;
+
                 case 4:
-                    tutorialManager.MostrarPanel(7);
+                    if (numPlayers == 4) tutorialManager.MostrarPanel(7);
+                    else Debug.LogError("Número de jugadores no válido: " + numPlayers);
                     break;
             }
-
         }
         else
         {
@@ -65,20 +89,15 @@ public class GameManagerTejo : MonoBehaviour
     {
         Debug.Log($"Jugador {jugadorID} gana {puntos} puntos");
         puntajes[jugadorID] += puntos;
+
         if (puntajeTextos != null && jugadorID >= 0 && jugadorID < puntajeTextos.Length)
             puntajeTextos[jugadorID].text = $"{puntajes[jugadorID]}";
 
-        // Victoria inmediata por puntaje máximo
         if (puntajes[jugadorID] >= puntajeMaximo)
         {
             GameRoundManager.instance.PlayerWin(jugadorID);
-
-            // Los demás pierden
             for (int i = 0; i < puntajes.Length; i++)
-            {
-                if (i != jugadorID)
-                    GameRoundManager.instance.PlayerLose(i);
-            }
+                if (i != jugadorID) GameRoundManager.instance.PlayerLose(i);
         }
     }
 
@@ -89,7 +108,6 @@ public class GameManagerTejo : MonoBehaviour
             puntajeTextos[jugadorID].text = $"{puntajes[jugadorID]}";
     }
 
-    // Caso especial: cuando nadie cae en centro ni toca papeletas
     public void DarPuntoAlMasCercano(Vector3[] posicionesTejos, Vector3 centro)
     {
         float distanciaMin = float.MaxValue;
@@ -106,9 +124,7 @@ public class GameManagerTejo : MonoBehaviour
         }
 
         if (jugadorCercano >= 0)
-        {
             SumarPuntos(jugadorCercano, 1);
-        }
     }
 
     public void AvisarCambioTurno()
@@ -117,17 +133,12 @@ public class GameManagerTejo : MonoBehaviour
         Debug.Log($"Cambio de turno #{cambiosDeTurno}");
 
         int numPlayers = (RoundData.instance != null) ? RoundData.instance.numPlayers : puntajes.Length;
-
-        // cuando se completan 'numPlayers' ciclos se define ganador
         if (cambiosDeTurno >= numPlayers)
-        {
             DefinirGanadorPorMayorPuntaje();
-        }
     }
 
     private void DefinirGanadorPorMayorPuntaje()
     {
-        // Convertir puntajes (int[]) a long[] para el método
         long[] scores = new long[puntajes.Length];
         for (int i = 0; i < puntajes.Length; i++)
             scores[i] = puntajes[i];
@@ -136,42 +147,26 @@ public class GameManagerTejo : MonoBehaviour
         GameRoundManager.instance.FinalizeRoundFromScores(scores);
     }
 
-    // Llamado cada vez que se instancia un tejo (desde JoystickControl)
     public void RegistrarTejoLanzado()
     {
         tirosRealizados++;
-
-        // Notificar UI (si existe el JoystickControl principal)
         var jc = FindObjectOfType<JoystickControl>();
-        if (jc != null)
-            jc.RefreshTirosPanel();
+        if (jc != null) jc.RefreshTirosPanel();
 
         if (tirosRealizados >= maxTiros)
         {
-            // Bloqueamos los joysticks activando el Blocker
             if (blocker != null) blocker.SetActive(true);
-
-            // Marcamos que el próximo TejoTermino debe cambiar el turno
             esperandoCambioTurno = true;
         }
     }
 
-    // Compatibilidad si ya lo llamabas en otro flujo
-    public void UltimoTejoLanzado()
-    {
-        esperandoCambioTurno = true;
-    }
+    public void UltimoTejoLanzado() => esperandoCambioTurno = true;
 
-    // Llamado desde Tejo cuando su Rigidbody2D prácticamente se detuvo
     public void TejoTermino(Tejo tejo)
     {
-        //  mover centro pero con un delay para que no se teletransporte de inmediato
         StartCoroutine(MoverCentroConDelay(delayMoverCentro));
 
-        // si todavía no se cumplió el máximo de tiros, no hacemos nada más
         if (!esperandoCambioTurno) return;
-
-        // si ya era el último tiro, iniciamos el cambio de turno con delay
         StartCoroutine(CambiarTurnoDespuesDeRetraso(delayCambioTurno));
         esperandoCambioTurno = false;
     }
@@ -179,29 +174,24 @@ public class GameManagerTejo : MonoBehaviour
     private IEnumerator MoverCentroConDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-
-        CentroController centro = FindObjectOfType<CentroController>();
-        if (centro != null)
-            centro.MoverCentro();
+        var centro = FindObjectOfType<CentroController>();
+        if (centro != null) centro.MoverCentro();
     }
 
     private IEnumerator CambiarTurnoDespuesDeRetraso(float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        // Avanzar turno
         if (TurnManager.instance != null)
             TurnManager.instance.NextTurn();
 
         AvisarCambioTurno();
 
-        // Preparar siguiente ronda (activa joysticks pequeños, limpia tejos, etc.)
-        MultiJoystickControl multi = FindObjectOfType<MultiJoystickControl>();
+        var multi = FindObjectOfType<MultiJoystickControl>();
         if (multi != null)
             multi.PrepareForNextRound();
 
-        // Rehabilitar y mover el Centro al comienzo de la nueva ronda
-        CentroController centro = FindObjectOfType<CentroController>();
+        var centro = FindObjectOfType<CentroController>();
         if (centro != null)
         {
             var sr = centro.GetComponent<SpriteRenderer>();
@@ -213,19 +203,27 @@ public class GameManagerTejo : MonoBehaviour
             centro.MoverCentro();
         }
 
-        // Reset para la siguiente ronda
         tirosRealizados = 0;
 
-        //  Desbloquear joysticks al iniciar turno
         if (blocker != null) blocker.SetActive(false);
+
+        
+        
+
+        var tutorial = FindObjectOfType<TutorialManagerTejo>();
+        if (tutorial != null && TurnManager.instance != null)
+        {
+            int jugador = TurnManager.instance.CurrentTurn();
+            int numPlayers = (RoundData.instance != null) ? RoundData.instance.numPlayers : 0;
+            tutorial.MostrarPanelPorJugador(jugador, numPlayers);
+        }
     }
 
-    // Método público para que otros scripts puedan consultar cuántos tiros quedan
-    public int ShotsRemaining()
-    {
-        return Mathf.Max(0, maxTiros - tirosRealizados);
-    }
-
-    // (Opcional) Exponer maxTiros si hace falta
+    public int ShotsRemaining() => Mathf.Max(0, maxTiros - tirosRealizados);
     public int MaxTiros => maxTiros;
+
+    
+
+    
+
 }
