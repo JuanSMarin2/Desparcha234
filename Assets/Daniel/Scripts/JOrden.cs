@@ -22,6 +22,12 @@ public class JOrden: MonoBehaviour
 
     private readonly List<ButtonClickRelay> buttons = new();
     private int nextExpected = 1;
+
+    [Header("Sonidos")]
+    [SerializeField, Tooltip("Clave SFX para clic correcto (usar siempre prefijo 'Tingo:'). Por defecto 'Tingo:Orden'.")]
+    private string correctSfxKey = "Tingo:Orden";
+    [SerializeField, Tooltip("Clave SFX para clic incorrecto (usar siempre prefijo 'Tingo:'). Por defecto 'Tingo:Equivocarse'.")]
+    private string wrongSfxKey = "Tingo:Equivocarse";
     [Header("Animación de guía")]
     [SerializeField, Tooltip("Activar pulso lento en el botón esperado.")]
     private bool pulseExpected = true;
@@ -34,6 +40,10 @@ public class JOrden: MonoBehaviour
     private float pulsePhase = 0f;
     [Header("Events")]
     public UnityEvent onGameFinished;
+
+    [Header("Bonus de tiempo al acertar")]
+    [SerializeField, Tooltip("Segundos a otorgar por acierto durante el último 1/4 de tiempo.")]
+    private float successBonusSeconds = 0.5f;
 
     // ====== API pública para iniciar el minijuego ======
     [ContextMenu("PlayMiniGamen")]
@@ -163,6 +173,9 @@ public class JOrden: MonoBehaviour
     {
         if (pressed.orderIndex == nextExpected)
         {
+            // Bonus de tiempo si estamos en la ventana del 1/4 del temporizador
+            if (Tempo.instance != null) Tempo.instance.TryBonusOnSuccess(successBonusSeconds, nameof(JOrden));
+
             nextExpected++;
             if (nextExpected > buttonCount)
             {
@@ -205,11 +218,13 @@ public class JOrden: MonoBehaviour
         switch (players)
         {
             case 4:
-                buttonCount = 4; break;
+                // Invertido: usar la dificultad que antes era para 2 jugadores
+                buttonCount = 7; break;
             case 3:
                 buttonCount = 5; break;
             case 2:
-                buttonCount = 7; break;
+                // Invertido: usar la dificultad que antes era para 4 jugadores
+                buttonCount = 4; break;
             default:
                 // fallback razonable
                 buttonCount = Mathf.Clamp(buttonCount, 1, 10);
@@ -244,6 +259,17 @@ public class JOrden: MonoBehaviour
         float s = Mathf.Lerp(pulseScaleMin, pulseScaleMax, (Mathf.Sin(pulsePhase) + 1f) * 0.5f);
         rt.localScale = new Vector3(s, s, 1f);
     }
+
+    // --- Utilidades para sonido desde el Relay (replicando patrón de JReduce) ---
+    public bool IsCorrect(ButtonClickRelay pressed) => pressed != null && pressed.orderIndex == nextExpected;
+
+    public void PlayClickSfx(ButtonClickRelay pressed)
+    {
+        var sm = SoundManager.instance;
+        if (sm == null || pressed == null) return;
+        string key = IsCorrect(pressed) ? correctSfxKey : wrongSfxKey;
+        if (!string.IsNullOrWhiteSpace(key)) sm.PlaySfx(key);
+    }
 }
 
 
@@ -257,6 +283,9 @@ public class ButtonClickRelay : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        // Reproducir sonido en el clic como en JReduce (antes de desactivar)
+        manager?.PlayClickSfx(this);
+
         gameObject.SetActive(false);
         manager?.HandleButtonPressed(this);
     }

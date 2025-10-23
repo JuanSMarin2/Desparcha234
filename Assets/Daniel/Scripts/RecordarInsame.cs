@@ -13,9 +13,16 @@ public class RecordarInsame : MonoBehaviour
     [Tooltip("Si es true, el controlador no llamará a NextTurn al terminar este minijuego.")]
     public bool skipNextTurnOnFinish = false;
 
+    [Header("Bonus de tiempo al acertar")]
+    [SerializeField, Tooltip("Segundos a otorgar por acierto durante el último 1/4 de tiempo.")]
+    private float successBonusSeconds = 0.5f;
+
     [Header("Contenedores de matrices")]
     [SerializeField, Tooltip("Matriz que reproduce el patrón (solo visual)")] private RectTransform patternGridParent;
     [SerializeField, Tooltip("Matriz para la entrada del jugador (clics)")] private RectTransform inputGridParent;
+    [SerializeField, Tooltip("Si se true, usaremos un único grid para mostrar el patrón y permitir la entrada del jugador. Si está activo, asigne 'singleGridParent'.")]
+    private bool useSingleGrid = true;
+    [SerializeField, Tooltip("Padre único para el grid cuando useSingleGrid = true")] private RectTransform singleGridParent;
 
     [Header("Prefabs por color (apagado/encendido)")]
     [SerializeField, Tooltip("Prefabs APAGADO por color (indexa colores)")] private GameObject[] offPrefabsByColor;
@@ -51,6 +58,15 @@ public class RecordarInsame : MonoBehaviour
     private Color errorColor = new Color(0.925f, 0.286f, 0.286f);
     [SerializeField, Tooltip("Duración del destello de error en segundos")]
     private float errorFlashSeconds = 1.0f;
+
+    [Header("Sonidos")]
+    [SerializeField, Tooltip("Prefijo fijo para las teclas. Debe ser 'Tingo:' según convención.")]
+    private string notePrefix = "Tingo:";
+    [SerializeField, Tooltip("Si es true, también suena la nota cuando el jugador presiona la celda.")]
+    private bool playNoteOnPlayerPress = true;
+    [Header("Final visual")]
+    [SerializeField, Tooltip("Duración del parpadeo cuando suenan todas las notas al final.")]
+    private float finalChordVisualTime = 0.5f;
 
     // Estado de grid y patrón
     private List<Cell> patternCells = new();
@@ -122,23 +138,77 @@ public class RecordarInsame : MonoBehaviour
 
     private void BuildGridsByDifficulty()
     {
-        CleanupGrids();
-        int players = Dificultad.GetActivePlayersCount();
-        int rows = 1, cols = 3; // default 4 jugadores
-        if (players == 3) { rows = 2; cols = 3; }
-        else if (players == 2) { rows = 3; cols = 3; }
+    CleanupGrids();
+    int players = Dificultad.GetActivePlayersCount();
+    int rows = 1, cols = 3; // base
+    // Invertir 4 <-> 2; 3 queda igual (neutral)
+    if (players == 4) { rows = 3; cols = 3; }
+    else if (players == 3) { rows = 2; cols = 3; }
+    else if (players == 2) { rows = 1; cols = 3; }
 
         // Construir celdas
-        patternCells = BuildGrid(patternGridParent, rows, cols, interactive: false);
-        inputCells = BuildGrid(inputGridParent, rows, cols, interactive: true);
+        if (useSingleGrid && singleGridParent != null)
+        {
+            // Crear un único grid interactivo que primero se usará para mostrar el patrón (interacción deshabilitada durante la reproducción)
+            var single = BuildGrid(singleGridParent, rows, cols, interactive: true);
+            patternCells = single;
+            inputCells = single;
+        }
+        else
+        {
+            patternCells = BuildGrid(patternGridParent, rows, cols, interactive: false);
+            inputCells = BuildGrid(inputGridParent, rows, cols, interactive: true);
+        }
 
         // Generar patrón (longitud basada en jugadores)
-        int patternLen = players >= 4 ? 3 : (players == 3 ? 4 : 5);
-        patternLen = Mathf.Clamp(patternLen, 1, rows * cols);
+        // Reglas:
+        // 1) No más de 3 apariciones totales por nota (distribución)
+        // 2) No más de 2 repeticiones consecutivas de la misma nota (evitar triples seguidos)
+    // Invertir longitud: lo que era de 4 ahora aplica a 2, y viceversa; 3 se mantiene
+    int patternLen = players >= 4 ? 5 : (players == 3 ? 4 : 3);
+        patternLen = Mathf.Clamp(patternLen, 1, rows * cols * 3); // límite teórico considerando 3 repeticiones por celda
         pattern.Clear();
+
+        int totalCells = rows * cols;
+        const int maxPerNote = 3;
+        var counts = new Dictionary<int, int>(totalCells);
+
         for (int i = 0; i < patternLen; i++)
         {
-            pattern.Add(Random.Range(0, rows * cols));
+            int attempts = 0;
+            int candidate = 0;
+            bool found = false;
+            while (attempts < 100)
+            {
+                candidate = Random.Range(0, totalCells);
+                int cnt = counts.ContainsKey(candidate) ? counts[candidate] : 0;
+                bool makesTriple = (i >= 2 && pattern[i - 1] == candidate && pattern[i - 2] == candidate);
+                if (cnt < maxPerNote && !makesTriple)
+                {
+                    found = true;
+                    break;
+                }
+                attempts++;
+            }
+            if (!found)
+            {
+                // Fallback: elegir la celda menos utilizada hasta ahora
+                int bestIdx = 0;
+                int bestCount = int.MaxValue;
+                for (int c = 0; c < totalCells; c++)
+                {
+                    int cnt = counts.ContainsKey(c) ? counts[c] : 0;
+                    bool makesTriple = (i >= 2 && pattern[i - 1] == c && pattern[i - 2] == c);
+                    if (cnt < bestCount && cnt < maxPerNote && !makesTriple)
+                    {
+                        bestCount = cnt;
+                        bestIdx = c;
+                    }
+                }
+                candidate = bestIdx;
+            }
+            pattern.Add(candidate);
+            counts[candidate] = (counts.ContainsKey(candidate) ? counts[candidate] : 0) + 1;
         }
 
         inputProgress = 0;
@@ -149,7 +219,7 @@ public class RecordarInsame : MonoBehaviour
         var list = new List<Cell>();
         if (parent == null)
         {
-            Debug.LogError("RecordarInsame: asigna los Contenedores de matrices (patternGridParent e inputGridParent).");
+            Debug.LogError("RecordarInsame: asigna los Contenedores de matrices (patternGridParent e inputGridParent) o singleGridParent si useSingleGrid está activo.");
             return list;
         }
 
@@ -308,6 +378,8 @@ public class RecordarInsame : MonoBehaviour
         for (int i = 0; i < pattern.Count; i++)
         {
             int idx = pattern[i];
+            // Reproducir la nota asociada a esta celda del patrón
+            PlayNoteForCellIndex(idx);
             yield return StartCoroutine(BlinkCell(patternCells, idx, stepOnTime));
             yield return new WaitForSeconds(stepPauseTime);
         }
@@ -345,17 +417,22 @@ public class RecordarInsame : MonoBehaviour
     {
         if (!running || stopping || isShowing) return;
 
+        // Tocar la nota asociada a la celda presionada (si está habilitado)
+        if (playNoteOnPlayerPress) PlayNoteForCellIndex(index);
+
         // Verificar contra el patrón
         if (index == pattern[inputProgress])
         {
             // Éxito: pequeño blink en la celda tocada
             StartCoroutine(BlinkCell(inputCells, index, Mathf.Min(0.2f, stepOnTime * 0.5f)));
+            // Bonus de tiempo si estamos en el último cuarto del temporizador
+            if (Tempo.instance != null) Tempo.instance.TryBonusOnSuccess(successBonusSeconds, nameof(RecordarInsame));
             inputProgress++;
             if (inputProgress >= pattern.Count)
             {
                 // Éxito
                 running = false;
-                StartCoroutine(FinishAfterDelay(0.25f));
+                StartCoroutine(FinishAfterPatternSequence());
             }
         }
         else
@@ -430,10 +507,31 @@ public class RecordarInsame : MonoBehaviour
         onGameFinished?.Invoke();
     }
 
+    // Secuencia final: esperar 0.5s, tocar todas las notas, esperar 0.5s y luego finalizar
+    private IEnumerator FinishAfterPatternSequence()
+    {
+        // Pausa breve para que se "sienta" el cierre del patrón
+        yield return new WaitForSeconds(0.5f);
+        // Tocar acorde con todas las teclas previas
+        PlayAllNotesSimultaneously();
+        // Dejar que se vea/escuche el acorde
+        yield return new WaitForSeconds(0.5f);
+        CleanupGrids();
+        onGameFinished?.Invoke();
+    }
+
     private void CleanupGrids()
     {
-        CleanupChildren(patternGridParent);
-        CleanupChildren(inputGridParent);
+        // Si usamos un único padre, evitar limpiar dos veces
+        if (useSingleGrid && singleGridParent != null)
+        {
+            CleanupChildren(singleGridParent);
+        }
+        else
+        {
+            CleanupChildren(patternGridParent);
+            CleanupChildren(inputGridParent);
+        }
         patternCells.Clear();
         inputCells.Clear();
     }
@@ -461,6 +559,39 @@ public class RecordarInsame : MonoBehaviour
             var c = inputCells[i];
             if (c.onGO != null) c.onGO.SetActive(false);
             if (c.offGO != null) c.offGO.SetActive(true);
+        }
+    }
+
+    // ===================== Sonido de notas =====================
+    private void PlayNoteForCellIndex(int cellIndex)
+    {
+        if (cellIndex < 0) return;
+        int noteNumber = cellIndex + 1; // Mapear celda 0->1, 1->2, ...
+        string key = string.Concat(notePrefix, noteNumber.ToString()); // "Tingo:1", "Tingo:2", ...
+        var sm = SoundManager.instance;
+        if (sm != null) sm.PlaySfx(key);
+    }
+
+    private void PlayAllNotesSimultaneously()
+    {
+        var sm = SoundManager.instance;
+        if (sm == null || pattern == null || pattern.Count == 0) return;
+        // Tocar cada nota única del patrón a la vez
+        var seen = new HashSet<int>();
+        for (int i = 0; i < pattern.Count; i++)
+        {
+            int idx = pattern[i];
+            if (!seen.Add(idx)) continue; // evitar duplicados
+            int noteNumber = idx + 1;
+            string key = string.Concat(notePrefix, noteNumber.ToString());
+            sm.PlaySfx(key);
+            // Activación visual simultánea: si ambos grids son la misma lista, solo ejecutar una vez
+            bool same = ReferenceEquals(patternCells, inputCells);
+            StartCoroutine(BlinkCell(patternCells, idx, finalChordVisualTime));
+            if (!same)
+            {
+                StartCoroutine(BlinkCell(inputCells, idx, finalChordVisualTime));
+            }
         }
     }
 }

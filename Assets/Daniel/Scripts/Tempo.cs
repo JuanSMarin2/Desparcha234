@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Tempo : MonoBehaviour
 {
+    public static Tempo instance;
     [Header("Tiempo fijo por dificultad (compatibilidad)")]
     [SerializeField, Tooltip("Media base (ya no se usa con tiempos fijos por jugador). Se mantiene por compatibilidad.")]
     private float mean = 50f;
@@ -38,7 +39,7 @@ public class Tempo : MonoBehaviour
 
     // Estado interno
     private float limit;
-    // Tiempo restante (countdown). Se inicializa a `limit` en StartTimer y decrementa cada frame
+    // Tiempo restante (countdown). Se inicializa a limit en StartTimer y decrementa cada frame
     private float remaining;
     private bool running = false;
     private bool finishing = false; // evitando doble finalización
@@ -62,6 +63,7 @@ public class Tempo : MonoBehaviour
         public int playerIndex;
         public float remainingSeconds;
         public float maxSeconds;
+        public float initialMaxSeconds; // tiempo original por dificultad
         public Slider slider;
         public GameObject go;
     }
@@ -121,8 +123,28 @@ public class Tempo : MonoBehaviour
     [SerializeField, TextArea, Tooltip("Lista de frases de lástima; se elegirá una aleatoriamente cuando sea '¡¡Tango!!'.")]
     private string[] pityPhrases;
 
+    [Header("Sonidos del temporizador")]
+    [SerializeField, Tooltip("Clave SFX para el tic del cronómetro mientras corre (usar prefijo 'Tingo:').")]
+    private string timerTickSfxKey = "Tingo:TimerTick";
+    [SerializeField, Tooltip("Intervalo entre tics del cronómetro en segundos.")]
+    private float timerTickInterval = 1.0f;
+    [SerializeField, Tooltip("Volumen del tic del cronómetro (0..1)")]
+    [Range(0f,1f)] private float timerTickVolume = 1f;
+    [SerializeField, Tooltip("Clave SFX para reproducir cuando se muestra la pantalla de eliminación (Tango).")]
+    private string eliminationSfxKey = "Tingo:TANGO";
+
     // RNG para Box-Muller
     private System.Random rng = new System.Random();
+
+    void Awake()
+    {
+        instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
 
     void Start()
     {
@@ -238,6 +260,8 @@ public class Tempo : MonoBehaviour
             {
                 running = false;
                 finishing = true;
+                // Detener el tic del cronómetro al entrar en 'Tango'
+                StopTickLoop();
                 // Mostrar "¡¡Tango!!" inmediatamente
                 SetText(tangoText);
                 // Restaurar escala del texto para 'Tango'
@@ -297,12 +321,15 @@ public class Tempo : MonoBehaviour
         ResetTextScale();
         UpdateText();
         ResetTextColor();
+        // Iniciar bucle de tics de cronómetro
+        StartTickLoop();
     }
 
     public void StopTimer()
     {
         running = false;
         finishing = false;
+        StopTickLoop();
         EndHoldState();
         nextLogMilestone = -1;
         ResetTextScale();
@@ -441,6 +468,12 @@ public class Tempo : MonoBehaviour
             eliminationPanel.SetActive(true);
         }
 
+        // Sonido al mostrar la pantalla de eliminación (Tango)
+        if (!string.IsNullOrWhiteSpace(eliminationSfxKey) && SoundManager.instance != null)
+        {
+            SoundManager.instance.PlaySfx(eliminationSfxKey);
+        }
+
         // Encabezado con número de jugador (1-based)
         if (eliminationHeaderText != null)
         {
@@ -466,6 +499,31 @@ public class Tempo : MonoBehaviour
             int idx = rng.Next(0, pityPhrases.Length);
             eliminationPhraseText.text = pityPhrases[idx];
         }
+    }
+
+    // ===== Sonidos: tic del cronómetro =====
+    private void StartTickLoop()
+    {
+        if (string.IsNullOrWhiteSpace(timerTickSfxKey)) return;
+        // Evitar múltiples invocaciones
+        CancelInvoke(nameof(PlayTimerTickSfx));
+        float interval = Mathf.Max(0.05f, timerTickInterval);
+        // Ejecutar un primer tic inmediato para feedback, luego repetir
+        PlayTimerTickSfx();
+        InvokeRepeating(nameof(PlayTimerTickSfx), interval, interval);
+    }
+
+    private void StopTickLoop()
+    {
+        CancelInvoke(nameof(PlayTimerTickSfx));
+    }
+
+    private void PlayTimerTickSfx()
+    {
+        var sm = SoundManager.instance;
+        if (sm == null) return;
+        if (string.IsNullOrWhiteSpace(timerTickSfxKey)) return;
+        sm.PlaySfx(timerTickSfxKey, Mathf.Clamp01(timerTickVolume));
     }
 
     // ========= Timers por jugador =========
@@ -527,6 +585,7 @@ public class Tempo : MonoBehaviour
             playerIndex = playerIndex,
             remainingSeconds = seconds,
             maxSeconds = seconds,
+            initialMaxSeconds = seconds,
             slider = slider,
             go = go
         };
@@ -571,6 +630,59 @@ public class Tempo : MonoBehaviour
             {
                 t.go.SetActive(t.playerIndex == activePlayerIndex);
             }
+        }
+    }
+
+    // ===== Ventana de cuarto final y bonus por aciertos =====
+    public bool IsInQuarterWindow(int playerIndex)
+    {
+        SetupTimersIfNeeded();
+        if (!timers.TryGetValue(playerIndex, out var t)) return false;
+        float threshold = t.initialMaxSeconds * 0.25f;
+        return t.remainingSeconds > 0f && t.remainingSeconds <= threshold;
+    }
+
+    // Conveniencia: aplicar bonus al jugador actual solo si está en la ventana del 1/4
+    public void TryBonusOnSuccess(float seconds, string source = null)
+    {
+        if (seconds <= 0f) return;
+        int currentPlayer = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (currentPlayer < 0) return;
+        if (IsInQuarterWindow(currentPlayer))
+        {
+            // Agregar solo al tiempo restante del slider actual, sin aumentar el máximo
+            AddRemainingOnlyForPlayer(currentPlayer, seconds);
+            if (timers.TryGetValue(currentPlayer, out var t))
+            {
+                Debug.Log($"[Tempo] Bonus +{seconds:0.###}s aplicado al Jugador {currentPlayer + 1} desde {source ?? "minijuego"}. Restante: {t.remainingSeconds:0.00}s / Max: {t.maxSeconds:0.00}s (umbral 1/4={t.initialMaxSeconds * 0.25f:0.00}s)");
+            }
+        }
+    }
+
+    // Sumar segundos solamente al tiempo restante del jugador, sin modificar el máximo del slider
+    public void AddRemainingOnlyForPlayer(int playerIndex, float seconds)
+    {
+        if (playerIndex < 0 || seconds <= 0f) return;
+        SetupTimersIfNeeded();
+        if (!timers.TryGetValue(playerIndex, out var t))
+        {
+            // Si no existe aún, créalo con los segundos iniciales
+            float init = GetInitialSecondsByDifficulty();
+            t = CreatePlayerTimer(playerIndex, init);
+            timers[playerIndex] = t;
+        }
+
+        t.remainingSeconds = Mathf.Min(t.maxSeconds, t.remainingSeconds + seconds);
+        if (t.slider != null)
+        {
+            t.slider.value = t.remainingSeconds;
+        }
+
+        int currentPlayer = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        if (currentPlayer == playerIndex)
+        {
+            // Sin tocar el límite; solo sincronizamos el restante
+            remaining = t.remainingSeconds;
         }
     }
 

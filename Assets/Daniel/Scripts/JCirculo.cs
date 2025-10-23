@@ -40,6 +40,16 @@ public class CircleGameManagerUI : MonoBehaviour
     [Tooltip("Tiempo de espera antes de limpiar al completar todos correctamente, para que se vea el verde.")]
     [SerializeField] private float successCleanupDelay = 0.5f;
 
+    [Header("Sonidos")]
+    [SerializeField, Tooltip("Clave SFX para acierto (usar siempre prefijo 'Tingo:'). Por defecto 'Tingo:Circulo'.")]
+    private string correctSfxKey = "Tingo:Circulo";
+    [SerializeField, Tooltip("Clave SFX para error (usar siempre prefijo 'Tingo:'). Por defecto 'Tingo:Equivocarse'.")]
+    private string wrongSfxKey = "Tingo:Equivocarse";
+
+    [Header("Bonus de tiempo al acertar")]
+    [SerializeField, Tooltip("Segundos a otorgar por acierto durante el último 1/4 de tiempo.")]
+    private float successBonusSeconds = 0.5f;
+
     // API pública unificada para iniciar el minijuego
     [ContextMenu("PlayMiniGamen")]
     public void PlayMiniGamen()
@@ -94,6 +104,15 @@ public class CircleGameManagerUI : MonoBehaviour
         SpawnCircles();
         ActivateNextCircle();
         gameActive = true;
+    }
+
+    // Reproduce el SFX según resultado (replicando patrón de JOrden)
+    public void PlayResultSfx(bool success)
+    {
+        var sm = SoundManager.instance;
+        if (sm == null) return;
+        string key = success ? correctSfxKey : wrongSfxKey;
+        if (!string.IsNullOrWhiteSpace(key)) sm.PlaySfx(key);
     }
 
     void SpawnCircles()
@@ -160,6 +179,8 @@ public class CircleGameManagerUI : MonoBehaviour
         // Siempre reproducir la animación de acierto cuando corresponda (incluye último círculo o reintentos)
         if (success && circle != null)
         {
+            // Bonus de tiempo en el último cuarto del temporizador
+            if (Tempo.instance != null) Tempo.instance.TryBonusOnSuccess(successBonusSeconds, nameof(CircleGameManagerUI));
             StartCoroutine(PlaySuccessPop(circle));
         }
 
@@ -331,11 +352,13 @@ public class CircleGameManagerUI : MonoBehaviour
         switch (players)
         {
             case 4:
-                numberOfCircles = 2; break;
+                // Invertido: usar la dificultad que antes era para 2 jugadores
+                numberOfCircles = 4; break;
             case 3:
                 numberOfCircles = 3; break;
             case 2:
-                numberOfCircles = 4; break;
+                // Invertido: usar la dificultad que antes era para 4 jugadores
+                numberOfCircles = 2; break;
             default:
                 numberOfCircles = Mathf.Clamp(numberOfCircles, 1, 10); break;
         }

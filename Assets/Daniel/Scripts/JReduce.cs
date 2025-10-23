@@ -29,6 +29,10 @@ public class BotonReducible : MonoBehaviour
     [Header("Events")]
     public UnityEvent onGameFinished;
 
+    [Header("Bonus de tiempo al acertar")]
+    [SerializeField, Tooltip("Segundos a otorgar por acierto durante el último 1/4 de tiempo.")]
+    private float successBonusSeconds = 0.5f;
+
     // API pública unificada para iniciar el minijuego
     [ContextMenu("PlayMiniGamen")]
     public void PlayMiniGamen()
@@ -103,6 +107,7 @@ public class BotonReducible : MonoBehaviour
             relay.minSize = minSize;
             relay.sizeReduction = sizeReduction;
             relay.startTextSize = text != null ? text.fontSize : 20f;
+            relay.successBonusSeconds = successBonusSeconds;
 
             buttons.Add(relay);
         }
@@ -125,11 +130,13 @@ public class BotonReducible : MonoBehaviour
         switch (players)
         {
             case 4:
-                buttonCount = 4; break;
-            case 3:
+                // Invertido: usar la dificultad que antes era para 2 jugadores
                 buttonCount = 6; break;
+            case 3:
+                buttonCount = 5; break;
             case 2:
-                buttonCount = 8; break;
+                // Invertido: usar la dificultad que antes era para 4 jugadores
+                buttonCount = 4; break;
             default:
                 buttonCount = Mathf.Clamp(buttonCount, 1, 10); break;
         }
@@ -219,13 +226,32 @@ public class ButtonPressRelay : MonoBehaviour, IPointerClickHandler
     [HideInInspector] public float minSize;
     [HideInInspector] public float sizeReduction;
     [HideInInspector] public float startTextSize;
+    [HideInInspector] public float successBonusSeconds = 0.5f;
+
+    // Reproduce el sonido solicitado en cada clic
+    public void ReproducirSonido()
+    {
+        var sm = SoundManager.instance;
+        if (sm != null)
+        {
+            // Elegir aleatoriamente entre 3 variantes
+            int idx = Random.Range(1, 4); // 1,2,3
+            string key = $"Tingo:Desaparecer{idx}";
+            sm.PlaySfx(key);
+        }
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        // Sonido por clic
+        
+
         currentSize -= sizeReduction;
         currentSize = Mathf.Max(currentSize, 0);
         rt.sizeDelta = new Vector2(currentSize, currentSize);
-
+        ReproducirSonido();
+        // Bonus de tiempo si estamos en el último cuarto del temporizador
+    if (Tempo.instance != null) Tempo.instance.TryBonusOnSuccess(successBonusSeconds, nameof(BotonReducible));
         // Escalar texto proporcionalmente al tamaño del botón
         if (text != null)
         {
