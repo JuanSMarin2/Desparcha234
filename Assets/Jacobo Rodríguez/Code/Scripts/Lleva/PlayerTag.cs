@@ -13,6 +13,10 @@ public class PlayerTag : MonoBehaviour
     [Tooltip("Objeto de outline / resalte que se activa cuando este jugador está taggeado")] 
     [SerializeField] private GameObject outlineObject;
 
+    [Header("Animator")] 
+    [SerializeField] private Animator _anim; // Animator en hijo
+    [SerializeField] private string hasTagParam = "HasTag";
+
     [Header("Transferencia Tag")] 
     [SerializeField] private float transferCooldown = 0.3f;
     [Tooltip("Usar colisiones físicas (OnCollisionEnter2D) en lugar de triggers para transferir")] [SerializeField] private bool usarColisionFisica = false;
@@ -30,8 +34,10 @@ public class PlayerTag : MonoBehaviour
     private void Awake()
     {
         _mov = GetComponent<Movimiento>();
+        if (_anim == null) _anim = GetComponentInChildren<Animator>(true);
         ApplySpeed();
         UpdateVisuals();
+        SetAnimHasTag(_isTagged);
     }
 
     public void SetTagged(bool value, bool playFeedback = true)
@@ -40,10 +46,18 @@ public class PlayerTag : MonoBehaviour
         _isTagged = value;
         ApplySpeed();
         UpdateVisuals();
+        SetAnimHasTag(_isTagged);
         if (playFeedback)
         {
             Debug.Log($"[PlayerTag] Player {playerIndex1Based} tagged={(value?"YES":"NO")}");
         }
+    }
+
+    private void SetAnimHasTag(bool value)
+    {
+        if (_anim == null) return;
+        if (_anim.HasParameterOfType(hasTagParam, AnimatorControllerParameterType.Bool))
+            _anim.SetBool(hasTagParam, value);
     }
 
     private void ApplySpeed()
