@@ -334,7 +334,9 @@ MonoBehaviour:
   outerRing: {fileID: 1662739176320184751}
   orderText: {fileID: 6524198611742244371}
   shrinkSpeed: 1.2
-  hitMarginPercent: 0.15
+  hitMarginPercent: 0.23
+  hitWindowBeforePercent: 0.23
+  hitWindowAfterPercent: 0.23
 --- !u!114 &220554946044353209
 MonoBehaviour:
   m_ObjectHideFlags: 0

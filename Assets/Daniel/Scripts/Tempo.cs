@@ -39,7 +39,7 @@ public class Tempo : MonoBehaviour
 
     // Estado interno
     private float limit;
-    // Tiempo restante (countdown). Se inicializa a `limit` en StartTimer y decrementa cada frame
+    // Tiempo restante (countdown). Se inicializa a limit en StartTimer y decrementa cada frame
     private float remaining;
     private bool running = false;
     private bool finishing = false; // evitando doble finalización
@@ -122,6 +122,16 @@ public class Tempo : MonoBehaviour
     private TMP_Text eliminationPhraseText;
     [SerializeField, TextArea, Tooltip("Lista de frases de lástima; se elegirá una aleatoriamente cuando sea '¡¡Tango!!'.")]
     private string[] pityPhrases;
+
+    [Header("Sonidos del temporizador")]
+    [SerializeField, Tooltip("Clave SFX para el tic del cronómetro mientras corre (usar prefijo 'Tingo:').")]
+    private string timerTickSfxKey = "Tingo:TimerTick";
+    [SerializeField, Tooltip("Intervalo entre tics del cronómetro en segundos.")]
+    private float timerTickInterval = 1.0f;
+    [SerializeField, Tooltip("Volumen del tic del cronómetro (0..1)")]
+    [Range(0f,1f)] private float timerTickVolume = 1f;
+    [SerializeField, Tooltip("Clave SFX para reproducir cuando se muestra la pantalla de eliminación (Tango).")]
+    private string eliminationSfxKey = "Tingo:TANGO";
 
     // RNG para Box-Muller
     private System.Random rng = new System.Random();
@@ -250,6 +260,8 @@ public class Tempo : MonoBehaviour
             {
                 running = false;
                 finishing = true;
+                // Detener el tic del cronómetro al entrar en 'Tango'
+                StopTickLoop();
                 // Mostrar "¡¡Tango!!" inmediatamente
                 SetText(tangoText);
                 // Restaurar escala del texto para 'Tango'
@@ -309,12 +321,15 @@ public class Tempo : MonoBehaviour
         ResetTextScale();
         UpdateText();
         ResetTextColor();
+        // Iniciar bucle de tics de cronómetro
+        StartTickLoop();
     }
 
     public void StopTimer()
     {
         running = false;
         finishing = false;
+        StopTickLoop();
         EndHoldState();
         nextLogMilestone = -1;
         ResetTextScale();
@@ -453,6 +468,12 @@ public class Tempo : MonoBehaviour
             eliminationPanel.SetActive(true);
         }
 
+        // Sonido al mostrar la pantalla de eliminación (Tango)
+        if (!string.IsNullOrWhiteSpace(eliminationSfxKey) && SoundManager.instance != null)
+        {
+            SoundManager.instance.PlaySfx(eliminationSfxKey);
+        }
+
         // Encabezado con número de jugador (1-based)
         if (eliminationHeaderText != null)
         {
@@ -478,6 +499,31 @@ public class Tempo : MonoBehaviour
             int idx = rng.Next(0, pityPhrases.Length);
             eliminationPhraseText.text = pityPhrases[idx];
         }
+    }
+
+    // ===== Sonidos: tic del cronómetro =====
+    private void StartTickLoop()
+    {
+        if (string.IsNullOrWhiteSpace(timerTickSfxKey)) return;
+        // Evitar múltiples invocaciones
+        CancelInvoke(nameof(PlayTimerTickSfx));
+        float interval = Mathf.Max(0.05f, timerTickInterval);
+        // Ejecutar un primer tic inmediato para feedback, luego repetir
+        PlayTimerTickSfx();
+        InvokeRepeating(nameof(PlayTimerTickSfx), interval, interval);
+    }
+
+    private void StopTickLoop()
+    {
+        CancelInvoke(nameof(PlayTimerTickSfx));
+    }
+
+    private void PlayTimerTickSfx()
+    {
+        var sm = SoundManager.instance;
+        if (sm == null) return;
+        if (string.IsNullOrWhiteSpace(timerTickSfxKey)) return;
+        sm.PlaySfx(timerTickSfxKey, Mathf.Clamp01(timerTickVolume));
     }
 
     // ========= Timers por jugador =========

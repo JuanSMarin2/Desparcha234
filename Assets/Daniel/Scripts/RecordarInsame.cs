@@ -20,6 +20,9 @@ public class RecordarInsame : MonoBehaviour
     [Header("Contenedores de matrices")]
     [SerializeField, Tooltip("Matriz que reproduce el patrón (solo visual)")] private RectTransform patternGridParent;
     [SerializeField, Tooltip("Matriz para la entrada del jugador (clics)")] private RectTransform inputGridParent;
+    [SerializeField, Tooltip("Si se true, usaremos un único grid para mostrar el patrón y permitir la entrada del jugador. Si está activo, asigne 'singleGridParent'.")]
+    private bool useSingleGrid = true;
+    [SerializeField, Tooltip("Padre único para el grid cuando useSingleGrid = true")] private RectTransform singleGridParent;
 
     [Header("Prefabs por color (apagado/encendido)")]
     [SerializeField, Tooltip("Prefabs APAGADO por color (indexa colores)")] private GameObject[] offPrefabsByColor;
@@ -144,8 +147,18 @@ public class RecordarInsame : MonoBehaviour
     else if (players == 2) { rows = 1; cols = 3; }
 
         // Construir celdas
-        patternCells = BuildGrid(patternGridParent, rows, cols, interactive: false);
-        inputCells = BuildGrid(inputGridParent, rows, cols, interactive: true);
+        if (useSingleGrid && singleGridParent != null)
+        {
+            // Crear un único grid interactivo que primero se usará para mostrar el patrón (interacción deshabilitada durante la reproducción)
+            var single = BuildGrid(singleGridParent, rows, cols, interactive: true);
+            patternCells = single;
+            inputCells = single;
+        }
+        else
+        {
+            patternCells = BuildGrid(patternGridParent, rows, cols, interactive: false);
+            inputCells = BuildGrid(inputGridParent, rows, cols, interactive: true);
+        }
 
         // Generar patrón (longitud basada en jugadores)
         // Reglas:
@@ -206,7 +219,7 @@ public class RecordarInsame : MonoBehaviour
         var list = new List<Cell>();
         if (parent == null)
         {
-            Debug.LogError("RecordarInsame: asigna los Contenedores de matrices (patternGridParent e inputGridParent).");
+            Debug.LogError("RecordarInsame: asigna los Contenedores de matrices (patternGridParent e inputGridParent) o singleGridParent si useSingleGrid está activo.");
             return list;
         }
 
@@ -509,8 +522,16 @@ public class RecordarInsame : MonoBehaviour
 
     private void CleanupGrids()
     {
-        CleanupChildren(patternGridParent);
-        CleanupChildren(inputGridParent);
+        // Si usamos un único padre, evitar limpiar dos veces
+        if (useSingleGrid && singleGridParent != null)
+        {
+            CleanupChildren(singleGridParent);
+        }
+        else
+        {
+            CleanupChildren(patternGridParent);
+            CleanupChildren(inputGridParent);
+        }
         patternCells.Clear();
         inputCells.Clear();
     }
@@ -564,9 +585,13 @@ public class RecordarInsame : MonoBehaviour
             int noteNumber = idx + 1;
             string key = string.Concat(notePrefix, noteNumber.ToString());
             sm.PlaySfx(key);
-            // Activación visual simultánea en ambas rejillas (si existen)
+            // Activación visual simultánea: si ambos grids son la misma lista, solo ejecutar una vez
+            bool same = ReferenceEquals(patternCells, inputCells);
             StartCoroutine(BlinkCell(patternCells, idx, finalChordVisualTime));
-            StartCoroutine(BlinkCell(inputCells, idx, finalChordVisualTime));
+            if (!same)
+            {
+                StartCoroutine(BlinkCell(inputCells, idx, finalChordVisualTime));
+            }
         }
     }
 }

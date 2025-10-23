@@ -412,6 +412,10 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 78d71cf80350a0e49864f91630ed4150, type: 3}
   - key: ProyAgarra
     clip: {fileID: 8300000, guid: 065597b1f793eaa4a91733bfa15ff514, type: 3}
+  - key: Tingo
+    clip: {fileID: 8300000, guid: 0d74da86e4721034cb0b01523120016d, type: 3}
+  - key: Tango
+    clip: {fileID: 8300000, guid: eae39451404ba4545a339fb023081ced, type: 3}
   - key: 1
     clip: {fileID: 8300000, guid: 3950c5d3960dfa044a711bdfbcbcb22b, type: 3}
   - key: 2
@@ -424,6 +428,12 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: aa87b342a966d094eacbb3b53c16ade2, type: 3}
   - key: 6
     clip: {fileID: 8300000, guid: 6d4254efaddcb574f9f7aad07a770edb, type: 3}
+  - key: 7
+    clip: {fileID: 8300000, guid: 2b733b0d54d0cdf4e84e165b80460760, type: 3}
+  - key: 8
+    clip: {fileID: 8300000, guid: b374c37a9ac6c0844a0b3aebf907ff1e, type: 3}
+  - key: 9
+    clip: {fileID: 8300000, guid: 8204c0520b2f5024cae38b458c60f034, type: 3}
   musicClips:
   - key: 
     clip: {fileID: 0}
@@ -537,6 +547,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 179114391}
+  - component: {fileID: 179114392}
   m_Layer: 0
   m_Name: SonidosPremium
   m_TagString: Untagged
@@ -559,6 +570,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &179114392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179114389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41ba789b5b6eeab4ba66e98071d5a1f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sfxVolume: 1
+  musicVolume: 1
+  musicLoopDefault: 1
 --- !u!1 &194383908
 GameObject:
   m_ObjectHideFlags: 0
@@ -824,9 +850,11 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   skipNextTurnOnFinish: 0
-  successBonusSeconds: 0.5
+  successBonusSeconds: 0.1555
   patternGridParent: {fileID: 1435586306}
   inputGridParent: {fileID: 810583378}
+  useSingleGrid: 1
+  singleGridParent: {fileID: 810583378}
   offPrefabsByColor:
   - {fileID: 6889342224845705499, guid: dfacd58f60253cd42875572bd3a9aada, type: 3}
   - {fileID: 344752887843637509, guid: dc0d7c810140c294f90399edf8fbfdd3, type: 3}
@@ -1750,7 +1778,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &673126002
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2049,10 +2077,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minigames:
   - {fileID: 298081225}
-  - {fileID: 1482003312}
-  - {fileID: 1558429308}
   - {fileID: 910027659}
-  - {fileID: 686089399}
   randomizeOrder: 1
   autoStartOnAwake: 1
   turnTimer: {fileID: 1366515552}
@@ -2120,7 +2145,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -101.7, y: -33.3}
+  m_AnchoredPosition: {x: -0.0000076293945, y: -33.3}
   m_SizeDelta: {x: 95.4951, y: 202.0162}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &855560113
@@ -3117,6 +3142,10 @@ MonoBehaviour:
   - muy mala
   - re mala
   - mucha wb
+  timerTickSfxKey: Tingo:Tingo
+  timerTickInterval: 1
+  timerTickVolume: 0.3
+  eliminationSfxKey: Tingo:Tango
   enableUrgentBlink: 1
   urgentThresholdSeconds: 5
   urgentBlinkColor: {r: 0.925, g: 0.286, b: 0.286, a: 1}
@@ -3171,7 +3200,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1435586306
 RectTransform:
   m_ObjectHideFlags: 0
