@@ -9,13 +9,17 @@ public class Movimiento : MonoBehaviour
     [Tooltip("Eje local que se considera 'frente' para avanzar")] [SerializeField] private FacingAxis facingAxis = FacingAxis.Up;
     [Tooltip("Vector2 local usado si FacingAxis=Custom (ej: (-1,0) para izquierda). Se normaliza automáticamente")] [SerializeField] private Vector2 customLocalForward = Vector2.up;
     [Header("Movimiento Continuo")] [SerializeField] private float moveSpeed = 1.2f; // unidades/seg
-    [Header("Rotación Idle")] [SerializeField] private float rotationSpeed = 120f; // grados/seg mientras está quieto
+    [Header("Rotación Idle")] [SerializeField] private float rotationSpeed = 130f; // grados/seg mientras está quieto
 
     [Header("Deslizamiento Física")] 
     [SerializeField] private bool usePhysicsSlide = true;
     [SerializeField] private LayerMask collisionMask = ~0; // todas por defecto
     [SerializeField, Tooltip("Pequeño padding para separarse de la pared y evitar vibración")] private float wallPadding = 0.01f;
     [SerializeField, Tooltip("Iteraciones máximas de resolución (por frame) para deslizar")] private int slideIterations = 2;
+
+    [Header("Animator")]
+    [SerializeField] private Animator _anim; // Animator en hijo
+    [SerializeField] private string isMovingParam = "IsMoving";
 
     private bool _isMoving = false; // true mientras se mantiene presionado
     private bool _holdRequested = false; // estado de input presionado
@@ -52,6 +56,8 @@ public class Movimiento : MonoBehaviour
         _contactFilter.SetLayerMask(collisionMask);
         _contactFilter.useLayerMask = true;
         _contactFilter.useTriggers = false;
+
+        if (_anim == null) _anim = GetComponentInChildren<Animator>(true);
     }
 
     private void OnDestroy()
@@ -76,6 +82,13 @@ public class Movimiento : MonoBehaviour
         }
     }
 
+    private void SetAnimIsMoving(bool value)
+    {
+        if (_anim == null) return;
+        if (_anim.HasParameterOfType(isMovingParam, AnimatorControllerParameterType.Bool))
+            _anim.SetBool(isMovingParam, value);
+    }
+
     private Vector2 GetForwardDir()
     {
         Vector2 localDir;
@@ -98,7 +111,7 @@ public class Movimiento : MonoBehaviour
     {
         if (!_holdRequested)
         {
-            if (_isMoving) { _isMoving = false; OnMoveFinished?.Invoke(); }
+            if (_isMoving) { _isMoving = false; OnMoveFinished?.Invoke(); SetAnimIsMoving(false); }
             return;
         }
 
@@ -153,7 +166,7 @@ public class Movimiento : MonoBehaviour
             _rb.MovePosition(startPos + desired);
         }
 
-        if (!_isMoving) { _isMoving = true; OnMoveStarted?.Invoke(); }
+        if (!_isMoving) { _isMoving = true; OnMoveStarted?.Invoke(); SetAnimIsMoving(true); }
     }
 
     public void StartHoldMove() { if(!_holdRequested){ _rotationDir *= -1; } _holdRequested = true; }
@@ -175,12 +188,6 @@ public class Movimiento : MonoBehaviour
         StartHoldMove();
         Invoke(nameof(StopHoldMove), 0f);
         Debug.Log($"[Movimiento] TriggerMove jugador {PlayerIndex1Based}");
-    }
-
-    public static void TriggerMoveForPlayer(int playerIdx1Based)
-    {
-        int idx = playerIdx1Based - 1; if (idx < 0 || idx >= _jugadores.Length) return;
-        var m = _jugadores[idx]; if (m != null) m.TriggerMove();
     }
 
     public void SetMoveSpeed(float newSpeed)
