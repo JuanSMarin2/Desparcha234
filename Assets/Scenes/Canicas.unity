@@ -3559,7 +3559,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: daed1f58448494344b3014dcfbc3b74f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 10517f3bcd735db4e9b8e8120796015b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -11177,6 +11177,7 @@ MonoBehaviour:
     sadSkinSprites: []
   useRoundResultsForSad: 0
   isFinalResultsScene: 0
+  foreverTristin: 0
 --- !u!4 &1489821250
 Transform:
   m_ObjectHideFlags: 0
