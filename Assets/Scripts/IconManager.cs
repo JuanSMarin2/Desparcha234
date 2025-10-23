@@ -1,40 +1,40 @@
-// IconManager.cs
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
-// === NUEVO BLOQUE A A�ADIR ===
 using System.Collections;
+using System.Collections.Generic;
 
 public class IconManager : MonoBehaviour
 {
     [System.Serializable]
     public class PlayerIconSet
     {
-        public Image icon;              // Image del jugador en la UI
-        public Sprite[] skinSprites;    // Sprites normales por numero de skin
-        public Sprite[] sadSkinSprites; // Sprites tristes por numero de skin
+        public Image icon;               // Image del jugador en la UI
+        public Sprite[] skinSprites;     // Sprites normales por número de skin
+        public Sprite[] sadSkinSprites;  // Sprites "tristes" por número de skin
     }
 
     [Header("Iconos y skins por jugador (0..3)")]
     [SerializeField] private PlayerIconSet[] players = new PlayerIconSet[4];
 
     [Header("Usar resultados de la ronda para tristeza")]
-    [Tooltip("Si esta activo y hay RoundData.currentPoints, el ultimo lugar de la ronda actual se muestra triste. Si todos empatan, nadie se muestra triste.")]
+    [Tooltip("Si está activo y hay RoundData.currentPoints, el último lugar de la ronda se muestra triste. Si todos empatan, nadie triste.")]
     [SerializeField] private bool useRoundResultsForSad = false;
 
     [Header("Escena de resultados finales")]
-    [Tooltip("Si esta activo, todos se muestran tristes excepto el o los ganadores segun RoundData.totalPoints.")]
+    [Tooltip("Si está activo, todos se muestran tristes salvo el/los ganadores según RoundData.totalPoints.")]
     [SerializeField] private bool isFinalResultsScene = false;
 
-
-    private void OnEnable()
+    // --------- Ciclo de vida ---------
+    void OnEnable()
     {
+        // Si no existe el evento en tu proyecto, quita estas 2 líneas.
         GameManagerTejo.OnPapeletaDestruida += MostrarIconoTriste;
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         GameManagerTejo.OnPapeletaDestruida -= MostrarIconoTriste;
+        StopAllCoroutines();
     }
 
     void Start()
@@ -42,6 +42,7 @@ public class IconManager : MonoBehaviour
         RefreshAllIcons();
     }
 
+    // --------- API pública util ---------
     public void SetUseRoundResults(bool value)
     {
         useRoundResultsForSad = value;
@@ -73,20 +74,15 @@ public class IconManager : MonoBehaviour
             equipped = Mathf.Clamp(GameData.instance.GetEquipped(playerIndex), 0, 9999);
 
         bool showSad = false;
-
         var rd = RoundData.instance;
 
-        // Modo resultados finales: todos tristes menos el o los ganadores por totalPoints
+        // 1) Escena final: todos tristes salvo ganadores por totalPoints
         if (isFinalResultsScene && rd != null && rd.totalPoints != null && rd.totalPoints.Length > 0)
         {
             HashSet<int> winners = GetWinnersByTotal(rd.totalPoints, Mathf.Clamp(rd.numPlayers, 1, rd.totalPoints.Length));
-            // Si hay ganadores validos, solo ellos no estan tristes
-            if (winners.Count > 0)
-                showSad = !winners.Contains(playerIndex);
-            else
-                showSad = false; // sin datos consistentes, no marcar triste
+            showSad = winners.Count > 0 ? !winners.Contains(playerIndex) : false;
         }
-        // Modo ronda actual: ultimo lugar por currentPoints
+        // 2) Ronda actual: último lugar por currentPoints (con empate nadie triste)
         else if (useRoundResultsForSad &&
                  rd != null &&
                  rd.currentPoints != null &&
@@ -100,8 +96,8 @@ public class IconManager : MonoBehaviour
             showSad = false;
         }
 
+        // Elegir sprite
         Sprite spriteToUse = null;
-
         if (showSad)
         {
             if (set.sadSkinSprites != null && equipped >= 0 && equipped < set.sadSkinSprites.Length)
@@ -113,10 +109,11 @@ public class IconManager : MonoBehaviour
                 spriteToUse = set.skinSprites[equipped];
         }
 
-        // Fallback por seguridad
+        // Fallback
         if (spriteToUse == null && set.skinSprites != null && equipped >= 0 && equipped < set.skinSprites.Length)
             spriteToUse = set.skinSprites[equipped];
 
+        // Asignar
         if (spriteToUse != null)
         {
             set.icon.sprite = spriteToUse;
@@ -128,11 +125,13 @@ public class IconManager : MonoBehaviour
         }
     }
 
+    // --------- Lógica de “triste” por ronda ---------
     private bool IsLastPlace(int playerIndex, int[] currentPoints, int numPlayers)
     {
         if (currentPoints == null || currentPoints.Length == 0) return false;
 
-        numPlayers = Mathf.Clamp(numPlayers, 1, Mathf.Min(currentPoints.Length, players != null ? players.Length : currentPoints.Length));
+        numPlayers = Mathf.Clamp(numPlayers, 1,
+                     Mathf.Min(currentPoints.Length, players != null ? players.Length : currentPoints.Length));
 
         int min = int.MaxValue;
         int max = int.MinValue;
@@ -144,10 +143,9 @@ public class IconManager : MonoBehaviour
             if (p > max) max = p;
         }
 
-        if (min == max) return false; // todos iguales, nadie triste
+        if (min == max) return false; // todos iguales → nadie triste
 
-        int myPts = currentPoints[playerIndex];
-        return myPts == min;
+        return currentPoints[playerIndex] == min;
     }
 
     private HashSet<int> GetWinnersByTotal(int[] totalPoints, int numPlayers)
@@ -155,7 +153,8 @@ public class IconManager : MonoBehaviour
         var winners = new HashSet<int>();
         if (totalPoints == null || totalPoints.Length == 0) return winners;
 
-        numPlayers = Mathf.Clamp(numPlayers, 1, Mathf.Min(totalPoints.Length, players != null ? players.Length : totalPoints.Length));
+        numPlayers = Mathf.Clamp(numPlayers, 1,
+                     Mathf.Min(totalPoints.Length, players != null ? players.Length : totalPoints.Length));
 
         int max = int.MinValue;
         for (int i = 0; i < numPlayers; i++)
@@ -167,14 +166,14 @@ public class IconManager : MonoBehaviour
         return winners;
     }
 
-    // Este m�todo se ejecutar� autom�ticamente cuando se destruya una papeleta
+    // --------- Evento “papeleta destruida” triste temporal ---------
+    // Llamado desde GameManagerTejo
     private void MostrarIconoTriste(int jugadorIndex)
     {
-        if (jugadorIndex < 0 || jugadorIndex >= players.Length) return;
-        StartCoroutine(MostrarIconoTristeTemporal(jugadorIndex, 2f)); // 2 segundos
+        if (jugadorIndex < 0 || jugadorIndex >= (players?.Length ?? 0)) return;
+        StartCoroutine(MostrarIconoTristeTemporal(jugadorIndex, 2f));
     }
 
-    // Corrutina para mostrar el �cono triste temporalmente
     private IEnumerator MostrarIconoTristeTemporal(int jugadorIndex, float duracion)
     {
         var set = players[jugadorIndex];
@@ -184,15 +183,17 @@ public class IconManager : MonoBehaviour
         if (GameData.instance != null)
             equipped = Mathf.Clamp(GameData.instance.GetEquipped(jugadorIndex), 0, 9999);
 
-        // Sprite actual y triste
+        // Guardar sprite original y aplicar triste (si existe)
         Sprite spriteOriginal = set.icon.sprite;
-        if (set.sadSkinSprites != null && equipped < set.sadSkinSprites.Length)
+        if (set.sadSkinSprites != null && equipped < set.sadSkinSprites.Length && set.sadSkinSprites[equipped] != null)
             set.icon.sprite = set.sadSkinSprites[equipped];
 
         yield return new WaitForSeconds(duracion);
 
-        // Restaurar sprite original
+        // Restaurar
         if (spriteOriginal != null)
             set.icon.sprite = spriteOriginal;
+        else
+            UpdatePlayerIcon(jugadorIndex); // fallback por si no había sprite
     }
 }
