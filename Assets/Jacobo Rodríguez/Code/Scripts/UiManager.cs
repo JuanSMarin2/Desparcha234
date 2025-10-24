@@ -18,12 +18,6 @@ public class UiManager : MonoBehaviour
     [Tooltip("Texto único que muestra la ronda actual (Stage)")]
     [SerializeField] private TMP_Text rondaTexto;
 
-    [Header("Intentos restantes (opcional / obsoleto)")]
-    [SerializeField] private TMP_Text intentosJugador1;
-    [SerializeField] private TMP_Text intentosJugador2;
-    [SerializeField] private TMP_Text intentosJugador3;
-    [SerializeField] private TMP_Text intentosJugador4;
-
     [Header("Botones de jugador")]
     [SerializeField] private GameObject botonJugador1;
     [SerializeField] private GameObject botonJugador2;

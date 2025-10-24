@@ -30,6 +30,7 @@ public class ZancoMove : MonoBehaviour
     [SerializeField] private Image statusImage;
     [SerializeField] private Sprite caidoImagen;
     [SerializeField] private Sprite ganaImagen;
+    [SerializeField] private Sprite baseImagen;
 
     public float numPer;
 
@@ -81,15 +82,16 @@ public class ZancoMove : MonoBehaviour
         if(inCaida)
         {
             statusImage.sprite = caidoImagen;
-            statusImage.gameObject.SetActive(true);
+        
         } else if (llegoMeta)
         {
             statusImage.sprite = ganaImagen; 
-            statusImage.gameObject.SetActive(true);
+        
         }
         else
         {
-         statusImage.gameObject.SetActive(false);
+            statusImage.sprite = baseImagen;
+        
         }
 
   

@@ -12,7 +12,7 @@ public class GameData : MonoBehaviour
     [Tooltip("Skin equipada por jugador (0..3). -1 si ninguna.")]
     [SerializeField] private int[] equippedSkin = new int[4] { -1, -1, -1, -1 };
 
-    // Para compatibilidad con tama�os variables de skins, usamos listas por jugador
+    // Para compatibilidad con tama�os variables de skins, usamos listas por jugador
     // ownedPerPlayer[p][s] = true si el jugador p posee la skin s
     [SerializeField] private List<bool>[] ownedPerPlayer = new List<bool>[4];
 
@@ -30,17 +30,30 @@ public class GameData : MonoBehaviour
                 // asegurar espacio para al menos 1 skin
                 EnsureSkinSlots(p, 1);
 
-                // Skin 0 siempre comprada
+                // Skin 0 disponible por defecto pero NO equipada
                 ownedPerPlayer[p][0] = true;
 
-                // Skin 0 equipada
-                equippedSkin[p] = 0;
+                // No auto-equipar (usar defaults hasta que el jugador equipe desde la tienda)
+                equippedSkin[p] = -1;
             }
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    // --- NUEVO: utilidad para verificar/crear el singleton en runtime ---
+    public static GameData EnsureInstance()
+    {
+        if (instance == null)
+        {
+            var go = new GameObject("GameData");
+            var gd = go.AddComponent<GameData>();
+            Debug.LogWarning("[GameData] No existía singleton en escena. Creado automáticamente y marcado DontDestroyOnLoad.");
+            return gd;
+        }
+        return instance;
     }
 
     public int Money => money;

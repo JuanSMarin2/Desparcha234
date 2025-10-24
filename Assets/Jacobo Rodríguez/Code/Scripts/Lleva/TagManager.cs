@@ -36,8 +36,10 @@ public class TagManager : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] private string sfxCountdownKey = "lleva:cronometro";
-    [SerializeField] private float countdownTickInterval = 0.25f;
     [SerializeField] private float countdownSfxVolume = 0.44f;
+    [Tooltip("Reproducir nuevamente el SFX de cronómetro al cruzar este umbral de tiempo restante (seg)")]
+    [SerializeField] private float countdownReplayThreshold = 5f;
+    [SerializeField] private string sfxVictoryKey = "lleva:victoria";
 
     [Header("Debug")] [SerializeField] private bool debugLogs = true;
 
@@ -48,10 +50,11 @@ public class TagManager : MonoBehaviour
     private int _pendingWinnerIndex0Based = -1; // almacenado hasta animación final
     private List<int> _eliminationOrder0Based = new List<int>(); // orden cronológico de eliminados (0-based)
 
-    private float _nextCountdownTickTime = 0f;
-
     public System.Action<PlayerTag> OnPlayerEliminated; // callback externo (futuro panel)
     public System.Action<PlayerTag, PlayerTag> OnTagChanged; // old,new
+
+    // Flag para reproducir una sola vez el SFX al cruzar el umbral
+    private bool _countdownThresholdPlayed = false;
 
     void Awake()
     {
@@ -87,11 +90,16 @@ public class TagManager : MonoBehaviour
             timerText.text = clamped.ToString("F1");
         }
 
-        // Reproducir SFX de cronómetro a intervalos mientras corre la ronda
-        if (!string.IsNullOrEmpty(sfxCountdownKey) && Time.time >= _nextCountdownTickTime)
+        // Reproducir de nuevo el cronómetro al cruzar el umbral (una sola vez)
+        if (!_countdownThresholdPlayed && _timeRemaining <= countdownReplayThreshold && _timeRemaining > 0f)
         {
-            var sm = SoundManager.instance; if (sm != null) sm.PlaySfx(sfxCountdownKey, countdownSfxVolume);
-            _nextCountdownTickTime = Time.time + Mathf.Max(0.01f, countdownTickInterval);
+            _countdownThresholdPlayed = true;
+            if (!string.IsNullOrEmpty(sfxCountdownKey))
+            {
+                var sm2 = SoundManager.instance;
+                if (sm2 != null) sm2.PlaySfx(sfxCountdownKey, countdownSfxVolume);
+            }
+            if (debugLogs) Debug.Log($"[TagManager] Umbral de {countdownReplayThreshold}s alcanzado: SFX cronómetro reproducido.");
         }
 
         if (_timeRemaining <= 0f)
@@ -143,7 +151,15 @@ public class TagManager : MonoBehaviour
         AssignTag(chosen, null);
         _timeRemaining = roundDuration;
         _roundActive = true;
-        _nextCountdownTickTime = Time.time; // iniciar ticks ya
+        _countdownThresholdPlayed = false;
+        
+        // Reproducir sonido una sola vez al inicio
+        if (!string.IsNullOrEmpty(sfxCountdownKey))
+        {
+            var sm = SoundManager.instance;
+            if (sm != null) sm.PlaySfx(sfxCountdownKey, countdownSfxVolume);
+        }
+        
         if (debugLogs) Debug.Log($"[TagManager] Ronda inicial comenzada. Tagged=Player{chosen.PlayerIndex}");
     }
 
@@ -157,11 +173,18 @@ public class TagManager : MonoBehaviour
             return;
         }
         _timeRemaining = roundDuration;
+        _countdownThresholdPlayed = false;
         PlayerTag randomTagged = GetRandomActivePlayer();
         AssignTag(randomTagged, _currentTagged);
         if (debugLogs) Debug.Log($"[TagManager] Nueva ronda. Tagged=Player{randomTagged.PlayerIndex}");
         _roundActive = true;
-        _nextCountdownTickTime = Time.time; // reiniciar ticks
+        
+        // Reproducir sonido una sola vez al reiniciar
+        if (!string.IsNullOrEmpty(sfxCountdownKey))
+        {
+            var sm = SoundManager.instance;
+            if (sm != null) sm.PlaySfx(sfxCountdownKey, countdownSfxVolume);
+        }
     }
 
     private PlayerTag GetRandomActivePlayer()
@@ -334,6 +357,8 @@ public class TagManager : MonoBehaviour
             if (_players.Count == 1)
             {
                 _pendingWinnerIndex0Based = _players[0].PlayerIndex - 1;
+                // Reproducir SFX de victoria
+                var smv = SoundManager.instance; if (smv != null && !string.IsNullOrEmpty(sfxVictoryKey)) smv.PlaySfx(sfxVictoryKey, 0.9f);
                 // Antes: Time.timeScale = 0f;  -> Se elimina para permitir animación de victoria.
                 if (debugLogs) Debug.Log("[TagManager] Un solo jugador restante: no se pausa (timeScale permanece) para reproducir animación de victoria.");
                 if (panelVictoria != null)

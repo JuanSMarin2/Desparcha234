@@ -43,6 +43,10 @@ public class ReposicionarPorTurno : MonoBehaviour
     [Tooltip("Si se aplica al iniciar la escena, hacerlo animado (no instantáneo)")]
     public bool animarAlIniciar = false;
 
+    [Header("Workarounds layout/UI")]
+    [Tooltip("Si el movimiento se aplica instantáneo (sin tween), re-aplica al final del frame para evitar que LayoutGroups/fitters lo sobreescriban")]
+    public bool reapplyEndOfFrameWhenInstant = true;
+
     [Header("Color por jugador (opcional)")]
     [Tooltip("Si está activo, al reposicionar se aplica un color distinto por jugador")] public bool cambiarColorPorJugador = false;
     public Color colorJugador1 = Color.red;
@@ -66,6 +70,10 @@ public class ReposicionarPorTurno : MonoBehaviour
     // Caches para color
     private SpriteRenderer _spriteRenderer;
     private Image _image;
+
+    // Control de re-aplicación EoF
+    private bool _isReapplyingEoF = false;
+    private Coroutine _reapplyCo;
 
     void Awake()
     {
@@ -182,6 +190,8 @@ public class ReposicionarPorTurno : MonoBehaviour
     {
         if (customTarget == null) return;
 
+        bool instantMove = instant || !suavizarMovimiento || duracion <= 0f;
+
         // Reutilizar parte de la lógica de ApplyPosition pero con customTarget
         if (usarRectTransform && _rt != null)
         {
@@ -189,12 +199,12 @@ public class ReposicionarPorTurno : MonoBehaviour
             if (usarAnchoredPosition && targetRt != null)
             {
                 Vector2 destino = targetRt.anchoredPosition;
-                if (instant || !suavizarMovimiento || duracion <= 0f) _rt.anchoredPosition = destino; else StartMove(() => _rt.anchoredPosition, v => _rt.anchoredPosition = v, destino);
+                if (instantMove) _rt.anchoredPosition = destino; else StartMove(() => _rt.anchoredPosition, v => _rt.anchoredPosition = v, destino);
             }
             else
             {
                 Vector3 destino = usarLocalPosition ? customTarget.localPosition : customTarget.position;
-                if (instant || !suavizarMovimiento || duracion <= 0f)
+                if (instantMove)
                 {
                     if (usarLocalPosition) _rt.localPosition = destino; else _rt.position = destino;
                 }
@@ -206,7 +216,7 @@ public class ReposicionarPorTurno : MonoBehaviour
             if (aplicarRotacion)
             {
                 Quaternion qDestino = usarLocalRotation ? customTarget.localRotation : customTarget.rotation;
-                if (instant || !suavizarMovimiento || duracion <= 0f)
+                if (instantMove)
                 {
                     if (usarLocalRotation) _rt.localRotation = qDestino; else _rt.rotation = qDestino;
                 }
@@ -219,7 +229,7 @@ public class ReposicionarPorTurno : MonoBehaviour
         else
         {
             Vector3 destino = usarLocalPosition ? customTarget.localPosition : customTarget.position;
-            if (instant || !suavizarMovimiento || duracion <= 0f)
+            if (instantMove)
             {
                 if (usarLocalPosition) transform.localPosition = destino; else transform.position = destino;
             }
@@ -230,7 +240,7 @@ public class ReposicionarPorTurno : MonoBehaviour
             if (aplicarRotacion)
             {
                 Quaternion qDestino = usarLocalRotation ? customTarget.localRotation : customTarget.rotation;
-                if (instant || !suavizarMovimiento || duracion <= 0f)
+                if (instantMove)
                 {
                     if (usarLocalRotation) transform.localRotation = qDestino; else transform.rotation = qDestino;
                 }
@@ -241,7 +251,14 @@ public class ReposicionarPorTurno : MonoBehaviour
             }
         }
 
-        // (Recolor por evento suprimido) Antes: if (cambiarColorPorJugador || recolorAlEvento) ApplyColorEvento(playerIndex);
+        // (Recolor por evento suprimido)
+
+        // Workaround: re-aplicar al final del frame si fue instantáneo
+        if (reapplyEndOfFrameWhenInstant && instantMove && !_isReapplyingEoF)
+        {
+            if (_reapplyCo != null) StopCoroutine(_reapplyCo);
+            _reapplyCo = StartCoroutine(CoReapplyEoFCustom(playerIndex, customTarget));
+        }
     }
 
     private void ApplyColorEvento(int playerIndex)
@@ -267,6 +284,8 @@ public class ReposicionarPorTurno : MonoBehaviour
         var target = targets[playerIndex];
         if (target == null) { Debug.LogWarning($"[ReposicionarPorTurno] Target nulo para jugador {playerIndex + 1}"); return; }
 
+        bool instantMove = instant || !suavizarMovimiento || duracion <= 0f;
+
         if (targetsEnCanvas && (canvasUI == null || camMundo == null))
         {
             Debug.LogWarning("[ReposicionarPorTurno] targetsEnCanvas está activo, pero canvasUI o camMundo no están asignados.");
@@ -279,7 +298,7 @@ public class ReposicionarPorTurno : MonoBehaviour
             if (usarAnchoredPosition && targetRt != null)
             {
                 Vector2 destino = targetRt.anchoredPosition;
-                if (instant || !suavizarMovimiento || duracion <= 0f)
+                if (instantMove)
                 {
                     _rt.anchoredPosition = destino;
                 }
@@ -291,7 +310,7 @@ public class ReposicionarPorTurno : MonoBehaviour
             else
             {
                 Vector3 destino = usarLocalPosition ? target.localPosition : target.position;
-                if (instant || !suavizarMovimiento || duracion <= 0f)
+                if (instantMove)
                 {
                     if (usarLocalPosition) _rt.localPosition = destino; else _rt.position = destino;
                 }
@@ -312,7 +331,7 @@ public class ReposicionarPorTurno : MonoBehaviour
                 else
                     qDestino = usarLocalRotation ? target.localRotation : target.rotation;
 
-                if (instant || !suavizarMovimiento || duracion <= 0f)
+                if (instantMove)
                 {
                     if (usarLocalRotation) _rt.localRotation = qDestino; else _rt.rotation = qDestino;
                 }
@@ -325,6 +344,13 @@ public class ReposicionarPorTurno : MonoBehaviour
                 }
             }
             if (cambiarColorPorJugador) ApplyColor(playerIndex);
+
+            // Workaround: re-aplicar al final del frame si fue instantáneo
+            if (reapplyEndOfFrameWhenInstant && instantMove && !_isReapplyingEoF)
+            {
+                if (_reapplyCo != null) StopCoroutine(_reapplyCo);
+                _reapplyCo = StartCoroutine(CoReapplyEoF(playerIndex));
+            }
             return;
         }
 
@@ -363,7 +389,7 @@ public class ReposicionarPorTurno : MonoBehaviour
                 destino = usarLocalPosition ? target.localPosition : target.position;
             }
 
-            if (instant || !suavizarMovimiento || duracion <= 0f)
+            if (instantMove)
             {
                 if (usarLocalPosition) transform.localPosition = destino; else transform.position = destino;
             }
@@ -390,7 +416,7 @@ public class ReposicionarPorTurno : MonoBehaviour
                     qDestino = usarLocalRotation ? target.localRotation : target.rotation;
                 }
 
-                if (instant || !suavizarMovimiento || duracion <= 0f)
+                if (instantMove)
                 {
                     if (usarLocalRotation) transform.localRotation = qDestino; else transform.rotation = qDestino;
                 }
@@ -405,6 +431,13 @@ public class ReposicionarPorTurno : MonoBehaviour
         }
 
         if (cambiarColorPorJugador) ApplyColor(playerIndex);
+
+        // Workaround: re-aplicar al final del frame si fue instantáneo
+        if (reapplyEndOfFrameWhenInstant && instantMove && !_isReapplyingEoF)
+        {
+            if (_reapplyCo != null) StopCoroutine(_reapplyCo);
+            _reapplyCo = StartCoroutine(CoReapplyEoF(playerIndex));
+        }
     }
 
     private void ApplyColor(int playerIndex)
@@ -474,5 +507,31 @@ public class ReposicionarPorTurno : MonoBehaviour
         }
         setter(destino);
         _rotateCo = null;
+    }
+
+    private IEnumerator CoReapplyEoF(int playerIndex)
+    {
+        _isReapplyingEoF = true;
+        yield return new WaitForEndOfFrame();
+        Canvas.ForceUpdateCanvases();
+        // Un frame extra por si otros procesos de layout disparan luego del ForceUpdate
+        yield return null;
+        ApplyPosition(playerIndex, true);
+        _isReapplyingEoF = false;
+        _reapplyCo = null;
+    }
+
+    private IEnumerator CoReapplyEoFCustom(int playerIndex, Transform customTarget)
+    {
+        _isReapplyingEoF = true;
+        yield return new WaitForEndOfFrame();
+        Canvas.ForceUpdateCanvases();
+        yield return null;
+        if (customTarget != null)
+        {
+            ApplyPositionCustom(playerIndex, customTarget, true);
+        }
+        _isReapplyingEoF = false;
+        _reapplyCo = null;
     }
 }

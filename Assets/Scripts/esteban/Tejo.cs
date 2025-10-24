@@ -12,9 +12,7 @@ public class Tejo : MonoBehaviour
 
     private Rigidbody2D rb;
     private bool yaParo = false;
-
-    //  nuevo: hasta que no lo habilitemos desde el lanzador, NO reporta “me detuve”
-    private bool puedeReportar = false;
+    private bool puedeReportar = false; // hasta que no lo habilitemos desde el lanzador, NO reporta “me detuve”
 
     private void Awake()
     {
@@ -25,14 +23,14 @@ public class Tejo : MonoBehaviour
     public void HabilitarReporteAlDetenerse()
     {
         puedeReportar = true;
-        yaParo = false; // por si acaso
+        yaParo = false;
     }
 
     private void Update()
     {
         if (!puedeReportar || yaParo || rb == null) return;
 
-        // Cuando realmente está quieto (después del vuelo/collisions), reporta una sola vez
+        // Cuando realmente está quieto, reporta una sola vez
         if (rb.linearVelocity.sqrMagnitude < 0.01f)
         {
             yaParo = true;
@@ -42,115 +40,82 @@ public class Tejo : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Si choca con la zona configurada para destruir tejos, lo destruimos (con delay)
+        // === ZONA DE DESTRUCCIÓN ===
         if (!string.IsNullOrEmpty(destroyZoneTag) && other.CompareTag(destroyZoneTag))
         {
-            // reproducir SFX al terminar la animación de vuelo (impacto visual)
             var sm = FindAnyObjectByType<SoundManager>();
-            if (sm != null)
-            {
-                sm.PlaySfx("Tejo:Impacto-Other");
-            }
+            if (sm != null) sm.PlaySfx("Tejo:Impacto-Other");
+
             Destroy(gameObject, destroyDelay);
             return;
         }
 
-
-        //  Tablero
+        // === TABLERO ===
         if (other.CompareTag("Tablero"))
         {
-            // reproducir SFX al terminar la animación de vuelo (impacto visual)
             var sm = FindAnyObjectByType<SoundManager>();
-            if (sm != null)
-            {
-                sm.PlaySfx("Tejo:Impacto-Arena");
-            }
+            if (sm != null) sm.PlaySfx("Tejo:Impacto-Arena");
             return;
         }
-        
 
-        //  Centro
+        // === CENTRO ===
         if (other.CompareTag("Centro"))
         {
             GameManagerTejo.instance.SumarPuntos(jugadorID, 6);
             return;
         }
 
-        //  Papeleta neutra
+        // === PAPELETA NEUTRA ===
         if (other.CompareTag("Papeleta"))
         {
-            // reproducir SFX de explosión al impactar una papeleta
-            var sm = FindAnyObjectByType<SoundManager>();
-            if (sm != null)
-            {
-                sm.PlaySfx("Tejo:Explosion");
-            }
+            ReproducirExplosion();
             Debug.Log($"Jugador {jugadorID} golpeó papeleta");
+
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
-            // En vez de SetActive(false), ocultamos su sprite y collider
+
+            // Ocultamos sprite y collider
             SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
             if (sr != null) sr.enabled = false;
 
             Collider2D col = other.GetComponent<Collider2D>();
             if (col != null) col.enabled = false;
+
             return;
         }
 
-        //  Papeletas especiales (restan al dueño de esa papeleta)
-        if (other.CompareTag("Papeleta1"))
-        {
-            // reproducir SFX de explosión al impactar una papeleta
-            var sm = FindAnyObjectByType<SoundManager>();
-            if (sm != null)
-            {
-                sm.PlaySfx("Tejo:Explosion");
-            }
-            GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
-            GameManagerTejo.instance.RestarPuntos(0, 2);
-            other.gameObject.SetActive(false);
-            return;
-        }
+        // === PAPELETAS ESPECIALES ===
+        if (other.CompareTag("Papeleta1")) ManejarPapeletaDestruida(0, other);
+        else if (other.CompareTag("Papeleta2")) ManejarPapeletaDestruida(1, other);
+        else if (other.CompareTag("Papeleta3")) ManejarPapeletaDestruida(2, other);
+        else if (other.CompareTag("Papeleta4")) ManejarPapeletaDestruida(3, other);
+    }
 
-        if (other.CompareTag("Papeleta2"))
-        {
-            // reproducir SFX de explosión al impactar una papeleta
-            var sm = FindAnyObjectByType<SoundManager>();
-            if (sm != null)
-            {
-                sm.PlaySfx("Tejo:Explosion");
-            }
-            GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
-            GameManagerTejo.instance.RestarPuntos(1, 2);
-            other.gameObject.SetActive(false);
-            return;
-        }
+    // ---- MÉTODOS ENCAPSULADOS ----
 
-        if (other.CompareTag("Papeleta3"))
-        {
-            // reproducir SFX de explosión al impactar una papeleta
-            var sm = FindAnyObjectByType<SoundManager>();
-            if (sm != null)
-            {
-                sm.PlaySfx("Tejo:Explosion");
-            }
-            GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
-            GameManagerTejo.instance.RestarPuntos(2, 2);
-            other.gameObject.SetActive(false);
-            return;
-        }
+    /// <summary>
+    /// Maneja la destrucción de una papeleta específica, restando puntos y notificando al GameManager.
+    /// </summary>
+    private void ManejarPapeletaDestruida(int idJugador, Collider2D other)
+    {
+        ReproducirExplosion();
 
-        if (other.CompareTag("Papeleta4"))
+        GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
+        GameManagerTejo.instance.RestarPuntos(idJugador, 2);
+        other.gameObject.SetActive(false);
+
+        //  Nuevo: notificar destrucción para mostrar icono triste
+        GameManagerTejo.instance.NotificarPapeletaDestruida(idJugador);
+    }
+
+    /// <summary>
+    /// Reproduce el SFX de explosión, si existe el SoundManager.
+    /// </summary>
+    private void ReproducirExplosion()
+    {
+        var sm = FindAnyObjectByType<SoundManager>();
+        if (sm != null)
         {
-            // reproducir SFX de explosión al impactar una papeleta
-            var sm = FindAnyObjectByType<SoundManager>();
-            if (sm != null)
-            {
-                sm.PlaySfx("Tejo:Explosion");
-            }
-            GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
-            GameManagerTejo.instance.RestarPuntos(3, 2);
-            other.gameObject.SetActive(false);
-            return;
+            sm.PlaySfx("Tejo:Explosion");
         }
     }
 }

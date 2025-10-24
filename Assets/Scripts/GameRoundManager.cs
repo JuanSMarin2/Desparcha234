@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
+
 
 public class GameRoundManager : MonoBehaviour
 {
@@ -197,7 +197,7 @@ public class GameRoundManager : MonoBehaviour
     private void LoadResultsScene()
     {
         StopAllCoroutines();
-        SceneManager.LoadScene("ResultadosMinijuego");
+        SceneController.Instance.LoadScene("ResultadosMinijuego");
     }
 
     // Nuevo: Finalizar ronda para modo Tag (sin dependencia de TurnManager)

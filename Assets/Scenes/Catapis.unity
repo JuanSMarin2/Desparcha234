@@ -367,6 +367,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 0
   colorJugador1: {r: 1, g: 0, b: 0, a: 1}
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
@@ -989,16 +990,16 @@ MonoBehaviour:
     special: 5
     bomb: 3
   stage2Counts:
-    normal: 10
-    special: 5
-    bomb: 6
-  stage3Counts:
-    normal: 14
-    special: 5
-    bomb: 5
-  defaultCounts:
-    normal: 12
+    normal: 7
     special: 3
+    bomb: 5
+  stage3Counts:
+    normal: 4
+    special: 2
+    bomb: 8
+  defaultCounts:
+    normal: 15
+    special: 0
     bomb: 0
 --- !u!4 &235918252
 Transform:
@@ -1644,6 +1645,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 1
   colorJugador1: {r: 1, g: 0.48113203, b: 0.48113203, a: 1}
   colorJugador2: {r: 0.4660377, g: 0.4660377, b: 1, a: 1}
@@ -2310,6 +2312,53 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &574566740
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 574566741}
+  - component: {fileID: 574566742}
+  m_Layer: 0
+  m_Name: ParticleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &574566741
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 574566740}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 598252612}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &574566742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 574566740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21a7990b88e8dc94c91915ae8afc919d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popupPrefab: {fileID: 1660726259837633608, guid: f069eb7deb9692c46a6dd78e15ae5010, type: 3}
+  prewarm: 10
+  worldSpaceParent: {fileID: 0}
 --- !u!1 &598252611
 GameObject:
   m_ObjectHideFlags: 0
@@ -2345,6 +2394,7 @@ Transform:
   - {fileID: 686510136}
   - {fileID: 44222859}
   - {fileID: 1582307207}
+  - {fileID: 574566741}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &626622261
@@ -2568,10 +2618,6 @@ MonoBehaviour:
   puntosJugador3: {fileID: 1244694022}
   puntosJugador4: {fileID: 671717622}
   rondaTexto: {fileID: 1719881459}
-  intentosJugador1: {fileID: 0}
-  intentosJugador2: {fileID: 0}
-  intentosJugador3: {fileID: 0}
-  intentosJugador4: {fileID: 0}
   botonJugador1: {fileID: 2048096059}
   botonJugador2: {fileID: 2136977970}
   botonJugador3: {fileID: 1221072197}
@@ -3001,16 +3047,6 @@ MonoBehaviour:
   textoPuntos: {fileID: 855494759}
   textoGanar: Bien atrapado!
   textoPerder: Decepcionante...
-  iconosFelices:
-  - {fileID: 3232231290688778859, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
-  - {fileID: 478838189770312867, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
-  - {fileID: -6617828489231529575, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
-  - {fileID: 307226126855071095, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
-  iconosTristes:
-  - {fileID: -1832221067031316088, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  - {fileID: 1190479172476038618, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  - {fileID: 7162554072243991052, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  - {fileID: 8919797506060606750, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
   fadeInDuration: 0.2
   conteoDuration: 0.8
   holdAfterConteo: 2
@@ -3112,6 +3148,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 1
   colorJugador1: {r: 0.93207544, g: 0.39920965, b: 0.39920965, a: 1}
   colorJugador2: {r: 0.283681, g: 0.283681, b: 0.8792453, a: 1}
@@ -3157,6 +3194,16 @@ MonoBehaviour:
     - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     sadBySkin:
     - {fileID: -8531155124128328185, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  defaultHappy:
+  - {fileID: -1836012908756554960, guid: e24c55b9925cecb4fb20370024bd5299, type: 3}
+  - {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: -6617828489231529575, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+  - {fileID: 307226126855071095, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+  defaultSad:
+  - {fileID: -1832221067031316088, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - {fileID: 1190479172476038618, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 7162554072243991052, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+  - {fileID: 8919797506060606750, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
   cupImages:
   - {fileID: 559868339}
   - {fileID: 2146188791}
@@ -5245,6 +5292,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 0
   colorJugador1: {r: 1, g: 0, b: 0, a: 1}
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
@@ -5503,6 +5551,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 0
   colorJugador1: {r: 1, g: 0, b: 0, a: 1}
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
@@ -5761,6 +5810,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 0
   colorJugador1: {r: 1, g: 0, b: 0, a: 1}
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
@@ -5950,6 +6000,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 0
   colorJugador1: {r: 1, g: 0, b: 0, a: 1}
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
@@ -6349,6 +6400,7 @@ GameObject:
   - component: {fileID: 1592149798}
   - component: {fileID: 1592149803}
   - component: {fileID: 1592149804}
+  - component: {fileID: 1592149805}
   m_Layer: 0
   m_Name: Bolita
   m_TagString: Untagged
@@ -6390,8 +6442,8 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.0024117231}
-  m_Radius: 0.6326407
+  m_Offset: {x: 0.08971037, y: 0.002411719}
+  m_Radius: 4.3949924
 --- !u!50 &1592149799
 Rigidbody2D:
   serializedVersion: 5
@@ -6445,7 +6497,7 @@ MonoBehaviour:
   colorJugador2: {r: 0, g: 0.3882353, b: 0.76862746, a: 1}
   colorJugador3: {r: 0.8784314, g: 0.8862745, b: 0.2784314, a: 1}
   colorJugador4: {r: 0.20784314, g: 0.68235296, b: 0, a: 1}
-  maxExpectedForce: 156.1
+  maxExpectedForce: 156
   keepSpriteAtGround: 0
   shadowShrinkPerUnit: 0.28
   shadowMinScale: 0.55
@@ -6454,10 +6506,10 @@ MonoBehaviour:
   gravedadVirtualZ: -9.81
   dragZ: 3
   limitDescentSpeed: 1
-  maxDescentSpeed: 3.18
+  maxDescentSpeed: 3.16
   dragOnlyOnDescent: 1
-  distanciaAdvertenciaZ: 3.85
-  permitirRecogerPorToque: 0
+  distanciaAdvertenciaZ: 3.84
+  permitirRecogerPorToque: 1
   inputImage: {fileID: 58468174}
   _animator: {fileID: 1592149804}
   animatorBoolEnElAire: EnElAire
@@ -6465,6 +6517,7 @@ MonoBehaviour:
   sfxNearGroundKey: catapis:warning
   nearGroundSfxCooldown: 0.35
   sfxLaunchKey: catapis:woosh
+  _col2D: {fileID: 1592149798}
 --- !u!212 &1592149801
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -6563,7 +6616,7 @@ MonoBehaviour:
   camMundo: {fileID: 1215972837}
   usarZActualDelObjeto: 1
   zMundo: 0
-  suavizarMovimiento: 1
+  suavizarMovimiento: 0
   duracion: 0.1
   curva:
     serializedVersion: 2
@@ -6590,6 +6643,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 0
   colorJugador1: {r: 1, g: 0, b: 0, a: 1}
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
@@ -6626,6 +6680,25 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1592149805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592149797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e8464c91f868b74aa7486dc17aaa723, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  circle: {fileID: 1592149798}
+  maxWorldRadius: 2.4
+  minWorldRadius: 0.79
+  captureBaseOnAwake: 1
+  useMaxXYScale: 1
+  debugLogs: 0
+  baseLocalRadius: 4.3949924
 --- !u!1 &1617247905
 GameObject:
   m_ObjectHideFlags: 0
@@ -6988,6 +7061,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 1
   colorJugador1: {r: 1, g: 0, b: 0, a: 1}
   colorJugador2: {r: 0, g: 0, b: 1, a: 1}
@@ -7671,6 +7745,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animarAlIniciar: 0
+  reapplyEndOfFrameWhenInstant: 1
   cambiarColorPorJugador: 1
   colorJugador1: {r: 1, g: 0.2924527, b: 0.2924527, a: 1}
   colorJugador2: {r: 0.33773577, g: 0.33773577, b: 1, a: 1}
@@ -7685,6 +7760,63 @@ MonoBehaviour:
   recolorAlEvento: 1
   desaturarEliminado: 0
   desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+--- !u!1001 &1921273399
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7595607139670519505, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_Name
+      value: SceneController
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 775470c95ec579941af07554120c08f6, type: 3}
 --- !u!1 &1950145470
 GameObject:
   m_ObjectHideFlags: 0
@@ -8800,10 +8932,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PanelTutorial
       objectReference: {fileID: 0}
-    - target: {fileID: 5028761856368308527, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5701598928051905175, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -8938,3 +9066,4 @@ SceneRoots:
   - {fileID: 883950609}
   - {fileID: 786171956}
   - {fileID: 999913478}
+  - {fileID: 1921273399}

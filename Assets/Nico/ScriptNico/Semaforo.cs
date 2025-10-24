@@ -32,7 +32,7 @@ public class Semaforo : MonoBehaviour
 		var sm = SoundManager.instance;
 		if (sm != null)
 		{
-			sm.PlaySfx("semaforo:Start");
+			sm.PlaySfx("semaforo:Start",0.8f);
 		}
 		
 	}
