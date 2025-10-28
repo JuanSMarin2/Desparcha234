@@ -990,12 +990,12 @@ MonoBehaviour:
     special: 5
     bomb: 3
   stage2Counts:
-    normal: 7
-    special: 3
+    normal: 12
+    special: 4
     bomb: 5
   stage3Counts:
-    normal: 4
-    special: 2
+    normal: 14
+    special: 3
     bomb: 8
   defaultCounts:
     normal: 15
