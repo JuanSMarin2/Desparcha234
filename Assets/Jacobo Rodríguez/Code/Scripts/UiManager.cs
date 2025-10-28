@@ -29,6 +29,10 @@ public class UiManager : MonoBehaviour
     [SerializeField] private GameObject panelAdvertenciaRecoger;
 
     [SerializeField] private GameObject AdvertenciaAtrapa;
+    // Nuevo: texto configurable para la advertencia principal
+    [SerializeField] private TMP_Text advertenciaAtrapaLabel; // Asignar el TMP_Text del objeto AdvertenciaAtrapa (opcional)
+    [SerializeField] private string textoAdvertenciaNatural = "Toca las fichas!!!";
+    [SerializeField] private string textoAdvertenciaNearGround = "Atrapa la bola!!!";
   
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -55,6 +59,9 @@ public class UiManager : MonoBehaviour
 
         // Asegurar que el panel de advertencia inicie oculto
         if (panelAdvertenciaRecoger != null) panelAdvertenciaRecoger.SetActive(false);
+
+        // Inicializar texto base de la advertencia principal
+        SetAdvertenciaAtrapaText(textoAdvertenciaNatural);
 
         if (bolita == null) bolita = FindAnyObjectByType<Bolita>();
         if (bolita != null)
@@ -148,6 +155,8 @@ public class UiManager : MonoBehaviour
     {
         if (AdvertenciaAtrapa != null)
         {
+            // Asegurar que el texto esté en su estado natural al mostrarse manualmente
+            SetAdvertenciaAtrapaText(textoAdvertenciaNatural);
             AdvertenciaAtrapa.SetActive(true);
         Debug.Log("Advertencia Atrapa Activada");
         }     
@@ -180,6 +189,36 @@ public class UiManager : MonoBehaviour
     {
         if (panelAdvertenciaRecoger != null)
             panelAdvertenciaRecoger.SetActive(mostrar);
+
+        // Al avisar near-ground, cambiar el texto principal a "Atrapa la bola!!!" y asegurarnos de que esté visible
+        if (mostrar)
+        {
+            SetAdvertenciaAtrapaText(textoAdvertenciaNearGround);
+            if (AdvertenciaAtrapa != null && !AdvertenciaAtrapa.activeSelf)
+                AdvertenciaAtrapa.SetActive(true);
+        }
+    }
+
+    // Nuevo: método público para restaurar el texto natural al finalizar el turno
+    public void OnFinDeTurno_ResetAdvertenciaAtrapa()
+    {
+        SetAdvertenciaAtrapaText(textoAdvertenciaNatural);
+        // Ocultar el panel de recoger por si quedó activo
+        if (panelAdvertenciaRecoger != null) panelAdvertenciaRecoger.SetActive(false);
+    }
+
+    private void SetAdvertenciaAtrapaText(string texto)
+    {
+        if (string.IsNullOrEmpty(texto)) return;
+
+        // Usar referencia directa si existe; si no, intentar buscar en el objeto AdvertenciaAtrapa
+        if (advertenciaAtrapaLabel == null && AdvertenciaAtrapa != null)
+            advertenciaAtrapaLabel = AdvertenciaAtrapa.GetComponentInChildren<TMP_Text>(true);
+
+        if (advertenciaAtrapaLabel != null)
+        {
+            advertenciaAtrapaLabel.text = texto;
+        }
     }
 
     private static void SetTextoPuntos(TMP_Text label, long valor)
