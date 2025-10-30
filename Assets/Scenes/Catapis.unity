@@ -2674,6 +2674,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: c8a33cd540db6c84a951cd74e8b4aba2, type: 3}
   - key: woosh
     clip: {fileID: 8300000, guid: 30fcb8f45fdd53d4f873c8cd28ec80b2, type: 3}
+  - key: prueba
+    clip: {fileID: 8300000, guid: 91149d2a728f005409c85bcf7317a4d9, type: 3}
   musicClips: []
   autoPlayMusicKey: 
   autoLoopMusic: 0
@@ -8934,6 +8936,10 @@ PrefabInstance:
     - target: {fileID: 5028761856368308527, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_Name
       value: PanelTutorial
+      objectReference: {fileID: 0}
+    - target: {fileID: 5028761856368308527, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5701598928051905175, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_Pivot.x

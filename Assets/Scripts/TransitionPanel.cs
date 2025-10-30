@@ -42,10 +42,10 @@ public class TransitionPanel : MonoBehaviour
 
         RecomputePositions();
 
-        // Al crearse, consideramos que está cubriendo (en el centro)
+        // Al crearse, consideramos que estï¿½ cubriendo (en el centro)
         panel.anchoredPosition = centerPos;
 
-        // Nos suscribimos a cada carga de escena para hacer la salida automáticamente
+        // Nos suscribimos a cada carga de escena para hacer la salida automï¿½ticamente
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -55,7 +55,7 @@ public class TransitionPanel : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // Si cambia la resolución/ratio, recalculamos
+    // Si cambia la resoluciï¿½n/ratio, recalculamos
     void OnRectTransformDimensionsChange()
     {
         RecomputePositions();
@@ -78,7 +78,7 @@ public class TransitionPanel : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Al entrar a cualquier escena nueva: el panel está persistente, así que lo colocamos “cubriendo”
+        // Al entrar a cualquier escena nueva: el panel estï¿½ persistente, asï¿½ que lo colocamos ï¿½cubriendoï¿½
         // y disparamos la salida hacia ABAJO.
         panel.DOKill();
         panel.anchoredPosition = centerPos;
@@ -86,7 +86,7 @@ public class TransitionPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// Cubre: sube desde abajo hasta centro; cuando termina, ejecuta onCovered (ahí cargas la escena).
+    /// Cubre: sube desde abajo hasta centro; cuando termina, ejecuta onCovered (ahï¿½ cargas la escena).
     /// </summary>
     public void CoverThen(System.Action onCovered)
     {
@@ -96,6 +96,7 @@ public class TransitionPanel : MonoBehaviour
 
         panel.DOAnchorPos(centerPos, inDuration)
              .SetEase(inEase)
+             .SetUpdate(true) // usar tiempo no escalado para no depender de Time.timeScale
              .OnComplete(() => onCovered?.Invoke());
     }
 
@@ -110,6 +111,18 @@ public class TransitionPanel : MonoBehaviour
             panel.anchoredPosition = centerPos;
 
         panel.DOAnchorPos(offBottomPos, outDuration)
-             .SetEase(outEase);
+             .SetEase(outEase)
+             .SetUpdate(true); // usar tiempo no escalado para no depender de Time.timeScale
+    }
+
+    /// <summary>
+    /// Forzar ocultar inmediatamente el panel (sin animaciÃ³n).
+    /// Ãštil si Time.timeScale = 0 o si queremos garantizar que no tape nada.
+    /// </summary>
+    public void ForceHideNow()
+    {
+        if (!panel) return;
+        panel.DOKill();
+        panel.anchoredPosition = offBottomPos;
     }
 }
