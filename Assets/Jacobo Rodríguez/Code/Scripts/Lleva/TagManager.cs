@@ -97,7 +97,7 @@ public class TagManager : MonoBehaviour
             if (!string.IsNullOrEmpty(sfxCountdownKey))
             {
                 var sm2 = SoundManager.instance;
-                if (sm2 != null) sm2.PlaySfx(sfxCountdownKey, countdownSfxVolume);
+                if (sm2 != null) sm2.PlaySfxRateLimited(sfxCountdownKey, 0.2f, countdownSfxVolume);
             }
             if (debugLogs) Debug.Log($"[TagManager] Umbral de {countdownReplayThreshold}s alcanzado: SFX cronómetro reproducido.");
         }
@@ -157,7 +157,7 @@ public class TagManager : MonoBehaviour
         if (!string.IsNullOrEmpty(sfxCountdownKey))
         {
             var sm = SoundManager.instance;
-            if (sm != null) sm.PlaySfx(sfxCountdownKey, countdownSfxVolume);
+            if (sm != null) sm.PlaySfxRateLimited(sfxCountdownKey, 0.2f, countdownSfxVolume);
         }
         
         if (debugLogs) Debug.Log($"[TagManager] Ronda inicial comenzada. Tagged=Player{chosen.PlayerIndex}");
@@ -183,7 +183,7 @@ public class TagManager : MonoBehaviour
         if (!string.IsNullOrEmpty(sfxCountdownKey))
         {
             var sm = SoundManager.instance;
-            if (sm != null) sm.PlaySfx(sfxCountdownKey, countdownSfxVolume);
+            if (sm != null) sm.PlaySfxRateLimited(sfxCountdownKey, 0.2f, countdownSfxVolume);
         }
     }
 

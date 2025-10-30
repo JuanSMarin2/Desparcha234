@@ -21,7 +21,24 @@ public class Semaforo : MonoBehaviour
 
 	void Start()
 	{
-		globalASource.PlayOneShot(semaforoSound);
+		// Preferir SoundManager con claves registradas; fallback al AudioSource local si no existe
+		var sm = SoundManager.instance;
+		bool played = false;
+		if (sm != null)
+		{
+			// Primero intentar la clave solicitada para Lleva
+			played = sm.TryPlaySfx("lleva:Start", 0.8f);
+			if (!played)
+			{
+				// Fallback a la clave antigua
+				played = sm.TryPlaySfx("semaforo:Start", 0.8f);
+			}
+		}
+		if (!played && globalASource != null && semaforoSound != null)
+		{
+			globalASource.PlayOneShot(semaforoSound);
+		}
+
 		// If no explicit targetImage set, try to get one from this GameObject
 		if (targetImage == null)
 			targetImage = GetComponent<Image>();
@@ -29,12 +46,6 @@ public class Semaforo : MonoBehaviour
 		// If timer not set, attempt to find one in scene
 		if (timer == null)
 			timer = Object.FindFirstObjectByType<StartTimintg>();
-		var sm = SoundManager.instance;
-		if (sm != null)
-		{
-			sm.PlaySfx("semaforo:Start",0.8f);
-		}
-		
 	}
 
 	void Update()

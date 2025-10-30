@@ -154,6 +154,13 @@ public class PanelFinalTurno : MonoBehaviour
         StartCoroutine(RutinaPanel());
     }
 
+    private void FinishAndClose()
+    {
+        // Restaurar advertencia en UiManager si existe
+        var ui = FindAnyObjectByType<UiManager>();
+        ui?.OnFinDeTurno_ResetAdvertenciaAtrapa();
+    }
+
     private IEnumerator RutinaPanel()
     {
         // Fade in
@@ -240,6 +247,7 @@ public class PanelFinalTurno : MonoBehaviour
         }
         gameObject.SetActive(false);
         _running = false;
+        FinishAndClose();
         var cb = _onFinished; _onFinished = null; cb?.Invoke();
     }
 }

@@ -26,6 +26,9 @@ public class SoundManager : MonoBehaviour
 
     private readonly HashSet<string> _warnedMissing = new();
 
+    // NUEVO: rate limiting por clave
+    private readonly Dictionary<string, float> _sfxLastPlayTime = new();
+
     // Eventos para UI cuando cambian los volúmenes
     public static event Action<float> OnSfxVolumeChanged;
     public static event Action<float> OnMusicVolumeChanged;
@@ -205,6 +208,29 @@ public class SoundManager : MonoBehaviour
         {
             _sfxSource.PlayOneShot(clip, Mathf.Clamp01(sfxVolume * volumeScale));
         }
+    }
+
+    // NUEVO: intentar reproducir SFX sin warnings si falta (devuelve true si se reprodujo)
+    public bool TryPlaySfx(string key, float volumeScale = 1f)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return false;
+        if (!_sfxClips.TryGetValue(key, out var clip) || clip == null || _sfxSource == null) return false;
+        _sfxSource.PlayOneShot(clip, Mathf.Clamp01(sfxVolume * volumeScale));
+        return true;
+    }
+
+    // NUEVO: reproducción con rate limit por clave (segundos entre reproducciones). Devuelve true si disparó.
+    public bool PlaySfxRateLimited(string key, float minInterval, float volumeScale = 1f)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return false;
+        float now = Time.unscaledTime;
+        if (_sfxLastPlayTime.TryGetValue(key, out var last))
+        {
+            if (now - last < Mathf.Max(0f, minInterval)) return false;
+        }
+        _sfxLastPlayTime[key] = now;
+        PlaySfx(key, volumeScale);
+        return true;
     }
 
     // Detiene inmediatamente cualquier SFX en reproducción en el canal compartido
