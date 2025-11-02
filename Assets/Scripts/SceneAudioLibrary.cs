@@ -16,6 +16,14 @@ public class SceneAudioLibrary : MonoBehaviour
     [Header("Clips SFX")] public NamedClip[] sfxClips;
     [Header("Clips Música")] public NamedClip[] musicClips;
 
+    [Header("Selección de Música (nuevo)")]
+    [Tooltip("Si está activo, al iniciar se elegirá aleatoriamente una canción del arreglo 'musicaAleatoria'. Si está desactivado y 'musicaFija' tiene valor, se usará esa canción fija.")]
+    [SerializeField] private bool musicaRandom = false;
+    [Tooltip("Pool de canciones para selección aleatoria cuando musicaRandom es true")] 
+    [SerializeField] private AudioClip[] musicaAleatoria;
+    [Tooltip("Canción fija a reproducir cuando musicaRandom es false")] 
+    [SerializeField] private AudioClip musicaFija;
+
     [Tooltip("Reproducir automáticamente esta música al cargar la escena (usar key local sin prefijo)")]
     public string autoPlayMusicKey;
     public bool autoLoopMusic = true;
@@ -27,12 +35,33 @@ public class SceneAudioLibrary : MonoBehaviour
     // Guard para no registrar/autoplay dos veces cuando es persistente
     private bool _alreadyRegisteredPersistent = false;
 
+    private const string AutoMusicLocalKey = "__autoMusic";
+
     private void Awake()
     {
         if (persistAcrossScenes)
         {
             // Garantizar que sobreviva a los loads de escena
             DontDestroyOnLoad(gameObject);
+        }
+
+        // Preparar selección de música según flags
+        AudioClip selected = null;
+        if (musicaRandom && musicaAleatoria != null && musicaAleatoria.Length > 0)
+        {
+            int idx = Random.Range(0, musicaAleatoria.Length);
+            selected = musicaAleatoria[idx];
+        }
+        else if (!musicaRandom && musicaFija != null)
+        {
+            selected = musicaFija;
+        }
+
+        if (selected != null)
+        {
+            AddOrReplaceAutoMusicClip(selected);
+            // Configurar para que el sistema de autoplay utilice esta clave
+            autoPlayMusicKey = AutoMusicLocalKey;
         }
     }
 
@@ -44,7 +73,10 @@ public class SceneAudioLibrary : MonoBehaviour
             if (!persistAcrossScenes || !_alreadyRegisteredPersistent)
             {
                 SoundManager.instance.RegisterBatch(this);
-                if (!string.IsNullOrWhiteSpace(autoPlayMusicKey))
+
+                // Si se usa la selección (random/fija) dejamos que SoundManager.Start haga el autoplay
+                bool usingSelection = musicaRandom || (musicaFija != null);
+                if (!usingSelection && !string.IsNullOrWhiteSpace(autoPlayMusicKey))
                 {
                     string full = BuildKey(autoPlayMusicKey);
                     SoundManager.instance.PlayMusic(full, autoLoopMusic);
@@ -58,7 +90,6 @@ public class SceneAudioLibrary : MonoBehaviour
             else
             {
                 // Omitimos registro repetido (clips ya están en diccionario)
-                //Debug.Log($"[SceneAudioLibrary] '{gameId}' persistente ya registrado previamente: se omite.");
             }
         }
     }
@@ -82,5 +113,33 @@ public class SceneAudioLibrary : MonoBehaviour
         if (string.IsNullOrWhiteSpace(gameId)) return local.Trim();
         if (local.Contains(":")) return local; // ya formado
         return gameId.Trim() + ":" + local.Trim();
+    }
+
+    // Inserta o reemplaza una entrada de música con clave interna para autoplay
+    private void AddOrReplaceAutoMusicClip(AudioClip clip)
+    {
+        if (clip == null) return;
+        if (musicClips == null) musicClips = new NamedClip[0];
+
+        int found = -1;
+        for (int i = 0; i < musicClips.Length; i++)
+        {
+            if (musicClips[i].key == AutoMusicLocalKey)
+            {
+                found = i; break;
+            }
+        }
+        if (found >= 0)
+        {
+            musicClips[found] = new NamedClip { key = AutoMusicLocalKey, clip = clip };
+        }
+        else
+        {
+            var newArr = new NamedClip[musicClips.Length + 1];
+            // Insertamos al inicio para precedencia visual
+            newArr[0] = new NamedClip { key = AutoMusicLocalKey, clip = clip };
+            for (int i = 0; i < musicClips.Length; i++) newArr[i + 1] = musicClips[i];
+            musicClips = newArr;
+        }
     }
 }

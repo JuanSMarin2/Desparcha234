@@ -2672,8 +2672,13 @@ MonoBehaviour:
   - key: woosh
     clip: {fileID: 8300000, guid: 30fcb8f45fdd53d4f873c8cd28ec80b2, type: 3}
   musicClips: []
+  musicaRandom: 1
+  musicaAleatoria:
+  - {fileID: 8300000, guid: 7a90becef07a80041852e3ee4854b25b, type: 3}
+  - {fileID: 8300000, guid: 25fa13a8693e9554eabc7a9e4d8d34cb, type: 3}
+  musicaFija: {fileID: 0}
   autoPlayMusicKey: 
-  autoLoopMusic: 0
+  autoLoopMusic: 1
   persistAcrossScenes: 0
 --- !u!4 &786171956
 Transform:

@@ -20,6 +20,8 @@ TagManager:
   - Papeleta2
   - DestroyZone
   - Tablero
+  - InnerCircle
+  - planta
   layers:
   - Default
   - TransparentFX

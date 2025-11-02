@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System; // agregado para eventos
 using System.Collections; // para IEnumerators locales
+using UnityEngine.SceneManagement; // para detectar cargas de escena
 
 public class SoundManager : MonoBehaviour
 {
@@ -62,6 +63,15 @@ public class SoundManager : MonoBehaviour
         _musicSource.spatialBlend = 0f;
 
         CargarVolumenesPersistidos();
+
+        // Suscribirse a eventos de carga de escena para re-escanear librerías
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        // Limpiar suscripción al destruirse (por seguridad)
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Start()
@@ -86,6 +96,10 @@ public class SoundManager : MonoBehaviour
             }
             if (libs.Length > 0) Debug.Log($"[SoundManager] Auto-registradas {libs.Length} SceneAudioLibrary al iniciar.");
         }
+
+        // Además de la ejecución inicial, asegurar un escaneo explícito por si alguna SceneAudioLibrary
+        // no fue incluida vía FindObjectsByType en plataformas antiguas: reutilizamos la misma rutina.
+        ScanAndRegisterSceneAudioLibraries();
     }
 
     private void CargarVolumenesPersistidos()
@@ -93,6 +107,35 @@ public class SoundManager : MonoBehaviour
         if (PlayerPrefs.HasKey(PREF_SFX)) sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PREF_SFX, sfxVolume));
         if (PlayerPrefs.HasKey(PREF_MUS)) musicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PREF_MUS, musicVolume));
         if (_musicSource != null) _musicSource.volume = musicVolume;
+    }
+
+    // Nuevo: handler que se ejecuta tras cada carga de escena
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"[SoundManager] Escaneando SceneAudioLibrary tras cargar escena: {scene.name}");
+        ScanAndRegisterSceneAudioLibraries();
+    }
+
+    // Nuevo: re-escanea las SceneAudioLibrary de la escena y registra sus clips; reproduce autoPlayMusicKey si existe
+    private void ScanAndRegisterSceneAudioLibraries()
+    {
+        var libs = FindObjectsByType<SceneAudioLibrary>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        if (libs == null || libs.Length == 0) return;
+        var seen = new HashSet<SceneAudioLibrary>();
+        foreach (var lib in libs)
+        {
+            if (lib == null || seen.Contains(lib)) continue;
+            seen.Add(lib);
+            RegisterBatch(lib);
+            if (!string.IsNullOrWhiteSpace(lib.autoPlayMusicKey))
+            {
+                string local = lib.autoPlayMusicKey;
+                string full = string.IsNullOrWhiteSpace(lib.gameId) || local.Contains(":") ? local.Trim() : lib.gameId.Trim() + ":" + local.Trim();
+                // Reproducir la música indicada (PlayMusic maneja reemplazar el clip actual en _musicSource)
+                PlayMusic(full, lib.autoLoopMusic);
+            }
+        }
+        Debug.Log($"[SoundManager] ScanAndRegisterSceneAudioLibraries -> registradas {libs.Length} SceneAudioLibrary(s).");
     }
 
     // ================== REGISTRO DINÁMICO ==================
@@ -158,7 +201,7 @@ public class SoundManager : MonoBehaviour
         var musField = t.GetField("musicClips");
         if (musField != null)
         {
-            var arr = musField.GetValue(libComp) as System.Collections.IEnumerable;
+            var arr = musField.GetValue(libComp) as IEnumerable;
             if (arr != null)
             {
                 foreach (var elem in arr)
@@ -239,6 +282,22 @@ public class SoundManager : MonoBehaviour
             return;
         }
         if (_musicSource == null || clip == null) return;
+
+        // Si es el mismo clip que ya está asignado al AudioSource, no reiniciarlo para que continúe donde iba.
+        if (_musicSource.clip == clip)
+        {
+            // Actualizar propiedades pero evitar Play() si ya está sonando (no reiniciar desde 0).
+            _musicSource.loop = loop;
+            _musicSource.volume = musicVolume;
+            if (!_musicSource.isPlaying)
+            {
+                // Si no está reproduciéndose (detenido/pausado), iniciarlo ahora.
+                _musicSource.Play();
+            }
+            return;
+        }
+
+        // Clip distinto: reemplazar y reproducir desde el inicio
         _musicSource.loop = loop;
         _musicSource.clip = clip;
         _musicSource.volume = musicVolume;

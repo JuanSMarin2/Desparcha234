@@ -18,6 +18,10 @@ public class PlayerTag : MonoBehaviour
     [Tooltip("Usar colisiones físicas (OnCollisionEnter2D) en lugar de triggers para transferir")] [SerializeField] private bool usarColisionFisica = false;
     [Tooltip("Si true mantiene también el trigger para otras detecciones (dual)")] [SerializeField] private bool mantenerTriggerParaDeteccion = false;
 
+    [Header("Efectos de Sonido")]
+    [Tooltip("Sonido que reproduce al tocar objetos con tag 'planta'")]
+    [SerializeField] private string plantaSfxKey = "planta";
+
     private float _lastTransferTime = -999f;
     private int _lastTransferFrame = -999;
 
@@ -84,6 +88,13 @@ public class PlayerTag : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (usarColisionFisica && !mantenerTriggerParaDeteccion) return; // ignorar triggers si se usa colisión física pura
+        
+        // Detectar colisión con plantas
+        if (other.CompareTag("planta"))
+        {
+            PlayPlantaSound();
+        }
+        
         var otherTag = other.GetComponentInParent<PlayerTag>();
         HandleTagTransfer(otherTag);
     }
@@ -91,8 +102,24 @@ public class PlayerTag : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!usarColisionFisica) return;
+        
+        // Detectar colisión con plantas también en modo físico
+        if (collision.collider.CompareTag("planta"))
+        {
+            PlayPlantaSound();
+        }
+        
         var otherTag = collision.collider.GetComponentInParent<PlayerTag>();
         HandleTagTransfer(otherTag);
+    }
+
+    private void PlayPlantaSound()
+    {
+        var sm = SoundManager.instance;
+        if (sm != null && !string.IsNullOrEmpty(plantaSfxKey))
+        {
+            sm.PlaySfx(plantaSfxKey);
+        }
     }
 
     public void EliminarJugador()
