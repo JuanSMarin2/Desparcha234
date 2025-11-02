@@ -391,6 +391,9 @@ MonoBehaviour:
   - key: select
     clip: {fileID: 8300000, guid: de69e7c7e0086f648879f9d639889e44, type: 3}
   musicClips: []
+  musicaRandom: 0
+  musicaAleatoria: []
+  musicaFija: {fileID: 8300000, guid: fa09a36d09d79c645b8abfea61490037, type: 3}
   autoPlayMusicKey: 
   autoLoopMusic: 1
   persistAcrossScenes: 1
@@ -3634,7 +3637,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1076097553}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
