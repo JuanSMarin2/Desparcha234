@@ -990,12 +990,12 @@ MonoBehaviour:
     special: 5
     bomb: 3
   stage2Counts:
-    normal: 7
-    special: 3
+    normal: 12
+    special: 4
     bomb: 5
   stage3Counts:
-    normal: 4
-    special: 2
+    normal: 14
+    special: 3
     bomb: 8
   defaultCounts:
     normal: 15
@@ -2624,6 +2624,9 @@ MonoBehaviour:
   botonJugador4: {fileID: 1585000447}
   panelAdvertenciaRecoger: {fileID: 572626908}
   AdvertenciaAtrapa: {fileID: 1716879187}
+  advertenciaAtrapaLabel: {fileID: 0}
+  textoAdvertenciaNatural: Toca las fichas!!!
+  textoAdvertenciaNearGround: Atrapa la bola!!!
 --- !u!1 &786171954
 GameObject:
   m_ObjectHideFlags: 0
@@ -2671,6 +2674,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: c8a33cd540db6c84a951cd74e8b4aba2, type: 3}
   - key: woosh
     clip: {fileID: 8300000, guid: 30fcb8f45fdd53d4f873c8cd28ec80b2, type: 3}
+  - key: prueba
+    clip: {fileID: 8300000, guid: 91149d2a728f005409c85bcf7317a4d9, type: 3}
   musicClips: []
   musicaRandom: 1
   musicaAleatoria:
@@ -6492,17 +6497,17 @@ MonoBehaviour:
   _sprite: {fileID: 1592149801}
   spriteRoot: {fileID: 1592149802}
   shadow: {fileID: 376087871}
-  scalePerUnitMin: 1.92
+  scalePerUnitMin: 1.8
   scalePerUnitMax: 4.08
-  maxVisualScale: 19.1
-  disappearScaleThreshold: 9.43
-  alphaEnElAire: 1
+  maxVisualScale: 18
+  disappearScaleThreshold: 14.5
+  alphaEnElAire: 0.917
   alphaEnSuelo: 1
   colorJugador1: {r: 0.8862745, g: 0.16078432, b: 0.24313726, a: 1}
   colorJugador2: {r: 0, g: 0.3882353, b: 0.76862746, a: 1}
   colorJugador3: {r: 0.8784314, g: 0.8862745, b: 0.2784314, a: 1}
   colorJugador4: {r: 0.20784314, g: 0.68235296, b: 0, a: 1}
-  maxExpectedForce: 156
+  maxExpectedForce: 155
   keepSpriteAtGround: 0
   shadowShrinkPerUnit: 0.28
   shadowMinScale: 0.55
@@ -7765,6 +7770,63 @@ MonoBehaviour:
   recolorAlEvento: 1
   desaturarEliminado: 0
   desaturadoMultiplier: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+--- !u!1001 &1921273399
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241872267327245937, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7595607139670519505, guid: 775470c95ec579941af07554120c08f6, type: 3}
+      propertyPath: m_Name
+      value: SceneController
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 775470c95ec579941af07554120c08f6, type: 3}
 --- !u!1 &1950145470
 GameObject:
   m_ObjectHideFlags: 0
@@ -8880,6 +8942,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PanelTutorial
       objectReference: {fileID: 0}
+    - target: {fileID: 5028761856368308527, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5701598928051905175, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -9014,3 +9080,4 @@ SceneRoots:
   - {fileID: 883950609}
   - {fileID: 786171956}
   - {fileID: 999913478}
+  - {fileID: 1921273399}

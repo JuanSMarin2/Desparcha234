@@ -38,6 +38,8 @@ public class PowerUpPower : MonoBehaviour
         // Notifica y desaparece
         powerUpController?.HandleCollection();
 
+
+
         if (destroyOnPick) Destroy(gameObject);
         else gameObject.SetActive(false);
     }

@@ -14,7 +14,7 @@ public class MinigameChooser : MonoBehaviour
         rd.scheduledGames.Add(gameName);
 
         Debug.Log("Juego seleccionado (single): " + gameName);
-        SceneManager.LoadScene(gameName);
+        SceneController.Instance.LoadScene(gameName);
     }
 
     // Botón Torneo: agenda todos aleatorios y empieza
@@ -31,12 +31,13 @@ public class MinigameChooser : MonoBehaviour
         {
             string first = rd.scheduledGames[0];
             Debug.Log("Torneo iniciado. Primero: " + first);
-            SceneManager.LoadScene(first);
+            SceneController.Instance.LoadScene(first);
         }
         else
         {
             Debug.LogWarning("No hay minijuegos disponibles para torneo.");
-            SceneManager.LoadScene("FinalResults"); // ajusta si usas otro nombre
+      
+            SceneController.Instance.LoadScene("FinalResults");
         }
     }
 
@@ -59,12 +60,14 @@ public class MinigameChooser : MonoBehaviour
         {
             string next = rd.scheduledGames[0];
             Debug.Log("Siguiente en agenda: " + next);
-            SceneManager.LoadScene(next);
+            SceneController.Instance.LoadScene(next);
+         
         }
         else
         {
             Debug.Log("Torneo/Single finalizado. Mostrando resultados finales.");
-            SceneManager.LoadScene("FinalResults"); // ajusta si usas otro nombre
+     
+            SceneController.Instance.LoadScene("FinalResults");
         }
     }
 
@@ -80,11 +83,13 @@ public class MinigameChooser : MonoBehaviour
             string chosenGame = rd.availableGames[randomIndex];
 
             Debug.Log("Juego aleatorio: " + chosenGame);
-            SceneManager.LoadScene(chosenGame);
+        
+            SceneController.Instance.LoadScene(chosenGame);
         }
         else
         {
-            SceneManager.LoadScene("FinalResults");
+         
+            SceneController.Instance.LoadScene("FinalResults");
         }
     }
 

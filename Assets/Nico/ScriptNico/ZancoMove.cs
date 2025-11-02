@@ -30,11 +30,14 @@ public class ZancoMove : MonoBehaviour
     [SerializeField] private Image statusImage;
     [SerializeField] private Sprite caidoImagen;
     [SerializeField] private Sprite ganaImagen;
+    [SerializeField] private Sprite baseImagen;
 
     public float numPer;
 
-  
+
     bool inCaida = false;
+
+    [SerializeField] AudioManagerSacos ams;
 
     void Start()
     {
@@ -79,15 +82,16 @@ public class ZancoMove : MonoBehaviour
         if(inCaida)
         {
             statusImage.sprite = caidoImagen;
-            statusImage.gameObject.SetActive(true);
+        
         } else if (llegoMeta)
         {
             statusImage.sprite = ganaImagen; 
-            statusImage.gameObject.SetActive(true);
+        
         }
         else
         {
-         statusImage.gameObject.SetActive(false);
+            statusImage.sprite = baseImagen;
+        
         }
 
   
@@ -118,6 +122,7 @@ public class ZancoMove : MonoBehaviour
         saltosSeguidos += 1f;
         lastValidClickTime = Time.time;
         if (acc != null) acc.jumpTrigger();
+        ams.PlaySFX(ams.salto);
     }
 
     public void MoveZanco()
@@ -136,7 +141,7 @@ public class ZancoMove : MonoBehaviour
         inCaida = true;
         lastValidClickTime = Time.time;
         StartCoroutine(BloquearMovimientoPorTiempo(2f));
-
+        ams.PlaySFX(ams.Caida);
 
 
     }

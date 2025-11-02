@@ -36,6 +36,10 @@ public class Jack : MonoBehaviour, IPointerDownHandler
     [Tooltip("Hijo que contiene el SpriteRenderer/Animator. Si se deja vacío se detecta el primer SpriteRenderer en hijos.")]
     [SerializeField] private Transform visualRoot;
 
+    [Header("FX")] 
+    [Tooltip("Prefab de partículas a instanciar al recolectar/destruir este Jack")] 
+    [SerializeField] private GameObject destroyVfxPrefab;
+
     public int Puntos => puntos; // Exponer puntos para Progression
 
     private SpriteRenderer _sr;
@@ -209,7 +213,54 @@ public class Jack : MonoBehaviour, IPointerDownHandler
 
     public void disable()
     {
+        SpawnDestroyVfx();
         Destroy(gameObject);
+    }
+
+    private void SpawnDestroyVfx()
+    {
+        if (destroyVfxPrefab == null) return;
+        var go = Instantiate(destroyVfxPrefab, transform.position, Quaternion.identity);
+        float life = 0.8f; // fallback
+        var ps = go.GetComponent<ParticleSystem>();
+        if (ps != null)
+        {
+            var main = ps.main;
+            float dur = main.duration;
+            float maxLt = 0f;
+#if UNITY_2019_1_OR_NEWER
+            if (main.startLifetime.mode == ParticleSystemCurveMode.TwoConstants)
+                maxLt = Mathf.Max(main.startLifetime.constantMin, main.startLifetime.constantMax);
+            else if (main.startLifetime.mode == ParticleSystemCurveMode.TwoCurves)
+                maxLt = Mathf.Max(main.startLifetime.curveMax.length, main.startLifetime.curveMin.length);
+            else
+                maxLt = main.startLifetime.constant;
+#else
+            maxLt = main.startLifetime.constant;
+#endif
+            life = Mathf.Max(life, dur + maxLt + 0.25f);
+        }
+        else
+        {
+            var pss = go.GetComponentsInChildren<ParticleSystem>(true);
+            foreach (var p in pss)
+            {
+                var m = p.main;
+                float lt = 0f;
+#if UNITY_2019_1_OR_NEWER
+                if (m.startLifetime.mode == ParticleSystemCurveMode.TwoConstants)
+                    lt = Mathf.Max(m.startLifetime.constantMin, m.startLifetime.constantMax);
+                else if (m.startLifetime.mode == ParticleSystemCurveMode.TwoCurves)
+                    lt = Mathf.Max(m.startLifetime.curveMax.length, m.startLifetime.curveMin.length);
+                else
+                    lt = m.startLifetime.constant;
+#else
+                lt = m.startLifetime.constant;
+#endif
+                life = Mathf.Max(life, m.duration + lt + 0.1f);
+            }
+        }
+        Destroy(go, life);
     }
 
     private void SetCollidersEnabled(bool enabled)

@@ -42,6 +42,7 @@ public class PowerUpController : MonoBehaviour
     {
         if (wasCounted)
         {
+            SoundManager.instance.PlaySfx("Canicas:powerUp");
             PowerUpRegistry.ActiveCount--;
             wasCounted = false;
             Debug.Log("PowerUp Recogido - Total: " + PowerUpRegistry.ActiveCount);

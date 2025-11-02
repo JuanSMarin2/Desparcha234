@@ -6,8 +6,12 @@ public class Semaforo : MonoBehaviour
 	[Header("Timer reference")]
 	[SerializeField] private StartTimintg timer;
 
+	[Header("Sound")]
+	[SerializeField] public AudioClip semaforoSound;
+	[SerializeField] private AudioSource globalASource;
+
 	[Header("Sprites for seconds 0..3")]
-	[SerializeField] private Sprite image0;
+ 	[SerializeField] private Sprite image0;
 	[SerializeField] private Sprite image1;
 	[SerializeField] private Sprite image2;
 	[SerializeField] private Sprite image3;
@@ -17,6 +21,24 @@ public class Semaforo : MonoBehaviour
 
 	void Start()
 	{
+		// Preferir SoundManager con claves registradas; fallback al AudioSource local si no existe
+		var sm = SoundManager.instance;
+		bool played = false;
+		if (sm != null)
+		{
+			// Primero intentar la clave solicitada para Lleva
+			played = sm.TryPlaySfx("lleva:Start", 0.8f);
+			if (!played)
+			{
+				// Fallback a la clave antigua
+				played = sm.TryPlaySfx("semaforo:Start", 0.8f);
+			}
+		}
+		if (!played && globalASource != null && semaforoSound != null)
+		{
+			globalASource.PlayOneShot(semaforoSound);
+		}
+
 		// If no explicit targetImage set, try to get one from this GameObject
 		if (targetImage == null)
 			targetImage = GetComponent<Image>();
@@ -24,8 +46,6 @@ public class Semaforo : MonoBehaviour
 		// If timer not set, attempt to find one in scene
 		if (timer == null)
 			timer = Object.FindFirstObjectByType<StartTimintg>();
-
-		
 	}
 
 	void Update()

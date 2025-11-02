@@ -21,7 +21,6 @@ TagManager:
   - DestroyZone
   - Tablero
   - InnerCircle
-  - planta
   layers:
   - Default
   - TransparentFX

@@ -144,7 +144,7 @@ public class PanelFinalTurno : MonoBehaviour
         OnPanelShown?.Invoke(_player1Based, _success);
 
         // Deshabilitar todos los jacks existentes al mostrar el panel
-        var spawners = UnityEngine.Object.FindObjectsByType<JackSpawner>(FindObjectsSortMode.None);
+        var spawners = FindObjectsByType<JackSpawner>(FindObjectsSortMode.None);
         foreach (var sp in spawners)
         {
             if (sp != null) sp.DisableAll();
@@ -152,6 +152,13 @@ public class PanelFinalTurno : MonoBehaviour
 
         // Usar tiempo no escalado para funcionar en pausa
         StartCoroutine(RutinaPanel());
+    }
+
+    private void FinishAndClose()
+    {
+        // Restaurar advertencia en UiManager si existe
+        var ui = FindAnyObjectByType<UiManager>();
+        ui?.OnFinDeTurno_ResetAdvertenciaAtrapa();
     }
 
     private IEnumerator RutinaPanel()
@@ -240,6 +247,7 @@ public class PanelFinalTurno : MonoBehaviour
         }
         gameObject.SetActive(false);
         _running = false;
+        FinishAndClose();
         var cb = _onFinished; _onFinished = null; cb?.Invoke();
     }
 }

@@ -288,17 +288,27 @@ public class Progression : MonoBehaviour
                 // Callback luego de panel
                 Time.timeScale = 1f;
                 _turnPanelShowing = false;
+                // Restaurar advertencia principal al texto natural
+                EnsureUiRef();
+                _ui?.OnFinDeTurno_ResetAdvertenciaAtrapa();
                 ContinuarDespuesPanelTurno();
             });
             return; // no continuar aún
         }
 
         // Fallback sin panel
+        // Restaurar advertencia principal al texto natural también en fallback
+        EnsureUiRef();
+        _ui?.OnFinDeTurno_ResetAdvertenciaAtrapa();
         ContinuarDespuesPanelTurno();
     }
 
     private void ContinuarDespuesPanelTurno()
     {
+        // Asegurar restauración del texto por si este método se llama desde otros flujos
+        EnsureUiRef();
+        _ui?.OnFinDeTurno_ResetAdvertenciaAtrapa();
+
         if (TurnManager.instance != null)
         {
             int idxPrev = CurrentIdx();

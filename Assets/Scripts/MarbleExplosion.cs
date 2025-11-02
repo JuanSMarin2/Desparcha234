@@ -7,6 +7,7 @@ public class MarbleExplosion : MonoBehaviour
 
     void OnEnable()
     {
+        SoundManager.instance.PlaySfx("Canicas:explosion");
         timer = 0f;
     }
 

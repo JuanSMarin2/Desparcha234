@@ -129,11 +129,11 @@ public class TurnManager : MonoBehaviour
     {
         if (activePlayerIndices.Count == 0) return;
 
-        // Posición del jugador a remover dentro de la lista dinámica
+        // Posiciï¿½n del jugador a remover dentro de la lista dinï¿½mica
         int removePos = activePlayerIndices.IndexOf(playerIndexToRemove);
         if (removePos == -1) return; // ya no estaba
 
-        // Ajuste del puntero según la posición relativa al actual
+        // Ajuste del puntero segï¿½n la posiciï¿½n relativa al actual
         if (removePos < activePlayerListIndex)
         {
        
@@ -147,7 +147,7 @@ public class TurnManager : MonoBehaviour
         // Remover
         activePlayerIndices.RemoveAt(removePos);
 
-        // Clamp del puntero si quedó fuera de rango
+        // Clamp del puntero si quedï¿½ fuera de rango
         if (activePlayerListIndex >= activePlayerIndices.Count)
         {
             activePlayerListIndex = 0;

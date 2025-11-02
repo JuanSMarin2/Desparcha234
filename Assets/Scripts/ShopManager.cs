@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using DG.Tweening; // DOTween
 
 public class ShopManager : MonoBehaviour
 {
@@ -15,53 +16,219 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private TMP_Text moneyText;
 
     [Header("Skins")]
-    [Tooltip("Botones de comprar por skin, index = number de la skin")]
     [SerializeField] private GameObject[] buyButtons;
-    [Tooltip("Precio por skin, por índice")]
     [SerializeField] private int[] skinPrices;
 
     [System.Serializable]
     public class ShopSkinVisual
     {
-        [Tooltip("Image que muestra el sprite de este botón de compra")]
         public Image buttonImage;
-        [Tooltip("Sprites por jugador para este botón de skin. Index 0..3 = Jugador 1..4")]
         public Sprite[] spritePerPlayer = new Sprite[4];
     }
 
     [Header("Visual por skin y jugador")]
-    [Tooltip("Debe alinear su longitud con buyButtons/skinPrices por índice de skin")]
     [SerializeField] private ShopSkinVisual[] skinVisuals;
 
     [Header("Feedback opcional")]
     [SerializeField] private TMP_Text infoText;
     [SerializeField] private GameObject selectPlayerPanel;
 
+    // ===== Animación de paneles (igual que MainMenu) =====
+    [Header("Animación de paneles (DOTween)")]
+    [SerializeField] private RectTransform[] animatedPanels;
+    [SerializeField] private float enterDuration = 0.6f;
+    [SerializeField] private float exitDuration = 0.5f;
+    [SerializeField] private float enterOvershoot = 1.2f;
+
+    private Vector2[] targetPos; // posiciones onscreen
+    private bool panelsEntered = false;
+
+    // --- Panel de selección (animación con TogglePanel) ---
+    private RectTransform selectPanelRT;
+    private Vector2 selectPanelTargetPos = Vector2.zero; // SIEMPRE pantalla completa -> (0,0)
+    private bool selectPanelIsOnscreen = false;
+
     private int selectedPlayer = 0;
 
     void Start()
     {
-        if (selectPlayerPanel) selectPlayerPanel.SetActive(true);
+        if (selectPlayerPanel)
+        {
+            selectPanelRT = selectPlayerPanel.GetComponent<RectTransform>();
+            if (selectPanelRT != null)
+            {
+                // Asegurar que siempre ocupa toda la pantalla (stretch + offsets 0)
+                EnsureFullScreen(selectPanelRT);
+                selectPanelTargetPos = Vector2.zero;
+
+                if (selectPlayerPanel.activeSelf)
+                {
+                    PrepareRectForEnter(selectPanelRT); // arranca arriba
+                    EnterRect(selectPanelRT);
+                    selectPanelIsOnscreen = true;
+                }
+                else
+                {
+                    selectPanelIsOnscreen = false;
+                }
+            }
+        }
+
         RefreshMoneyUI();
-  
+
+        // Paneles principales
+        SetupPanelsForEnter();
+        EnterPanels();
     }
+
+    void OnDestroy()
+    {
+        if (animatedPanels != null)
+        {
+            foreach (var rt in animatedPanels)
+                if (rt) rt.DOKill();
+        }
+        if (selectPanelRT) selectPanelRT.DOKill();
+    }
+
+    // =================== PANEL ANIMATIONS (principales) ===================
+
+    private void SetupPanelsForEnter()
+    {
+        if (animatedPanels == null || animatedPanels.Length == 0) return;
+
+        if (targetPos == null || targetPos.Length != animatedPanels.Length)
+            targetPos = new Vector2[animatedPanels.Length];
+
+        float screenH = Screen.height;
+
+        for (int i = 0; i < animatedPanels.Length; i++)
+        {
+            var rt = animatedPanels[i];
+            if (!rt) continue;
+
+            targetPos[i] = rt.anchoredPosition;
+            rt.anchoredPosition = targetPos[i] + Vector2.up * screenH * 1.2f; // arriba
+        }
+    }
+
+    private void EnterPanels()
+    {
+        if (animatedPanels == null || animatedPanels.Length == 0) return;
+
+        for (int i = 0; i < animatedPanels.Length; i++)
+        {
+            var rt = animatedPanels[i];
+            if (!rt) continue;
+
+            rt.DOKill();
+            rt.DOAnchorPos(targetPos[i], enterDuration)
+              .SetEase(Ease.OutBack, overshoot: enterOvershoot);
+        }
+
+        panelsEntered = true;
+    }
+
+    public void PlayExit()
+    {
+        if (!panelsEntered || animatedPanels == null || animatedPanels.Length == 0) return;
+
+        float screenH = Screen.height;
+
+        for (int i = 0; i < animatedPanels.Length; i++)
+        {
+            var rt = animatedPanels[i];
+            if (!rt) continue;
+
+            rt.DOKill();
+            rt.DOAnchorPos(targetPos[i] + Vector2.down * screenH * 1.2f, exitDuration)
+              .SetEase(Ease.InBack);
+        }
+
+        panelsEntered = false;
+    }
+
+    // =================== PANEL DE SELECCIÓN (TogglePanel con animación) ===================
+
+    /// Activa/Desactiva con transición. Al entrar, ocupa TODA la pantalla y entra desde arriba.
+    public void TogglePanel()
+    {
+        if (!selectPlayerPanel || selectPanelRT == null) return;
+
+        if (!selectPlayerPanel.activeSelf || !selectPanelIsOnscreen)
+        {
+            // ENCENDER con entrada
+            selectPlayerPanel.SetActive(true);
+
+            // Forzar que ocupe pantalla completa SIEMPRE antes de animar
+            EnsureFullScreen(selectPanelRT);
+            selectPanelTargetPos = Vector2.zero;
+
+            PrepareRectForEnter(selectPanelRT); // coloca arriba
+            EnterRect(selectPanelRT);           // baja a (0,0)
+            selectPanelIsOnscreen = true;
+        }
+        else
+        {
+            // APAGAR con salida hacia abajo y desactivar al terminar
+            ExitRectDown(selectPanelRT, () =>
+            {
+                selectPlayerPanel.SetActive(false);
+                selectPanelIsOnscreen = false;
+            });
+        }
+    }
+
+    private void PrepareRectForEnter(RectTransform rt)
+    {
+        float screenH = Screen.height;
+        rt.DOKill();
+        // Arranca fuera por ARRIBA respecto a su target (0,0)
+        rt.anchoredPosition = selectPanelTargetPos + Vector2.up * screenH * 1.2f;
+    }
+
+    private void EnterRect(RectTransform rt)
+    {
+        rt.DOKill();
+        rt.DOAnchorPos(selectPanelTargetPos, enterDuration)
+          .SetEase(Ease.OutBack, overshoot: enterOvershoot);
+    }
+
+    private void ExitRectDown(RectTransform rt, System.Action onComplete)
+    {
+        float screenH = Screen.height;
+        rt.DOKill();
+        rt.DOAnchorPos(selectPanelTargetPos + Vector2.down * screenH * 1.2f, exitDuration)
+          .SetEase(Ease.InBack)
+          .OnComplete(() => onComplete?.Invoke());
+    }
+
+    /// Fuerza a ocupar toda la pantalla (anchors stretch + offsets 0) y posición target (0,0)
+    private void EnsureFullScreen(RectTransform rt)
+    {
+        // Importante: no cambiamos parent ni layout, solo anchors/offsets
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        rt.anchoredPosition = Vector2.zero; // target de pantalla completa
+        rt.ForceUpdateRectTransforms();
+    }
+
+    // =================== LÓGICA DE TIENDA ===================
 
     public void SelectBuyer(int playerIndex)
     {
         selectedPlayer = Mathf.Clamp(playerIndex, 0, 3);
         RefreshShopButtons();
         if (infoText) infoText.text = "Comprador: Jugador " + (selectedPlayer + 1);
-        TogglePanel();
-    }
-
-    public void TogglePanel()
-    {
-        if (selectPlayerPanel) selectPlayerPanel.SetActive(!selectPlayerPanel.activeSelf);
+        TogglePanel(); // ahora hace animación de salida
     }
 
     public void ReturnToMenu()
     {
-        SceneManager.LoadScene("MainMenu");
+        SceneController.Instance.LoadScene("MainMenu");
     }
 
     public void BuySkin(int number)
@@ -89,6 +256,7 @@ public class ShopManager : MonoBehaviour
         gd.SetOwned(selectedPlayer, number, true);
         if (infoText) infoText.text = "Comprada skin " + number + " para Jugador " + (selectedPlayer + 1);
 
+        SoundManager.instance?.PlaySfx("ui:comprar");
         SetBuyButtonActive(number, false);
         RefreshMoneyUI();
     }
@@ -139,7 +307,6 @@ public class ShopManager : MonoBehaviour
             bool owned = gd.IsOwned(selectedPlayer, i);
             SetBuyButtonActive(i, !owned);
 
-            // Actualizar sprite del botón según el jugador seleccionado
             if (skinVisuals != null && i < skinVisuals.Length && skinVisuals[i] != null)
             {
                 var vis = skinVisuals[i];
