@@ -393,7 +393,7 @@ MonoBehaviour:
   musicClips: []
   autoPlayMusicKey: 
   autoLoopMusic: 1
-  persistAcrossScenes: 1
+  persistAcrossScenes: 0
 --- !u!4 &84118948
 Transform:
   m_ObjectHideFlags: 0

@@ -5,9 +5,7 @@ public class PlayerTag : MonoBehaviour
 {
     [Header("Identidad")] [SerializeField] private int playerIndex1Based = 1; // 1..4
 
-    [Header("Velocidades")] 
-    [SerializeField] private float normalSpeed = 3f;
-    [SerializeField] private float taggedSpeed = 5f;
+    // Velocidades centralizadas en TagManager
 
     [Header("Feedback Visual")]
     [Tooltip("Objeto de outline / resalte que se activa cuando este jugador está taggeado")] 
@@ -18,8 +16,8 @@ public class PlayerTag : MonoBehaviour
     [SerializeField] private string hasTagParam = "HasTag";
 
     [Header("Transferencia Tag")] 
-    [SerializeField] private float transferCooldown = 0.3f;
-    [Tooltip("Usar colisiones físicas (OnCollisionEnter2D) en lugar de triggers para transferir")] [SerializeField] private bool usarColisionFisica = false;
+    [SerializeField] private float transferCooldown = 0f; // instantáneo por defecto
+    [Tooltip("Usar colisiones físicas (OnCollisionEnter2D) en lugar de triggers para transferir")] [SerializeField] private bool usarColisionFisica = true;
     [Tooltip("Si true mantiene también el trigger para otras detecciones (dual)")] [SerializeField] private bool mantenerTriggerParaDeteccion = false;
 
     [Header("Efectos de Sonido")]
@@ -32,6 +30,10 @@ public class PlayerTag : MonoBehaviour
     private bool _isTagged;
     private Movimiento _mov;
 
+    // Fallbacks por si TagManager no existe (editor/test)
+    private const float _movDefaultNormal = 3f;
+    private const float _movDefaultTagged = 5f;
+
     public bool IsTagged => _isTagged;
     public int PlayerIndex => playerIndex1Based;
 
@@ -39,6 +41,8 @@ public class PlayerTag : MonoBehaviour
     {
         _mov = GetComponent<Movimiento>();
         if (_anim == null) _anim = GetComponentInChildren<Animator>(true);
+        // Si el movimiento tiene empuje activado (rigidbody dinámico), aseguramos colisión física para transferir
+        if (_mov != null && _mov.IsPlayerPushEnabled) usarColisionFisica = true;
         ApplySpeed();
         UpdateVisuals();
         SetAnimHasTag(_isTagged);
@@ -66,10 +70,10 @@ public class PlayerTag : MonoBehaviour
 
     private void ApplySpeed()
     {
-        if (_mov != null)
-        {
-            _mov.SetMoveSpeed(_isTagged ? taggedSpeed : normalSpeed);
-        }
+        if (_mov == null) return;
+        var tm = TagManager.Instance;
+        float speed = _isTagged ? (tm ? tm.MoveSpeedTagged : _movDefaultTagged) : (tm ? tm.MoveSpeedNormal : _movDefaultNormal);
+        _mov.SetMoveSpeed(speed);
     }
 
     private void UpdateVisuals()
@@ -83,7 +87,7 @@ public class PlayerTag : MonoBehaviour
         if (!_isTagged) return; // solo el actual taggeado transfiere
         if (otherTag == null || otherTag == this) return;
         if (otherTag._isTagged) return; // ya lo tiene
-        if (Time.time - _lastTransferTime < transferCooldown) return;
+        if (transferCooldown > 0f && Time.time - _lastTransferTime < transferCooldown) return; // sin delay si cooldown=0
         if (Time.frameCount == _lastTransferFrame) return; // evitar doble en mismo frame
 
         _lastTransferTime = Time.time;
