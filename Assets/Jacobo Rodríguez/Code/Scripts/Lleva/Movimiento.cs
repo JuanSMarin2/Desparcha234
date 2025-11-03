@@ -10,6 +10,22 @@ public class Movimiento : MonoBehaviour
     [Tooltip("Vector2 local usado si FacingAxis=Custom (ej: (-1,0) para izquierda). Se normaliza automáticamente")] [SerializeField] private Vector2 customLocalForward = Vector2.up;
     [Header("Movimiento Continuo")] [SerializeField] private float moveSpeed = 1.2f; // unidades/seg
     [Header("Rotación Idle")] [SerializeField] private float rotationSpeed = 130f; // grados/seg mientras está quieto
+    [Header("Rotación cuando tiene Tag (opcional)")]
+    [Tooltip("Si está activo, cuando el jugador tiene el Tag usará 'rotationSpeedTagged' en lugar de 'rotationSpeed'")]
+    [SerializeField] private bool useTaggedRotationSpeed = false;
+    [SerializeField] private float rotationSpeedTagged = 180f;
+
+    [Header("Física Jugador vs Jugador")]
+    [Tooltip("Si está activo, este jugador usa Rigidbody2D Dynamic y puede empujar/ser empujado por otros jugadores")]
+    [SerializeField] private bool enablePlayerPush = true;
+    [Tooltip("Si está activo y el empuje está habilitado, convierte todos los Collider2D de este objeto y sus hijos a no-Trigger para asegurar colisiones físicas")]
+    [SerializeField] private bool forceAllCollidersNonTrigger = true;
+    [Tooltip("Si está activo y hay empuje, el movimiento usa velocity en lugar de MovePosition (mejor transferencia de impulso)")]
+    [SerializeField] private bool useVelocityWhenPushing = true;
+    [Tooltip("Drag lineal para reducir deslizamiento cuando el rigidbody es Dynamic")] [SerializeField] private float dynamicLinearDrag = 4f;
+    [Tooltip("Drag angular para reducir giros por impacto cuando el rigidbody es Dynamic")] [SerializeField] private float dynamicAngularDrag = 0.5f;
+    [Tooltip("Masa del jugador cuando es Dynamic (afecta cuánto empuja y cuánto lo empujan)")] [SerializeField] private float dynamicMass = 2f;
+    public bool IsPlayerPushEnabled => enablePlayerPush;
 
     [Header("Deslizamiento Física")] 
     [SerializeField] private bool usePhysicsSlide = true;
@@ -38,6 +54,7 @@ public class Movimiento : MonoBehaviour
     private RaycastHit2D[] _hits = new RaycastHit2D[8];
 
     private int _rotationDir = -1; // dirección actual (1 o -1)
+    private PlayerTag _playerTag; // para saber si tiene Tag
 
     private void Awake()
     {
@@ -47,17 +64,57 @@ public class Movimiento : MonoBehaviour
         if (!_rb)
         {
             _rb = gameObject.AddComponent<Rigidbody2D>();
-            _rb.bodyType = RigidbodyType2D.Kinematic; // movimiento manual
+            _rb.bodyType = enablePlayerPush ? RigidbodyType2D.Dynamic : RigidbodyType2D.Kinematic;
         }
+        else
+        {
+            // Si ya existía, ajustar tipo según opción
+            _rb.bodyType = enablePlayerPush ? RigidbodyType2D.Dynamic : RigidbodyType2D.Kinematic;
+        }
+
+        // Config generales
         _rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         _rb.gravityScale = 0f;
         _rb.freezeRotation = true;
+        if (enablePlayerPush)
+        {
+            // Mejor resolución de choques al moverse con MovePosition
+            _rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            // Dejar que Box2D resuelva empujes entre jugadores -> no usar nuestro slide manual
+            usePhysicsSlide = false;
+
+            // Ajustes de física para controlar fricción/deslizamiento
+            _rb.linearDamping = dynamicLinearDrag;
+            _rb.angularDamping = dynamicAngularDrag;
+            _rb.mass = dynamicMass;
+
+            if (forceAllCollidersNonTrigger)
+            {
+                var colls = GetComponentsInChildren<Collider2D>(includeInactive: true);
+                int changed = 0;
+                foreach (var c in colls)
+                {
+                    if (c == null) continue;
+                    if (c.isTrigger)
+                    {
+                        c.isTrigger = false;
+                        changed++;
+                    }
+                }
+                if (changed > 0)
+                {
+                    Debug.Log($"[Movimiento] Cambiados {changed} Collider2D a no-Trigger para empuje en {name}");
+                }
+            }
+        }
         _contactFilter = new ContactFilter2D();
         _contactFilter.SetLayerMask(collisionMask);
         _contactFilter.useLayerMask = true;
         _contactFilter.useTriggers = false;
 
         if (_anim == null) _anim = GetComponentInChildren<Animator>(true);
+        // cachear PlayerTag para consultar si está taggeado
+        _playerTag = GetComponent<PlayerTag>();
     }
 
     private void OnDestroy()
@@ -71,7 +128,12 @@ public class Movimiento : MonoBehaviour
         // Rotación idle sólo visual aquí (física en FixedUpdate) cuando no se sostiene
         if (!_holdRequested)
         {
-            transform.Rotate(0f, 0f, _rotationDir * rotationSpeed * Time.deltaTime);
+            float rot = rotationSpeed;
+            if (useTaggedRotationSpeed && _playerTag != null && _playerTag.IsTagged)
+            {
+                rot = rotationSpeedTagged;
+            }
+            transform.Rotate(0f, 0f, _rotationDir * rot * Time.deltaTime);
         }
 
         // Soporte alternativo: barra espaciadora controla al jugador 1 (hold)
@@ -119,7 +181,12 @@ public class Movimiento : MonoBehaviour
         Vector2 forward = GetForwardDir();
         Vector2 desired = forward * (moveSpeed * Time.fixedDeltaTime);
 
-        if (usePhysicsSlide && desired.sqrMagnitude > 0f)
+        if (enablePlayerPush && useVelocityWhenPushing)
+        {
+            // Movimiento por velocidad: mejor interacción con otros cuerpos dinámicos
+            _rb.linearVelocity = forward * moveSpeed;
+        }
+        else if (usePhysicsSlide && desired.sqrMagnitude > 0f)
         {
             Vector2 remaining = desired;
             for (int iter = 0; iter < slideIterations && remaining.sqrMagnitude > 0.0000001f; iter++)
@@ -193,5 +260,7 @@ public class Movimiento : MonoBehaviour
     public void SetMoveSpeed(float newSpeed)
     {
         moveSpeed = newSpeed;
+        // Si estamos moviendo por velocidad, sincronizar inmediatamente
+        if (enablePlayerPush && useVelocityWhenPushing && _holdRequested) { _rb.linearVelocity = GetForwardDir() * moveSpeed; }
     }
 }

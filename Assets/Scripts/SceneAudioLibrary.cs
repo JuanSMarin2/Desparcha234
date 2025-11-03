@@ -10,11 +10,22 @@ public class SceneAudioLibrary : MonoBehaviour
         public AudioClip clip;
     }
 
+    [System.Serializable]
+    public struct NamedVolume
+    {
+        public string key;   // nombre local (sin gameId)
+        [Range(0f,1f)] public float volumeScale; // 1 = volumen tal cual; <1 baja volumen
+    }
+
     [Header("Identificador (prefijo opcional)")]
     public string gameId; // Ej: "Jacks", "Tejo", etc.
 
     [Header("Clips SFX")] public NamedClip[] sfxClips;
     [Header("Clips Música")] public NamedClip[] musicClips;
+
+    [Header("Overrides de Volumen Música (opcional)")]
+    [Tooltip("Escalas de volumen por canción (0..1). La clave debe coincidir con la de musicClips (local, sin prefijo).")]
+    [SerializeField] private NamedVolume[] musicVolumeOverrides;
 
     [Header("Selección de Música (nuevo)")]
     [Tooltip("Si está activo, al iniciar se elegirá aleatoriamente una canción del arreglo 'musicaAleatoria'. Si está desactivado y 'musicaFija' tiene valor, se usará esa canción fija.")]

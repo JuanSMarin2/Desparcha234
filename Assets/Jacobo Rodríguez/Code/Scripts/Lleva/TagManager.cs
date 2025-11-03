@@ -7,6 +7,19 @@ public class TagManager : MonoBehaviour
 {
     public static TagManager Instance { get; private set; }
 
+    [Header("Velocidades Jugador")]
+    [SerializeField] private float moveSpeedNormal = 3f;
+    [SerializeField] private float moveSpeedTagged = 5f;
+    public float MoveSpeedNormal => moveSpeedNormal;
+    public float MoveSpeedTagged => moveSpeedTagged;
+
+    [Header("Popup Inicio de Ronda")]
+    [SerializeField] private global::TagRoundStartPopup roundStartPopup; // asignar en inspector (panel/prefab en escena)
+    [Tooltip("Colores 1..4 para el popup de inicio de ronda")] 
+    [SerializeField] private Color[] startColors = new Color[]{ new Color(0.85f,0.25f,0.25f), new Color(0.25f,0.45f,0.9f), new Color(0.95f,0.85f,0.2f), new Color(0.3f,0.85f,0.4f)};
+    [Tooltip("Nombres 1..4 de los colores (coinciden con startColors)")] 
+    [SerializeField] private string[] startColorNames = new string[]{ "rojo", "azul", "amarillo", "verde" };
+
     [Header("Duración Ronda")] [SerializeField] private float roundDuration = 10f; // segundos
     [SerializeField] private TMP_Text timerText; // mostrar con una décima
 
@@ -55,6 +68,8 @@ public class TagManager : MonoBehaviour
 
     // Flag para reproducir una sola vez el SFX al cruzar el umbral
     private bool _countdownThresholdPlayed = false;
+
+    public static event System.Action OnRoundStarted;
 
     void Awake()
     {
@@ -152,6 +167,8 @@ public class TagManager : MonoBehaviour
         _timeRemaining = roundDuration;
         _roundActive = true;
         _countdownThresholdPlayed = false;
+
+        ShowRoundStartPopup(chosen.PlayerIndex);
         
         // Reproducir sonido una sola vez al inicio
         if (!string.IsNullOrEmpty(sfxCountdownKey))
@@ -159,6 +176,9 @@ public class TagManager : MonoBehaviour
             var sm = SoundManager.instance;
             if (sm != null) sm.PlaySfxRateLimited(sfxCountdownKey, 0.2f, countdownSfxVolume);
         }
+        
+        // Notificar inicio de ronda
+        OnRoundStarted?.Invoke();
         
         if (debugLogs) Debug.Log($"[TagManager] Ronda inicial comenzada. Tagged=Player{chosen.PlayerIndex}");
     }
@@ -176,8 +196,12 @@ public class TagManager : MonoBehaviour
         _countdownThresholdPlayed = false;
         PlayerTag randomTagged = GetRandomActivePlayer();
         AssignTag(randomTagged, _currentTagged);
+        ShowRoundStartPopup(randomTagged.PlayerIndex);
         if (debugLogs) Debug.Log($"[TagManager] Nueva ronda. Tagged=Player{randomTagged.PlayerIndex}");
         _roundActive = true;
+        
+        // Notificar inicio de ronda
+        OnRoundStarted?.Invoke();
         
         // Reproducir sonido una sola vez al reiniciar
         if (!string.IsNullOrEmpty(sfxCountdownKey))
@@ -431,5 +455,14 @@ public class TagManager : MonoBehaviour
             Debug.Log("[TagManager] Gate desactivado -> inicia Tag round.");
         }
         StartNewRoundInitial();
+    }
+
+    private void ShowRoundStartPopup(int playerIndex1Based)
+    {
+        if (!roundStartPopup) return;
+        int idx = Mathf.Clamp(playerIndex1Based - 1, 0, 3);
+        Color c = (startColors != null && startColors.Length > idx) ? startColors[idx] : Color.white;
+        string nombre = (startColorNames != null && startColorNames.Length > idx) ? startColorNames[idx] : $"Jugador {playerIndex1Based}";
+        roundStartPopup.Show(playerIndex1Based, nombre, c);
     }
 }

@@ -20,6 +20,8 @@ public class SoundManager : MonoBehaviour
     // Diccionarios dinámicos (nombre -> clip)
     private readonly Dictionary<string, AudioClip> _sfxClips = new();
     private readonly Dictionary<string, AudioClip> _musicClips = new();
+    // Overrides de volumen por música (clave completa -> escala 0..1)
+    private readonly Dictionary<string, float> _musicVolumeScale = new();
 
     // Rastreo de propiedad (para limpiar al salir de escena)
     private readonly Dictionary<object, List<string>> _ownerSfxKeys = new();
@@ -221,6 +223,31 @@ public class SoundManager : MonoBehaviour
                 }
             }
         }
+
+        // Overrides de volumen (opcional)
+        var volField = t.GetField("musicVolumeOverrides", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (volField != null)
+        {
+            var arr = volField.GetValue(libComp) as IEnumerable;
+            if (arr != null)
+            {
+                foreach (var elem in arr)
+                {
+                    if (elem == null) continue;
+                    var et = elem.GetType();
+                    var keyF = et.GetField("key");
+                    var vF = et.GetField("volumeScale");
+                    if (keyF == null || vF == null) continue;
+                    string localKey = keyF.GetValue(elem) as string;
+                    float scale = (float)vF.GetValue(elem);
+                    string full = Qualify(localKey);
+                    if (!string.IsNullOrWhiteSpace(full))
+                    {
+                        _musicVolumeScale[full] = Mathf.Clamp01(scale);
+                    }
+                }
+            }
+        }
     }
 
     public void UnregisterBatch(Component libComp)
@@ -233,7 +260,7 @@ public class SoundManager : MonoBehaviour
         }
         if (_ownerMusicKeys.TryGetValue(libComp, out var musList))
         {
-            foreach (var k in musList) _musicClips.Remove(k);
+            foreach (var k in musList) { _musicClips.Remove(k); _musicVolumeScale.Remove(k); }
             _ownerMusicKeys.Remove(libComp);
         }
     }
@@ -309,15 +336,18 @@ public class SoundManager : MonoBehaviour
         }
         if (_musicSource == null || clip == null) return;
 
+        // Determinar escala por clave (si existe) y aplicarla al volumen global
+        float scale = 1f;
+        if (_musicVolumeScale.TryGetValue(key, out var sc)) scale = sc;
+        float vol = Mathf.Clamp01(musicVolume * scale);
+
         // Si es el mismo clip que ya está asignado al AudioSource, no reiniciarlo para que continúe donde iba.
         if (_musicSource.clip == clip)
         {
-            // Actualizar propiedades pero evitar Play() si ya está sonando (no reiniciar desde 0).
             _musicSource.loop = loop;
-            _musicSource.volume = musicVolume;
+            _musicSource.volume = vol;
             if (!_musicSource.isPlaying)
             {
-                // Si no está reproduciéndose (detenido/pausado), iniciarlo ahora.
                 _musicSource.Play();
             }
             return;
@@ -326,7 +356,7 @@ public class SoundManager : MonoBehaviour
         // Clip distinto: reemplazar y reproducir desde el inicio
         _musicSource.loop = loop;
         _musicSource.clip = clip;
-        _musicSource.volume = musicVolume;
+        _musicSource.volume = vol;
         _musicSource.Play();
     }
 

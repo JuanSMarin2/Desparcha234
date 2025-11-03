@@ -396,7 +396,7 @@ MonoBehaviour:
   musicaFija: {fileID: 8300000, guid: fa09a36d09d79c645b8abfea61490037, type: 3}
   autoPlayMusicKey: 
   autoLoopMusic: 1
-  persistAcrossScenes: 1
+  persistAcrossScenes: 0
 --- !u!4 &84118948
 Transform:
   m_ObjectHideFlags: 0
