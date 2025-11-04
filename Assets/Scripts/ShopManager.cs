@@ -331,6 +331,6 @@ public class ShopManager : MonoBehaviour
     private void RefreshMoneyUI()
     {
         if (moneyText && GameData.instance != null)
-            moneyText.text = "Dinero: " + GameData.instance.Money;
+            moneyText.text = "" + GameData.instance.Money;
     }
 }
