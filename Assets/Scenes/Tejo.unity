@@ -5686,7 +5686,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.006589436}
-  m_LocalScale: {x: 20.635513, y: 9, z: 1}
+  m_LocalScale: {x: 20.444445, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1939404414}
@@ -15943,11 +15943,6 @@ MonoBehaviour:
   - key: Woosh
     clip: {fileID: 8300000, guid: bb51f5dece8ad70448780eae91dbf49f, type: 3}
   musicClips: []
-  musicaRandom: 1
-  musicaAleatoria:
-  - {fileID: 8300000, guid: 9466e0d4bae5b794699d62637f8e1a25, type: 3}
-  - {fileID: 8300000, guid: 6ad2a2042f1720841b3fb760a9dba150, type: 3}
-  musicaFija: {fileID: 0}
   autoPlayMusicKey: 
   autoLoopMusic: 1
   persistAcrossScenes: 0
@@ -20491,6 +20486,14 @@ PrefabInstance:
       propertyPath: m_Radius
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6945324856723450935, guid: 18a38ea042a9c0e47a78a227503f3a4d, type: 3}
+      propertyPath: efectoImpactoPrefab
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6945324856723450935, guid: 18a38ea042a9c0e47a78a227503f3a4d, type: 3}
+      propertyPath: efectoExplosionPrefab
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20567,6 +20570,14 @@ PrefabInstance:
     - target: {fileID: 5720266210833347263, guid: def13b0a754e43740a6b5bafb04b2d53, type: 3}
       propertyPath: m_SortingOrder
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7338703708686642755, guid: def13b0a754e43740a6b5bafb04b2d53, type: 3}
+      propertyPath: efectoImpactoPrefab
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7338703708686642755, guid: def13b0a754e43740a6b5bafb04b2d53, type: 3}
+      propertyPath: efectoExplosionPrefab
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -20645,6 +20656,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7547302173789232782, guid: 4da634166750cf84982995bb59aa8c57, type: 3}
+      propertyPath: efectoImpactoPrefab
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7547302173789232782, guid: 4da634166750cf84982995bb59aa8c57, type: 3}
+      propertyPath: efectoExplosionPrefab
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20668,6 +20687,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 697799258361306274, guid: cc26e91cad8a5614d9168b87dd230248, type: 3}
+      propertyPath: efectoImpactoPrefab
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 697799258361306274, guid: cc26e91cad8a5614d9168b87dd230248, type: 3}
+      propertyPath: efectoExplosionPrefab
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2141597724300063122, guid: cc26e91cad8a5614d9168b87dd230248, type: 3}
       propertyPath: m_Sprite
       value: 
