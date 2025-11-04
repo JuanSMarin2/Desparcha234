@@ -166,3 +166,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jugadorID: 0
+  destroyZoneTag: DestroyZone
+  destroyDelay: 0.5
+  efectoImpactoPrefab: {fileID: 477731166513891508, guid: c7058dfb19ee9874bb36c25cb0332878, type: 3}
+  efectoExplosionPrefab: {fileID: 477731166513891508, guid: 48ce6e1d18da2db4185d2d168fead8f4, type: 3}
+  duracionEfecto: 0.5
