@@ -40,6 +40,15 @@ public class TejoShield : MonoBehaviour
             if (PowerUpStateManager.Instance != null)
                 PowerUpStateManager.Instance.MarkHasPowerUp(other.transform);
 
+            // SFX de power-up
+            if (SoundManager.instance != null)
+                SoundManager.instance.PlaySfx("Tejo:PowerUp");
+            else
+            {
+                var sm = FindAnyObjectByType<SoundManager>();
+                if (sm != null) sm.PlaySfx("Tejo:PowerUp");
+            }
+
             // Consumible: nos registramos para ser reactivados al cambiar de turno y nos desactivamos ahora
             TejoShieldManager.Instance.RegisterConsumableForReset(gameObject);
             gameObject.SetActive(false);
@@ -48,6 +57,15 @@ public class TejoShield : MonoBehaviour
         {
             // Fallback mínimo: desactivar el trigger de la papeleta para cumplir con el requisito principal
             poly.isTrigger = false;
+
+            // SFX de power-up
+            if (SoundManager.instance != null)
+                SoundManager.instance.PlaySfx("Tejo:PowerUp");
+            else
+            {
+                var sm = FindAnyObjectByType<SoundManager>();
+                if (sm != null) sm.PlaySfx("Tejo:PowerUp");
+            }
             gameObject.SetActive(false);
         }
     }

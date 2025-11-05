@@ -47,12 +47,30 @@ public class Ghost : MonoBehaviour
         {
             GhostManager.Instance.ApplyGhost(other.transform);
             GhostManager.Instance.RegisterConsumable(this);
+
+            // SFX de power-up
+            if (SoundManager.instance != null)
+                SoundManager.instance.PlaySfx("Tejo:PowerUp");
+            else
+            {
+                var sm = FindAnyObjectByType<SoundManager>();
+                if (sm != null) sm.PlaySfx("Tejo:PowerUp");
+            }
         }
         else
         {
             // Fallback: al menos registra el poder en el estado global
             if (PowerUpStateManager.Instance != null)
                 PowerUpStateManager.Instance.MarkHasPowerUp(other.transform);
+
+            // SFX de power-up
+            if (SoundManager.instance != null)
+                SoundManager.instance.PlaySfx("Tejo:PowerUp");
+            else
+            {
+                var sm = FindAnyObjectByType<SoundManager>();
+                if (sm != null) sm.PlaySfx("Tejo:PowerUp");
+            }
         }
 
         // Consumible: desactivar el pickup por completo (lógica seguirá en el manager)
