@@ -379,6 +379,8 @@ MonoBehaviour:
   duracionOn: 3
   duracionOff: 1.5
   delayAparicion: 5
+  apareceEnStage: 0
+  minStageParaAparecer: 1
   visibleEnEscenaAntesDeRonda: 0
 --- !u!61 &153094087
 BoxCollider2D:
@@ -899,8 +901,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Jugador 3 Eliminado!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
-  m_sharedMaterial: {fileID: -6771328589934434636, guid: ca8110cef49b0d847b648bbfc0807d0b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 992e35460e9aa564daf21b121d1ac4e9, type: 2}
+  m_sharedMaterial: {fileID: 2766181547295911363, guid: 992e35460e9aa564daf21b121d1ac4e9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1570,8 +1572,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: La lleva el Rojo!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
-  m_sharedMaterial: {fileID: -3534736346125445407, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: eb12b6647666b1a4395a4ad7885e90b9, type: 2}
+  m_sharedMaterial: {fileID: 2871726375968993322, guid: eb12b6647666b1a4395a4ad7885e90b9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1601,7 +1603,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -1698,6 +1700,8 @@ MonoBehaviour:
   duracionOn: 3
   duracionOff: 1.5
   delayAparicion: 5
+  apareceEnStage: 0
+  minStageParaAparecer: 1
   visibleEnEscenaAntesDeRonda: 0
 --- !u!61 &535299950
 BoxCollider2D:
@@ -1836,7 +1840,7 @@ Transform:
   m_GameObject: {fileID: 535299948}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 5.663118, y: -7.1624002, z: 0.06899941}
+  m_LocalPosition: {x: 5.663118, y: -7.29, z: 0.06899941}
   m_LocalScale: {x: 0.19980183, y: 0.29000804, z: 0.13294418}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2006,8 +2010,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Ganador: Jugador 2'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
-  m_sharedMaterial: {fileID: -3534736346125445407, guid: e87da1d8a01b6c147b473e6e566d2b2a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 992e35460e9aa564daf21b121d1ac4e9, type: 2}
+  m_sharedMaterial: {fileID: 2766181547295911363, guid: 992e35460e9aa564daf21b121d1ac4e9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4081,7 +4085,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sfxVolume: 1
-  musicVolume: 1
+  musicVolume: 0.118
   musicLoopDefault: 1
 --- !u!4 &1225303641
 Transform:
@@ -4758,8 +4762,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipo: 9
-  masa: 2
-  linearDamping: 3
+  masa: 6
+  linearDamping: 5
   angularDamping: 0.5
   forceNonTrigger: 1
   puntoA: {fileID: 0}
@@ -4776,6 +4780,8 @@ MonoBehaviour:
   duracionOn: 3
   duracionOff: 1.5
   delayAparicion: 7
+  apareceEnStage: 0
+  minStageParaAparecer: 1
   visibleEnEscenaAntesDeRonda: 0
 --- !u!60 &1292528401
 PolygonCollider2D:
@@ -6217,8 +6223,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipo: 9
-  masa: 2
-  linearDamping: 3
+  masa: 6
+  linearDamping: 5
   angularDamping: 0.5
   forceNonTrigger: 1
   puntoA: {fileID: 0}
@@ -6235,6 +6241,8 @@ MonoBehaviour:
   duracionOn: 3
   duracionOff: 1.5
   delayAparicion: 14
+  apareceEnStage: 0
+  minStageParaAparecer: 1
   visibleEnEscenaAntesDeRonda: 0
 --- !u!60 &1575681709
 PolygonCollider2D:
@@ -6749,7 +6757,9 @@ MonoBehaviour:
   intervaloOff: {x: 1, y: 2.5}
   duracionOn: 3
   duracionOff: 1.5
-  delayAparicion: 5
+  delayAparicion: 0
+  apareceEnStage: 1
+  minStageParaAparecer: 2
   visibleEnEscenaAntesDeRonda: 0
 --- !u!58 &1707049837
 CircleCollider2D:
@@ -7205,6 +7215,8 @@ MonoBehaviour:
   duracionOn: 3
   duracionOff: 1.5
   delayAparicion: 2
+  apareceEnStage: 1
+  minStageParaAparecer: 2
   visibleEnEscenaAntesDeRonda: 0
 --- !u!58 &1814605578
 CircleCollider2D:
@@ -7843,6 +7855,8 @@ MonoBehaviour:
   duracionOn: 3
   duracionOff: 1.5
   delayAparicion: 7
+  apareceEnStage: 1
+  minStageParaAparecer: 1
   visibleEnEscenaAntesDeRonda: 0
 --- !u!58 &1873422021
 CircleCollider2D:
@@ -8136,6 +8150,8 @@ MonoBehaviour:
   duracionOn: 3
   duracionOff: 1.5
   delayAparicion: 7
+  apareceEnStage: 1
+  minStageParaAparecer: 1
   visibleEnEscenaAntesDeRonda: 0
 --- !u!58 &1902541374
 CircleCollider2D:
