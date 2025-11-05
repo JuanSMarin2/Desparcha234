@@ -1895,7 +1895,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5898110254922633635, guid: 0033e9dc13c036646a3b710a6821665d, type: 3}
+  m_Sprite: {fileID: -9083776541149057224, guid: c5ea4a8ff0d22a340a89de348e68f64b, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2335,7 +2335,6 @@ MonoBehaviour:
   statusImage: {fileID: 1270013907}
   caidoImagen: {fileID: -870173006456029567, guid: 08436f774d7a13946bd01cf025babc13, type: 3}
   ganaImagen: {fileID: -5781588522152963664, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  baseImagen: {fileID: 21300000, guid: 63a0beb05a9becc4d82494c74660ad59, type: 3}
   numPer: 0
   ams: {fileID: 1734456452}
 --- !u!114 &1091253078
@@ -3157,7 +3156,6 @@ MonoBehaviour:
   statusImage: {fileID: 2133083691}
   caidoImagen: {fileID: -870173006456029567, guid: 08436f774d7a13946bd01cf025babc13, type: 3}
   ganaImagen: {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  baseImagen: {fileID: 21300000, guid: 63a0beb05a9becc4d82494c74660ad59, type: 3}
   numPer: 0
   ams: {fileID: 1734456452}
 --- !u!58 &1264223781
@@ -3517,8 +3515,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 22.163834, y: -2.99}
-  m_SizeDelta: {x: 40.75, y: 8.85}
+  m_AnchoredPosition: {x: 22.163834, y: -2.70648}
+  m_SizeDelta: {x: 40.75, y: 10.83468}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1399775803
 MonoBehaviour:
@@ -3555,7 +3553,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5684252677749398373, guid: 0033e9dc13c036646a3b710a6821665d, type: 3}
+  m_Sprite: {fileID: 9083580730118692262, guid: ec13f957226253a4594c6d5bde5c8b48, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3687,7 +3685,6 @@ MonoBehaviour:
   statusImage: {fileID: 249967969}
   caidoImagen: {fileID: -870173006456029567, guid: 08436f774d7a13946bd01cf025babc13, type: 3}
   ganaImagen: {fileID: -1836012908756554960, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  baseImagen: {fileID: 21300000, guid: 63a0beb05a9becc4d82494c74660ad59, type: 3}
   numPer: 0
   ams: {fileID: 1734456452}
 --- !u!58 &1424594953
@@ -4015,7 +4012,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 3265047924953027986, guid: 0033e9dc13c036646a3b710a6821665d, type: 3}
+  m_Sprite: {fileID: 1739198991165157816, guid: ec13f957226253a4594c6d5bde5c8b48, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4182,7 +4179,6 @@ MonoBehaviour:
   statusImage: {fileID: 1995071513}
   caidoImagen: {fileID: -870173006456029567, guid: 08436f774d7a13946bd01cf025babc13, type: 3}
   ganaImagen: {fileID: 3215181741823739300, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  baseImagen: {fileID: 21300000, guid: 63a0beb05a9becc4d82494c74660ad59, type: 3}
   numPer: 0
   ams: {fileID: 1734456452}
 --- !u!58 &1495881621
@@ -4387,6 +4383,10 @@ MonoBehaviour:
   gameId: sacos
   sfxClips: []
   musicClips: []
+  musicVolumeOverrides: []
+  musicaRandom: 0
+  musicaAleatoria: []
+  musicaFija: {fileID: 0}
   autoPlayMusicKey: 
   autoLoopMusic: 1
   persistAcrossScenes: 0
@@ -5193,6 +5193,10 @@ MonoBehaviour:
   - key: semaforo
     clip: {fileID: 8300000, guid: f3057f0053b86544f86c8a07b2fde300, type: 3}
   musicClips: []
+  musicVolumeOverrides: []
+  musicaRandom: 0
+  musicaAleatoria: []
+  musicaFija: {fileID: 0}
   autoPlayMusicKey: 
   autoLoopMusic: 1
   persistAcrossScenes: 0
@@ -5359,7 +5363,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 4139070022763415378, guid: 0033e9dc13c036646a3b710a6821665d, type: 3}
+  m_Sprite: {fileID: -1294625289795881727, guid: c5ea4a8ff0d22a340a89de348e68f64b, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
