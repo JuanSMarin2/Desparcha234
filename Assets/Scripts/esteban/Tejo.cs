@@ -73,6 +73,10 @@ public class Tejo : MonoBehaviour
 
             GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
 
+            // Feedback visual: +2 para el jugador que lanzó (índice 0-based)
+            if (GameManagerTejo.instance != null)
+                GameManagerTejo.instance.MostrarPlusDosParaJugador(jugadorID - 1);
+
             SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
             if (sr != null) sr.enabled = false;
 
