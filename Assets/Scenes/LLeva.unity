@@ -1572,8 +1572,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: La lleva el Rojo!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: eb12b6647666b1a4395a4ad7885e90b9, type: 2}
-  m_sharedMaterial: {fileID: 2871726375968993322, guid: eb12b6647666b1a4395a4ad7885e90b9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 992e35460e9aa564daf21b121d1ac4e9, type: 2}
+  m_sharedMaterial: {fileID: 2766181547295911363, guid: 992e35460e9aa564daf21b121d1ac4e9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1603,7 +1603,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -2503,11 +2503,10 @@ MonoBehaviour:
   playerIndex1Based: 4
   outlineObject: {fileID: 867696804}
   _anim: {fileID: 0}
-  hasTagParam: HasTag
   transferCooldown: 0.5
   usarColisionFisica: 1
   mantenerTriggerParaDeteccion: 0
-  plantaSfxKey: planta
+  plantaSfxKey: lleva:planta
 --- !u!95 &693602412
 Animator:
   serializedVersion: 7
@@ -2786,6 +2785,7 @@ GameObject:
   m_Component:
   - component: {fileID: 773979196}
   - component: {fileID: 773979195}
+  - component: {fileID: 773979197}
   m_Layer: 0
   m_Name: planta_0 (1)
   m_TagString: planta
@@ -2863,6 +2863,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &773979197
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 773979194}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -0.16446187}
+  m_Radius: 2.9123342
 --- !u!1 &787345461
 GameObject:
   m_ObjectHideFlags: 0
@@ -4027,11 +4063,10 @@ MonoBehaviour:
   playerIndex1Based: 2
   outlineObject: {fileID: 1290906888}
   _anim: {fileID: 0}
-  hasTagParam: HasTag
   transferCooldown: 0.5
   usarColisionFisica: 1
   mantenerTriggerParaDeteccion: 0
-  plantaSfxKey: planta
+  plantaSfxKey: lleva:planta
 --- !u!95 &1197602807
 Animator:
   serializedVersion: 7
@@ -4085,7 +4120,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sfxVolume: 1
-  musicVolume: 0.118
+  musicVolume: 0
   musicLoopDefault: 1
 --- !u!4 &1225303641
 Transform:
@@ -4523,11 +4558,10 @@ MonoBehaviour:
   playerIndex1Based: 1
   outlineObject: {fileID: 155387638}
   _anim: {fileID: 0}
-  hasTagParam: HasTag
   transferCooldown: 0.5
   usarColisionFisica: 1
   mantenerTriggerParaDeteccion: 0
-  plantaSfxKey: planta
+  plantaSfxKey: lleva:planta
 --- !u!95 &1246577733
 Animator:
   serializedVersion: 7
@@ -5959,11 +5993,10 @@ MonoBehaviour:
   playerIndex1Based: 3
   outlineObject: {fileID: 1230263819}
   _anim: {fileID: 0}
-  hasTagParam: HasTag
   transferCooldown: 0.5
   usarColisionFisica: 1
   mantenerTriggerParaDeteccion: 0
-  plantaSfxKey: planta
+  plantaSfxKey: lleva:planta
 --- !u!95 &1526244089
 Animator:
   serializedVersion: 7
@@ -6461,6 +6494,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1646927164}
   - component: {fileID: 1646927163}
+  - component: {fileID: 1646927165}
   m_Layer: 0
   m_Name: planta_0 (3)
   m_TagString: planta
@@ -6538,6 +6572,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &1646927165
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1646927162}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -0.10745747}
+  m_Radius: 3.087707
 --- !u!1 &1658887027
 GameObject:
   m_ObjectHideFlags: 0
@@ -7370,6 +7440,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1856685155}
   - component: {fileID: 1856685154}
+  - component: {fileID: 1856685156}
   m_Layer: 0
   m_Name: planta_0
   m_TagString: planta
@@ -7447,6 +7518,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &1856685156
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1856685153}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -0.07163964}
+  m_Radius: 3.2668042
 --- !u!1 &1864842363
 GameObject:
   m_ObjectHideFlags: 0
@@ -8199,6 +8306,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1964258241}
   - component: {fileID: 1964258240}
+  - component: {fileID: 1964258242}
   m_Layer: 0
   m_Name: planta_0 (2)
   m_TagString: planta
@@ -8276,6 +8384,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &1964258242
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964258239}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -0.22286023}
+  m_Radius: 3.0837693
 --- !u!1 &1979169568
 GameObject:
   m_ObjectHideFlags: 0
