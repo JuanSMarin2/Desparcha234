@@ -16,54 +16,67 @@ public class GameManagerTejo : MonoBehaviour
     public Text[] puntajeTextos;
 
     [Header("UI Feedback por jugador (-2 / +2)")]
+    [Tooltip("TextMeshProUGUI por jugador (0..3), se activan brevemente al destruir una papeleta")] 
     [SerializeField] private TextMeshProUGUI[] playerFeedbackTexts = new TextMeshProUGUI[4];
     [SerializeField] private float feedbackDuration = 0.5f;
-    [SerializeField] private Vector3 feedbackBaseScale = Vector3.one;
-    [SerializeField] private float feedbackPulseAmplitude = 0.2f;
-    [SerializeField] private float feedbackPulseFrequency = 10f;
+    [Tooltip("Escala base del texto cuando no palpita")] [SerializeField] private Vector3 feedbackBaseScale = Vector3.one;
+    [Tooltip("Amplitud de pulsación")] [SerializeField] private float feedbackPulseAmplitude = 0.2f; // 20% más grande en el pico
+    [Tooltip("Frecuencia de pulsación (Hz)")] [SerializeField] private float feedbackPulseFrequency = 10f; // palpita rápido
 
     private Coroutine[] feedbackCoroutines = new Coroutine[4];
 
     [Header("Ronda / Turnos")]
     [SerializeField] private int maxTiros = 3;
     [SerializeField] private float delayCambioTurno = 2f;
-    [SerializeField] private float delayMoverCentro = 0.5f;
+    [SerializeField] private float delayMoverCentro = 2f;
 
     [Header("Control de Input")]
     [SerializeField] private GameObject blocker;
+
+    
 
     private int tirosRealizados = 0;
     private int cambiosDeTurno = 0;
     private bool esperandoCambioTurno = false;
 
+    //  NUEVO EVENTO GLOBAL: se dispara cuando un jugador pierde su papeleta
     public static event Action<int> OnPapeletaDestruida;
 
     // ... resto del c�digo del GameManagerTejo ...
 
     //  M�todo seguro para notificar (llamado desde Tejo)
+    public void NotificarPapeletaDestruida(int idJugador)
+    {
+        Debug.Log($"[GameManagerTejo] Papeleta del jugador {idJugador + 1} destruida � mostrando icono triste y notificando evento");
+
+        // Dispara el evento global (para que IconManager lo use)
+        OnPapeletaDestruida?.Invoke(idJugador);
+
+        // Mostrar y mover icono triste (para la parte visual)
+        MoverIconoTejo moverIconos = FindAnyObjectByType<MoverIconoTejo>();
+        if (moverIconos != null)
+        {
+            moverIconos.MostrarYMoverIconoTriste(idJugador);
+        }
+        else
+        {
+            Debug.LogWarning("No se encontr� MoverIconoTejo en la escena para mostrar el icono triste.");
+        }
+
+        // Activar feedback de texto: -2 para el jugador golpeado, +2 para el jugador en turno
+        int currentTurnIndex0 = -1;
+        if (TurnManager.instance != null)
+            currentTurnIndex0 = TurnManager.instance.CurrentTurn() - 1; // 0-based
+
+        MostrarFeedbackJugador(idJugador, "-2");
+        if (currentTurnIndex0 >= 0 && currentTurnIndex0 < 4)
+            MostrarFeedbackJugador(currentTurnIndex0, "+2");
+    }
 
     private void Awake()
     {
         if (instance == null) instance = this;
-    }
-
-    public void NotificarPapeletaDestruida(int idJugador)
-    {
-        Debug.Log($"[GameManagerTejo] Papeleta del jugador {idJugador + 1} destruida — mostrando icono triste y notificando evento");
-
-        OnPapeletaDestruida?.Invoke(idJugador);
-
-        MoverIconoTejo moverIconos = FindAnyObjectByType<MoverIconoTejo>();
-        if (moverIconos != null)
-            moverIconos.MostrarYMoverIconoTriste(idJugador);
-        else
-            Debug.LogWarning("No se encontró MoverIconoTejo en la escena para mostrar el icono triste.");
-
-        //  Feedback visual para el jugador afectado (-2)
-        MostrarFeedbackJugador(idJugador, "-2");
-    }
-
-
+    }   
 
     void Start()
     {
@@ -213,7 +226,6 @@ public class GameManagerTejo : MonoBehaviour
 
     public void TejoTermino(Tejo tejo)
     {
-        // Reaparecer el centro después de 0.5 segundos
         StartCoroutine(MoverCentroConDelay(delayMoverCentro));
 
         if (!esperandoCambioTurno) return;
@@ -270,14 +282,12 @@ public class GameManagerTejo : MonoBehaviour
     }
 
     // === API pública para mostrar feedback +2 para un jugador concreto (índice 0..3) ===
-    // === API pública para mostrar feedback +3 para un jugador concreto ===
-    public void MostrarPlusTresParaJugador(int jugadorIndex0)
+    public void MostrarPlusDosParaJugador(int jugadorIndex0)
     {
-        MostrarFeedbackJugador(jugadorIndex0, "+3");
+        MostrarFeedbackJugador(jugadorIndex0, "+2");
     }
 
-    // === MÉTODO BASE: muestra cualquier texto de feedback (+3, -2, +6, etc.) ===
-    public void MostrarFeedbackJugador(int index, string texto)
+    private void MostrarFeedbackJugador(int index, string texto)
     {
         if (playerFeedbackTexts == null || index < 0 || index >= playerFeedbackTexts.Length)
             return;
@@ -285,7 +295,7 @@ public class GameManagerTejo : MonoBehaviour
         var tmp = playerFeedbackTexts[index];
         if (tmp == null) return;
 
-        // Reiniciamos cualquier animación anterior del mismo jugador
+        // Cancelar animación previa si existe
         if (feedbackCoroutines[index] != null)
         {
             StopCoroutine(feedbackCoroutines[index]);
@@ -295,20 +305,13 @@ public class GameManagerTejo : MonoBehaviour
         feedbackCoroutines[index] = StartCoroutine(PulseFeedback(tmp, texto, feedbackDuration));
     }
 
-    // === NUEVO: muestra +2, +3, +9, etc. según papeletas destruidas ===
-    public void MostrarFeedbackPapeletas(int jugadorIndex0, int papeletasDestruidas)
-    {
-        if (papeletasDestruidas <= 0) return;
-        int puntaje = papeletasDestruidas * 2;
-        MostrarFeedbackJugador(jugadorIndex0, $"+{puntaje}");
-    }
-
     private IEnumerator PulseFeedback(TextMeshProUGUI tmp, string content, float duration)
     {
         tmp.text = content;
         tmp.gameObject.SetActive(true);
 
         float t = 0f;
+        // Al iniciar, resetear escala base
         tmp.rectTransform.localScale = feedbackBaseScale;
 
         while (t < duration)
@@ -319,6 +322,7 @@ public class GameManagerTejo : MonoBehaviour
             yield return null;
         }
 
+        // Reset y desactivar
         tmp.rectTransform.localScale = feedbackBaseScale;
         tmp.gameObject.SetActive(false);
     }
