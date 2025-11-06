@@ -59,6 +59,14 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     [Tooltip("Color para el texto de cada panel (opcional).")]
     [SerializeField] private Color[] playerPanelTextColors;
 
+    [Header("Indicadores visuales de tiros (iconos de tejos)")]
+    [Tooltip("Cada fila representa los 3 iconos de tejos para un jugador (orden 0..3).")]
+    [SerializeField] private Image[][] tirosIconsPorJugador; // <- no editable en Inspector, se llena por código
+    [SerializeField] private Image[] tirosJugador1;
+    [SerializeField] private Image[] tirosJugador2;
+    [SerializeField] private Image[] tirosJugador3;
+    [SerializeField] private Image[] tirosJugador4;
+
     private bool lanzando = false; // evita dobles tiros mientras corre la corrutina
     public bool IsDragging { get; private set; }
     public Vector2 inputVector { get; private set; }
@@ -289,25 +297,37 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
         if (GameManagerTejo.instance == null) return;
 
         int remaining = GameManagerTejo.instance.ShotsRemaining();
-
         int playerIdx = -1;
         if (TurnManager.instance != null)
             playerIdx = TurnManager.instance.GetCurrentPlayerIndex(); // 0-based
 
-        // Si hay textos por panel configurados, escribir en el correspondiente
-        if (playerPanelTexts != null && playerIdx >= 0 && playerIdx < playerPanelTexts.Length && playerPanelTexts[playerIdx] != null)
+        // 🔹 Desactivar imágenes según tiros restantes
+        Image[] icons = GetIconsForPlayer(playerIdx);
+        if (icons != null)
         {
-            playerPanelTexts[playerIdx].text = $"Tiros: {remaining}";
-            // aseguramos que el panel del jugador esté activo
-            if (playerTurnPanels != null && playerIdx < playerTurnPanels.Length && playerTurnPanels[playerIdx] != null)
-                playerTurnPanels[playerIdx].SetActive(true);
+            for (int i = 0; i < icons.Length; i++)
+            {
+                if (icons[i] != null)
+                    icons[i].enabled = (i < remaining);
+            }
         }
-        else
-        {
-            if (playerIdx < 0)
-                Debug.LogWarning("JoystickControl.RefreshTirosPanel: TurnManager no disponible o no hay jugador en turno.");
-        }
+
+        // 🔹 (opcional) mantener activado el panel del jugador actual
+        if (playerTurnPanels != null && playerIdx >= 0 && playerIdx < playerTurnPanels.Length)
+            playerTurnPanels[playerIdx].SetActive(true);
     }
+
+    private Image[] GetIconsForPlayer(int idx)
+{
+    switch (idx)
+    {
+        case 0: return tirosJugador1;
+        case 1: return tirosJugador2;
+        case 2: return tirosJugador3;
+        case 3: return tirosJugador4;
+        default: return null;
+    }
+}
 
     /// <summary>
     /// Activa el panel correspondiente al jugador en turno y desactiva los demás.
