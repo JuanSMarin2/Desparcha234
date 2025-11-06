@@ -318,16 +318,16 @@ public class JoystickControl : MonoBehaviour, IPointerDownHandler, IDragHandler,
     }
 
     private Image[] GetIconsForPlayer(int idx)
+{
+    switch (idx)
     {
-        switch (idx)
-        {
-            case 0: return tirosJugador1;
-            case 1: return tirosJugador2;
-            case 2: return tirosJugador3;
-            case 3: return tirosJugador4;
-            default: return null;
-        }
+        case 0: return tirosJugador1;
+        case 1: return tirosJugador2;
+        case 2: return tirosJugador3;
+        case 3: return tirosJugador4;
+        default: return null;
     }
+}
 
     /// <summary>
     /// Activa el panel correspondiente al jugador en turno y desactiva los demás.

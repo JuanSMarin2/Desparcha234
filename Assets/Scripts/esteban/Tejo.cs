@@ -18,16 +18,19 @@ public class Tejo : MonoBehaviour
     private bool yaParo = false;
     private bool puedeReportar = false;
 
+    // 🔹 Contador de papeletas destruidas en un mismo lanzamiento
+    private int papeletasDestruidasEsteLanzamiento = 0;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        // ❌ Ya NO desactivamos los prefabs base
     }
 
     public void HabilitarReporteAlDetenerse()
     {
         puedeReportar = true;
         yaParo = false;
+        papeletasDestruidasEsteLanzamiento = 0; // reiniciar contador en cada tiro
     }
 
     private void Update()
@@ -37,9 +40,42 @@ public class Tejo : MonoBehaviour
         if (rb.linearVelocity.sqrMagnitude < 0.01f)
         {
             yaParo = true;
-            GameManagerTejo.instance.TejoTermino(this);
+
+            // Cuando el tejo termina su recorrido, reactivamos las papeletas después de un pequeño delay
+            StartCoroutine(ReactivarPapeletasTrasDelay(0.5f));
+
+            if (GameManagerTejo.instance != null)
+                GameManagerTejo.instance.TejoTermino(this);
         }
     }
+
+    private IEnumerator ReactivarPapeletasTrasDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        var allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        foreach (var go in allObjects)
+        {
+            if (!go.scene.IsValid()) continue;
+
+            if (go.CompareTag("Papeleta") ||
+                go.CompareTag("Papeleta1") ||
+                go.CompareTag("Papeleta2") ||
+                go.CompareTag("Papeleta3") ||
+                go.CompareTag("Papeleta4"))
+            {
+                go.SetActive(true);
+
+                // Aseguramos visibilidad si fue desactivado parcialmente
+                var sr = go.GetComponent<SpriteRenderer>();
+                if (sr != null) sr.enabled = true;
+                var col = go.GetComponent<Collider2D>();
+                if (col != null) col.enabled = true;
+            }
+        }
+    }
+
+    
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -75,7 +111,7 @@ public class Tejo : MonoBehaviour
 
             // Feedback visual: +2 para el jugador que lanzó (índice 0-based)
             if (GameManagerTejo.instance != null)
-                GameManagerTejo.instance.MostrarPlusDosParaJugador(jugadorID - 1);
+                GameManagerTejo.instance.MostrarPlusTresParaJugador(jugadorID - 1);
 
             SpriteRenderer sr = other.GetComponent<SpriteRenderer>();
             if (sr != null) sr.enabled = false;
@@ -92,55 +128,64 @@ public class Tejo : MonoBehaviour
         else if (other.CompareTag("Papeleta4")) ManejarPapeletaDestruida(3, other);
     }
 
+    private IEnumerator EsperarAntesDeDestruir()
+    {
+        yield return new WaitForSeconds(0.25f);
+        Destroy(gameObject, destroyDelay);
+    }
+
     private void ManejarPapeletaDestruida(int idJugador, Collider2D other)
     {
+        // Sonido y efecto
         ReproducirExplosion();
         MostrarEfectoTemporal(efectoExplosionPrefab);
 
-        GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
-        GameManagerTejo.instance.RestarPuntos(idJugador, 2);
+        // Sumar puntos al lanzador
+        if (GameManagerTejo.instance != null)
+            GameManagerTejo.instance.SumarPuntos(jugadorID - 1, 3);
+
+        // Restar puntos al dueño de la papeleta
+        if (idJugador >= 0 && GameManagerTejo.instance != null)
+            GameManagerTejo.instance.RestarPuntos(idJugador, 2);
+
+        // Acumular impactos de este lanzamiento
+        papeletasDestruidasEsteLanzamiento++;
+        int totalPuntos = papeletasDestruidasEsteLanzamiento * 3;
+
+        // Mostrar feedback acumulado (+3, +6, +9...)
+        if (GameManagerTejo.instance != null)
+            GameManagerTejo.instance.MostrarFeedbackJugador(jugadorID - 1, $"+{totalPuntos}");
+
+        Debug.Log($"[Tejo] Jugador {jugadorID} ha destruido {papeletasDestruidasEsteLanzamiento} papeletas. Feedback acumulado: +{totalPuntos}");
+
+        // Desactivar papeleta afectada
         other.gameObject.SetActive(false);
 
-        GameManagerTejo.instance.NotificarPapeletaDestruida(idJugador);
+        // Notificar al GameManager (icono triste del jugador afectado)
+        if (idJugador >= 0 && GameManagerTejo.instance != null)
+            GameManagerTejo.instance.NotificarPapeletaDestruida(idJugador);
     }
 
     private void ReproducirExplosion()
     {
         var sm = FindAnyObjectByType<SoundManager>();
-        if (sm != null)
-            sm.PlaySfx("Tejo:Explosion");
+        if (sm != null) sm.PlaySfx("Tejo:Explosion");
     }
 
     private void MostrarEfectoTemporal(GameObject prefab)
     {
         if (prefab == null) return;
-
-        // Posicionar debajo del tejo
         Vector3 pos = transform.position;
         pos.z -= 1f;
 
-        // Instanciar copia del prefab
         GameObject instancia = Instantiate(prefab, pos, Quaternion.identity);
-        instancia.transform.SetParent(null);
         instancia.SetActive(true);
 
-        // Ajustar visibilidad y capa
+        // Poner la explosión por encima del tablero
         SpriteRenderer sr = instancia.GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            // Asegurar visibilidad (alpha = 1)
-            Color c = sr.color;
-            c.a = 1f;
-            sr.color = c;
+        if (sr != null && prefab == efectoExplosionPrefab)
+            sr.sortingOrder = 30;
 
-            //  Si es el efecto de explosión, ponerlo por encima del impacto
-            if (prefab == efectoExplosionPrefab)
-            {
-                sr.sortingOrder += 5; // por ejemplo, 5 niveles más alto
-            }
-        }
-
-        // Destruir luego del tiempo de duración
         Destroy(instancia, duracionEfecto);
     }
 }
