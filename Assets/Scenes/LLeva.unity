@@ -1720,6 +1720,8 @@ MonoBehaviour:
   - {fileID: 1172831940}
   - {fileID: 694211685}
   eliminatedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  taggedButtonColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  defaultButtonColor: {r: 1, g: 1, b: 1, a: 1}
   panelEliminacion: {fileID: 1391231918}
   panelVictoria: {fileID: 180100633}
   eliminationIcons:
@@ -3193,7 +3195,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 2
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 891444999}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -9387,7 +9389,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &1854953433
 Canvas:
   m_ObjectHideFlags: 0
@@ -9397,7 +9399,7 @@ Canvas:
   m_GameObject: {fileID: 1854953430}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 2
+  m_RenderMode: 1
   m_Camera: {fileID: 891444999}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -9419,8 +9421,8 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1854953430}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 90}
-  m_LocalScale: {x: 0.009259259, y: 0.009259259, z: 0.009259259}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1864842364}
@@ -9433,8 +9435,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 2338, y: 1080}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!1 &1856685153
 GameObject:
   m_ObjectHideFlags: 0
@@ -10655,7 +10657,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0030517578, y: -24.4505}
+  m_AnchoredPosition: {x: -0.0030517578, y: -24.45044}
   m_SizeDelta: {x: -1283.2, y: -806.8677}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &2066010807
