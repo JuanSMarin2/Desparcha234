@@ -2,6 +2,8 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using System.Collections;
+using System.Reflection;
 
 public class Tempo : MonoBehaviour
 {
@@ -132,6 +134,10 @@ public class Tempo : MonoBehaviour
     [Range(0f,1f)] private float timerTickVolume = 1f;
     [SerializeField, Tooltip("Clave SFX para reproducir cuando se muestra la pantalla de eliminación (Tango).")]
     private string eliminationSfxKey = "Tingo:TANGO";
+
+    [Header("IconManager (opcional)")]
+    [SerializeField, Tooltip("Referencia directa al IconManager. Si no se asigna, se buscará en la escena.")]
+    private IconManager iconManager;
 
     // RNG para Box-Muller
     private System.Random rng = new System.Random();
@@ -420,8 +426,10 @@ public class Tempo : MonoBehaviour
             }
         }
 
-        // Restaurar interacción/pausa antes de notificar
+        // Restaurar interacción/pausa antes de notificar fin
         EndHoldState();
+
+        // Notificar fin para que inicie el siguiente minijuego
         onTimerFinished?.Invoke();
         onGameFinished?.Invoke();
         finishing = false;
@@ -498,6 +506,46 @@ public class Tempo : MonoBehaviour
         {
             int idx = rng.Next(0, pityPhrases.Length);
             eliminationPhraseText.text = pityPhrases[idx];
+        }
+
+        // Mostrar icono triste en el HUD según el índice del jugador eliminado durante el hold de '¡¡Tango!!'
+        TryShowSadIconForPlayer(playerIndex, Mathf.Max(0.1f, finishHoldSeconds));
+    }
+
+    // Intenta invocar IconManager.MostrarIconoTristeTemporal(int, float) sin modificar IconManager
+    private void TryShowSadIconForPlayer(int playerIndex, float duration)
+    {
+        if (playerIndex < 0) return;
+        IconManager mgr = iconManager;
+        if (mgr == null)
+        {
+            // Buscar instancia en escena; usa la API disponible según versión de Unity
+            #if UNITY_2023_1_OR_NEWER
+            mgr = Object.FindFirstObjectByType<IconManager>();
+            #else
+            mgr = (IconManager)Object.FindObjectOfType(typeof(IconManager));
+            #endif
+        }
+        if (mgr == null) return;
+
+        // Usar reflexión para invocar el método privado IEnumerator MostrarIconoTristeTemporal(int, float)
+        MethodInfo mi = typeof(IconManager).GetMethod(
+            "MostrarIconoTristeTemporal",
+            BindingFlags.NonPublic | BindingFlags.Instance
+        );
+        if (mi == null) return;
+        try
+        {
+            var enumerator = mi.Invoke(mgr, new object[] { playerIndex, duration }) as IEnumerator;
+            if (enumerator != null)
+            {
+                // Ejecutar la corrutina en el propio IconManager para mantener su ciclo de vida
+                mgr.StartCoroutine(enumerator);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"Tempo: No se pudo invocar MostrarIconoTristeTemporal en IconManager. {ex.Message}");
         }
     }
 

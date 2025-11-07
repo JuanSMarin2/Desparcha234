@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8119478201772189870}
   - component: {fileID: 6592063150220238873}
   m_Layer: 5
-  m_Name: Rojo
+  m_Name: Amarillo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,7 +67,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 8320025121885212575, guid: 8d12f1bec1b1e564f80de1c5fc36ba45, type: 3}
+  m_Sprite: {fileID: -4279241780906724887, guid: 716e0e6fa853e9849b7984fcac888cd0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -111,7 +111,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 5.4535522, y: -3.8376389}
+  m_Offset: {x: 4.583435, y: -12.830109}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -121,7 +121,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 190, y: 190}
+  m_Size: {x: 409.88037, y: 341.42145}
   m_EdgeRadius: 0
 --- !u!114 &6592063150220238873
 MonoBehaviour:

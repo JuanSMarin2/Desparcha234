@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
+using TMPro;
 
 // Controlador sencillo: toma una lista de minijuegos, los baraja (opcional) y los ejecuta uno a uno
 [DisallowMultipleComponent]
@@ -31,6 +34,29 @@ public class GameSequenceController : MonoBehaviour
     private MinigameInstructionUI _instructionUI; // cache perezoso
     private bool _hasStartedSequence = false; // evita dobles inicios
     private bool _firstPickDone = false;       // para forzar el primer minijuego
+
+    [Header("Panel 'Siguiente jugador'")]
+    [Tooltip("Panel raíz (GameObject único) que contiene icono y texto del siguiente turno.")]
+    [SerializeField] private GameObject nextTurnPanel;
+    [Tooltip("(Opcional) Imagen del ícono del jugador. Si no se asigna, se buscará automáticamente en hijos.")]
+    [SerializeField] private Image nextTurnPlayerIconImage;
+    [Header("Fuentes de icono por índice (por Image, no por Sprite)")]
+    [Tooltip("Imágenes en la escena (0-based) que ya tienen asignado el sprite del jugador. Se copiará su sprite y opcionalmente su color.")]
+    [SerializeField] private Image[] playerSpriteSourcesByIndex;
+    [Tooltip("Copiar también el color de la imagen fuente cuando esté disponible.")]
+    [SerializeField] private bool copySourceColor = true;
+    [Tooltip("(Opcional) TMP_Text para la cuenta regresiva. Si no se asigna, se buscará en hijos.")]
+    [SerializeField] private TMP_Text nextTurnCountdownText;
+    [Tooltip("(Opcional) TMP_Text para el encabezado: 'Siguiente jugador {n}'. Si no se asigna, se buscará en hijos.")]
+    [SerializeField] private TMP_Text nextTurnHeaderText;
+    [Tooltip("(Opcional) TMP_Text para el mensaje de pasar el celular. Si no se asigna, se buscará en hijos.")]
+    [SerializeField] private TMP_Text passDeviceText;
+    [Tooltip("Duración en segundos de la cuenta regresiva antes de iniciar el siguiente minijuego")]
+    [SerializeField] private float nextTurnCountdownSeconds = 5f;
+    [Tooltip("Pausar el juego (Time.timeScale=0) mientras el panel de siguiente jugador está activo")]
+    [SerializeField] private bool pauseWithTimeScale = true;
+    private Coroutine _nextTurnRoutine;
+    private float _prevTimeScale = 1f;
 
     void Awake()
     {
@@ -99,10 +125,10 @@ public class GameSequenceController : MonoBehaviour
         if (minigames.Count == 1) return 0;
 
         int tries = 5;
-        int idxRand = Random.Range(0, minigames.Count);
+        int idxRand = UnityEngine.Random.Range(0, minigames.Count);
         while (idxRand == _lastPlayedIndex && tries-- > 0)
         {
-            idxRand = Random.Range(0, minigames.Count);
+            idxRand = UnityEngine.Random.Range(0, minigames.Count);
         }
         return idxRand;
     }
@@ -170,7 +196,12 @@ public class GameSequenceController : MonoBehaviour
         HideInstructions();
         TryNextTurnFor(_current);
         UnsubscribeCurrent();
-        PlayNext();
+
+        // Mostrar panel de siguiente jugador y, al terminar, continuar con el próximo minijuego
+        ShowNextTurnPanelThen(() =>
+        {
+            PlayNext();
+        });
     }
 
     // Handler cuando el cronómetro (Tempo) termina y elimina al jugador actual
@@ -213,14 +244,23 @@ public class GameSequenceController : MonoBehaviour
         // Ocultar instrucciones del minijuego que terminó por timeout
         HideInstructions();
 
-        // Avanzar inmediatamente al siguiente minijuego y reiniciar cronómetro para el nuevo turno
+        // Pausar/reiniciar el cronómetro en transición por timeout
         if (turnTimer != null)
         {
             turnTimer.StopTimer();
-            turnTimer.StartTimer();
         }
+
         UnsubscribeCurrent();
-        PlayNext();
+
+        // Mostrar panel de siguiente jugador y, al finalizar, reiniciar cronómetro y avanzar
+        ShowNextTurnPanelThen(() =>
+        {
+            if (turnTimer != null)
+            {
+                turnTimer.StartTimer();
+            }
+            PlayNext();
+        });
     }
 
     private void UnsubscribeCurrent()
@@ -272,7 +312,7 @@ public class GameSequenceController : MonoBehaviour
     {
         for (int i = list.Count - 1; i > 0; i--)
         {
-            int j = Random.Range(0, i + 1);
+            int j = UnityEngine.Random.Range(0, i + 1);
             (list[i], list[j]) = (list[j], list[i]);
         }
     }
@@ -383,6 +423,218 @@ public class GameSequenceController : MonoBehaviour
                     ui.UpdatePlayerIcon(idx);
                 }
             }
+        }
+    }
+
+    // ================= Panel de siguiente jugador =================
+    private void ShowNextTurnPanelThen(Action onCompleted)
+    {
+        if (nextTurnPanel == null)
+        {
+            // Si no está configurado el panel, continuar de inmediato
+            onCompleted?.Invoke();
+            return;
+        }
+
+        // Resolver referencias perezosamente si no fueron asignadas
+        AutoResolveNextTurnChildren();
+
+        if (_nextTurnRoutine != null)
+        {
+            StopCoroutine(_nextTurnRoutine);
+            _nextTurnRoutine = null;
+        }
+        int idx = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        _nextTurnRoutine = StartCoroutine(Co_ShowNextTurnPanel(idx, nextTurnCountdownSeconds, onCompleted));
+    }
+
+    private IEnumerator Co_ShowNextTurnPanel(int playerIndex, float seconds, Action onCompleted)
+    {
+        // Preparar imagen del jugador si se asignó
+        EnsurePlayerSourcesFromPreGamePanel();
+        ApplyNextTurnIconFromSources(playerIndex);
+
+        // Preparar textos
+        ApplyNextTurnTexts(playerIndex);
+
+        // Activar panel y bloquear interacción
+        nextTurnPanel.SetActive(true);
+
+        // Pausar juego con timeScale (y así detener el cronómetro) si está habilitado
+        if (pauseWithTimeScale)
+        {
+            _prevTimeScale = Time.timeScale;
+            Time.timeScale = 0f;
+        }
+
+    float remaining = Mathf.Max(0f, seconds);
+    UpdateNextTurnCountdownText(Mathf.CeilToInt(remaining));
+
+        // Usar tiempo real para no depender de Time.timeScale
+        float start = Time.realtimeSinceStartup;
+        float end = start + remaining;
+        while (Time.realtimeSinceStartup < end)
+        {
+            float left = Mathf.Max(0f, end - Time.realtimeSinceStartup);
+            UpdateNextTurnCountdownText(Mathf.CeilToInt(left));
+            yield return null;
+        }
+
+        // Ocultar panel
+        nextTurnPanel.SetActive(false);
+
+        // Restaurar timeScale
+        if (pauseWithTimeScale)
+        {
+            Time.timeScale = _prevTimeScale;
+        }
+        _nextTurnRoutine = null;
+        onCompleted?.Invoke();
+    }
+
+    private void UpdateNextTurnCountdownText(int secondsLeft)
+    {
+        if (nextTurnCountdownText != null)
+        {
+            nextTurnCountdownText.text = secondsLeft.ToString();
+        }
+    }
+
+    private void ApplyNextTurnIconFromSources(int playerIndex)
+    {
+        if (nextTurnPlayerIconImage == null)
+            return;
+
+        // Reset defaults
+        nextTurnPlayerIconImage.enabled = false;
+        nextTurnPlayerIconImage.sprite = null;
+        nextTurnPlayerIconImage.color = Color.white;
+
+        if (playerIndex >= 0)
+        {
+            // Usar únicamente fuentes de Image (no Sprite[])
+            if (playerSpriteSourcesByIndex != null && playerIndex < playerSpriteSourcesByIndex.Length)
+            {
+                var src = playerSpriteSourcesByIndex[playerIndex];
+                if (src != null && src.sprite != null)
+                {
+                    nextTurnPlayerIconImage.enabled = true;
+                    nextTurnPlayerIconImage.sprite = src.sprite;
+                    if (copySourceColor) nextTurnPlayerIconImage.color = src.color;
+                    return;
+                }
+            }
+            // Si no hay fuente válida, mantener desactivada la imagen y registrar aviso
+            Debug.LogWarning($"[NextTurnPanel] No se encontró Image fuente para el jugador {playerIndex}.");
+        }
+    }
+
+    private void AutoResolveNextTurnChildren()
+    {
+        if (nextTurnPanel == null) return;
+        // Buscar una Image para icono si falta
+        if (nextTurnPlayerIconImage == null)
+        {
+            nextTurnPlayerIconImage = nextTurnPanel.GetComponentInChildren<Image>(true);
+        }
+        // Buscar un TMP_Text para countdown si falta
+        if (nextTurnCountdownText == null)
+        {
+            nextTurnCountdownText = nextTurnPanel.GetComponentInChildren<TMP_Text>(true);
+        }
+        // Resolver header y mensaje de pasar dispositivo si faltan (busca por nombre parcial)
+        if (nextTurnHeaderText == null || passDeviceText == null)
+        {
+            var texts = nextTurnPanel.GetComponentsInChildren<TMP_Text>(true);
+            foreach (var t in texts)
+            {
+                if (t == null) continue;
+                var n = t.gameObject.name.ToLowerInvariant();
+                if (nextTurnHeaderText == null && (n.Contains("header") || n.Contains("titulo") || n.Contains("title") || n.Contains("siguiente")))
+                {
+                    nextTurnHeaderText = t;
+                    continue;
+                }
+                if (passDeviceText == null && (n.Contains("pass") || n.Contains("celular") || n.Contains("telefono") || n.Contains("device") || n.Contains("rapido")))
+                {
+                    passDeviceText = t;
+                    continue;
+                }
+            }
+        }
+    }
+
+    private void EnsurePlayerSourcesFromPreGamePanel()
+    {
+        // Si ya tenemos fuentes válidas, no hacer nada
+        if (playerSpriteSourcesByIndex != null && playerSpriteSourcesByIndex.Length > 0)
+        {
+            bool any = false;
+            for (int i = 0; i < playerSpriteSourcesByIndex.Length; i++)
+            {
+                if (playerSpriteSourcesByIndex[i] != null)
+                {
+                    any = true; break;
+                }
+            }
+            if (any) return;
+        }
+
+        // Intentar localizar PreGameOrderPanel incluso si está inactivo
+        PreGameOrderPanel srcPanel = null;
+        try
+        {
+            srcPanel = FindFirstObjectByType<PreGameOrderPanel>();
+        }
+        catch { /* Unity versions older than 2023 may throw; ignore */ }
+
+        if (srcPanel == null)
+        {
+            var all = Resources.FindObjectsOfTypeAll(typeof(PreGameOrderPanel));
+            if (all != null && all.Length > 0)
+            {
+                srcPanel = all[0] as PreGameOrderPanel;
+            }
+        }
+
+        if (srcPanel == null) return;
+
+        // Usar reflexión para leer su arreglo privado playerSpriteSourcesByIndex
+        var f = typeof(PreGameOrderPanel).GetField("playerSpriteSourcesByIndex", BindingFlags.NonPublic | BindingFlags.Instance);
+        if (f != null)
+        {
+            var val = f.GetValue(srcPanel) as Image[];
+            if (val != null && val.Length > 0)
+            {
+                playerSpriteSourcesByIndex = val;
+            }
+        }
+
+        // Copiar también el flag copySourceColor si existe
+        var fColor = typeof(PreGameOrderPanel).GetField("copySourceColor", BindingFlags.NonPublic | BindingFlags.Instance);
+        if (fColor != null)
+        {
+            try
+            {
+                var v = (bool)fColor.GetValue(srcPanel);
+                copySourceColor = v;
+            }
+            catch { }
+        }
+    }
+
+    private void ApplyNextTurnTexts(int playerIndex)
+    {
+        // 'Siguiente jugador {n}' donde n es 1-based
+        if (nextTurnHeaderText != null)
+        {
+            int n = (playerIndex >= 0 ? playerIndex + 1 : 0);
+            nextTurnHeaderText.text = (n > 0) ? $"Siguiente jugador {n}" : "Siguiente jugador";
+        }
+        // Mensaje fijo: 'Pasa el celular rapido'
+        if (passDeviceText != null)
+        {
+            passDeviceText.text = "Pasa el celular rapido";
         }
     }
 }

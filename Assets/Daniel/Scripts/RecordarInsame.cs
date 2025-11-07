@@ -68,6 +68,12 @@ public class RecordarInsame : MonoBehaviour
     [SerializeField, Tooltip("Duración del parpadeo cuando suenan todas las notas al final.")]
     private float finalChordVisualTime = 0.5f;
 
+    [Header("Bloqueo de clics durante la secuencia")]
+    [SerializeField, Tooltip("Panel/Image que bloquea clics mientras se muestra el patrón. Si está vacío, se crea automáticamente sobre el grid de entrada.")]
+    private GameObject inputBlockerPanel;
+    [SerializeField, Tooltip("Color del bloqueador (alpha puede ser 0 para invisible, por defecto transparente).")]
+    private Color blockerColor = new Color(0f, 0f, 0f, 0f);
+
     // Estado de grid y patrón
     private List<Cell> patternCells = new();
     private List<Cell> inputCells = new();
@@ -110,6 +116,7 @@ public class RecordarInsame : MonoBehaviour
         isShowing = false;
         pattern.Clear();
         inputProgress = 0;
+        SetInputBlockerVisible(false);
     }
 
     private void OnDisable()
@@ -131,6 +138,9 @@ public class RecordarInsame : MonoBehaviour
         running = true;
     startedPlayerIndex = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
         BuildGridsByDifficulty();
+        // Asegurar bloqueador preparado y oculto antes de mostrar
+        EnsureInputBlocker();
+        SetInputBlockerVisible(false);
         yield return new WaitForSeconds(showDelay);
 
         yield return StartCoroutine(ShowPattern());
@@ -370,6 +380,8 @@ public class RecordarInsame : MonoBehaviour
         isShowing = true;
         // Desactivar interacción mientras se muestra
         SetInputInteractable(false);
+        // Activar bloqueador de clics
+        SetInputBlockerVisible(true);
 
         // Asegurar que el grid del jugador esté totalmente apagado antes de reproducir el patrón
         ResetInputVisuals();
@@ -387,6 +399,8 @@ public class RecordarInsame : MonoBehaviour
         isShowing = false;
         inputProgress = 0;
         SetInputInteractable(true);
+        // Desactivar bloqueador de clics: turno del jugador
+        SetInputBlockerVisible(false);
     }
 
     private IEnumerator BlinkCell(List<Cell> cells, int index, float onTime)
@@ -411,6 +425,43 @@ public class RecordarInsame : MonoBehaviour
         {
             if (c.button != null) c.button.interactable = interact;
         }
+    }
+
+    // ==== Bloqueo de clics ====
+    private void EnsureInputBlocker()
+    {
+        if (inputBlockerPanel != null) return;
+        // Elegir el parent adecuado: si hay single grid, usarlo; si no, usar inputGridParent; fallback a patternGridParent
+        RectTransform parent = null;
+        if (useSingleGrid && singleGridParent != null) parent = singleGridParent;
+        else if (inputGridParent != null) parent = inputGridParent;
+        else parent = patternGridParent;
+
+        if (parent == null) return;
+
+        var go = new GameObject("InputBlocker", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        var rt = (RectTransform)go.transform;
+        rt.SetParent(parent, false);
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        rt.localScale = Vector3.one;
+        var img = go.GetComponent<Image>();
+        img.color = blockerColor;
+        img.raycastTarget = true; // clave para bloquear
+        go.SetActive(false);
+        go.transform.SetAsLastSibling(); // por encima de las celdas
+        inputBlockerPanel = go;
+    }
+
+    private void SetInputBlockerVisible(bool visible)
+    {
+        EnsureInputBlocker();
+        if (inputBlockerPanel == null) return;
+        inputBlockerPanel.SetActive(visible);
+        if (visible) inputBlockerPanel.transform.SetAsLastSibling();
     }
 
     private void OnCellPressed(int index)

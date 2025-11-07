@@ -27,6 +27,8 @@ public class TagManager : MonoBehaviour
     [Tooltip("Botones/slots UI por índice de jugador (1..4). Se desactivan al eliminar.")] 
     [SerializeField] private Button[] playerButtons = new Button[4];
     [SerializeField] private Color eliminatedColor = Color.gray;
+    [SerializeField, Tooltip("Color para el jugador que actualmente lleva el tag")] private Color taggedButtonColor = Color.gray;
+    [SerializeField, Tooltip("Color para jugadores no taggeados")] private Color defaultButtonColor = Color.white;
 
     [Header("Paneles Tag")] 
     [Tooltip("Panel que muestra jugador eliminado y botón para siguiente ronda")] 
@@ -321,6 +323,7 @@ public class TagManager : MonoBehaviour
             if (!p) continue;
             if (p == newTagged) p.SetTagged(true, true); else p.SetTagged(false, false);
         }
+        UpdatePlayerButtonsTagVisual(_currentTagged ? _currentTagged.PlayerIndex : -1);
         OnTagChanged?.Invoke(oldTagged, newTagged);
     }
 
@@ -443,6 +446,7 @@ public class TagManager : MonoBehaviour
     {
         if (debugLogs) Debug.Log($"[TagManager] Transferencia tag: {(oldTagged?"P"+oldTagged.PlayerIndex:"none")} -> P{newTagged.PlayerIndex}");
         _currentTagged = newTagged;
+        UpdatePlayerButtonsTagVisual(_currentTagged ? _currentTagged.PlayerIndex : -1);
         OnTagChanged?.Invoke(oldTagged, newTagged);
         // Ya no avanza etapa aquí; la etapa avanza con eliminaciones.
     }
@@ -475,5 +479,19 @@ public class TagManager : MonoBehaviour
         Color c = (startColors != null && startColors.Length > idx) ? startColors[idx] : Color.white;
         string nombre = (startColorNames != null && startColorNames.Length > idx) ? startColorNames[idx] : $"Jugador {playerIndex1Based}";
         roundStartPopup.Show(playerIndex1Based, nombre, c);
+    }
+
+    private void UpdatePlayerButtonsTagVisual(int taggedPlayerIndex1Based)
+    {
+        if (playerButtons == null || playerButtons.Length == 0) return;
+        for (int i = 0; i < playerButtons.Length; i++)
+        {
+            var btn = playerButtons[i]; if (!btn) continue;
+            var g = btn.targetGraphic; if (!g) continue;
+            int idx1 = i + 1;
+            // Si el botón está desactivado por eliminación respetar su estado visual
+            if (!btn.gameObject.activeInHierarchy) continue;
+            g.color = (idx1 == taggedPlayerIndex1Based) ? taggedButtonColor : defaultButtonColor;
+        }
     }
 }

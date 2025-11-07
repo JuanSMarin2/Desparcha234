@@ -1,0 +1,598 @@
+fileFormatVersion: 2
+guid: 203a736822362294698c36d3126f153a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4734912609047841559
+    second: Nueva_0
+  - first:
+      213: -7522931998509337225
+    second: Nueva_1
+  - first:
+      213: -3815147817814417962
+    second: Nueva_2
+  - first:
+      213: 6022095564096616390
+    second: Nueva_3
+  - first:
+      213: -1157266689447312002
+    second: Nueva_4
+  - first:
+      213: 3559353522383061179
+    second: Nueva_5
+  - first:
+      213: 1027553001117460902
+    second: Nueva_6
+  - first:
+      213: -3097032879834248583
+    second: Nueva_7
+  - first:
+      213: 7542669564144955753
+    second: Nueva_8
+  - first:
+      213: -4793496841095638217
+    second: Nueva_9
+  - first:
+      213: -3400426970209922661
+    second: Nueva_10
+  - first:
+      213: 4775337814462938495
+    second: Nueva_11
+  - first:
+      213: 2115541499244830057
+    second: Nueva_12
+  - first:
+      213: 8379504879361577605
+    second: Nueva_13
+  - first:
+      213: 2866340646261029743
+    second: Nueva_14
+  - first:
+      213: -6183782339414858813
+    second: Nueva_15
+  - first:
+      213: 8451751157623224116
+    second: Nueva_16
+  - first:
+      213: -3830327398166243841
+    second: Nueva_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Nueva_0
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 2399
+        width: 444
+        height: 483
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e47f2791163a4eb0800000000000000
+      internalID: -4734912609047841559
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_1
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 2399
+        width: 444
+        height: 482
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7757e6f943d299790800000000000000
+      internalID: -7522931998509337225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_2
+      rect:
+        serializedVersion: 2
+        x: 1118
+        y: 2398
+        width: 1272
+        height: 483
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6dd9091f54fdd0bc0800000000000000
+      internalID: -3815147817814417962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_3
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 1878
+        width: 444
+        height: 483
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c73f655208c29350800000000000000
+      internalID: 6022095564096616390
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_4
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 1878
+        width: 444
+        height: 483
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e75c911d31090ffe0800000000000000
+      internalID: -1157266689447312002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_5
+      rect:
+        serializedVersion: 2
+        x: 1119
+        y: 1878
+        width: 1278
+        height: 483
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb08dab9b2d556130800000000000000
+      internalID: 3559353522383061179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_6
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 1357
+        width: 443
+        height: 484
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a92e73a20a924e00800000000000000
+      internalID: 1027553001117460902
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_7
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 1357
+        width: 444
+        height: 485
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97a46cb21012505d0800000000000000
+      internalID: -3097032879834248583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_8
+      rect:
+        serializedVersion: 2
+        x: 1119
+        y: 1357
+        width: 1283
+        height: 484
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 961b20d7102fca860800000000000000
+      internalID: 7542669564144955753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_9
+      rect:
+        serializedVersion: 2
+        x: 2439
+        y: 1358
+        width: 444
+        height: 443
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 733998225041a7db0800000000000000
+      internalID: -4793496841095638217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_10
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 838
+        width: 919
+        height: 483
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b91daf3dfa14fc0d0800000000000000
+      internalID: -3400426970209922661
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_11
+      rect:
+        serializedVersion: 2
+        x: 1118
+        y: 837
+        width: 927
+        height: 485
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7dbd810178654240800000000000000
+      internalID: 4775337814462938495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_12
+      rect:
+        serializedVersion: 2
+        x: 2057
+        y: 879
+        width: 444
+        height: 444
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96dd512f8c9eb5d10800000000000000
+      internalID: 2115541499244830057
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_13
+      rect:
+        serializedVersion: 2
+        x: 2538
+        y: 878
+        width: 443
+        height: 444
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 582dfff8a4bf94470800000000000000
+      internalID: 8379504879361577605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_14
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 318
+        width: 923
+        height: 483
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6bf6a991a947c720800000000000000
+      internalID: 2866340646261029743
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_15
+      rect:
+        serializedVersion: 2
+        x: 1118
+        y: 358
+        width: 444
+        height: 443
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c3e7d2b9bace2aa0800000000000000
+      internalID: -6183782339414858813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_16
+      rect:
+        serializedVersion: 2
+        x: 1598
+        y: 358
+        width: 444
+        height: 444
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 437f02806e6aa4570800000000000000
+      internalID: 8451751157623224116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Nueva_17
+      rect:
+        serializedVersion: 2
+        x: 2079
+        y: 358
+        width: 443
+        height: 444
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff5dada7681f7dac0800000000000000
+      internalID: -3830327398166243841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Nueva_0: -4734912609047841559
+      Nueva_1: -7522931998509337225
+      Nueva_10: -3400426970209922661
+      Nueva_11: 4775337814462938495
+      Nueva_12: 2115541499244830057
+      Nueva_13: 8379504879361577605
+      Nueva_14: 2866340646261029743
+      Nueva_15: -6183782339414858813
+      Nueva_16: 8451751157623224116
+      Nueva_17: -3830327398166243841
+      Nueva_2: -3815147817814417962
+      Nueva_3: 6022095564096616390
+      Nueva_4: -1157266689447312002
+      Nueva_5: 3559353522383061179
+      Nueva_6: 1027553001117460902
+      Nueva_7: -3097032879834248583
+      Nueva_8: 7542669564144955753
+      Nueva_9: -4793496841095638217
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
