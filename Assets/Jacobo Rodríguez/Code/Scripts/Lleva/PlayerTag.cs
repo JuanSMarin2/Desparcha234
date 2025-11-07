@@ -13,7 +13,7 @@ public class PlayerTag : MonoBehaviour
 
     [Header("Animator")] 
     [SerializeField] private Animator _anim; // Animator en hijo
-    [SerializeField] private string hasTagParam = "HasTag";
+    private const string HasTagParamName = "HasTag"; // no editable desde el editor
 
     [Header("Transferencia Tag")] 
     [SerializeField] private float transferCooldown = 0f; // instantáneo por defecto
@@ -22,7 +22,7 @@ public class PlayerTag : MonoBehaviour
 
     [Header("Efectos de Sonido")]
     [Tooltip("Sonido que reproduce al tocar objetos con tag 'planta'")]
-    [SerializeField] private string plantaSfxKey = "planta";
+    [SerializeField] private string plantaSfxKey = "lleva:planta";
 
     private float _lastTransferTime = -999f;
     private int _lastTransferFrame = -999;
@@ -64,8 +64,8 @@ public class PlayerTag : MonoBehaviour
     private void SetAnimHasTag(bool value)
     {
         if (_anim == null) return;
-        if (_anim.HasParameterOfType(hasTagParam, AnimatorControllerParameterType.Bool))
-            _anim.SetBool(hasTagParam, value);
+        if (_anim.HasParameterOfType(HasTagParamName, AnimatorControllerParameterType.Bool))
+            _anim.SetBool(HasTagParamName, value);
     }
 
     private void ApplySpeed()
@@ -110,13 +110,15 @@ public class PlayerTag : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (usarColisionFisica && !mantenerTriggerParaDeteccion) return; // ignorar triggers si se usa colisión física pura
-        
-        // Detectar colisión con plantas
+        // Las plantas deben ser Trigger: reproducir siempre por trigger
         if (other.CompareTag("planta"))
         {
             PlayPlantaSound();
         }
+
+        // Si usamos colisión física para transferir y no queremos triggers para players, salir tras gestionar planta
+        if (usarColisionFisica && !mantenerTriggerParaDeteccion)
+            return;
         
         var otherTag = other.GetComponentInParent<PlayerTag>();
         HandleTagTransfer(otherTag);
@@ -142,6 +144,7 @@ public class PlayerTag : MonoBehaviour
         if (sm != null && !string.IsNullOrEmpty(plantaSfxKey))
         {
             sm.PlaySfx(plantaSfxKey);
+            Debug.Log($"[PlayerTag] Player {playerIndex1Based} tocó planta, reproduciendo SFX '{plantaSfxKey}'");
         }
     }
 

@@ -70,6 +70,8 @@ public class TagManager : MonoBehaviour
     private bool _countdownThresholdPlayed = false;
 
     public static event System.Action OnRoundStarted;
+    public static event System.Action<int> OnStageChanged; // etapa++ cuando hay eliminación
+    public int CurrentStageInRound { get; private set; } = 0; // ahora persiste entre rondas de esta partida
 
     void Awake()
     {
@@ -167,6 +169,7 @@ public class TagManager : MonoBehaviour
         _timeRemaining = roundDuration;
         _roundActive = true;
         _countdownThresholdPlayed = false;
+        // Nota: NO reiniciamos CurrentStageInRound aquí; etapa avanza con eliminaciones y persiste.
 
         ShowRoundStartPopup(chosen.PlayerIndex);
         
@@ -199,6 +202,7 @@ public class TagManager : MonoBehaviour
         ShowRoundStartPopup(randomTagged.PlayerIndex);
         if (debugLogs) Debug.Log($"[TagManager] Nueva ronda. Tagged=Player{randomTagged.PlayerIndex}");
         _roundActive = true;
+        // Nota: NO reiniciamos CurrentStageInRound en cada ronda.
         
         // Notificar inicio de ronda
         OnRoundStarted?.Invoke();
@@ -341,6 +345,12 @@ public class TagManager : MonoBehaviour
         int eliminatedIdx0 = p.PlayerIndex - 1;
         // Registrar eliminado localmente
         _eliminationOrder0Based.Add(eliminatedIdx0);
+        
+        // Avanzar etapa por eliminación y notificar
+        CurrentStageInRound++;
+        OnStageChanged?.Invoke(CurrentStageInRound);
+        if (debugLogs) Debug.Log($"[TagManager] Etapa (eliminaciones acumuladas): {CurrentStageInRound}");
+        
         // Reposicionar objetos vinculados al jugador eliminado
         if (repositionersOnElimination != null)
         {
@@ -434,6 +444,7 @@ public class TagManager : MonoBehaviour
         if (debugLogs) Debug.Log($"[TagManager] Transferencia tag: {(oldTagged?"P"+oldTagged.PlayerIndex:"none")} -> P{newTagged.PlayerIndex}");
         _currentTagged = newTagged;
         OnTagChanged?.Invoke(oldTagged, newTagged);
+        // Ya no avanza etapa aquí; la etapa avanza con eliminaciones.
     }
 
     // Nueva coroutine que reemplaza dependencia de StartTimintg
