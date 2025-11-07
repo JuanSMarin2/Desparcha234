@@ -1666,7 +1666,7 @@ GameObject:
   - component: {fileID: 435391100}
   - component: {fileID: 435391101}
   m_Layer: 0
-  m_Name: TagManager
+  m_Name: CongeladosManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1696,11 +1696,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 435391099}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05ba35d3d5302094eaf5ac841d56ff46, type: 3}
+  m_Script: {fileID: 11500000, guid: 92543275d9db92649876991a5f715cca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeedNormal: 3
-  moveSpeedTagged: 5
   roundStartPopup: {fileID: 2066010809}
   startColors:
   - {r: 0.85, g: 0.25, b: 0.25, a: 1}
@@ -1714,29 +1712,15 @@ MonoBehaviour:
   - verde
   roundDuration: 20
   timerText: {fileID: 787345464}
-  playerButtons:
-  - {fileID: 1864842365}
-  - {fileID: 1871976662}
-  - {fileID: 1172831940}
-  - {fileID: 694211685}
-  eliminatedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  panelEliminacion: {fileID: 1391231918}
-  panelVictoria: {fileID: 180100633}
-  eliminationIcons:
-  - {fileID: -1832221067031316088, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  - {fileID: 1190479172476038618, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  - {fileID: 7162554072243991052, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  - {fileID: 8919797506060606750, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
-  repositionersOnElimination:
-  - {fileID: 1391231914}
-  - {fileID: 0}
   objetoGateInicio: {fileID: 1508140859}
   esperarDesactivacionGate: 1
   gateTimeoutSeconds: 10
-  sfxCountdownKey: lleva:cronometro
-  countdownSfxVolume: 0.55
+  sfxCountdownKey: congelados:cronometro
+  countdownSfxVolume: 0.44
   countdownReplayThreshold: 5
-  sfxVictoryKey: lleva:victoria
+  sfxVictoryKey: congelados:victoria
+  autoDisableTagManagerIfFound: 0
+  autoDisablePlayerTagIfFound: 0
   debugLogs: 1
 --- !u!1 &445327582
 GameObject:
@@ -1874,7 +1858,7 @@ GameObject:
   - component: {fileID: 532194895}
   - component: {fileID: 532194894}
   m_Layer: 5
-  m_Name: LaLlevaEL
+  m_Name: CongelaEL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2736,9 +2720,9 @@ GameObject:
   - component: {fileID: 693602408}
   - component: {fileID: 693602407}
   - component: {fileID: 693602406}
-  - component: {fileID: 693602411}
   - component: {fileID: 693602412}
   - component: {fileID: 693602413}
+  - component: {fileID: 693602414}
   m_Layer: 0
   m_Name: Personaje (4)
   m_TagString: Player
@@ -2923,25 +2907,6 @@ Transform:
   - {fileID: 867696807}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &693602411
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 693602405}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1519f9929378a5d4ab0747ccfa32b6c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerIndex1Based: 4
-  outlineObject: {fileID: 867696804}
-  _anim: {fileID: 0}
-  transferCooldown: 0.5
-  usarColisionFisica: 1
-  mantenerTriggerParaDeteccion: 0
-  plantaSfxKey: lleva:planta
 --- !u!95 &693602412
 Animator:
   serializedVersion: 7
@@ -2976,10 +2941,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca9f265989f856944baffafd1525fa6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sfxKey: lleva:footstep
-  interval: 0.2
+  sfxKey: congelados:footstep
+  interval: 0.3
   volume: 0.4
   playOnlyWhenMoving: 1
+--- !u!114 &693602414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 693602405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52775a600e831d64d874ef4b7749ca8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerIndex1Based: 4
+  usarColisionFisica: 1
+  mantenerTriggerParaDeteccion: 1
+  spriteRenderer: {fileID: 693602409}
+  spriteCongelado: {fileID: 21300000, guid: f492cdf94c836c64cab991fe76ed8fd2, type: 3}
+  spriteNormal: {fileID: 0}
+  animatorOpcional: {fileID: 693602412}
+  plantaSfxKey: congelados:planta
+  freezeSfxKey: congelados:freeze
+  unfreezeSfxKey: congelados:unfreeze
+  outlineFreezerObject: {fileID: 867696804}
+  debugLogs: 0
 --- !u!1 &694211683
 GameObject:
   m_ObjectHideFlags: 0
@@ -4537,7 +4526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc0847e2608a6d4da8edd56b4f8b81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tagManager: {fileID: 435391101}
+  tagManager: {fileID: 0}
 --- !u!95 &1053601459
 Animator:
   serializedVersion: 7
@@ -4627,10 +4616,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c4fd8d572e5f174a9f3e59f1a3dfbad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameId: lleva
+  gameId: congelados
   sfxClips:
-  - key: TagTransfer
-    clip: {fileID: 8300000, guid: bb51f5dece8ad70448780eae91dbf49f, type: 3}
+  - key: freeze
+    clip: {fileID: 8300000, guid: d249fd9531fc3ec4b9055bfaa708d507, type: 3}
   - key: Eliminado
     clip: {fileID: 8300000, guid: c8a33cd540db6c84a951cd74e8b4aba2, type: 3}
   - key: cronometro
@@ -4641,6 +4630,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 1fb5cacb72d26e442a56faa83755c9d4, type: 3}
   - key: footstep
     clip: {fileID: 8300000, guid: 1fb5cacb72d26e442a56faa83755c9d4, type: 3}
+  - key: unfreeze
+    clip: {fileID: 8300000, guid: 642aeef1a047dd6458446c4fa47716d2, type: 3}
   musicClips: []
   musicVolumeOverrides:
   - key: 
@@ -4903,9 +4894,9 @@ GameObject:
   - component: {fileID: 1197602803}
   - component: {fileID: 1197602802}
   - component: {fileID: 1197602801}
-  - component: {fileID: 1197602806}
   - component: {fileID: 1197602807}
   - component: {fileID: 1197602808}
+  - component: {fileID: 1197602809}
   m_Layer: 0
   m_Name: Personaje (2)
   m_TagString: Player
@@ -5090,25 +5081,6 @@ Transform:
   - {fileID: 1290906891}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1197602806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1197602800}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1519f9929378a5d4ab0747ccfa32b6c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerIndex1Based: 2
-  outlineObject: {fileID: 1290906888}
-  _anim: {fileID: 0}
-  transferCooldown: 0.5
-  usarColisionFisica: 1
-  mantenerTriggerParaDeteccion: 0
-  plantaSfxKey: lleva:planta
 --- !u!95 &1197602807
 Animator:
   serializedVersion: 7
@@ -5147,6 +5119,30 @@ MonoBehaviour:
   interval: 0.3
   volume: 0.4
   playOnlyWhenMoving: 1
+--- !u!114 &1197602809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197602800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52775a600e831d64d874ef4b7749ca8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerIndex1Based: 2
+  usarColisionFisica: 1
+  mantenerTriggerParaDeteccion: 1
+  spriteRenderer: {fileID: 1197602804}
+  spriteCongelado: {fileID: 21300000, guid: f492cdf94c836c64cab991fe76ed8fd2, type: 3}
+  spriteNormal: {fileID: 0}
+  animatorOpcional: {fileID: 1197602807}
+  plantaSfxKey: congelados:planta
+  freezeSfxKey: congelados:freeze
+  unfreezeSfxKey: congelados:unfreeze
+  outlineFreezerObject: {fileID: 1290906888}
+  debugLogs: 0
 --- !u!1 &1225303639
 GameObject:
   m_ObjectHideFlags: 0
@@ -5415,7 +5411,7 @@ GameObject:
   - component: {fileID: 1246577728}
   - component: {fileID: 1246577727}
   - component: {fileID: 1246577731}
-  - component: {fileID: 1246577732}
+  - component: {fileID: 1246577735}
   - component: {fileID: 1246577733}
   - component: {fileID: 1246577734}
   m_Layer: 0
@@ -5456,7 +5452,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   wallPadding: 0.01
   slideIterations: 2
-  _anim: {fileID: 0}
+  _anim: {fileID: 1246577733}
   isMovingParam: IsMoving
 --- !u!61 &1246577728
 BoxCollider2D:
@@ -5602,25 +5598,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &1246577732
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1246577726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1519f9929378a5d4ab0747ccfa32b6c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerIndex1Based: 1
-  outlineObject: {fileID: 155387638}
-  _anim: {fileID: 0}
-  transferCooldown: 0.5
-  usarColisionFisica: 1
-  mantenerTriggerParaDeteccion: 0
-  plantaSfxKey: lleva:planta
 --- !u!95 &1246577733
 Animator:
   serializedVersion: 7
@@ -5655,10 +5632,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca9f265989f856944baffafd1525fa6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sfxKey: lleva:footstep
-  interval: 0.2
+  sfxKey: congelados:footstep
+  interval: 0.3
   volume: 0.4
   playOnlyWhenMoving: 1
+--- !u!114 &1246577735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1246577726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52775a600e831d64d874ef4b7749ca8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerIndex1Based: 1
+  usarColisionFisica: 1
+  mantenerTriggerParaDeteccion: 1
+  spriteRenderer: {fileID: 1246577729}
+  spriteCongelado: {fileID: 21300000, guid: f492cdf94c836c64cab991fe76ed8fd2, type: 3}
+  spriteNormal: {fileID: 0}
+  animatorOpcional: {fileID: 0}
+  plantaSfxKey: congelados:planta
+  freezeSfxKey: congelados:freeze
+  unfreezeSfxKey: congelados:unfreeze
+  outlineFreezerObject: {fileID: 155387638}
+  debugLogs: 1
 --- !u!1 &1254280845
 GameObject:
   m_ObjectHideFlags: 0
@@ -6655,7 +6656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc0847e2608a6d4da8edd56b4f8b81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tagManager: {fileID: 435391101}
+  tagManager: {fileID: 0}
 --- !u!95 &1365148592
 Animator:
   serializedVersion: 7
@@ -6958,7 +6959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc0847e2608a6d4da8edd56b4f8b81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tagManager: {fileID: 435391101}
+  tagManager: {fileID: 0}
 --- !u!95 &1415108527
 Animator:
   serializedVersion: 7
@@ -7184,9 +7185,9 @@ GameObject:
   - component: {fileID: 1526244085}
   - component: {fileID: 1526244084}
   - component: {fileID: 1526244083}
-  - component: {fileID: 1526244088}
   - component: {fileID: 1526244089}
   - component: {fileID: 1526244090}
+  - component: {fileID: 1526244091}
   m_Layer: 0
   m_Name: Personaje (3)
   m_TagString: Player
@@ -7371,25 +7372,6 @@ Transform:
   - {fileID: 1230263822}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -85.262}
---- !u!114 &1526244088
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1526244082}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1519f9929378a5d4ab0747ccfa32b6c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerIndex1Based: 3
-  outlineObject: {fileID: 1230263819}
-  _anim: {fileID: 0}
-  transferCooldown: 0.5
-  usarColisionFisica: 1
-  mantenerTriggerParaDeteccion: 0
-  plantaSfxKey: lleva:planta
 --- !u!95 &1526244089
 Animator:
   serializedVersion: 7
@@ -7425,9 +7407,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sfxKey: lleva:footstep
-  interval: 0.2
+  interval: 0.3
   volume: 0.4
   playOnlyWhenMoving: 1
+--- !u!114 &1526244091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1526244082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52775a600e831d64d874ef4b7749ca8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerIndex1Based: 3
+  usarColisionFisica: 1
+  mantenerTriggerParaDeteccion: 1
+  spriteRenderer: {fileID: 1526244086}
+  spriteCongelado: {fileID: 9139330975122868335, guid: 843678128c2d84142b26a521d5838054, type: 3}
+  spriteNormal: {fileID: 508391231780666368, guid: f649c97ec5bc154459b3f7399cbfeaf5, type: 3}
+  animatorOpcional: {fileID: 1526244089}
+  plantaSfxKey: congelados:planta
+  freezeSfxKey: congelados:freeze
+  unfreezeSfxKey: congelados:unfreeze
+  outlineFreezerObject: {fileID: 1230263819}
+  debugLogs: 0
 --- !u!1 &1549518659
 GameObject:
   m_ObjectHideFlags: 0
@@ -8946,7 +8952,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc0847e2608a6d4da8edd56b4f8b81a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tagManager: {fileID: 435391101}
+  tagManager: {fileID: 0}
 --- !u!95 &1729735976
 Animator:
   serializedVersion: 7
@@ -9064,7 +9070,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 2454718088323046001, guid: 856d5014221a3824b8f42cdefb5d7d5d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0504bfba488d8084ab0ada3f88e820e2, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10692,7 +10698,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvasGroup: {fileID: 2066010807}
   texto: {fileID: 532194894}
-  formato: La lleva el {0}
+  formato: Congela el {0}
   colorizeText: 1
   mostrarSegundos: 3
   fadeIn: 0.15
