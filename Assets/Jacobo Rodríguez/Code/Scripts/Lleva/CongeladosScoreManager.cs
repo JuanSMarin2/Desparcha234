@@ -51,6 +51,21 @@ public class CongeladosScoreManager : MonoBehaviour
         }
     }
 
+    public void AddPointsToAllNonFreezers(List<PlayerCongelados> players)
+    {
+        if (players == null) return;
+        foreach (var p in players)
+        {
+            if (p == null) continue;
+            if (!p.IsFreezer)
+            {
+                int idx0 = Mathf.Clamp(p.PlayerIndex - 1, 0, 3);
+                scores[idx0] += 1;
+                if (debugLogs) Debug.Log($"[CongeladosScoreManager] +1 (runners win) a P{p.PlayerIndex}. Score={scores[idx0]}");
+            }
+        }
+    }
+
     public int GetScore(int playerIndex1Based)
     {
         int idx0 = Mathf.Clamp(playerIndex1Based - 1, 0, 3);

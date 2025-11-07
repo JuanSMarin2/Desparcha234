@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.UI;
 
 // Modalidad "Congelados":
 // - Un jugador es el "freezer" de la ronda (rota entre rondas).
@@ -16,6 +17,16 @@ public class TagCongelados : MonoBehaviour
     // Evento propio de inicio de ronda para que otros componentes puedan escuchar si lo requieren
     public static System.Action OnRoundStarted;
 
+    // Nuevo: Evento de fin de ronda (para UI)
+    public enum RoundEndType { FreezerWin, NonFreezersWin, FinalVictory }
+    public struct RoundEndData
+    {
+        public RoundEndType type;
+        public int freezerIndex1Based; // válido si type=FreezerWin (quién fue el freezer ganador)
+        public List<int> winners1Based; // ganadores 1..4 (no-freezers sobrevivientes o solo el freezer)
+    }
+    public static System.Action<RoundEndData> OnRoundEnded;
+
     [Header("Popup Inicio de Ronda")]
     [SerializeField] private TagRoundStartPopup roundStartPopup; // opcional
     [SerializeField, Tooltip("Colores 1..4 para mostrar en popup")] private Color[] startColors = new Color[]{ new Color(0.85f,0.25f,0.25f), new Color(0.25f,0.45f,0.9f), new Color(0.95f,0.85f,0.2f), new Color(0.3f,0.85f,0.4f)};
@@ -24,6 +35,13 @@ public class TagCongelados : MonoBehaviour
     [Header("Duración Ronda")]
     [SerializeField, Tooltip("Segundos por ronda")] private float roundDuration = 20f;
     [SerializeField, Tooltip("Texto del cronómetro (muestra con una décima)")] private TMP_Text timerText;
+
+    [Header("Rondas totales (final al completar)")]
+    [SerializeField, Tooltip("Número total de rondas antes de declarar victoria final.")] private int totalRounds = 4;
+    private int _roundsPlayed = 0;
+
+    [Header("Panel Victoria (final)")]
+    [SerializeField, Tooltip("Panel de victoria reutilizado con modo congelados.")] private VictoryTagPanel victoryPanel;
 
     [Header("Inicio Diferido por Gate")]
     [Tooltip("Si está activo, la ronda inicia cuando este objeto se desactiva (activeInHierarchy=false)." )]
@@ -41,6 +59,12 @@ public class TagCongelados : MonoBehaviour
     [SerializeField, Tooltip("Si se encuentra un TagManager en escena, lo deshabilita para evitar conflictos con el modo Tag clásico")] private bool autoDisableTagManagerIfFound = true;
     [SerializeField, Tooltip("Deshabilita automáticamente componentes PlayerTag si están presentes en los jugadores")] private bool autoDisablePlayerTagIfFound = true;
 
+    [Header("Velocidades Jugadores (Congelados)")]
+    [SerializeField] private float moveSpeedNormal = 3f;
+    [SerializeField] private float moveSpeedFreezer = 5f;
+    public float MoveSpeedNormal => moveSpeedNormal;
+    public float MoveSpeedFreezer => moveSpeedFreezer;
+
     [Header("Debug")] [SerializeField] private bool debugLogs = true;
 
     private readonly List<PlayerCongelados> _players = new List<PlayerCongelados>();
@@ -48,6 +72,7 @@ public class TagCongelados : MonoBehaviour
     private bool _roundActive = false;
     private float _timeRemaining = 0f;
     private bool _countdownThresholdPlayed = false;
+    private bool _finalized = false;
 
     private void Awake()
     {
@@ -96,7 +121,7 @@ public class TagCongelados : MonoBehaviour
 
     private void Update()
     {
-        if (!_roundActive) return;
+        if (!_roundActive || _finalized) return;
         _timeRemaining -= Time.deltaTime;
         if (timerText)
         {
@@ -165,6 +190,8 @@ public class TagCongelados : MonoBehaviour
 
     private void StartNewRound()
     {
+        if (_finalized) return;
+
         if (_players.Count == 0)
         {
             if (debugLogs) Debug.LogWarning("[TagCongelados] No hay jugadores.");
@@ -227,21 +254,41 @@ public class TagCongelados : MonoBehaviour
 
     private void HandleTimeExpired()
     {
+        if (_finalized) return;
         _roundActive = false;
-        if (debugLogs) Debug.Log("[TagCongelados] Tiempo agotado: Ganan los no congelados.");
-
-        // Otorgar puntos a no-freezers no congelados
+        if (debugLogs) Debug.Log("[TagCongelados] Tiempo agotado: Ganan los no congelados (todos los runners reciben punto, estén congelados o no).");
         var scorer = CongeladosScoreManager.Instance;
         if (scorer != null)
         {
-            scorer.AddPointsToNonFreezersNotFrozen(_players);
+            scorer.AddPointsToAllNonFreezers(_players);
         }
+        var winners = new List<int>();
+        foreach (var p in _players)
+        {
+            if (p != null && !p.IsFreezer) winners.Add(p.PlayerIndex);
+        }
+        OnRoundEnded?.Invoke(new RoundEndData
+        {
+            type = RoundEndType.NonFreezersWin,
+            freezerIndex1Based = _currentFreezerIndex1Based,
+            winners1Based = winners
+        });
+        var sm = SoundManager.instance; if (sm && !string.IsNullOrEmpty(sfxVictoryKey)) sm.PlaySfx(sfxVictoryKey, 0.7f);
+        PostRoundAdvanceAndMaybeFinish();
+    }
 
-        // Reproducir SFX de victoria
-        var sm = SoundManager.instance; if (sm != null && !string.IsNullOrEmpty(sfxVictoryKey)) sm.PlaySfx(sfxVictoryKey, 0.9f);
-        // Siguiente ronda con freezer rotado
+    private void PostRoundAdvanceAndMaybeFinish()
+    {
+        _roundsPlayed++;
         RotateFreezerForNextRound();
-        Invoke(nameof(StartNewRound), 2f);
+        if (_roundsPlayed >= totalRounds)
+        {
+            FinalizeSession();
+        }
+        else
+        {
+            Invoke(nameof(StartNewRound), 2f);
+        }
     }
 
     private void RotateFreezerForNextRound()
@@ -255,7 +302,7 @@ public class TagCongelados : MonoBehaviour
 
     public void CheckWinByAllFrozen()
     {
-        if (!_roundActive) return;
+        if (!_roundActive || _finalized) return;
         // Si todos los no-freezer están congelados, gana el freezer
         bool anyNonFreezer = false;
         bool allFrozen = true;
@@ -283,11 +330,73 @@ public class TagCongelados : MonoBehaviour
                 scorer.AddPointToFreezer(_currentFreezerIndex1Based);
             }
 
+            // Notificar UI fin de ronda (freezer gana)
+            OnRoundEnded?.Invoke(new RoundEndData
+            {
+                type = RoundEndType.FreezerWin,
+                freezerIndex1Based = _currentFreezerIndex1Based,
+                winners1Based = new List<int> { _currentFreezerIndex1Based }
+            });
+
             var sm = SoundManager.instance; if (sm != null && !string.IsNullOrEmpty(sfxVictoryKey)) sm.PlaySfx(sfxVictoryKey, 0.9f);
             // Rotar freezer para la próxima ronda igualmente
-            RotateFreezerForNextRound();
-            Invoke(nameof(StartNewRound), 2f);
+            PostRoundAdvanceAndMaybeFinish();
         }
+    }
+
+    private void FinalizeSession()
+    {
+        _finalized = true;
+        var winners = DetermineOverallWinners();
+        if (victoryPanel)
+        {
+            if (winners != null && winners.Count > 1)
+            {
+                victoryPanel.EnableCongeladosModeAndShowMultiple(winners);
+            }
+            else if (winners != null && winners.Count == 1)
+            {
+                victoryPanel.EnableCongeladosModeAndShow(winners[0]);
+            }
+        }
+        OnRoundEnded?.Invoke(new RoundEndData
+        {
+            type = RoundEndType.FinalVictory,
+            freezerIndex1Based = _currentFreezerIndex1Based,
+            winners1Based = winners
+        });
+    }
+
+    private List<int> DetermineOverallWinners()
+    {
+        var scorer = CongeladosScoreManager.Instance; if (!scorer) return new List<int> { 1 };
+        int[] snap = scorer.GetScoresSnapshot();
+        // Encontrar máximo entre jugadores activos
+        int maxScore = int.MinValue;
+        var rd = RoundData.instance; int maxPlayers = rd ? Mathf.Clamp(rd.numPlayers, 1, 4) : 4;
+        // Filtrar por jugadores presentes (_players) para robustez
+        HashSet<int> present = new HashSet<int>();
+        foreach (var p in _players) if (p != null && p.PlayerIndex >= 1 && p.PlayerIndex <= maxPlayers) present.Add(p.PlayerIndex);
+        for (int i = 0; i < 4; i++)
+        {
+            int idx1 = i + 1;
+            if (!present.Contains(idx1)) continue;
+            maxScore = Mathf.Max(maxScore, snap[i]);
+        }
+        if (maxScore == int.MinValue)
+        {
+            // Fallback si no hay presentes
+            return new List<int> { 1 };
+        }
+        var winners = new List<int>();
+        for (int i = 0; i < 4; i++)
+        {
+            int idx1 = i + 1;
+            if (!present.Contains(idx1)) continue;
+            if (snap[i] == maxScore) winners.Add(idx1);
+        }
+        if (debugLogs) Debug.Log($"[TagCongelados] Final de sesión -> ganadores: [{string.Join(",", winners)}] con scoreMax={maxScore}");
+        return winners;
     }
 
     private void ShowRoundStartPopup(int playerIndex1Based)

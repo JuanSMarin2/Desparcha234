@@ -187,6 +187,11 @@ public class Movimiento : MonoBehaviour
     {
         if (!_holdRequested)
         {
+            // Asegurar freno inmediato cuando no se sostiene el input
+            if (enablePlayerPush && useVelocityWhenPushing && _rb != null)
+            {
+                _rb.linearVelocity = Vector2.zero;
+            }
             if (_isMoving) { _isMoving = false; OnMoveFinished?.Invoke(); SetAnimIsMoving(false); }
             return;
         }
@@ -251,7 +256,7 @@ public class Movimiento : MonoBehaviour
     }
 
     public void StartHoldMove() { if(!_holdRequested){ _rotationDir *= -1; } _holdRequested = true; }
-    public void StopHoldMove() { _holdRequested = false; }
+    public void StopHoldMove() { _holdRequested = false; if (enablePlayerPush && useVelocityWhenPushing && _rb != null) { _rb.linearVelocity = Vector2.zero; } }
 
     public static void StartHoldForPlayer(int playerIdx1Based)
     {
@@ -280,6 +285,11 @@ public class Movimiento : MonoBehaviour
 
     public void ResetToInitialPosition()
     {
+        // Cancelar input/hold y estado de animación
+        StopHoldMove();
+        _isMoving = false;
+        SetAnimIsMoving(false);
+        // Reset físico y posición
         if (_rb != null)
         {
             _rb.linearVelocity = Vector2.zero;
@@ -294,6 +304,10 @@ public class Movimiento : MonoBehaviour
 
     private void OnRoundStarted_ResetToInitial()
     {
+        // Detener cualquier movimiento activo y frenar completamente
+        StopHoldMove();
+        _isMoving = false;
+        SetAnimIsMoving(false);
         ResetToInitialPosition();
     }
 }

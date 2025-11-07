@@ -13,6 +13,9 @@ public class SoundManager : MonoBehaviour
     [Range(0f,1f)] [SerializeField] private float musicVolume = 1f;
 
     [Header("Config Música")] [SerializeField] private bool musicLoopDefault = true;
+    [Header("Persistencia / Overrides")]
+    [SerializeField, Tooltip("Marcar SOLO en el SoundManager creado en el menú principal para que permanezca entre escenas.")] private bool persistAcrossScenes = true;
+    [SerializeField, Tooltip("Si true, al aplicar volúmenes de un SoundManager local se guardan en PlayerPrefs. Si false, solo se usan en memoria.")] private bool saveSceneOverrideToPrefs = false;
 
     private AudioSource _sfxSource;      // disparos one-shot (SFX)
     private AudioSource _musicSource;    // canal dedicado música (loop)
@@ -48,10 +51,24 @@ public class SoundManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            if (persistAcrossScenes) DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (instance != this)
         {
+            // Este objeto es un SM local de la escena. Transferir sus volúmenes al persistente y destruirlo.
+            if (instance != null)
+            {
+                if (saveSceneOverrideToPrefs)
+                {
+                    instance.SetSfxVolume(sfxVolume);
+                    instance.SetMusicVolume(musicVolume);
+                }
+                else
+                {
+                    // Aplicar sin guardar en prefs
+                    instance.ApplyRuntimeVolumes(sfxVolume, musicVolume);
+                }
+            }
             Destroy(gameObject);
             return;
         }
@@ -392,5 +409,16 @@ public class SoundManager : MonoBehaviour
         if (_musicSource != null) _musicSource.volume = musicVolume; 
         PlayerPrefs.SetFloat(PREF_MUS, musicVolume); 
         OnMusicVolumeChanged?.Invoke(musicVolume); 
+    }
+
+    // Método interno para aplicar volúmenes sin tocar PlayerPrefs ni disparar eventos externos opcionalmente
+    private void ApplyRuntimeVolumes(float sfx, float music)
+    {
+        sfxVolume = Mathf.Clamp01(sfx);
+        musicVolume = Mathf.Clamp01(music);
+        if (_musicSource != null) _musicSource.volume = musicVolume;
+        // Notificar listeners para UI (mantener coherencia visual)
+        OnSfxVolumeChanged?.Invoke(sfxVolume);
+        OnMusicVolumeChanged?.Invoke(musicVolume);
     }
 }
