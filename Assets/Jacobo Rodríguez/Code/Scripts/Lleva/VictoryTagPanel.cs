@@ -78,28 +78,34 @@ public class VictoryTagPanel : MonoBehaviour
                 return;
             }
         }
-        // Asegurar modo de actualización para reproducirse aunque timeScale=0
         victoryAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
 
-        // Adjuntar (o verificar) proxy de animation event
-        var proxy = victoryAnimator.GetComponent<VictoryTagAnimationEventProxy>();
-        if (proxy == null)
+        if (esCongelados)
         {
-            proxy = victoryAnimator.gameObject.AddComponent<VictoryTagAnimationEventProxy>();
-            proxy.tagManager = TagManager.Instance;
-            Debug.Log("[VictoryTagPanel] Proxy de AnimationEvent agregado dinámicamente.");
+            var proxyCong = victoryAnimator.GetComponent<CongeladosVictoryAnimationEventProxy>();
+            if (proxyCong == null)
+            {
+                proxyCong = victoryAnimator.gameObject.AddComponent<CongeladosVictoryAnimationEventProxy>();
+            }
+        }
+        else
+        {
+            var proxy = victoryAnimator.GetComponent<VictoryTagAnimationEventProxy>();
+            if (proxy == null)
+            {
+                proxy = victoryAnimator.gameObject.AddComponent<VictoryTagAnimationEventProxy>();
+                proxy.tagManager = TagManager.Instance;
+            }
         }
 
         if (usarTrigger)
         {
             victoryAnimator.ResetTrigger(victoryStateName);
             victoryAnimator.SetTrigger(victoryStateName);
-            Debug.Log($"[VictoryTagPanel] SetTrigger '{victoryStateName}'");
         }
         else
         {
             victoryAnimator.Play(victoryStateName, 0, 0f);
-            Debug.Log($"[VictoryTagPanel] Play estado '{victoryStateName}'");
         }
 
         if (fallbackSiNoEvent)
@@ -115,11 +121,10 @@ public class VictoryTagPanel : MonoBehaviour
         float t = 0f;
         while (t < fallbackDelay)
         {
-            t += Time.unscaledDeltaTime; // unscaled para funcionar con timeScale=0
+            t += Time.unscaledDeltaTime;
             yield return null;
-            if (_finishedSignaled) yield break; // ya terminó por event
+            if (_finishedSignaled) yield break;
         }
-        Debug.LogWarning("[VictoryTagPanel] Fallback: no llegó Animation Event, finalizando ronda.");
         FinalizarSiNoSeñalado();
     }
 
@@ -127,7 +132,14 @@ public class VictoryTagPanel : MonoBehaviour
     {
         if (_finishedSignaled) return;
         _finishedSignaled = true;
-        TagManager.Instance?.OnVictoryAnimationFinished();
+        if (esCongelados)
+        {
+            TagCongelados.Instance?.FinalizeFromAnimationEvent();
+        }
+        else
+        {
+            TagManager.Instance?.OnVictoryAnimationFinished();
+        }
     }
 
     // Método público para anim event final (si se usa este panel en lugar de proxy separado)
@@ -140,22 +152,39 @@ public class VictoryTagPanel : MonoBehaviour
     public void EnableCongeladosModeAndShow(int playerIndex1Based)
     {
         esCongelados = true;
-        ShowWinner(playerIndex1Based);
-        // Reemplazar texto y objetos por un solo icono feliz del ganador
-        if (iconoGanador)
+        // Mostrar el panel sin activar objetos del modo clásico
+        gameObject.SetActive(true);
+        if (canvasGroup)
         {
-            var gm = IconManagerGeneral.Instance;
-            if (gm != null)
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+        }
+        HideAllVictoryObjects();
+        LimpiarIconosMultiples();
+
+        // Texto opcional
+        if (textoGanador) textoGanador.text = string.Format(formatoGanador, playerIndex1Based);
+
+        // Usar el icono múltiple fijo por jugador (índice = jugador-1)
+        var gm = IconManagerGeneral.Instance;
+        int idx0 = Mathf.Clamp(playerIndex1Based - 1, 0, 3);
+        if (iconosMultiples != null && idx0 < iconosMultiples.Length)
+        {
+            var img = iconosMultiples[idx0];
+            if (img && gm != null)
             {
-                var sprite = gm.GetHappy(Mathf.Clamp(playerIndex1Based - 1, 0, 3));
-                iconoGanador.sprite = sprite;
-                iconoGanador.enabled = sprite != null;
+                var sprite = gm.GetHappy(idx0);
+                img.sprite = sprite;
+                img.enabled = sprite != null;
+                // Asegurar activación del GameObject externo
+                if (sprite != null && !img.gameObject.activeSelf) img.gameObject.SetActive(true);
             }
         }
-        // Ocultar objetos de tag clásico
-        HideAllVictoryObjects();
-        if (textoGanador) textoGanador.text = $"Jugador {playerIndex1Based} gana"; // podría personalizarse
-        LimpiarIconosMultiples();
+        // Asegurar que el icono "single" no se use en Congelados
+        if (iconoGanador) iconoGanador.enabled = false;
+
+        IniciarAnimacionVictoria();
     }
 
     public void EnableCongeladosModeAndShowMultiple(System.Collections.Generic.List<int> winners1Based)
@@ -170,6 +199,7 @@ public class VictoryTagPanel : MonoBehaviour
         }
         HideAllVictoryObjects();
         LimpiarIconosMultiples();
+
         if (textoGanador)
         {
             if (winners1Based != null && winners1Based.Count > 1)
@@ -179,26 +209,29 @@ public class VictoryTagPanel : MonoBehaviour
             else
                 textoGanador.text = "";
         }
+
+        // Encender los iconos fijos de cada jugador ganador
         var gm = IconManagerGeneral.Instance;
-        if (gm != null && winners1Based != null)
+        if (gm != null && winners1Based != null && iconosMultiples != null)
         {
-            int slot = 0;
             foreach (var w in winners1Based)
             {
-                if (iconosMultiples != null && slot < iconosMultiples.Length)
+                int idx0 = Mathf.Clamp(w - 1, 0, 3);
+                if (idx0 < iconosMultiples.Length)
                 {
-                    var img = iconosMultiples[slot];
+                    var img = iconosMultiples[idx0];
                     if (img)
                     {
-                        var sprite = gm.GetHappy(Mathf.Clamp(w - 1, 0, 3));
+                        var sprite = gm.GetHappy(idx0);
                         img.sprite = sprite;
                         img.enabled = sprite != null;
+                        // Asegurar activación del GameObject externo
+                        if (sprite != null && !img.gameObject.activeSelf) img.gameObject.SetActive(true);
                     }
                 }
-                slot++;
             }
         }
-        if (iconoGanador) iconoGanador.enabled = false; // ocultar el single si usamos múltiples
+        if (iconoGanador) iconoGanador.enabled = false; // ocultar el single
         IniciarAnimacionVictoria();
     }
 
@@ -211,7 +244,17 @@ public class VictoryTagPanel : MonoBehaviour
             {
                 img.enabled = false;
                 img.sprite = null;
+                // Nota: no desactivamos el GameObject aquí para no interferir con otros usos
             }
         }
     }
+}
+
+public class CongeladosVictoryAnimationEventProxy : MonoBehaviour
+{
+    public void OnVictoryAnimationFinished()
+    {
+        TagCongelados.Instance?.FinalizeFromAnimationEvent();
+    }
+    public void OnVictoryAnimationMidPoint() { }
 }

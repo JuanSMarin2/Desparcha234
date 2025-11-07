@@ -73,6 +73,7 @@ public class TagCongelados : MonoBehaviour
     private float _timeRemaining = 0f;
     private bool _countdownThresholdPlayed = false;
     private bool _finalized = false;
+    private bool _finalScoresSubmitted = false; // nuevo: evita finalizar dos veces
 
     private void Awake()
     {
@@ -365,6 +366,28 @@ public class TagCongelados : MonoBehaviour
             freezerIndex1Based = _currentFreezerIndex1Based,
             winners1Based = winners
         });
+        // Importante: NO finalizar aquí. Esperamos al AnimationEvent del panel para cerrar vía GameRoundManager.
+    }
+
+    // Llamado desde Animation Event del panel de victoria (o desde fallback del panel)
+    public void FinalizeFromAnimationEvent()
+    {
+        if (_finalScoresSubmitted) return;
+        _finalScoresSubmitted = true;
+        var scorer = CongeladosScoreManager.Instance;
+        var rd = RoundData.instance;
+        var grm = GameRoundManager.instance != null ? GameRoundManager.instance : FindFirstObjectByType<GameRoundManager>();
+        if (scorer == null || rd == null || grm == null)
+        {
+            Debug.LogWarning("[TagCongelados] FinalizeFromAnimationEvent: faltan referencias (scorer/rd/grm). Abortando.");
+            return;
+        }
+        int num = Mathf.Clamp(rd.numPlayers, 1, 4);
+        var snap = scorer.GetScoresSnapshot();
+        long[] scores = new long[num];
+        for (int i = 0; i < num && i < snap.Length; i++) scores[i] = snap[i];
+        Debug.Log("[TagCongelados] FinalizeFromAnimationEvent -> enviando scores a GameRoundManager: [" + string.Join(",", scores) + "]");
+        grm.FinalizeRoundFromScores(scores);
     }
 
     private List<int> DetermineOverallWinners()
