@@ -17,10 +17,14 @@ public class MarbleShooter2D : MonoBehaviour
     [SerializeField] private GameObject winnerPanelRoot;
     private bool isEnding;
 
+[Header("Primer disparo")]
+[SerializeField, Range(0f, 1f)] private float firstShotMultiplier = 0.8f; // 80% de potencia en el primer tiro
+private bool hasShotOnce = false;
+
     [Header("UI Bonus Turn")]
     [SerializeField] private GameObject bonusTurnText;   // Objeto UI
     [SerializeField] private TMP_Text bonusTurnTMP;      // Texto opcional
-    [SerializeField] private string bonusShortText = "�Tiro extra!";
+    [SerializeField] private string bonusShortText = "¡Tiro extra!";
     [SerializeField] private float bonusShowSeconds = 2f;
 
     [Header("Fisica")]
@@ -124,6 +128,7 @@ public class MarbleShooter2D : MonoBehaviour
 
     void Start()
     {
+         hasShotOnce = false;
         bonusShotForPlayer = -1;
         firstCycleActive = true;
         shotFirstCycle.Clear();
@@ -181,17 +186,26 @@ public class MarbleShooter2D : MonoBehaviour
     {
         if (marble == null || arrowObject == null) return;
 
-        Vector2 direction = arrowObject.up.normalized;
-        marble.linearVelocity = Vector2.zero;
-        marble.angularVelocity = 0f;
-        marble.linearDamping = linearDamping;
-        marble.angularDamping = angularDamping;
+    Vector2 direction = arrowObject.up.normalized;
 
-        float effectiveMultiplier = marblePower
-            ? marblePower.GetLaunchMultiplier(forceMultiplier)
-            : forceMultiplier;
+    marble.linearVelocity = Vector2.zero;
+    marble.angularVelocity = 0f;
+    marble.linearDamping = linearDamping;
+    marble.angularDamping = angularDamping;
 
-        marble.AddForce(direction * fuerza * effectiveMultiplier, ForceMode2D.Impulse);
+    float effectiveMultiplier = marblePower
+        ? marblePower.GetLaunchMultiplier(forceMultiplier)
+        : forceMultiplier;
+
+    // ↓↓↓ NUEVO: reducir potencia SOLO en el primer tiro de esta canica ↓↓↓
+    if (!hasShotOnce)
+    {
+        effectiveMultiplier *= Mathf.Clamp01(firstShotMultiplier); // 0..1
+        hasShotOnce = true;
+    }
+    // ↑↑↑ FIN CAMBIO
+
+    marble.AddForce(direction * fuerza * effectiveMultiplier, ForceMode2D.Impulse);
     }
 
     private void UpdateSpin()
