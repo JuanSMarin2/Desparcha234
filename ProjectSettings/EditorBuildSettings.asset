@@ -20,7 +20,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Tejo(viejo).unity
     guid: 1d56873dc9b918a41b109007e88a7dda
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Tejo1.unity
     guid: f25ce3dd4f75ca641b9eaf13d44f1973
   - enabled: 1
