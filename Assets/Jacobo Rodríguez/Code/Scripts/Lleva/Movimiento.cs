@@ -55,6 +55,7 @@ public class Movimiento : MonoBehaviour
 
     private int _rotationDir = -1; // dirección actual (1 o -1)
     private PlayerTag _playerTag; // para saber si tiene Tag
+    private Vector3 _initialPosition;
 
     private void Awake()
     {
@@ -71,6 +72,9 @@ public class Movimiento : MonoBehaviour
             // Si ya existía, ajustar tipo según opción
             _rb.bodyType = enablePlayerPush ? RigidbodyType2D.Dynamic : RigidbodyType2D.Kinematic;
         }
+
+        // Guardar posición inicial al iniciar la escena
+        _initialPosition = transform.position;
 
         // Config generales
         _rb.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -115,6 +119,16 @@ public class Movimiento : MonoBehaviour
         if (_anim == null) _anim = GetComponentInChildren<Animator>(true);
         // cachear PlayerTag para consultar si está taggeado
         _playerTag = GetComponent<PlayerTag>();
+    }
+
+    private void OnEnable()
+    {
+        TagManager.OnRoundStarted += OnRoundStarted_ResetToInitial;
+    }
+
+    private void OnDisable()
+    {
+        TagManager.OnRoundStarted -= OnRoundStarted_ResetToInitial;
     }
 
     private void OnDestroy()
@@ -262,5 +276,24 @@ public class Movimiento : MonoBehaviour
         moveSpeed = newSpeed;
         // Si estamos moviendo por velocidad, sincronizar inmediatamente
         if (enablePlayerPush && useVelocityWhenPushing && _holdRequested) { _rb.linearVelocity = GetForwardDir() * moveSpeed; }
+    }
+
+    public void ResetToInitialPosition()
+    {
+        if (_rb != null)
+        {
+            _rb.linearVelocity = Vector2.zero;
+            _rb.angularVelocity = 0f;
+            _rb.position = _initialPosition;
+        }
+        else
+        {
+            transform.position = _initialPosition;
+        }
+    }
+
+    private void OnRoundStarted_ResetToInitial()
+    {
+        ResetToInitialPosition();
     }
 }

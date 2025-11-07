@@ -47,8 +47,6 @@ public class Obstaculo : MonoBehaviour
     // ---------------- ApareceConElTiempo ----------------
     [Header("Aparece con el tiempo (desde inicio de ronda)")]
     [Tooltip("Segundos que tarda en aparecer desde que la ronda empieza")] [SerializeField] private float delayAparicion = 2f;
-    [Tooltip("Si está activo, ignora el delay y aparece cuando la partida avance de etapa (cuando alguien es eliminado)")] [SerializeField] private bool apareceEnStage = false;
-    [Tooltip("Etapa mínima (eliminaciones acumuladas) necesaria para aparecer si 'apareceEnStage' está activo. 1 = tras primera eliminación")] [SerializeField] private int minStageParaAparecer = 1;
     [Tooltip("Estado visible inicial al cargar escena (antes de la primera ronda)")] [SerializeField] private bool visibleEnEscenaAntesDeRonda = false;
 
     // Cache componentes
@@ -127,21 +125,8 @@ public class Obstaculo : MonoBehaviour
             _coIntermitente = CoIntermitente();
             StartCoroutine(_coIntermitente);
         }
-        // Suscribirse al inicio de ronda y a cambio de etapa
+        // Suscribirse solo al inicio de ronda (la lógica de etapas se movió a AparecerEnStage)
         TagManager.OnRoundStarted += OnRoundStarted;
-        TagManager.OnStageChanged += OnStageChanged;
-
-        // Si ya estamos en una etapa suficiente, aparecer de inmediato y persistir
-        if (Has(Tipo.ApareceConElTiempo) && apareceEnStage)
-        {
-            var tm = TagManager.Instance;
-            int currentStage = tm ? tm.CurrentStageInRound : 0;
-            if (currentStage >= Mathf.Max(1, minStageParaAparecer))
-            {
-                _aparecido = true;
-                ApplyAparecidoState(true);
-            }
-        }
     }
 
     private void OnDisable()
@@ -149,7 +134,6 @@ public class Obstaculo : MonoBehaviour
         if (_coIntermitente != null) { StopCoroutine(_coIntermitente); _coIntermitente = null; }
         if (_coAparecer != null) { StopCoroutine(_coAparecer); _coAparecer = null; }
         TagManager.OnRoundStarted -= OnRoundStarted;
-        TagManager.OnStageChanged -= OnStageChanged;
         if (Has(Tipo.Empujable) && _rb != null)
         {
             // No forzar velocidades a cero; dejar a la física resolver
@@ -245,41 +229,12 @@ public class Obstaculo : MonoBehaviour
     private void OnRoundStarted()
     {
         if (!Has(Tipo.ApareceConElTiempo)) return;
-        if (apareceEnStage)
-        {
-            // Si ya se alcanzó la etapa requerida, mantener visible y no ocultar al iniciar ronda
-            var tm = TagManager.Instance;
-            int currentStage = tm ? tm.CurrentStageInRound : 0;
-            if (currentStage >= Mathf.Max(1, minStageParaAparecer))
-            {
-                _aparecido = true;
-                ApplyAparecidoState(true);
-                return;
-            }
-        }
-        // Reiniciar estado a oculto y lanzar temporizador o esperar stage
+        // Reiniciar estado a oculto y lanzar temporizador basado en tiempo
         _aparecido = false;
         ApplyAparecidoState(false);
         if (_coAparecer != null) { StopCoroutine(_coAparecer); _coAparecer = null; }
-        if (!apareceEnStage)
-        {
-            _coAparecer = CoAparecerTrasDelay(delayAparicion);
-            StartCoroutine(_coAparecer);
-        }
-        // si apareceEnStage == true, esperamos llamada a OnStageChanged
-    }
-
-    private void OnStageChanged(int stage)
-    {
-        if (!Has(Tipo.ApareceConElTiempo) || !apareceEnStage) return;
-        if (_aparecido) return;
-        // Aparece cuando la etapa (eliminaciones) alcanza el umbral
-        if (stage >= Mathf.Max(1, minStageParaAparecer))
-        {
-            if (_coAparecer != null) { StopCoroutine(_coAparecer); _coAparecer = null; }
-            _aparecido = true;
-            ApplyAparecidoState(true);
-        }
+        _coAparecer = CoAparecerTrasDelay(delayAparicion);
+        StartCoroutine(_coAparecer);
     }
 
     private System.Collections.IEnumerator CoAparecerTrasDelay(float delay)
@@ -292,6 +247,11 @@ public class Obstaculo : MonoBehaviour
         }
         _aparecido = true;
         ApplyAparecidoState(true);
+    }
+
+    public void StartRound()
+    {
+        OnRoundStarted();
     }
 
     private bool Has(Tipo t) => (tipo & t) != 0;
