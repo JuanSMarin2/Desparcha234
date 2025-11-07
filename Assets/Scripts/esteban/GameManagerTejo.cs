@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameManagerTejo : MonoBehaviour
 {
@@ -13,6 +14,16 @@ public class GameManagerTejo : MonoBehaviour
 
     [Header("UI Puntajes")]
     public Text[] puntajeTextos;
+
+    [Header("UI Feedback por jugador (-2 / +2)")]
+    [Tooltip("TextMeshProUGUI por jugador (0..3), se activan brevemente al destruir una papeleta")] 
+    [SerializeField] private TextMeshProUGUI[] playerFeedbackTexts = new TextMeshProUGUI[4];
+    [SerializeField] private float feedbackDuration = 0.5f;
+    [Tooltip("Escala base del texto cuando no palpita")] [SerializeField] private Vector3 feedbackBaseScale = Vector3.one;
+    [Tooltip("Amplitud de pulsaci√≥n")] [SerializeField] private float feedbackPulseAmplitude = 0.2f; // 20% m√°s grande en el pico
+    [Tooltip("Frecuencia de pulsaci√≥n (Hz)")] [SerializeField] private float feedbackPulseFrequency = 10f; // palpita r√°pido
+
+    private Coroutine[] feedbackCoroutines = new Coroutine[4];
 
     [Header("Ronda / Turnos")]
     [SerializeField] private int maxTiros = 3;
@@ -31,12 +42,12 @@ public class GameManagerTejo : MonoBehaviour
     //  NUEVO EVENTO GLOBAL: se dispara cuando un jugador pierde su papeleta
     public static event Action<int> OnPapeletaDestruida;
 
-    // ... resto del cÛdigo del GameManagerTejo ...
+    // ... resto del cÔøΩdigo del GameManagerTejo ...
 
-    //  MÈtodo seguro para notificar (llamado desde Tejo)
+    //  MÔøΩtodo seguro para notificar (llamado desde Tejo)
     public void NotificarPapeletaDestruida(int idJugador)
     {
-        Debug.Log($"[GameManagerTejo] Papeleta del jugador {idJugador + 1} destruida ó mostrando icono triste y notificando evento");
+        Debug.Log($"[GameManagerTejo] Papeleta del jugador {idJugador + 1} destruida ÔøΩ mostrando icono triste y notificando evento");
 
         // Dispara el evento global (para que IconManager lo use)
         OnPapeletaDestruida?.Invoke(idJugador);
@@ -49,8 +60,17 @@ public class GameManagerTejo : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("No se encontrÛ MoverIconoTejo en la escena para mostrar el icono triste.");
+            Debug.LogWarning("No se encontrÔøΩ MoverIconoTejo en la escena para mostrar el icono triste.");
         }
+
+        // Activar feedback de texto: -2 para el jugador golpeado, +2 para el jugador en turno
+        int currentTurnIndex0 = -1;
+        if (TurnManager.instance != null)
+            currentTurnIndex0 = TurnManager.instance.CurrentTurn() - 1; // 0-based
+
+        MostrarFeedbackJugador(idJugador, "-2");
+        if (currentTurnIndex0 >= 0 && currentTurnIndex0 < 4)
+            MostrarFeedbackJugador(currentTurnIndex0, "+2");
     }
 
     private void Awake()
@@ -76,7 +96,7 @@ public class GameManagerTejo : MonoBehaviour
                         case 2: tutorialManager.MostrarPanel(12); break;
                         case 3: tutorialManager.MostrarPanel(1); break;
                         case 4: tutorialManager.MostrarPanel(4); break;
-                        default: Debug.LogError("N˙mero de jugadores no v·lido: " + numPlayers); break;
+                        default: Debug.LogError("NÔøΩmero de jugadores no vÔøΩlido: " + numPlayers); break;
                     }
                     break;
 
@@ -86,7 +106,7 @@ public class GameManagerTejo : MonoBehaviour
                         case 2: tutorialManager.MostrarPanel(0); break;
                         case 3: tutorialManager.MostrarPanel(2); break;
                         case 4: tutorialManager.MostrarPanel(5); break;
-                        default: Debug.LogError("N˙mero de jugadores no v·lido: " + numPlayers); break;
+                        default: Debug.LogError("NÔøΩmero de jugadores no vÔøΩlido: " + numPlayers); break;
                     }
                     break;
 
@@ -95,19 +115,19 @@ public class GameManagerTejo : MonoBehaviour
                     {
                         case 3: tutorialManager.MostrarPanel(3); break;
                         case 4: tutorialManager.MostrarPanel(6); break;
-                        default: Debug.LogError("N˙mero de jugadores no v·lido: " + numPlayers); break;
+                        default: Debug.LogError("NÔøΩmero de jugadores no vÔøΩlido: " + numPlayers); break;
                     }
                     break;
 
                 case 4:
                     if (numPlayers == 4) tutorialManager.MostrarPanel(7);
-                    else Debug.LogError("N˙mero de jugadores no v·lido: " + numPlayers);
+                    else Debug.LogError("NÔøΩmero de jugadores no vÔøΩlido: " + numPlayers);
                     break;
             }
         }
         else
         {
-            Debug.LogWarning("No se encontrÛ TutorialManagerTejo en la escena.");
+            Debug.LogWarning("No se encontrÔøΩ TutorialManagerTejo en la escena.");
         }
     }
 
@@ -139,6 +159,15 @@ public class GameManagerTejo : MonoBehaviour
     {
         Debug.Log($"[GameManagerTejo] Papeleta destruida del jugador {jugadorIndex}");
         OnPapeletaDestruida?.Invoke(jugadorIndex);
+
+        // Refuerzo: mostrar feedback tambi√©n si este es el flujo usado
+        int currentTurnIndex0 = -1;
+        if (TurnManager.instance != null)
+            currentTurnIndex0 = TurnManager.instance.CurrentTurn() - 1; // 0-based
+
+        MostrarFeedbackJugador(jugadorIndex, "-2");
+        if (currentTurnIndex0 >= 0 && currentTurnIndex0 < 4)
+            MostrarFeedbackJugador(currentTurnIndex0, "+2");
     }
 
     public void DarPuntoAlMasCercano(Vector3[] posicionesTejos, Vector3 centro)
@@ -250,6 +279,52 @@ public class GameManagerTejo : MonoBehaviour
             int numPlayers = (RoundData.instance != null) ? RoundData.instance.numPlayers : 0;
             tutorial.MostrarPanelPorJugador(jugador, numPlayers);
         }
+    }
+
+    // === API p√∫blica para mostrar feedback +2 para un jugador concreto (√≠ndice 0..3) ===
+    public void MostrarPlusDosParaJugador(int jugadorIndex0)
+    {
+        MostrarFeedbackJugador(jugadorIndex0, "+2");
+    }
+
+    private void MostrarFeedbackJugador(int index, string texto)
+    {
+        if (playerFeedbackTexts == null || index < 0 || index >= playerFeedbackTexts.Length)
+            return;
+
+        var tmp = playerFeedbackTexts[index];
+        if (tmp == null) return;
+
+        // Cancelar animaci√≥n previa si existe
+        if (feedbackCoroutines[index] != null)
+        {
+            StopCoroutine(feedbackCoroutines[index]);
+            feedbackCoroutines[index] = null;
+        }
+
+        feedbackCoroutines[index] = StartCoroutine(PulseFeedback(tmp, texto, feedbackDuration));
+    }
+
+    private IEnumerator PulseFeedback(TextMeshProUGUI tmp, string content, float duration)
+    {
+        tmp.text = content;
+        tmp.gameObject.SetActive(true);
+
+        float t = 0f;
+        // Al iniciar, resetear escala base
+        tmp.rectTransform.localScale = feedbackBaseScale;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float s = 1f + Mathf.Sin(t * Mathf.PI * 2f * feedbackPulseFrequency) * feedbackPulseAmplitude;
+            tmp.rectTransform.localScale = feedbackBaseScale * s;
+            yield return null;
+        }
+
+        // Reset y desactivar
+        tmp.rectTransform.localScale = feedbackBaseScale;
+        tmp.gameObject.SetActive(false);
     }
 
     public int ShotsRemaining() => Mathf.Max(0, maxTiros - tirosRealizados);

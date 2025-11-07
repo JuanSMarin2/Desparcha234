@@ -56,10 +56,13 @@ public class PointsUIManager : MonoBehaviour
 
     void Awake()
     {
+        Time.timeScale = 1;
         playerTexts = new[] { player1Text, player2Text, player3Text, player4Text };
         gainTexts = new[] { gain1Text, gain2Text, gain3Text, gain4Text };
         quads = new[] { quadP1, quadP2, quadP3, quadP4 };
         quadImages = new[] { quadP1Img, quadP2Img, quadP3Img, quadP4Img };
+
+       
     }
 
     void Start()

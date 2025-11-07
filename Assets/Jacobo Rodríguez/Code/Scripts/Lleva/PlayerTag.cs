@@ -5,9 +5,7 @@ public class PlayerTag : MonoBehaviour
 {
     [Header("Identidad")] [SerializeField] private int playerIndex1Based = 1; // 1..4
 
-    [Header("Velocidades")] 
-    [SerializeField] private float normalSpeed = 3f;
-    [SerializeField] private float taggedSpeed = 5f;
+    // Velocidades centralizadas en TagManager
 
     [Header("Feedback Visual")]
     [Tooltip("Objeto de outline / resalte que se activa cuando este jugador está taggeado")] 
@@ -15,18 +13,26 @@ public class PlayerTag : MonoBehaviour
 
     [Header("Animator")] 
     [SerializeField] private Animator _anim; // Animator en hijo
-    [SerializeField] private string hasTagParam = "HasTag";
+    private const string HasTagParamName = "HasTag"; // no editable desde el editor
 
     [Header("Transferencia Tag")] 
-    [SerializeField] private float transferCooldown = 0.3f;
-    [Tooltip("Usar colisiones físicas (OnCollisionEnter2D) en lugar de triggers para transferir")] [SerializeField] private bool usarColisionFisica = false;
+    [SerializeField] private float transferCooldown = 0f; // instantáneo por defecto
+    [Tooltip("Usar colisiones físicas (OnCollisionEnter2D) en lugar de triggers para transferir")] [SerializeField] private bool usarColisionFisica = true;
     [Tooltip("Si true mantiene también el trigger para otras detecciones (dual)")] [SerializeField] private bool mantenerTriggerParaDeteccion = false;
+
+    [Header("Efectos de Sonido")]
+    [Tooltip("Sonido que reproduce al tocar objetos con tag 'planta'")]
+    [SerializeField] private string plantaSfxKey = "lleva:planta";
 
     private float _lastTransferTime = -999f;
     private int _lastTransferFrame = -999;
 
     private bool _isTagged;
     private Movimiento _mov;
+
+    // Fallbacks por si TagManager no existe (editor/test)
+    private const float _movDefaultNormal = 3f;
+    private const float _movDefaultTagged = 5f;
 
     public bool IsTagged => _isTagged;
     public int PlayerIndex => playerIndex1Based;
@@ -35,6 +41,8 @@ public class PlayerTag : MonoBehaviour
     {
         _mov = GetComponent<Movimiento>();
         if (_anim == null) _anim = GetComponentInChildren<Animator>(true);
+        // Si el movimiento tiene empuje activado (rigidbody dinámico), aseguramos colisión física para transferir
+        if (_mov != null && _mov.IsPlayerPushEnabled) usarColisionFisica = true;
         ApplySpeed();
         UpdateVisuals();
         SetAnimHasTag(_isTagged);
@@ -56,16 +64,16 @@ public class PlayerTag : MonoBehaviour
     private void SetAnimHasTag(bool value)
     {
         if (_anim == null) return;
-        if (_anim.HasParameterOfType(hasTagParam, AnimatorControllerParameterType.Bool))
-            _anim.SetBool(hasTagParam, value);
+        if (_anim.HasParameterOfType(HasTagParamName, AnimatorControllerParameterType.Bool))
+            _anim.SetBool(HasTagParamName, value);
     }
 
     private void ApplySpeed()
     {
-        if (_mov != null)
-        {
-            _mov.SetMoveSpeed(_isTagged ? taggedSpeed : normalSpeed);
-        }
+        if (_mov == null) return;
+        var tm = TagManager.Instance;
+        float speed = _isTagged ? (tm ? tm.MoveSpeedTagged : _movDefaultTagged) : (tm ? tm.MoveSpeedNormal : _movDefaultNormal);
+        _mov.SetMoveSpeed(speed);
     }
 
     private void UpdateVisuals()
@@ -79,7 +87,7 @@ public class PlayerTag : MonoBehaviour
         if (!_isTagged) return; // solo el actual taggeado transfiere
         if (otherTag == null || otherTag == this) return;
         if (otherTag._isTagged) return; // ya lo tiene
-        if (Time.time - _lastTransferTime < transferCooldown) return;
+        if (transferCooldown > 0f && Time.time - _lastTransferTime < transferCooldown) return; // sin delay si cooldown=0
         if (Time.frameCount == _lastTransferFrame) return; // evitar doble en mismo frame
 
         _lastTransferTime = Time.time;
@@ -102,7 +110,16 @@ public class PlayerTag : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (usarColisionFisica && !mantenerTriggerParaDeteccion) return; // ignorar triggers si se usa colisión física pura
+        // Las plantas deben ser Trigger: reproducir siempre por trigger
+        if (other.CompareTag("planta"))
+        {
+            PlayPlantaSound();
+        }
+
+        // Si usamos colisión física para transferir y no queremos triggers para players, salir tras gestionar planta
+        if (usarColisionFisica && !mantenerTriggerParaDeteccion)
+            return;
+        
         var otherTag = other.GetComponentInParent<PlayerTag>();
         HandleTagTransfer(otherTag);
     }
@@ -110,8 +127,25 @@ public class PlayerTag : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!usarColisionFisica) return;
+        
+        // Detectar colisión con plantas también en modo físico
+        if (collision.collider.CompareTag("planta"))
+        {
+            PlayPlantaSound();
+        }
+        
         var otherTag = collision.collider.GetComponentInParent<PlayerTag>();
         HandleTagTransfer(otherTag);
+    }
+
+    private void PlayPlantaSound()
+    {
+        var sm = SoundManager.instance;
+        if (sm != null && !string.IsNullOrEmpty(plantaSfxKey))
+        {
+            sm.PlaySfx(plantaSfxKey);
+            Debug.Log($"[PlayerTag] Player {playerIndex1Based} tocó planta, reproduciendo SFX '{plantaSfxKey}'");
+        }
     }
 
     public void EliminarJugador()

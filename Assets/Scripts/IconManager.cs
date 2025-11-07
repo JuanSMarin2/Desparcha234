@@ -166,8 +166,7 @@ public class IconManager : MonoBehaviour
         return winners;
     }
 
-    // --------- Evento “papeleta destruida” triste temporal ---------
-    // Llamado desde GameManagerTejo
+
     private void MostrarIconoTriste(int jugadorIndex)
     {
         if (jugadorIndex < 0 || jugadorIndex >= (players?.Length ?? 0)) return;

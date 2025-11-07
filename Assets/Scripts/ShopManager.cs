@@ -30,7 +30,7 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private ShopSkinVisual[] skinVisuals;
 
     [Header("Feedback opcional")]
-    [SerializeField] private TMP_Text infoText;
+ 
     [SerializeField] private GameObject selectPlayerPanel;
 
     // ===== Animación de paneles (igual que MainMenu) =====
@@ -222,7 +222,7 @@ public class ShopManager : MonoBehaviour
     {
         selectedPlayer = Mathf.Clamp(playerIndex, 0, 3);
         RefreshShopButtons();
-        if (infoText) infoText.text = "Comprador: Jugador " + (selectedPlayer + 1);
+      
         TogglePanel(); // ahora hace animación de salida
     }
 
@@ -241,20 +241,20 @@ public class ShopManager : MonoBehaviour
 
         if (gd.IsOwned(selectedPlayer, number))
         {
-            if (infoText) infoText.text = "Ya posees esta skin.";
+        
             SetBuyButtonActive(number, false);
             return;
         }
 
         if (!gd.TrySpendMoney(price))
         {
-            if (infoText) infoText.text = "No tienes dinero suficiente.";
+    
             RefreshMoneyUI();
             return;
         }
 
         gd.SetOwned(selectedPlayer, number, true);
-        if (infoText) infoText.text = "Comprada skin " + number + " para Jugador " + (selectedPlayer + 1);
+
 
         SoundManager.instance?.PlaySfx("ui:comprar");
         SetBuyButtonActive(number, false);
@@ -270,12 +270,12 @@ public class ShopManager : MonoBehaviour
 
         if (!gd.IsOwned(selectedPlayer, number))
         {
-            if (infoText) infoText.text = "No posees esta skin. Cómprala primero.";
+ 
             return;
         }
 
         gd.EquipSkin(selectedPlayer, number);
-        if (infoText) infoText.text = "Equipaste skin " + number + " en Jugador " + (selectedPlayer + 1);
+
         FindAnyObjectByType<IconManager>()?.UpdatePlayerIcon(selectedPlayer);
     }
 
@@ -331,6 +331,6 @@ public class ShopManager : MonoBehaviour
     private void RefreshMoneyUI()
     {
         if (moneyText && GameData.instance != null)
-            moneyText.text = "Dinero: " + GameData.instance.Money;
+            moneyText.text = "" + GameData.instance.Money;
     }
 }

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3870292246821381562}
   - component: {fileID: 5163616676748252413}
   - component: {fileID: 7547302173789232782}
+  - component: {fileID: 5882270717869700669}
   m_Layer: 0
   m_Name: Canica_2 1
   m_TagString: Tejo
@@ -166,3 +167,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jugadorID: 0
+  destroyZoneTag: DestroyZone
+  destroyDelay: 0.5
+  efectoImpactoPrefab: {fileID: 477731166513891508, guid: c7058dfb19ee9874bb36c25cb0332878, type: 3}
+  efectoExplosionPrefab: {fileID: 477731166513891508, guid: 48ce6e1d18da2db4185d2d168fead8f4, type: 3}
+  duracionEfecto: 0.5
+--- !u!95 &5882270717869700669
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5092533611313153846}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5fddd67a3ba56ac4fb9f189dbadfe971, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

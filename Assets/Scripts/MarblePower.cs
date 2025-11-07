@@ -9,7 +9,7 @@ public class MarblePower : MonoBehaviour
     [Header("Refs")]
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Collider2D col;
-    [SerializeField] private int playerIndex; // Índice de jugador: 0..3
+    [SerializeField] private int playerIndex; // ï¿½ndice de jugador: 0..3
     [SerializeField] private Vector3 originalScale;
 
     [Header("Ajustes de poderes")]
@@ -34,17 +34,23 @@ public class MarblePower : MonoBehaviour
     [SerializeField] private Color colorGhost = new Color(0.5f, 0f, 0.7f); // morado
     [SerializeField, Range(0f, 1f)] private float ghostAlpha = 0.6f;
 
+    [Header("DetecciÃ³n de dispositivo (para escalado MorePower)")]
+    [Tooltip("MÃ¡ximo en pulgadas para considerar PHONE (<=)")]
+    [SerializeField] private float phoneMaxInches = 6.5f;
+    [Tooltip("Fallback: mÃ¡ximo lado corto en pÃ­xeles para PHONE (<=)")]
+    [SerializeField] private int fallbackPhoneShortSideMaxPx = 850;
+
     public int PlayerIndex => playerIndex;
 
 
-    // Estado actual (patrón State)
+    // Estado actual (patrï¿½n State)
     private IMarblePowerState state;
 
     public IMarblePowerState CurrentState => state;
     public MarblePowerType CurrentType => state?.Type ?? MarblePowerType.None;
     public int CurrentTurnsLeft => state?.TurnsLeft ?? 0;
 
-    // Gestión de colisiones entre canicas (para utilidades)
+    // Gestiï¿½n de colisiones entre canicas (para utilidades)
     private static readonly List<Collider2D> allMarbleColliders = new();
 
     // ===== Ciclo de vida =====
@@ -135,7 +141,7 @@ public class MarblePower : MonoBehaviour
         state?.OnEnter();
     }
 
-    // Ignorar empujones (colisiones) entre canicas (no usado en la versión con Kinematic)
+    // Ignorar empujones (colisiones) entre canicas (no usado en la versiï¿½n con Kinematic)
     public void SetIgnoreOtherMarbles(bool ignore)
     {
         if (!col) return;
@@ -173,12 +179,12 @@ public class MarblePower : MonoBehaviour
         }
     }
 
-    // Si termina Ghost y quedé en pared, buscar punto libre cercano
+    // Si termina Ghost y quedï¿½ en pared, buscar punto libre cercano
     public void UnstickFromWallsIfNeeded()
     {
         if (!rb || !col) return;
 
-        // ¿Estoy solapando con un muro ahora?
+        // ï¿½Estoy solapando con un muro ahora?
         if (Physics2D.OverlapCircle(rb.position, Mathf.Max(col.bounds.extents.x, col.bounds.extents.y), wallMask))
         {
             Vector2 center = rb.position;
@@ -249,7 +255,7 @@ public class MarblePower : MonoBehaviour
         }
     }
 
-    // ---- Más Potencia ----
+    // ---- Mï¿½s Potencia ----
     private class MorePowerState : NoneState
     {
         private int turns;
@@ -277,8 +283,9 @@ public class MarblePower : MonoBehaviour
             base.OnEnter();
             ctx.SetMarbleColor(ctx.colorMorePow);
 
-            // Crece 1.5x
-            ctx.transform.localScale = ctx.originalScale * 1.5f;
+            // Escala depende del dispositivo: en celular 1.2x, caso contrario 1.5x
+            float scaleMult = IsPhoneScreen(ctx.phoneMaxInches, ctx.fallbackPhoneShortSideMaxPx) ? 1.2f : 1.5f;
+            ctx.transform.localScale = ctx.originalScale * scaleMult;
 
             PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.MorePower);
         }
@@ -287,12 +294,28 @@ public class MarblePower : MonoBehaviour
         {
             ctx.SetMarbleColor(ctx.colorNone);
 
-            // Volver al tamaño original
+            // Volver al tamaï¿½o original
             ctx.transform.localScale = ctx.originalScale;
 
             PowerUpUIManager.instance?.SetPlayerPower(ctx.playerIndex, MarblePowerType.None);
         }
 
+    }
+
+    // ===== Helpers de detecciÃ³n =====
+    private static bool IsPhoneScreen(float phoneMaxInches, int fallbackPhoneShortSideMaxPx)
+    {
+        float dpi = Screen.dpi;
+        if (dpi > 0f)
+        {
+            float w = Screen.width;
+            float h = Screen.height;
+            float diagonalInches = Mathf.Sqrt(w * w + h * h) / dpi;
+            if (diagonalInches <= phoneMaxInches) return true;
+            return false;
+        }
+        int shortSide = Mathf.Min(Screen.width, Screen.height);
+        return shortSide <= fallbackPhoneShortSideMaxPx;
     }
 
     // ---- Inmovible (rebota pero no se mueve) ----
@@ -386,7 +409,7 @@ public class MarblePower : MonoBehaviour
         {
             turns--;
 
-            // Al terminar, si aún quedan turnos sigo siendo fantasma.
+            // Al terminar, si aï¿½n quedan turnos sigo siendo fantasma.
             // Si se acaban, vuelvo a None y me desencajo si estoy en pared
             if (turns <= 0)
             {

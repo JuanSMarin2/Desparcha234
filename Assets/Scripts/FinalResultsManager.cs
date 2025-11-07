@@ -13,6 +13,7 @@ public class FinalResultsManager : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private Button shopButton;
     [SerializeField] private Button mainMenuButton;
+    [SerializeField] private GameObject coin;
 
     [Header("Flujo")]
     [SerializeField] private string shopSceneName = "Tienda";
@@ -33,6 +34,7 @@ public class FinalResultsManager : MonoBehaviour
 
     void Start()
     {
+        if(coin != null) coin.SetActive(false);
         if (continueButton) continueButton.onClick.AddListener(OnContinuePressed);
         if (shopButton) shopButton.onClick.AddListener(() =>
         {
@@ -121,7 +123,7 @@ public class FinalResultsManager : MonoBehaviour
 
         int baseMoney = GameData.instance != null ? GameData.instance.Money : 0;
         int coinsTotal = pointsTotal * Mathf.Max(1, coinsPerPoint);
-
+        if(coin != null) coin.SetActive(true);
         if (winnerText) winnerText.text = "";
         if (conversionText) conversionText.gameObject.SetActive(true);
         if (continueButton) continueButton.gameObject.SetActive(false);
@@ -145,7 +147,7 @@ public class FinalResultsManager : MonoBehaviour
             shownMoney += step * coinsPerPoint;
 
             if (conversionText)
-                conversionText.text = $"Puntos: {shownPoints} --- Dinero: {shownMoney}";
+                conversionText.text = $"Puntos: {shownPoints} ---  {shownMoney}";
 
             // SFX por “tick” de puntos
             SoundManager.instance?.PlaySfx("Final:coins");
@@ -155,14 +157,14 @@ public class FinalResultsManager : MonoBehaviour
         }
 
         if (conversionText)
-            conversionText.text = $"Puntos: 0 --- Dinero: {baseMoney + coinsTotal}";
+            conversionText.text = $"Puntos: 0 ---  {baseMoney + coinsTotal}";
 
         if (GameData.instance != null && coinsTotal > 0)
             GameData.instance.AddMoney(coinsTotal);
 
         if (shopButton) shopButton.gameObject.SetActive(true);
         if (mainMenuButton) mainMenuButton.gameObject.SetActive(true);
-        if (winnerText) winnerText.text = "Puedes comprar skins en la tienda";
+        if (winnerText) winnerText.text = "";
 
         conversionRunning = false;
     }

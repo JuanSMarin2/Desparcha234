@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System; // agregado para eventos
 using System.Collections; // para IEnumerators locales
+using UnityEngine.SceneManagement; // para detectar cargas de escena
 
 public class SoundManager : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class SoundManager : MonoBehaviour
     // Diccionarios dinámicos (nombre -> clip)
     private readonly Dictionary<string, AudioClip> _sfxClips = new();
     private readonly Dictionary<string, AudioClip> _musicClips = new();
+    // Overrides de volumen por música (clave completa -> escala 0..1)
+    private readonly Dictionary<string, float> _musicVolumeScale = new();
 
     // Rastreo de propiedad (para limpiar al salir de escena)
     private readonly Dictionary<object, List<string>> _ownerSfxKeys = new();
@@ -65,6 +68,15 @@ public class SoundManager : MonoBehaviour
         _musicSource.spatialBlend = 0f;
 
         CargarVolumenesPersistidos();
+
+        // Suscribirse a eventos de carga de escena para re-escanear librerías
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        // Limpiar suscripción al destruirse (por seguridad)
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Start()
@@ -89,6 +101,10 @@ public class SoundManager : MonoBehaviour
             }
             if (libs.Length > 0) Debug.Log($"[SoundManager] Auto-registradas {libs.Length} SceneAudioLibrary al iniciar.");
         }
+
+        // Además de la ejecución inicial, asegurar un escaneo explícito por si alguna SceneAudioLibrary
+        // no fue incluida vía FindObjectsByType en plataformas antiguas: reutilizamos la misma rutina.
+        ScanAndRegisterSceneAudioLibraries();
     }
 
     private void CargarVolumenesPersistidos()
@@ -96,6 +112,35 @@ public class SoundManager : MonoBehaviour
         if (PlayerPrefs.HasKey(PREF_SFX)) sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PREF_SFX, sfxVolume));
         if (PlayerPrefs.HasKey(PREF_MUS)) musicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PREF_MUS, musicVolume));
         if (_musicSource != null) _musicSource.volume = musicVolume;
+    }
+
+    // Nuevo: handler que se ejecuta tras cada carga de escena
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"[SoundManager] Escaneando SceneAudioLibrary tras cargar escena: {scene.name}");
+        ScanAndRegisterSceneAudioLibraries();
+    }
+
+    // Nuevo: re-escanea las SceneAudioLibrary de la escena y registra sus clips; reproduce autoPlayMusicKey si existe
+    private void ScanAndRegisterSceneAudioLibraries()
+    {
+        var libs = FindObjectsByType<SceneAudioLibrary>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        if (libs == null || libs.Length == 0) return;
+        var seen = new HashSet<SceneAudioLibrary>();
+        foreach (var lib in libs)
+        {
+            if (lib == null || seen.Contains(lib)) continue;
+            seen.Add(lib);
+            RegisterBatch(lib);
+            if (!string.IsNullOrWhiteSpace(lib.autoPlayMusicKey))
+            {
+                string local = lib.autoPlayMusicKey;
+                string full = string.IsNullOrWhiteSpace(lib.gameId) || local.Contains(":") ? local.Trim() : lib.gameId.Trim() + ":" + local.Trim();
+                // Reproducir la música indicada (PlayMusic maneja reemplazar el clip actual en _musicSource)
+                PlayMusic(full, lib.autoLoopMusic);
+            }
+        }
+        Debug.Log($"[SoundManager] ScanAndRegisterSceneAudioLibraries -> registradas {libs.Length} SceneAudioLibrary(s).");
     }
 
     // ================== REGISTRO DINÁMICO ==================
@@ -161,7 +206,7 @@ public class SoundManager : MonoBehaviour
         var musField = t.GetField("musicClips");
         if (musField != null)
         {
-            var arr = musField.GetValue(libComp) as System.Collections.IEnumerable;
+            var arr = musField.GetValue(libComp) as IEnumerable;
             if (arr != null)
             {
                 foreach (var elem in arr)
@@ -178,6 +223,31 @@ public class SoundManager : MonoBehaviour
                 }
             }
         }
+
+        // Overrides de volumen (opcional)
+        var volField = t.GetField("musicVolumeOverrides", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (volField != null)
+        {
+            var arr = volField.GetValue(libComp) as IEnumerable;
+            if (arr != null)
+            {
+                foreach (var elem in arr)
+                {
+                    if (elem == null) continue;
+                    var et = elem.GetType();
+                    var keyF = et.GetField("key");
+                    var vF = et.GetField("volumeScale");
+                    if (keyF == null || vF == null) continue;
+                    string localKey = keyF.GetValue(elem) as string;
+                    float scale = (float)vF.GetValue(elem);
+                    string full = Qualify(localKey);
+                    if (!string.IsNullOrWhiteSpace(full))
+                    {
+                        _musicVolumeScale[full] = Mathf.Clamp01(scale);
+                    }
+                }
+            }
+        }
     }
 
     public void UnregisterBatch(Component libComp)
@@ -190,7 +260,7 @@ public class SoundManager : MonoBehaviour
         }
         if (_ownerMusicKeys.TryGetValue(libComp, out var musList))
         {
-            foreach (var k in musList) _musicClips.Remove(k);
+            foreach (var k in musList) { _musicClips.Remove(k); _musicVolumeScale.Remove(k); }
             _ownerMusicKeys.Remove(libComp);
         }
     }
@@ -265,9 +335,28 @@ public class SoundManager : MonoBehaviour
             return;
         }
         if (_musicSource == null || clip == null) return;
+
+        // Determinar escala por clave (si existe) y aplicarla al volumen global
+        float scale = 1f;
+        if (_musicVolumeScale.TryGetValue(key, out var sc)) scale = sc;
+        float vol = Mathf.Clamp01(musicVolume * scale);
+
+        // Si es el mismo clip que ya está asignado al AudioSource, no reiniciarlo para que continúe donde iba.
+        if (_musicSource.clip == clip)
+        {
+            _musicSource.loop = loop;
+            _musicSource.volume = vol;
+            if (!_musicSource.isPlaying)
+            {
+                _musicSource.Play();
+            }
+            return;
+        }
+
+        // Clip distinto: reemplazar y reproducir desde el inicio
         _musicSource.loop = loop;
         _musicSource.clip = clip;
-        _musicSource.volume = musicVolume;
+        _musicSource.volume = vol;
         _musicSource.Play();
     }
 

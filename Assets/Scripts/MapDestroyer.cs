@@ -116,13 +116,13 @@ public class MapDestroyer : MonoBehaviour
         cyclesCompleted++;
 
         // 1) A partir del 3er ciclo: destruir el slot actual
-        if (cyclesCompleted >= 3)
+        if (cyclesCompleted >= 2)
         {
             TryDestroyCurrentSlot();
         }
 
         // 2) A partir del 2º ciclo: tintear el próximo slot a destruir (el actual tras posible avance)
-        if (cyclesCompleted >= 2)
+        if (cyclesCompleted >= 1)
         {
             TryTintCurrentSlot();
         }

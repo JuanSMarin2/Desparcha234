@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class MinigameChooser : MonoBehaviour
 {
-    // Botón de un minijuego concreto (OnClick)
+    // Botï¿½n de un minijuego concreto (OnClick)
     public void StartSingle(string gameName)
     {
         var rd = RoundData.instance;
@@ -17,7 +17,7 @@ public class MinigameChooser : MonoBehaviour
         SceneController.Instance.LoadScene(gameName);
     }
 
-    // Botón Torneo: agenda todos aleatorios y empieza
+    // Botï¿½n Torneo: agenda todos aleatorios y empieza
     public void StartTournament()
     {
         var rd = RoundData.instance;
@@ -26,6 +26,16 @@ public class MinigameChooser : MonoBehaviour
         // Copia TODOS los disponibles a la agenda y baraja
         rd.scheduledGames = new List<string>(rd.availableGames);
         Shuffle(rd.scheduledGames);
+
+        // Asegurar que "Canicas" vaya primero si estÃ¡ disponible
+        int canicasIndex = rd.scheduledGames.IndexOf("Canicas");
+        if (canicasIndex > 0)
+        {
+            // Intercambiar el primero con "Canicas"
+            var tmp = rd.scheduledGames[0];
+            rd.scheduledGames[0] = rd.scheduledGames[canicasIndex];
+            rd.scheduledGames[canicasIndex] = tmp;
+        }
 
         if (rd.scheduledGames.Count > 0)
         {
@@ -55,7 +65,7 @@ public class MinigameChooser : MonoBehaviour
             Debug.Log("Removido de agenda: " + justPlayed);
         }
 
-        // Si queda alguno, cargar el siguiente (que ahora es el índice 0)
+        // Si queda alguno, cargar el siguiente (que ahora es el ï¿½ndice 0)
         if (rd.scheduledGames.Count > 0)
         {
             string next = rd.scheduledGames[0];
@@ -71,7 +81,7 @@ public class MinigameChooser : MonoBehaviour
         }
     }
 
-    // (Si aún quieres este random “suelto”, lo puedes mantener, pero ya no lo usa el flujo de torneo)
+    // (Si aï¿½n quieres este random ï¿½sueltoï¿½, lo puedes mantener, pero ya no lo usa el flujo de torneo)
     public void RandomGameChooser()
     {
         var rd = RoundData.instance;

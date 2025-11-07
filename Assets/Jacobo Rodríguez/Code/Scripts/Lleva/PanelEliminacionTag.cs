@@ -31,6 +31,7 @@ public class PanelEliminacionTag : MonoBehaviour
 
     void Awake()
     {
+        // Inicialización simple estándar
         if (!canvasGroup) canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup)
         {
@@ -40,6 +41,7 @@ public class PanelEliminacionTag : MonoBehaviour
         }
         if (botonSiguiente)
         {
+            botonSiguiente.onClick.RemoveListener(OnClickSiguiente); // asegurar no duplicar si el objeto se duplica
             botonSiguiente.onClick.AddListener(OnClickSiguiente);
         }
         if (fondoRecolorDestino == null && recolorPorJugador)
