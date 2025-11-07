@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -84,6 +85,10 @@ public class JProyectikes : MonoBehaviour
     [Header("Bonus de tiempo al acertar")]
     [SerializeField, Tooltip("Segundos a otorgar por atrapar un proyectil durante el último 1/4 de tiempo.")]
     private float successBonusSeconds = 0.5f;
+
+    [Header("Collider del proyectil")]
+    [SerializeField, Tooltip("Multiplicador para el tamaño del BoxCollider2D generado (1 = igual al rect, 1.7 = 70% más grande).")]
+    private float colliderSizeMultiplier = 1.7f;
 
     // Estructura interna para proyectiles activos
     private class Projectile
@@ -348,8 +353,7 @@ public class JProyectikes : MonoBehaviour
         GameObject prefab = ResolveProjectilePrefab();
         GameObject go;
         RectTransform rt;
-        Image img = null;
-        Button btn = null;
+    Image img = null;
 
         if (prefab != null)
         {
@@ -364,28 +368,17 @@ public class JProyectikes : MonoBehaviour
             }
             img = go.GetComponent<Image>();
             if (img == null) img = go.GetComponentInChildren<Image>();
-            btn = go.GetComponent<Button>();
-            if (btn == null) btn = go.GetComponentInChildren<Button>();
-            if (btn == null)
-            {
-                // Añadir botón rápido si no existe
-                if (img != null)
-                {
-                    btn = go.AddComponent<Button>();
-                }
-            }
         }
         else
         {
             // Fallback seguro si no hay prefab asignado
-            go = new GameObject("Projectile", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            go = new GameObject("Projectile", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             go.transform.SetParent(spawnArea, false);
             rt = go.GetComponent<RectTransform>();
             // Anclar al centro para que anchoredPosition sea relativo al centro del área
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0.5f, 0.5f);
             img = go.GetComponent<Image>();
-            btn = go.GetComponent<Button>();
         }
 
         // Aplicar overrides visuales si se desea
@@ -400,11 +393,17 @@ public class JProyectikes : MonoBehaviour
             }
         }
 
-        if (btn != null)
+        // Asegurar handler de clicks con imagen + collider
+        if (img == null)
         {
-            btn.transition = Selectable.Transition.None;
-            btn.onClick.AddListener(() => OnProjectileClicked(go));
+            img = go.AddComponent<Image>();
+            img.raycastTarget = true;
         }
+    // Vincular componente de click (UI) al proyectil
+        var clicker = go.GetComponent<JProjectileClickable>();
+        if (clicker == null) clicker = go.AddComponent<JProjectileClickable>();
+        clicker.Initialize(this, go, img);
+    // El collider se ajustará tras definir orientación y posición
 
         // Bounds horizontales (en anchoredPosition X)
         Rect rect = spawnArea.rect;
@@ -428,6 +427,9 @@ public class JProyectikes : MonoBehaviour
     // Ajustar orientación visual según la dirección de movimiento
     ApplyFacingFlip(img != null ? img.rectTransform : rt, dir);
         rt.anchoredPosition = new Vector2(x, y);
+
+        // Asegurar un collider 2D ajustado al tamaño/escala finales
+        EnsureCollider2D(go, rt);
 
         Projectile p = new Projectile
         {
@@ -478,7 +480,7 @@ public class JProyectikes : MonoBehaviour
         target.localScale = new Vector3(absX * sign, s.y, s.z);
     }
 
-    private void OnProjectileClicked(GameObject go)
+    public void OnProjectileClicked(GameObject go)
     {
         if (!gameActive) return;
         // Encontrar en la lista activa
@@ -497,8 +499,10 @@ public class JProyectikes : MonoBehaviour
                 caughtSoFar++;
 
                 // Deshabilitar interacción durante la animación
-                var btn = go.GetComponent<Button>();
-                if (btn != null) btn.interactable = false;
+                var clicker = go.GetComponent<JProjectileClickable>();
+                if (clicker != null) clicker.SetInteractable(false);
+                var img = go.GetComponent<Image>();
+                if (img != null) img.raycastTarget = false;
 
                 // ¿Último proyectil? entonces terminar tras animación
                 if (caughtSoFar >= totalToCatch)
@@ -522,6 +526,27 @@ public class JProyectikes : MonoBehaviour
                 return;
             }
         }
+    }
+
+    // Añade/ajusta un BoxCollider2D para coincidir con el rectángulo visual del proyectil
+    private void EnsureCollider2D(GameObject go, RectTransform rt)
+    {
+        if (go == null || rt == null) return;
+        var col = go.GetComponent<BoxCollider2D>();
+        if (col == null) col = go.AddComponent<BoxCollider2D>();
+        col.isTrigger = true;
+
+        // Calcular tamaño local aproximado a partir del rect y la escala
+        Vector3[] corners = new Vector3[4];
+        rt.GetWorldCorners(corners);
+        float worldW = Vector3.Distance(corners[0], corners[3]); // left-bottom to right-bottom
+        float worldH = Vector3.Distance(corners[0], corners[1]); // left-bottom to left-top
+        Vector3 lossy = rt.lossyScale;
+        float localW = (lossy.x != 0f) ? worldW / Mathf.Abs(lossy.x) : rt.rect.width;
+        float localH = (lossy.y != 0f) ? worldH / Mathf.Abs(lossy.y) : rt.rect.height;
+        float k = Mathf.Max(0.01f, colliderSizeMultiplier);
+        col.size = new Vector2(localW, localH) * k; // 70% más grande por defecto (1.7x)
+        col.offset = Vector2.zero;
     }
 
     // Helper centralizado para reproducir SFX a través de SoundManager

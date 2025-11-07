@@ -14,6 +14,16 @@ public enum MinigameKind
 // Componente genérico para mostrar instrucciones por minijuego y activar el icono del jugador
 public class MinigameInstructionUI : MonoBehaviour
 {
+    // Colores por índice de jugador (0..3):
+    // 0: rojo   #985252
+    // 1: azul   #366679
+    // 2: amarillo #A8A63A
+    // 3: verde  #67A650
+    private static readonly Color PlayerColor0 = new Color(152f/255f, 82f/255f, 82f/255f);
+    private static readonly Color PlayerColor1 = new Color(54f/255f, 102f/255f, 121f/255f);
+    private static readonly Color PlayerColor2 = new Color(168f/255f, 166f/255f, 58f/255f);
+    private static readonly Color PlayerColor3 = new Color(103f/255f, 166f/255f, 80f/255f);
+
     [Header("Contenedores UI")]
     [SerializeField, Tooltip("Panel contenedor de las instrucciones (se activa/desactiva).")]
     private GameObject panel;
@@ -42,6 +52,7 @@ public class MinigameInstructionUI : MonoBehaviour
         if (messageText != null)
         {
             messageText.text = GetMessage(kind);
+            messageText.color = GetInstructionColor(playerIndex);
         }
 
         // Preferencia: usar una sola Image con sprites por índice
@@ -136,6 +147,12 @@ public class MinigameInstructionUI : MonoBehaviour
                     playerIconObjects[i].SetActive(i == playerIndex);
             }
         }
+
+        // Mantener el color del texto sincronizado si cambia el jugador
+        if (messageText != null)
+        {
+            messageText.color = GetInstructionColor(playerIndex);
+        }
     }
 
     private string GetMessage(MinigameKind kind)
@@ -148,6 +165,19 @@ public class MinigameInstructionUI : MonoBehaviour
             case MinigameKind.Reducir: return string.IsNullOrWhiteSpace(textReducir) ? textReducir : textReducir;
             case MinigameKind.Ritmo: return string.IsNullOrWhiteSpace(textRitmo) ? textRitmo : textRitmo;
             default: return string.Empty;
+        }
+    }
+
+    private Color GetInstructionColor(int playerIndex)
+    {
+        if (playerIndex < 0) return Color.white;
+        switch (playerIndex % 4)
+        {
+            case 0: return PlayerColor0; // rojo #985252
+            case 1: return PlayerColor1; // azul #366679
+            case 2: return PlayerColor2; // amarillo #A8A63A
+            case 3: return PlayerColor3; // verde #67A650
+            default: return Color.white;
         }
     }
 }
