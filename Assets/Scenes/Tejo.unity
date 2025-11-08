@@ -6287,7 +6287,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.006589436}
-  m_LocalScale: {x: 20.642511, y: 9, z: 1}
+  m_LocalScale: {x: 20.641026, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1939404414}
@@ -7622,7 +7622,7 @@ MonoBehaviour:
 
 
     Y destruya todas las
-    papeletas posibles.
+    papeletas posibles
 
 '
   m_isRightToLeft: 0
@@ -16882,7 +16882,7 @@ MonoBehaviour:
 
 
     Y destruya todas las
-    papeletas posibles.
+    papeletas posibles
 
 '
   m_isRightToLeft: 0
@@ -20037,6 +20037,8 @@ MonoBehaviour:
   sfxVolume: 1
   musicVolume: 1
   musicLoopDefault: 1
+  persistAcrossScenes: 1
+  saveSceneOverrideToPrefs: 0
 --- !u!4 &1830111809
 Transform:
   m_ObjectHideFlags: 0
@@ -20832,7 +20834,7 @@ MonoBehaviour:
 
 
     Y destruya todas las
-    papeletas posibles.
+    papeletas posibles
 
 '
   m_isRightToLeft: 0
@@ -20978,7 +20980,7 @@ MonoBehaviour:
 
 
     Y destruya todas las
-    papeletas posibles.
+    papeletas posibles
 
 '
   m_isRightToLeft: 0

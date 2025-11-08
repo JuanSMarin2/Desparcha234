@@ -1775,7 +1775,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 21, y: 9, z: 1}
+  m_LocalScale: {x: 20.641026, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1503361000}
@@ -2340,9 +2340,17 @@ MonoBehaviour:
   objectsFor3Players:
   - {fileID: 249595772}
   - {fileID: 1091253073}
+  - {fileID: 450516580}
+  - {fileID: 1017354668}
+  - {fileID: 2075767529}
+  - {fileID: 1270013905}
   objectsFor4Players:
   - {fileID: 2131863669}
   - {fileID: 1495881617}
+  - {fileID: 337311691}
+  - {fileID: 1031092806}
+  - {fileID: 1485819351}
+  - {fileID: 1995071511}
 --- !u!4 &1048118533
 Transform:
   m_ObjectHideFlags: 0
@@ -2601,7 +2609,7 @@ MonoBehaviour:
   quickRecoverRate: 60
   statusImage: {fileID: 1270013907}
   caidoImagen: {fileID: -870173006456029567, guid: 08436f774d7a13946bd01cf025babc13, type: 3}
-  ganaImagen: {fileID: -5781588522152963664, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  ganaImagen: {fileID: 2952744490144450112, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
   numPer: 0
   ams: {fileID: 1734456452}
 --- !u!114 &1091253078
@@ -3415,7 +3423,7 @@ MonoBehaviour:
   quickRecoverRate: 60
   statusImage: {fileID: 2133083691}
   caidoImagen: {fileID: -870173006456029567, guid: 08436f774d7a13946bd01cf025babc13, type: 3}
-  ganaImagen: {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  ganaImagen: {fileID: 478838189770312867, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
   numPer: 0
   ams: {fileID: 1734456452}
 --- !u!58 &1264223781
@@ -13787,7 +13795,7 @@ MonoBehaviour:
   quickRecoverRate: 60
   statusImage: {fileID: 249967969}
   caidoImagen: {fileID: -870173006456029567, guid: 08436f774d7a13946bd01cf025babc13, type: 3}
-  ganaImagen: {fileID: -1836012908756554960, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  ganaImagen: {fileID: -1836012908756554960, guid: e24c55b9925cecb4fb20370024bd5299, type: 3}
   numPer: 0
   ams: {fileID: 1734456452}
 --- !u!58 &1424594953
@@ -14415,7 +14423,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -184.00012, y: 32}
+  m_AnchoredPosition: {x: -184, y: 32}
   m_SizeDelta: {x: 40.75, y: 8.850006}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1485819353
@@ -14620,7 +14628,7 @@ MonoBehaviour:
   quickRecoverRate: 60
   statusImage: {fileID: 1995071513}
   caidoImagen: {fileID: -870173006456029567, guid: 08436f774d7a13946bd01cf025babc13, type: 3}
-  ganaImagen: {fileID: 3215181741823739300, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  ganaImagen: {fileID: 307226126855071095, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
   numPer: 0
   ams: {fileID: 1734456452}
 --- !u!58 &1495881621

@@ -3949,6 +3949,8 @@ MonoBehaviour:
   sfxVolume: 0.7
   musicVolume: 0.045
   musicLoopDefault: 1
+  persistAcrossScenes: 0
+  saveSceneOverrideToPrefs: 0
 --- !u!4 &999913478
 Transform:
   m_ObjectHideFlags: 0
