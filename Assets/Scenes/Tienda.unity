@@ -2921,7 +2921,7 @@ MonoBehaviour:
   musicVolumeOverrides: []
   musicaRandom: 0
   musicaAleatoria: []
-  musicaFija: {fileID: 0}
+  musicaFija: {fileID: 8300000, guid: fa09a36d09d79c645b8abfea61490037, type: 3}
   autoPlayMusicKey: 
   autoLoopMusic: 1
   persistAcrossScenes: 1

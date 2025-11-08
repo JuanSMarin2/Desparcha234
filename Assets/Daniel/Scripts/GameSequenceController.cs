@@ -52,7 +52,9 @@ public class GameSequenceController : MonoBehaviour
     [Tooltip("(Opcional) TMP_Text para el mensaje de pasar el celular. Si no se asigna, se buscará en hijos.")]
     [SerializeField] private TMP_Text passDeviceText;
     [Tooltip("Duración en segundos de la cuenta regresiva antes de iniciar el siguiente minijuego")]
-    [SerializeField] private float nextTurnCountdownSeconds = 5f;
+    [SerializeField] private float nextTurnCountdownSeconds = 2f;
+    [Tooltip("Cuenta regresiva cuando solo hay 2 jugadores.")]
+    [SerializeField] private float twoPlayersCountdownSeconds = 1f;
     [Tooltip("Pausar el juego (Time.timeScale=0) mientras el panel de siguiente jugador está activo")]
     [SerializeField] private bool pauseWithTimeScale = true;
     private Coroutine _nextTurnRoutine;
@@ -445,7 +447,65 @@ public class GameSequenceController : MonoBehaviour
             _nextTurnRoutine = null;
         }
         int idx = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
-        _nextTurnRoutine = StartCoroutine(Co_ShowNextTurnPanel(idx, nextTurnCountdownSeconds, onCompleted));
+        float seconds = ResolveNextTurnSeconds();
+        _nextTurnRoutine = StartCoroutine(Co_ShowNextTurnPanel(idx, seconds, onCompleted));
+    }
+
+    // Determina la duración de la cuenta regresiva, usando 1s cuando solo hay 2 jugadores.
+    private float ResolveNextTurnSeconds()
+    {
+        int count = GetPlayerCountSafe();
+        if (count == 2) return Mathf.Max(0f, twoPlayersCountdownSeconds);
+        return Mathf.Max(0f, nextTurnCountdownSeconds);
+    }
+
+    // Intenta obtener la cantidad de jugadores desde TurnManager sin acoplarse a su API concreta.
+    private int GetPlayerCountSafe()
+    {
+        if (TurnManager.instance == null) return -1;
+        var tm = TurnManager.instance;
+        var t = tm.GetType();
+
+        // 1) Métodos comunes que devuelvan int
+        string[] methodNames = { "GetAlivePlayerCount", "GetPlayerCount", "GetTotalPlayers", "GetPlayersCount" };
+        foreach (var name in methodNames)
+        {
+            var m = t.GetMethod(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (m != null && m.GetParameters().Length == 0 && m.ReturnType == typeof(int))
+            {
+                try { return (int)m.Invoke(tm, null); } catch { }
+            }
+        }
+
+        // 2) Propiedades tipo int
+        string[] propNames = { "AlivePlayerCount", "PlayerCount", "TotalPlayers" };
+        foreach (var name in propNames)
+        {
+            var p = t.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (p != null && p.CanRead && p.PropertyType == typeof(int))
+            {
+                try { return (int)p.GetValue(tm); } catch { }
+            }
+        }
+
+        // 3) Campos/colecciones comunes
+        string[] fieldNames = { "players", "playerList", "activePlayers", "Players" };
+        foreach (var name in fieldNames)
+        {
+            var f = t.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (f == null) continue;
+            try
+            {
+                var val = f.GetValue(tm);
+                if (val == null) continue;
+                if (val is Array arr) return arr.Length;
+                if (val is System.Collections.ICollection col) return col.Count;
+            }
+            catch { }
+        }
+
+        // 4) Fallback desconocido
+        return -1;
     }
 
     private IEnumerator Co_ShowNextTurnPanel(int playerIndex, float seconds, Action onCompleted)

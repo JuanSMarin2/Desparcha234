@@ -58,7 +58,7 @@ public class FinalResultsLayout : MonoBehaviour
         int[] scores = new int[n];
         for (int i = 0; i < n; i++) scores[i] = rd.totalPoints[i];
 
-        // Orden por puntuación desc
+        // Orden por puntuaciï¿½n desc
         int[] order = Enumerable.Range(0, n)
                                 .OrderByDescending(i => scores[i])
                                 .ThenBy(i => i)
@@ -144,10 +144,18 @@ public class FinalResultsLayout : MonoBehaviour
         for (int i = n; i < playerIcons.Length; i++)
             if (playerIcons[i]) playerIcons[i].gameObject.SetActive(false);
 
-        // Medallas e iconos “palpitando” para TODOS los ganadores (grupo 0)
+        // Medallas e iconos ï¿½palpitandoï¿½ para TODOS los ganadores (grupo 0)
         var winners = (groups.Count > 0) ? groups[0] : null;
         if (winners != null && winners.Count > 0)
         {
+            // Setear triggers de animaciÃ³n: ganadores -> Happy, resto -> Sad
+            var winnerSet = new HashSet<int>(winners);
+            for (int i = 0; i < n; i++)
+            {
+                bool isHappy = winnerSet.Contains(i);
+                SetIconMood(i, isHappy);
+            }
+
             // Medallas (una por ganador, hasta la cantidad disponible)
             for (int m = 0; m < medals.Length; m++)
                 if (medals[m]) medals[m].gameObject.SetActive(false);
@@ -180,15 +188,21 @@ public class FinalResultsLayout : MonoBehaviour
         }
         else
         {
-            // Sin ganadores únicos — ocultar todas las medallas
+            // Sin ganadores ï¿½nicos ï¿½ ocultar todas las medallas
             for (int m = 0; m < medals.Length; m++)
                 if (medals[m]) medals[m].gameObject.SetActive(false);
+
+            // Si no hay ganadores definidos, todos en Sad
+            for (int i = 0; i < n; i++)
+            {
+                SetIconMood(i, false);
+            }
         }
     }
 
     private IEnumerator PulseIcon(RectTransform icon)
     {
-        // Latido infinito (rápido). Puedes detenerlo en OnDisable.
+        // Latido infinito (rï¿½pido). Puedes detenerlo en OnDisable.
         float t = 0f;
         while (icon && icon.gameObject.activeInHierarchy)
         {
@@ -205,5 +219,17 @@ public class FinalResultsLayout : MonoBehaviour
         if (playerIcons == null) return null;
         if (playerIndex < 0 || playerIndex >= playerIcons.Length) return null;
         return playerIcons[playerIndex];
+    }
+
+    private void SetIconMood(int playerIndex, bool isHappy)
+    {
+        var icon = SafeIcon(playerIndex);
+        if (!icon) return;
+        Animator anim = icon.GetComponent<Animator>();
+        if (anim == null) anim = icon.GetComponentInChildren<Animator>(true);
+        if (anim == null) return;
+        anim.ResetTrigger("Happy");
+        anim.ResetTrigger("Sad");
+        anim.SetTrigger(isHappy ? "Happy" : "Sad");
     }
 }
