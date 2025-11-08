@@ -34,7 +34,7 @@ public class GameData : MonoBehaviour
                 ownedPerPlayer[p][0] = true;
 
                 // No auto-equipar (usar defaults hasta que el jugador equipe desde la tienda)
-                equippedSkin[p] = -1;
+                equippedSkin[p] = 0;
             }
         }
         else

@@ -10,9 +10,9 @@ public class Tempo : MonoBehaviour
     public static Tempo instance;
     [Header("Tiempo fijo por dificultad (compatibilidad)")]
     [SerializeField, Tooltip("Media base (ya no se usa con tiempos fijos por jugador). Se mantiene por compatibilidad.")]
-    private float mean = 50f;
+    private float mean = 20f;
     [SerializeField, Tooltip("Desviación (ya no se usa). Se mantiene por compatibilidad.")]
-    private float stdDev = 10f;
+    private float stdDev = 5f;
 
     [SerializeField, Tooltip("TextMeshPro Text (opcional) para mostrar el tiempo restante")]
     private TMP_Text timerText;

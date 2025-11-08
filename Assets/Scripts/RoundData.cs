@@ -10,8 +10,11 @@ public class RoundData : MonoBehaviour
 
     public int numPlayers = 4;
 
-    // Cat�logo base disponible (nombres = nombres de escenas)
-    public List<string> availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos", "Lleva", "Congelados", "TingoTingoTango"};
+     public bool hasCongelados {get; private set; } = false;
+
+    // Catálogo base disponible (nombres = nombres de escenas)
+    // Nota: "Congelados" se agrega solo si hasCongelados == true
+    public List<string> availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos", "Lleva", "TingoTingoTango"};
 
     
     public List<string> scheduledGames = new List<string>(); // << NUEVO
@@ -29,6 +32,7 @@ public class RoundData : MonoBehaviour
             DontDestroyOnLoad(gameObject);
             currentPoints = new int[numPlayers];
             totalPoints = new int[numPlayers];
+            EnsureAvailableGamesIntegrity();
         }
         else
         {
@@ -51,7 +55,8 @@ public class RoundData : MonoBehaviour
     public void ResetData()
     {
         numPlayers = 0;
-        availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos", "Lleva", "Congelados", "TingoTingoTango"};
+        availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos", "Lleva", "TingoTingoTango"};
+        EnsureAvailableGamesIntegrity();
         finalPositions.Clear();
         scheduledGames.Clear();     // << NUEVO
         scheduledIndex = 0;         // << NUEVO
@@ -78,5 +83,25 @@ public class RoundData : MonoBehaviour
 
 
         Debug.Log("TotalPoints actualizado.");
+    }
+
+    public void BuyCongelados(){
+        hasCongelados = true;
+        EnsureAvailableGamesIntegrity();
+    }
+
+    private void EnsureAvailableGamesIntegrity()
+    {
+        const string congelados = "Congelados";
+        if (hasCongelados)
+        {
+            if (!availableGames.Contains(congelados))
+                availableGames.Add(congelados);
+        }
+        else
+        {
+            // Remover si estuviera presente por estado previo
+            availableGames.RemoveAll(g => g == congelados);
+        }
     }
 }

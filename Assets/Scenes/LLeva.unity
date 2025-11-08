@@ -5183,7 +5183,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sfxVolume: 0.702
-  musicVolume: 0.08
+  musicVolume: 0.419
   musicLoopDefault: 1
   persistAcrossScenes: 1
   saveSceneOverrideToPrefs: 0

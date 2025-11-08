@@ -18154,7 +18154,7 @@ MonoBehaviour:
   musicVolumeOverrides: []
   musicaRandom: 0
   musicaAleatoria: []
-  musicaFija: {fileID: 0}
+  musicaFija: {fileID: 8300000, guid: 9466e0d4bae5b794699d62637f8e1a25, type: 3}
   autoPlayMusicKey: 
   autoLoopMusic: 1
   persistAcrossScenes: 0
@@ -20037,7 +20037,7 @@ MonoBehaviour:
   sfxVolume: 1
   musicVolume: 1
   musicLoopDefault: 1
-  persistAcrossScenes: 1
+  persistAcrossScenes: 0
   saveSceneOverrideToPrefs: 0
 --- !u!4 &1830111809
 Transform:

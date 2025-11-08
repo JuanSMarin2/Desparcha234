@@ -12,6 +12,9 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private Button player3Btn;
     [SerializeField] private Button player4Btn;
 
+    [SerializeField] private bool isMainMenu;
+    [SerializeField] private GameObject buyCongeladosBtn;
+
     [Header("UI dinero")]
     [SerializeField] private TMP_Text moneyText;
 
@@ -79,6 +82,14 @@ public class ShopManager : MonoBehaviour
         // Paneles principales
         SetupPanelsForEnter();
         EnterPanels();
+    }
+
+    private void Update()
+    {
+        if (isMainMenu && RoundData.instance.hasCongelados)
+            buyCongeladosBtn.SetActive(false);
+
+
     }
 
     void OnDestroy()
@@ -259,6 +270,9 @@ public class ShopManager : MonoBehaviour
         SoundManager.instance?.PlaySfx("ui:comprar");
         SetBuyButtonActive(number, false);
         RefreshMoneyUI();
+
+        if(isMainMenu)
+    BuyCongelados();
     }
 
     public void EquipSkin(int number)
@@ -332,5 +346,10 @@ public class ShopManager : MonoBehaviour
     {
         if (moneyText && GameData.instance != null)
             moneyText.text = "" + GameData.instance.Money;
+    }
+
+    public void BuyCongelados()
+    {
+        RoundData.instance.BuyCongelados();
     }
 }

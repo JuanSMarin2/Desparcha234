@@ -228,8 +228,22 @@ public class FinalResultsLayout : MonoBehaviour
         Animator anim = icon.GetComponent<Animator>();
         if (anim == null) anim = icon.GetComponentInChildren<Animator>(true);
         if (anim == null) return;
+        // Resetear todos los posibles triggers para evitar residuos
         anim.ResetTrigger("Happy");
         anim.ResetTrigger("Sad");
-        anim.SetTrigger(isHappy ? "Happy" : "Sad");
+        anim.ResetTrigger("Neutral");
+        anim.ResetTrigger("Happy2");
+        anim.ResetTrigger("Sad2");
+        anim.ResetTrigger("Neutral2");
+
+        int equipped = 0;
+        if (GameData.instance != null)
+        {
+            equipped = GameData.instance.GetEquipped(playerIndex);
+        }
+
+        string logical = isHappy ? "Happy" : "Sad";
+        string finalTrigger = (equipped == 1) ? logical + "2" : logical;
+        anim.SetTrigger(finalTrigger);
     }
 }

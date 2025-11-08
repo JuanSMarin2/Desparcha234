@@ -92,11 +92,11 @@ public class IconManager : MonoBehaviour
 
         var anim = FindAnimator(set.icon);
 
-        // 1) FINAL RESULTS: triggers Happy/Sad (sin tocar sprites)
+        // 1) FINAL RESULTS: triggers Happy/Sad (sin tocar sprites) con variante por skin
         if (isFinalResultsScene && anim != null && cachedFinalWinners != null)
         {
             bool isWinner = cachedFinalWinners.Contains(playerIndex);
-            Fire(anim, isWinner ? "Happy" : "Sad");
+            Fire(anim, playerIndex, isWinner ? "Happy" : "Sad");
             return;
         }
 
@@ -109,10 +109,10 @@ public class IconManager : MonoBehaviour
             int min, max; GetMinMax(rd.currentPoints, n, out min, out max);
             int my = rd.currentPoints[playerIndex];
 
-            if (min == max)        Fire(anim, "Neutral");
-            else if (my == max)    Fire(anim, "Happy");
-            else if (my == min)    Fire(anim, "Sad");
-            else                   Fire(anim, "Neutral");
+            if (min == max)        Fire(anim, playerIndex, "Neutral");
+            else if (my == max)    Fire(anim, playerIndex, "Happy");
+            else if (my == min)    Fire(anim, playerIndex, "Sad");
+            else                   Fire(anim, playerIndex, "Neutral");
             return;
         }
 
@@ -141,12 +141,38 @@ public class IconManager : MonoBehaviour
     }
 
     // ===== Utilidades Animator =====
-    private void Fire(Animator anim, string trigger)
+    // Dispara el trigger según la skin equipada.
+    // Skin 0 -> Happy / Sad / Neutral
+    // Skin 1 -> Happy2 / Sad2 / Neutral2
+    // Otras skins -> versión base (permite ampliar luego).
+    private void Fire(Animator anim, int playerIndex, string logicalTrigger)
     {
+        if (anim == null) return;
+
+        int equipped = 0;
+        if (GameData.instance != null)
+            equipped = GameData.instance.GetEquipped(playerIndex);
+
+        // Reset de todos los triggers relevantes para evitar residuos.
         anim.ResetTrigger("Happy");
-        anim.ResetTrigger("Neutral");
         anim.ResetTrigger("Sad");
-        anim.SetTrigger(trigger);
+        anim.ResetTrigger("Neutral");
+        anim.ResetTrigger("Happy2");
+        anim.ResetTrigger("Sad2");
+        anim.ResetTrigger("Neutral2");
+
+        string finalTrigger = logicalTrigger;
+        if (equipped == 1) // skin variante 2
+        {
+            switch (logicalTrigger)
+            {
+                case "Happy": finalTrigger = "Happy2"; break;
+                case "Sad": finalTrigger = "Sad2"; break;
+                case "Neutral": finalTrigger = "Neutral2"; break;
+            }
+        }
+
+        anim.SetTrigger(finalTrigger);
     }
 
     private Animator FindAnimator(Image img)
