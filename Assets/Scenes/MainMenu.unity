@@ -3905,6 +3905,22 @@ PrefabInstance:
       propertyPath: money
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9002846060589902192, guid: 00effd819395d6540835f299019a67eb, type: 3}
+      propertyPath: 'equippedSkin.Array.data[0]'
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002846060589902192, guid: 00effd819395d6540835f299019a67eb, type: 3}
+      propertyPath: 'equippedSkin.Array.data[1]'
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002846060589902192, guid: 00effd819395d6540835f299019a67eb, type: 3}
+      propertyPath: 'equippedSkin.Array.data[2]'
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002846060589902192, guid: 00effd819395d6540835f299019a67eb, type: 3}
+      propertyPath: 'equippedSkin.Array.data[3]'
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
