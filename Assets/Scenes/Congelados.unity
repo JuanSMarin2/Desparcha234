@@ -1848,7 +1848,7 @@ MonoBehaviour:
   autoDisablePlayerTagIfFound: 0
   moveSpeedNormal: 3
   moveSpeedFreezer: 5
-  debugLogs: 1
+  debugLogs: 0
 --- !u!1 &445327582
 GameObject:
   m_ObjectHideFlags: 0
@@ -2651,87 +2651,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1 &592840740
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 592840741}
-  - component: {fileID: 592840742}
-  m_Layer: 0
-  m_Name: IconManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &592840741
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 592840740}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1797400207}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &592840742
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 592840740}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7017143e28f26d742b7a24246ce405ef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  defaultHappy:
-  - {fileID: -1836012908756554960, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: -5781588522152963664, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: 3215181741823739300, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  defaultNeutral:
-  - {fileID: -1836012908756554960, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: -5781588522152963664, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  - {fileID: 3215181741823739300, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
-  defaultSad:
-  - {fileID: -1832221067031316088, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  - {fileID: 1190479172476038618, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  - {fileID: 7162554072243991052, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  - {fileID: 8919797506060606750, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  players:
-  - happyBySkin: []
-    neutralBySkin:
-    - {fileID: -9142250121294296064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
-    sadBySkin:
-    - {fileID: 4613267395866423043, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  - happyBySkin: []
-    neutralBySkin:
-    - {fileID: 6022938833314608076, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
-    sadBySkin:
-    - {fileID: -5587926677601744592, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  - happyBySkin: []
-    neutralBySkin:
-    - {fileID: 2952744490144450112, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
-    sadBySkin:
-    - {fileID: -6235709884887125464, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  - happyBySkin: []
-    neutralBySkin:
-    - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
-    sadBySkin:
-    - {fileID: -8531155124128328185, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  debugLogs: 1
 --- !u!1 &667505618
 GameObject:
   m_ObjectHideFlags: 0
@@ -5710,6 +5629,87 @@ MonoBehaviour:
   uiCamera: {fileID: 891444999}
   worldCamera: {fileID: 0}
   ignorarMientrasPresionado: 1
+--- !u!1 &1190246295
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1190246296}
+  - component: {fileID: 1190246297}
+  m_Layer: 0
+  m_Name: IconManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1190246296
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190246295}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1797400207}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1190246297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190246295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7017143e28f26d742b7a24246ce405ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultHappy:
+  - {fileID: 870481604244116201, guid: 4c8ee0f8fb59a6c4d9f5c1c4d2714d41, type: 3}
+  - {fileID: -4754281972858292379, guid: 7c1f0ef5e6ff4bc4bb95b376e77386c2, type: 3}
+  - {fileID: 8363339302457135625, guid: 6d3de872fd8c4dc448d198638324ec4e, type: 3}
+  - {fileID: 3043520109606637705, guid: 3422cd1cb151a3f43b46a1fc66255740, type: 3}
+  defaultNeutral:
+  - {fileID: 8363339302457135625, guid: 8a330bc34b2cae1438de84853eac7879, type: 3}
+  - {fileID: -2230931393584669107, guid: e127f03ec7b81b94abe07019684f59a9, type: 3}
+  - {fileID: 8363339302457135625, guid: 88b030ee2b867324b8be0ee6ca1df108, type: 3}
+  - {fileID: 8363339302457135625, guid: b464d0af932f289429218586f7e0d392, type: 3}
+  defaultSad:
+  - {fileID: 8306650823915104034, guid: 7fd14fa449e504a4cb9e65a93373af35, type: 3}
+  - {fileID: -2230931393584669107, guid: e127f03ec7b81b94abe07019684f59a9, type: 3}
+  - {fileID: 8363339302457135625, guid: dafd76315a502d74681468be225ccb77, type: 3}
+  - {fileID: 3043520109606637705, guid: e86274630cab42d4ca4a2c912ab35153, type: 3}
+  players:
+  - happyBySkin: []
+    neutralBySkin:
+    - {fileID: -9142250121294296064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    sadBySkin:
+    - {fileID: 4613267395866423043, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - happyBySkin: []
+    neutralBySkin:
+    - {fileID: 6022938833314608076, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    sadBySkin:
+    - {fileID: -5587926677601744592, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - happyBySkin: []
+    neutralBySkin:
+    - {fileID: 2952744490144450112, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    sadBySkin:
+    - {fileID: -6235709884887125464, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - happyBySkin: []
+    neutralBySkin:
+    - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    sadBySkin:
+    - {fileID: -8531155124128328185, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  debugLogs: 0
 --- !u!1 &1197602800
 GameObject:
   m_ObjectHideFlags: 0
@@ -9887,7 +9887,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scores: 00000000000000000000000000000000
-  debugLogs: 1
+  debugLogs: 0
 --- !u!1 &1714556239
 GameObject:
   m_ObjectHideFlags: 0
@@ -10321,8 +10321,8 @@ Transform:
   - {fileID: 1314098605}
   - {fileID: 1225303641}
   - {fileID: 1709007224}
-  - {fileID: 592840741}
   - {fileID: 171341778}
+  - {fileID: 1190246296}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1814605574
