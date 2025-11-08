@@ -40,6 +40,10 @@ public class TagCongelados : MonoBehaviour
     [SerializeField, Tooltip("Número total de rondas antes de declarar victoria final.")] private int totalRounds = 4;
     private int _roundsPlayed = 0;
 
+    [Header("Selección Freezer Inicial")]
+    [SerializeField, Tooltip("Si está activo, el primer freezer se elige aleatoriamente entre los jugadores presentes.")] private bool randomizeInitialFreezer = true;
+    private bool _initialFreezerChosen = false;
+
     [Header("Panel Victoria (final)")]
     [SerializeField, Tooltip("Panel de victoria reutilizado con modo congelados.")] private VictoryTagPanel victoryPanel;
 
@@ -95,6 +99,17 @@ public class TagCongelados : MonoBehaviour
     {
         CollectPlayers();
         PrunePlayersByRoundData();
+        // Elegir freezer inicial aleatorio si se desea
+        if (randomizeInitialFreezer)
+        {
+            int rnd = PickRandomExistingPlayerIndex();
+            if (rnd > 0)
+            {
+                _currentFreezerIndex1Based = rnd;
+                _initialFreezerChosen = true;
+                if (debugLogs) Debug.Log($"[TagCongelados] Freezer inicial aleatorio: Player{_currentFreezerIndex1Based}");
+            }
+        }
         // Opcional: deshabilitar PlayerTag en los jugadores si existe
         if (autoDisablePlayerTagIfFound)
         {
@@ -251,6 +266,20 @@ public class TagCongelados : MonoBehaviour
         }
         // fallback
         return _players[0].PlayerIndex;
+    }
+
+    private int PickRandomExistingPlayerIndex()
+    {
+        if (_players == null || _players.Count == 0) return -1;
+        // Construir lista de índices válidos 1..n desde _players
+        List<int> indices = new List<int>();
+        foreach (var p in _players)
+        {
+            if (p != null && p.PlayerIndex > 0) indices.Add(p.PlayerIndex);
+        }
+        if (indices.Count == 0) return -1;
+        int pick = indices[Random.Range(0, indices.Count)];
+        return pick;
     }
 
     private void HandleTimeExpired()

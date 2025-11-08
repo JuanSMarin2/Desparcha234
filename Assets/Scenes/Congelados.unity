@@ -1743,6 +1743,7 @@ MonoBehaviour:
   roundDuration: 20
   timerText: {fileID: 787345464}
   totalRounds: 4
+  randomizeInitialFreezer: 1
   victoryPanel: {fileID: 180100633}
   objetoGateInicio: {fileID: 1508140859}
   esperarDesactivacionGate: 1
@@ -3212,7 +3213,7 @@ MonoBehaviour:
   usarColisionFisica: 1
   mantenerTriggerParaDeteccion: 1
   spriteRenderer: {fileID: 693602409}
-  spriteCongelado: {fileID: 21300000, guid: f492cdf94c836c64cab991fe76ed8fd2, type: 3}
+  spriteCongelado: {fileID: -4178046375966092550, guid: 3805cac7255da9949b28d2b749fdbedb, type: 3}
   spriteNormal: {fileID: 0}
   animatorOpcional: {fileID: 693602412}
   plantaSfxKey: congelados:planta
@@ -5354,7 +5355,7 @@ MonoBehaviour:
   gameId: congelados
   sfxClips:
   - key: freeze
-    clip: {fileID: 8300000, guid: d249fd9531fc3ec4b9055bfaa708d507, type: 3}
+    clip: {fileID: 8300000, guid: 33dd6bc2dc384b542871b59e47c89a76, type: 3}
   - key: Eliminado
     clip: {fileID: 8300000, guid: c8a33cd540db6c84a951cd74e8b4aba2, type: 3}
   - key: cronometro
@@ -5364,17 +5365,17 @@ MonoBehaviour:
   - key: planta
     clip: {fileID: 8300000, guid: 1fb5cacb72d26e442a56faa83755c9d4, type: 3}
   - key: footstep
-    clip: {fileID: 8300000, guid: 1fb5cacb72d26e442a56faa83755c9d4, type: 3}
+    clip: {fileID: 8300000, guid: f2f7e1e69d7407e4a92bc5a23ee5cb13, type: 3}
   - key: unfreeze
-    clip: {fileID: 8300000, guid: 642aeef1a047dd6458446c4fa47716d2, type: 3}
+    clip: {fileID: 8300000, guid: 2aa1175426ed65e4fb9d981372f9ca92, type: 3}
   musicClips: []
   musicVolumeOverrides:
   - key: 
-    volumeScale: 0.61
+    volumeScale: 0.293
   musicaRandom: 1
   musicaAleatoria:
-  - {fileID: 8300000, guid: 25fa13a8693e9554eabc7a9e4d8d34cb, type: 3}
-  - {fileID: 8300000, guid: 6ad2a2042f1720841b3fb760a9dba150, type: 3}
+  - {fileID: 8300000, guid: 56bb77aab0bdc71489cff249675782ae, type: 3}
+  - {fileID: 8300000, guid: bd07c591be334b04b961d433dde7e8e3, type: 3}
   musicaFija: {fileID: 0}
   autoPlayMusicKey: 
   autoLoopMusic: 1
@@ -5851,7 +5852,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca9f265989f856944baffafd1525fa6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sfxKey: lleva:footstep
+  sfxKey: congelados:footstep
   interval: 0.3
   volume: 0.4
   playOnlyWhenMoving: 1
@@ -5871,7 +5872,7 @@ MonoBehaviour:
   usarColisionFisica: 1
   mantenerTriggerParaDeteccion: 1
   spriteRenderer: {fileID: 1197602804}
-  spriteCongelado: {fileID: 21300000, guid: f492cdf94c836c64cab991fe76ed8fd2, type: 3}
+  spriteCongelado: {fileID: 6937817954938267909, guid: 07992484c8eb07d40845f413c984daf1, type: 3}
   spriteNormal: {fileID: 0}
   animatorOpcional: {fileID: 1197602807}
   plantaSfxKey: congelados:planta
@@ -5909,8 +5910,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41ba789b5b6eeab4ba66e98071d5a1f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sfxVolume: 0.821
-  musicVolume: 0.094
+  sfxVolume: 0.509
+  musicVolume: 0.065
   musicLoopDefault: 1
   persistAcrossScenes: 1
   saveSceneOverrideToPrefs: 0
@@ -6464,7 +6465,7 @@ MonoBehaviour:
   usarColisionFisica: 1
   mantenerTriggerParaDeteccion: 1
   spriteRenderer: {fileID: 1246577729}
-  spriteCongelado: {fileID: 21300000, guid: f492cdf94c836c64cab991fe76ed8fd2, type: 3}
+  spriteCongelado: {fileID: -6470460504253458178, guid: 136ce83e136119b47852fd208bd6f8fb, type: 3}
   spriteNormal: {fileID: 0}
   animatorOpcional: {fileID: 0}
   plantaSfxKey: congelados:planta
@@ -7582,7 +7583,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1391231912}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5fb9771e8c98061449816b21c2a571dd, type: 3}
   m_Name: 
@@ -7669,7 +7670,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5445714, g: 0, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7707,7 +7708,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvasGroup: {fileID: 1391231915}
-  iconEliminado: {fileID: 132547202}
+  iconEliminado: {fileID: 695084033}
   textoMensaje: {fileID: 264022087}
   botonSiguiente: {fileID: 1306046814}
   formatoMensaje: Jugador {0} eliminado
@@ -8294,7 +8295,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca9f265989f856944baffafd1525fa6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sfxKey: lleva:footstep
+  sfxKey: congelados:footstep
   interval: 0.3
   volume: 0.4
   playOnlyWhenMoving: 1
@@ -8314,8 +8315,8 @@ MonoBehaviour:
   usarColisionFisica: 1
   mantenerTriggerParaDeteccion: 1
   spriteRenderer: {fileID: 1526244086}
-  spriteCongelado: {fileID: 9139330975122868335, guid: 843678128c2d84142b26a521d5838054, type: 3}
-  spriteNormal: {fileID: 508391231780666368, guid: f649c97ec5bc154459b3f7399cbfeaf5, type: 3}
+  spriteCongelado: {fileID: -855298285791758126, guid: 3424e0e75daf8ed4c82e9756cdd71f17, type: 3}
+  spriteNormal: {fileID: 0}
   animatorOpcional: {fileID: 1526244089}
   plantaSfxKey: congelados:planta
   freezeSfxKey: congelados:freeze
@@ -9771,8 +9772,8 @@ MonoBehaviour:
   mensajeVictoriaFinal: "\xA1Victoria Final!"
   mensajeEmpateFinal: "\xA1Empate Final!"
   winnerIconSlots:
-  - {fileID: 132547202}
   - {fileID: 695084033}
+  - {fileID: 132547202}
   - {fileID: 1410977096}
   playerNames:
   - Rojo

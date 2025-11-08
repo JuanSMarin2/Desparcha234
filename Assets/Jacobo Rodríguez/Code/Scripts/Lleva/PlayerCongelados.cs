@@ -40,6 +40,7 @@ public class PlayerCongelados : MonoBehaviour
     private Movimiento _mov;
     private Rigidbody2D _rb;
     private TagCongelados _mgr;
+    private Collider2D _primaryCollider;
 
     private bool _isFrozen;
     private bool _isFreezer; // el que congela (no cambia en la ronda)
@@ -65,6 +66,7 @@ public class PlayerCongelados : MonoBehaviour
     {
         _mov = GetComponent<Movimiento>();
         _rb = GetComponent<Rigidbody2D>();
+        _primaryCollider = GetComponent<Collider2D>();
         if (!spriteRenderer) spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
         if (!animatorOpcional) animatorOpcional = GetComponentInChildren<Animator>(true);
         if (spriteRenderer && spriteNormal == null) spriteNormal = spriteRenderer.sprite;
@@ -116,6 +118,9 @@ public class PlayerCongelados : MonoBehaviour
             {
                 _isFrozen = false;
             }
+            // Asegurar collider y rigidbody en modo empujable si corresponde
+            RestorePushable();
+            if (_primaryCollider && !_primaryCollider.enabled) _primaryCollider.enabled = true;
         }
         ApplyMovementParams();
         ApplyRoleAndStateVisuals();
@@ -300,6 +305,7 @@ public class PlayerCongelados : MonoBehaviour
             _rb.linearVelocity = Vector2.zero;
             _rb.angularVelocity = 0f;
         }
+        // Mantener collider activo (no desactivar) para no pasar a través; sólo evitar fuerzas.
     }
 
     private void RestorePushable()
@@ -313,5 +319,6 @@ public class PlayerCongelados : MonoBehaviour
             _rb.linearVelocity = Vector2.zero;
             _rb.angularVelocity = 0f;
         }
+        // Collider permanece habilitado; nada especial aquí.
     }
 }
