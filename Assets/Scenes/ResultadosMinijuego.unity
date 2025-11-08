@@ -1308,6 +1308,10 @@ MonoBehaviour:
   - key: point
     clip: {fileID: 8300000, guid: 307d1648e906c2641a1ead77c5cf29ae, type: 3}
   musicClips: []
+  musicVolumeOverrides: []
+  musicaRandom: 0
+  musicaAleatoria: []
+  musicaFija: {fileID: 0}
   autoPlayMusicKey: 
   autoLoopMusic: 1
   persistAcrossScenes: 0
@@ -1405,6 +1409,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 386553657270458466, guid: 5e79fb772b2ebbc42820d7ec9c8613d0, type: 3}
+      propertyPath: sfxVolume
+      value: 0.727
+      objectReference: {fileID: 0}
+    - target: {fileID: 386553657270458466, guid: 5e79fb772b2ebbc42820d7ec9c8613d0, type: 3}
+      propertyPath: musicVolume
+      value: 0.422
+      objectReference: {fileID: 0}
     - target: {fileID: 2581873476478627137, guid: 5e79fb772b2ebbc42820d7ec9c8613d0, type: 3}
       propertyPath: m_LocalPosition.x
       value: -61.9341

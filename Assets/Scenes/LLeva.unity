@@ -1286,6 +1286,9 @@ MonoBehaviour:
   usarTrigger: 0
   fallbackSiNoEvent: 1
   fallbackDelay: 4
+  esCongelados: 0
+  iconoGanador: {fileID: 0}
+  iconosMultiples: []
 --- !u!224 &180100634
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1720,6 +1723,8 @@ MonoBehaviour:
   - {fileID: 1172831940}
   - {fileID: 694211685}
   eliminatedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  taggedButtonColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultButtonColor: {r: 1, g: 1, b: 1, a: 1}
   panelEliminacion: {fileID: 1391231918}
   panelVictoria: {fileID: 180100633}
   eliminationIcons:
@@ -4630,7 +4635,7 @@ MonoBehaviour:
   gameId: lleva
   sfxClips:
   - key: TagTransfer
-    clip: {fileID: 8300000, guid: bb51f5dece8ad70448780eae91dbf49f, type: 3}
+    clip: {fileID: 8300000, guid: 8cbe119ad582ff240b26d669f04671c8, type: 3}
   - key: Eliminado
     clip: {fileID: 8300000, guid: c8a33cd540db6c84a951cd74e8b4aba2, type: 3}
   - key: cronometro
@@ -4640,11 +4645,11 @@ MonoBehaviour:
   - key: planta
     clip: {fileID: 8300000, guid: 1fb5cacb72d26e442a56faa83755c9d4, type: 3}
   - key: footstep
-    clip: {fileID: 8300000, guid: 1fb5cacb72d26e442a56faa83755c9d4, type: 3}
+    clip: {fileID: 8300000, guid: f2f7e1e69d7407e4a92bc5a23ee5cb13, type: 3}
   musicClips: []
   musicVolumeOverrides:
   - key: 
-    volumeScale: 0.61
+    volumeScale: 0.508
   musicaRandom: 1
   musicaAleatoria:
   - {fileID: 8300000, guid: 25fa13a8693e9554eabc7a9e4d8d34cb, type: 3}
@@ -5177,9 +5182,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41ba789b5b6eeab4ba66e98071d5a1f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sfxVolume: 1
-  musicVolume: 0
+  sfxVolume: 0.702
+  musicVolume: 0.08
   musicLoopDefault: 1
+  persistAcrossScenes: 1
+  saveSceneOverrideToPrefs: 0
 --- !u!4 &1225303641
 Transform:
   m_ObjectHideFlags: 0
@@ -8377,6 +8384,87 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1587052646
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1587052647}
+  - component: {fileID: 1587052648}
+  m_Layer: 0
+  m_Name: IconManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1587052647
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1587052646}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1797400207}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1587052648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1587052646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7017143e28f26d742b7a24246ce405ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultHappy:
+  - {fileID: -1836012908756554960, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: -5781588522152963664, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: 3215181741823739300, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  defaultNeutral:
+  - {fileID: -1836012908756554960, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: -5781588522152963664, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: 3215181741823739300, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  defaultSad:
+  - {fileID: -1832221067031316088, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - {fileID: 1190479172476038618, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - {fileID: 7162554072243991052, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - {fileID: 8919797506060606750, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  players:
+  - happyBySkin: []
+    neutralBySkin:
+    - {fileID: -9142250121294296064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    sadBySkin:
+    - {fileID: 4613267395866423043, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - happyBySkin: []
+    neutralBySkin:
+    - {fileID: 6022938833314608076, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    sadBySkin:
+    - {fileID: -5587926677601744592, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - happyBySkin: []
+    neutralBySkin:
+    - {fileID: 2952744490144450112, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    sadBySkin:
+    - {fileID: -6235709884887125464, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  - happyBySkin: []
+    neutralBySkin:
+    - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    sadBySkin:
+    - {fileID: -8531155124128328185, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+  debugLogs: 1
 --- !u!1 &1610698176
 GameObject:
   m_ObjectHideFlags: 0
@@ -9116,6 +9204,7 @@ Transform:
   - {fileID: 507921840}
   - {fileID: 1314098605}
   - {fileID: 1225303641}
+  - {fileID: 1587052647}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1814605574

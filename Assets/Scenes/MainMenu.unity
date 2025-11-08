@@ -1048,8 +1048,12 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 386553657270458466, guid: 5e79fb772b2ebbc42820d7ec9c8613d0, type: 3}
+      propertyPath: sfxVolume
+      value: 0.869
+      objectReference: {fileID: 0}
+    - target: {fileID: 386553657270458466, guid: 5e79fb772b2ebbc42820d7ec9c8613d0, type: 3}
       propertyPath: musicVolume
-      value: 0.591
+      value: 0.342
       objectReference: {fileID: 0}
     - target: {fileID: 2581873476478627137, guid: 5e79fb772b2ebbc42820d7ec9c8613d0, type: 3}
       propertyPath: m_LocalPosition.x

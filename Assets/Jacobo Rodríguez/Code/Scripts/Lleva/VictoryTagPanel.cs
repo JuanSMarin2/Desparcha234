@@ -58,7 +58,21 @@ public class VictoryTagPanel : MonoBehaviour
         }
         HideAllVictoryObjects();
         int idx = playerIndex1Based - 1;
-        if (idx >= 0 && idx < victoryObjects.Length && victoryObjects[idx]) victoryObjects[idx].SetActive(true);
+        if (idx >= 0 && idx < victoryObjects.Length && victoryObjects[idx])
+        {
+            // Si hay IconManagerGeneral, aplicar sprite feliz al Image dentro del objeto (si existe)
+            var gm = IconManagerGeneral.Instance;
+            if (gm != null)
+            {
+                var img = victoryObjects[idx].GetComponentInChildren<Image>(true);
+                if (img != null)
+                {
+                    var happy = gm.GetHappy(Mathf.Clamp(idx, 0, 3));
+                    if (happy != null) { img.sprite = happy; img.enabled = true; }
+                }
+            }
+            victoryObjects[idx].SetActive(true);
+        }
         if (textoGanador) textoGanador.text = string.Format(formatoGanador, playerIndex1Based);
 
         IniciarAnimacionVictoria();
