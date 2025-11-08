@@ -40,6 +40,7 @@ public class PlayerCongelados : MonoBehaviour
     private Movimiento _mov;
     private Rigidbody2D _rb;
     private TagCongelados _mgr;
+    private Collider2D _primaryCollider;
 
     private bool _isFrozen;
     private bool _isFreezer; // el que congela (no cambia en la ronda)
@@ -65,6 +66,7 @@ public class PlayerCongelados : MonoBehaviour
     {
         _mov = GetComponent<Movimiento>();
         _rb = GetComponent<Rigidbody2D>();
+        _primaryCollider = GetComponent<Collider2D>();
         if (!spriteRenderer) spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
         if (!animatorOpcional) animatorOpcional = GetComponentInChildren<Animator>(true);
         if (spriteRenderer && spriteNormal == null) spriteNormal = spriteRenderer.sprite;
@@ -116,6 +118,9 @@ public class PlayerCongelados : MonoBehaviour
             {
                 _isFrozen = false;
             }
+            // Asegurar collider y rigidbody en modo empujable si corresponde
+            RestorePushable();
+            if (_primaryCollider && !_primaryCollider.enabled) _primaryCollider.enabled = true;
         }
         ApplyMovementParams();
         ApplyRoleAndStateVisuals();
@@ -158,19 +163,24 @@ public class PlayerCongelados : MonoBehaviour
     private void ApplyMovementParams()
     {
         if (_mov == null) return;
-        // Congelado: deshabilitar control y dejar velocidades en cero
         if (_isFrozen)
         {
             _mov.enabled = false;
             ResetPhysicsVelocities();
             return;
         }
-
-        // No congelado: habilitar control y setear velocidad según rol
         if (!_mov.enabled) _mov.enabled = true;
-        var tm = TagManager.Instance;
-        float speed = _isFreezer ? (tm ? tm.MoveSpeedTagged : _movDefaultTagged)
-                                 : (tm ? tm.MoveSpeedNormal : _movDefaultNormal);
+        // Tomar velocidades del modo Congelados si el manager existe; fallback a TagManager si no.
+        float speed;
+        if (TagCongelados.Instance != null)
+        {
+            speed = _isFreezer ? TagCongelados.Instance.MoveSpeedFreezer : TagCongelados.Instance.MoveSpeedNormal;
+        }
+        else
+        {
+            var tm = TagManager.Instance;
+            speed = _isFreezer ? (tm ? tm.MoveSpeedTagged : _movDefaultTagged) : (tm ? tm.MoveSpeedNormal : _movDefaultNormal);
+        }
         _mov.SetMoveSpeed(speed);
     }
 
@@ -295,13 +305,20 @@ public class PlayerCongelados : MonoBehaviour
             _rb.linearVelocity = Vector2.zero;
             _rb.angularVelocity = 0f;
         }
+        // Mantener collider activo (no desactivar) para no pasar a través; sólo evitar fuerzas.
     }
 
     private void RestorePushable()
     {
-        if (_rb && _cachedOriginalBodyType)
+        if (_rb)
         {
-            _rb.bodyType = _originalBodyType;
+            // Restaurar el tipo de cuerpo según si el empuje entre jugadores está activo en Movimiento
+            var wantDynamic = _mov != null && _mov.IsPlayerPushEnabled;
+            _rb.bodyType = wantDynamic ? RigidbodyType2D.Dynamic : RigidbodyType2D.Kinematic;
+            // Asegurar detener cualquier velocidad residual
+            _rb.linearVelocity = Vector2.zero;
+            _rb.angularVelocity = 0f;
         }
+        // Collider permanece habilitado; nada especial aquí.
     }
 }

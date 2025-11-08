@@ -56,7 +56,15 @@ public class PanelEliminacionTag : MonoBehaviour
     {
         Debug.Log($"[PanelEliminacionTag] Show llamado jugador={playerIndex1Based} icon={(icon?icon.name:"null")} timeScale={Time.timeScale} objeto={gameObject.name}");
         _onContinue = onContinue;
-        if (iconEliminado) iconEliminado.sprite = icon;
+        // Elegir ícono: preferir IconManagerGeneral (triste) para Tag clásico; fallback al parámetro 'icon'.
+        Sprite toUse = icon;
+        var gm = IconManagerGeneral.Instance;
+        if (gm != null)
+        {
+            var sad = gm.GetSad(Mathf.Clamp(playerIndex1Based - 1, 0, 3));
+            if (sad != null) toUse = sad;
+        }
+        if (iconEliminado) iconEliminado.sprite = toUse;
         if (textoMensaje) textoMensaje.text = string.Format(formatoMensaje, playerIndex1Based);
         gameObject.SetActive(true);
         _visible = true;

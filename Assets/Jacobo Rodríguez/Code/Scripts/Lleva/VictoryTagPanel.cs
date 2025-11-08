@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class VictoryTagPanel : MonoBehaviour
 {
@@ -16,6 +17,10 @@ public class VictoryTagPanel : MonoBehaviour
     [Tooltip("Usar SetTrigger en lugar de Play")] [SerializeField] private bool usarTrigger = false;
     [Tooltip("Si no llega Animation Event tras este tiempo, finalizar ronda igualmente")] [SerializeField] private bool fallbackSiNoEvent = true;
     [SerializeField] private float fallbackDelay = 4f;
+
+    [Header("Modo Congelados")] [SerializeField] private bool esCongelados = false;
+    [SerializeField] private Image iconoGanador; // opcional para mostrar sprite del ganador modo congelados
+    [SerializeField] private Image[] iconosMultiples; // nuevos slots para múltiples ganadores (empate)
 
     private int _currentWinner = -1;
     private bool _animationStarted = false;
@@ -53,7 +58,21 @@ public class VictoryTagPanel : MonoBehaviour
         }
         HideAllVictoryObjects();
         int idx = playerIndex1Based - 1;
-        if (idx >= 0 && idx < victoryObjects.Length && victoryObjects[idx]) victoryObjects[idx].SetActive(true);
+        if (idx >= 0 && idx < victoryObjects.Length && victoryObjects[idx])
+        {
+            // Si hay IconManagerGeneral, aplicar sprite feliz al Image dentro del objeto (si existe)
+            var gm = IconManagerGeneral.Instance;
+            if (gm != null)
+            {
+                var img = victoryObjects[idx].GetComponentInChildren<Image>(true);
+                if (img != null)
+                {
+                    var happy = gm.GetHappy(Mathf.Clamp(idx, 0, 3));
+                    if (happy != null) { img.sprite = happy; img.enabled = true; }
+                }
+            }
+            victoryObjects[idx].SetActive(true);
+        }
         if (textoGanador) textoGanador.text = string.Format(formatoGanador, playerIndex1Based);
 
         IniciarAnimacionVictoria();
@@ -73,28 +92,34 @@ public class VictoryTagPanel : MonoBehaviour
                 return;
             }
         }
-        // Asegurar modo de actualización para reproducirse aunque timeScale=0
         victoryAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
 
-        // Adjuntar (o verificar) proxy de animation event
-        var proxy = victoryAnimator.GetComponent<VictoryTagAnimationEventProxy>();
-        if (proxy == null)
+        if (esCongelados)
         {
-            proxy = victoryAnimator.gameObject.AddComponent<VictoryTagAnimationEventProxy>();
-            proxy.tagManager = TagManager.Instance;
-            Debug.Log("[VictoryTagPanel] Proxy de AnimationEvent agregado dinámicamente.");
+            var proxyCong = victoryAnimator.GetComponent<CongeladosVictoryAnimationEventProxy>();
+            if (proxyCong == null)
+            {
+                proxyCong = victoryAnimator.gameObject.AddComponent<CongeladosVictoryAnimationEventProxy>();
+            }
+        }
+        else
+        {
+            var proxy = victoryAnimator.GetComponent<VictoryTagAnimationEventProxy>();
+            if (proxy == null)
+            {
+                proxy = victoryAnimator.gameObject.AddComponent<VictoryTagAnimationEventProxy>();
+                proxy.tagManager = TagManager.Instance;
+            }
         }
 
         if (usarTrigger)
         {
             victoryAnimator.ResetTrigger(victoryStateName);
             victoryAnimator.SetTrigger(victoryStateName);
-            Debug.Log($"[VictoryTagPanel] SetTrigger '{victoryStateName}'");
         }
         else
         {
             victoryAnimator.Play(victoryStateName, 0, 0f);
-            Debug.Log($"[VictoryTagPanel] Play estado '{victoryStateName}'");
         }
 
         if (fallbackSiNoEvent)
@@ -110,11 +135,10 @@ public class VictoryTagPanel : MonoBehaviour
         float t = 0f;
         while (t < fallbackDelay)
         {
-            t += Time.unscaledDeltaTime; // unscaled para funcionar con timeScale=0
+            t += Time.unscaledDeltaTime;
             yield return null;
-            if (_finishedSignaled) yield break; // ya terminó por event
+            if (_finishedSignaled) yield break;
         }
-        Debug.LogWarning("[VictoryTagPanel] Fallback: no llegó Animation Event, finalizando ronda.");
         FinalizarSiNoSeñalado();
     }
 
@@ -122,7 +146,14 @@ public class VictoryTagPanel : MonoBehaviour
     {
         if (_finishedSignaled) return;
         _finishedSignaled = true;
-        TagManager.Instance?.OnVictoryAnimationFinished();
+        if (esCongelados)
+        {
+            TagCongelados.Instance?.FinalizeFromAnimationEvent();
+        }
+        else
+        {
+            TagManager.Instance?.OnVictoryAnimationFinished();
+        }
     }
 
     // Método público para anim event final (si se usa este panel en lugar de proxy separado)
@@ -131,4 +162,113 @@ public class VictoryTagPanel : MonoBehaviour
         Debug.Log("[VictoryTagPanel] Animation Event recibido (panel)");
         FinalizarSiNoSeñalado();
     }
+
+    public void EnableCongeladosModeAndShow(int playerIndex1Based)
+    {
+        esCongelados = true;
+        // Mostrar el panel sin activar objetos del modo clásico
+        gameObject.SetActive(true);
+        if (canvasGroup)
+        {
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+        }
+        HideAllVictoryObjects();
+        LimpiarIconosMultiples();
+
+        // Texto opcional
+        if (textoGanador) textoGanador.text = string.Format(formatoGanador, playerIndex1Based);
+
+        // Usar el icono múltiple fijo por jugador (índice = jugador-1)
+        var gm = IconManagerGeneral.Instance;
+        int idx0 = Mathf.Clamp(playerIndex1Based - 1, 0, 3);
+        if (iconosMultiples != null && idx0 < iconosMultiples.Length)
+        {
+            var img = iconosMultiples[idx0];
+            if (img && gm != null)
+            {
+                var sprite = gm.GetHappy(idx0);
+                img.sprite = sprite;
+                img.enabled = sprite != null;
+                // Asegurar activación del GameObject externo
+                if (sprite != null && !img.gameObject.activeSelf) img.gameObject.SetActive(true);
+            }
+        }
+        // Asegurar que el icono "single" no se use en Congelados
+        if (iconoGanador) iconoGanador.enabled = false;
+
+        IniciarAnimacionVictoria();
+    }
+
+    public void EnableCongeladosModeAndShowMultiple(System.Collections.Generic.List<int> winners1Based)
+    {
+        esCongelados = true;
+        gameObject.SetActive(true);
+        if (canvasGroup)
+        {
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+        }
+        HideAllVictoryObjects();
+        LimpiarIconosMultiples();
+
+        if (textoGanador)
+        {
+            if (winners1Based != null && winners1Based.Count > 1)
+                textoGanador.text = "Empate";
+            else if (winners1Based != null && winners1Based.Count == 1)
+                textoGanador.text = string.Format(formatoGanador, winners1Based[0]);
+            else
+                textoGanador.text = "";
+        }
+
+        // Encender los iconos fijos de cada jugador ganador
+        var gm = IconManagerGeneral.Instance;
+        if (gm != null && winners1Based != null && iconosMultiples != null)
+        {
+            foreach (var w in winners1Based)
+            {
+                int idx0 = Mathf.Clamp(w - 1, 0, 3);
+                if (idx0 < iconosMultiples.Length)
+                {
+                    var img = iconosMultiples[idx0];
+                    if (img)
+                    {
+                        var sprite = gm.GetHappy(idx0);
+                        img.sprite = sprite;
+                        img.enabled = sprite != null;
+                        // Asegurar activación del GameObject externo
+                        if (sprite != null && !img.gameObject.activeSelf) img.gameObject.SetActive(true);
+                    }
+                }
+            }
+        }
+        if (iconoGanador) iconoGanador.enabled = false; // ocultar el single
+        IniciarAnimacionVictoria();
+    }
+
+    private void LimpiarIconosMultiples()
+    {
+        if (iconosMultiples == null) return;
+        foreach (var img in iconosMultiples)
+        {
+            if (img)
+            {
+                img.enabled = false;
+                img.sprite = null;
+                // Nota: no desactivamos el GameObject aquí para no interferir con otros usos
+            }
+        }
+    }
+}
+
+public class CongeladosVictoryAnimationEventProxy : MonoBehaviour
+{
+    public void OnVictoryAnimationFinished()
+    {
+        TagCongelados.Instance?.FinalizeFromAnimationEvent();
+    }
+    public void OnVictoryAnimationMidPoint() { }
 }

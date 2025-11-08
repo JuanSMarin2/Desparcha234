@@ -349,6 +349,13 @@ public class TagManager : MonoBehaviour
         // Registrar eliminado localmente
         _eliminationOrder0Based.Add(eliminatedIdx0);
         
+        // Ocultar botón UI del jugador eliminado (si existe)
+        if (playerButtons != null && eliminatedIdx0 >= 0 && eliminatedIdx0 < playerButtons.Length)
+        {
+            var btn = playerButtons[eliminatedIdx0];
+            if (btn) btn.gameObject.SetActive(false);
+        }
+
         // Avanzar etapa por eliminación y notificar
         CurrentStageInRound++;
         OnStageChanged?.Invoke(CurrentStageInRound);
@@ -483,15 +490,8 @@ public class TagManager : MonoBehaviour
 
     private void UpdatePlayerButtonsTagVisual(int taggedPlayerIndex1Based)
     {
-        if (playerButtons == null || playerButtons.Length == 0) return;
-        for (int i = 0; i < playerButtons.Length; i++)
-        {
-            var btn = playerButtons[i]; if (!btn) continue;
-            var g = btn.targetGraphic; if (!g) continue;
-            int idx1 = i + 1;
-            // Si el botón está desactivado por eliminación respetar su estado visual
-            if (!btn.gameObject.activeInHierarchy) continue;
-            g.color = (idx1 == taggedPlayerIndex1Based) ? taggedButtonColor : defaultButtonColor;
-        }
+        // No-op: el color de los botones se define localmente en la UI y no se modifica desde script.
+        // Se mantiene el método para evitar cambios en llamadas existentes.
+        return;
     }
 }

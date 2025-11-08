@@ -10,8 +10,8 @@ public class RoundData : MonoBehaviour
 
     public int numPlayers = 4;
 
-   
-    public List<string> availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos", "Lleva" , "TingoTingoTango"};
+    // Cat�logo base disponible (nombres = nombres de escenas)
+    public List<string> availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos", "Lleva", "Congelados", "TingoTingoTango"};
 
     
     public List<string> scheduledGames = new List<string>(); // << NUEVO
@@ -51,7 +51,7 @@ public class RoundData : MonoBehaviour
     public void ResetData()
     {
         numPlayers = 0;
-        availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos", "Lleva" , "TingoTingoTango"};
+        availableGames = new List<string> { "Canicas", "Catapis", "Tejo", "Zancos", "Lleva", "Congelados", "TingoTingoTango"};
         finalPositions.Clear();
         scheduledGames.Clear();     // << NUEVO
         scheduledIndex = 0;         // << NUEVO
