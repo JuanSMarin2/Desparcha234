@@ -2308,30 +2308,38 @@ MonoBehaviour:
     skinSprites:
     - {fileID: 3232231290688778859, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: -9142250121294296064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 870481604244116201, guid: 1166e3db79bf41e45b884dd66e5316ab, type: 3}
     sadSkinSprites:
     - {fileID: -1832221067031316088, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
     - {fileID: 4613267395866423043, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+    - {fileID: 5725222864545908163, guid: f845f931f98d1e74497807179f770325, type: 3}
   - icon: {fileID: 941213529}
     skinSprites:
     - {fileID: 478838189770312867, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: 6022938833314608076, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 8952457009782794762, guid: 12e1537463d6b5f4eaad9ac23c19e969, type: 3}
     sadSkinSprites:
     - {fileID: 1190479172476038618, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
     - {fileID: -5587926677601744592, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+    - {fileID: 870481604244116201, guid: be9506d6f09676440a68dcf9f5af9430, type: 3}
   - icon: {fileID: 1709199878}
     skinSprites:
     - {fileID: -6617828489231529575, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: 2952744490144450112, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 3043520109606637705, guid: 9f84f9f84bda9b54182d9fd425779326, type: 3}
     sadSkinSprites:
     - {fileID: 7162554072243991052, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
     - {fileID: -6235709884887125464, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+    - {fileID: 870481604244116201, guid: 07072ced41c639447930578289cccd92, type: 3}
   - icon: {fileID: 668483632}
     skinSprites:
     - {fileID: 307226126855071095, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 8952457009782794762, guid: ff78319dda8fc414393b911a1f5fe49b, type: 3}
     sadSkinSprites:
     - {fileID: 8919797506060606750, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
     - {fileID: -8531155124128328185, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+    - {fileID: 870481604244116201, guid: 0b66ae3116c60444fb1f171591353d8c, type: 3}
   useRoundResultsForSad: 0
   isFinalResultsScene: 0
 --- !u!4 &683584812
@@ -4096,7 +4104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5d545190d6ccc541b96fe3492363711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mean: 20
+  mean: 10
   stdDev: 4
   timerText: {fileID: 2094689689}
   tingoText: '!!Tingo!!'

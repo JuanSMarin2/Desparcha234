@@ -195,7 +195,7 @@ MonoBehaviour:
   stage: 0
   jacksCounter: 0
   currentScore: 0
-  attemptsPerPlayer: 3
+  attemptsPerPlayer: 2
   botonListo: {fileID: 417909093}
   _animacionFinal: {fileID: 1582307208}
   panelFinalTurno: {fileID: 862109079}
@@ -2613,6 +2613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bolita: {fileID: 1592149800}
+  progression: {fileID: 0}
   puntosJugador1: {fileID: 1617247907}
   puntosJugador2: {fileID: 927524282}
   puntosJugador3: {fileID: 1244694022}
@@ -3101,7 +3102,9 @@ MonoBehaviour:
   textoResultado: {fileID: 77342524}
   textoPuntos: {fileID: 855494759}
   textoGanar: Bien atrapado!
-  textoPerder: Decepcionante...
+  textoPerder: No atrapaste la bola
+  textoPerderNoAtrapar: No atrapaste la bola
+  textoPerderPorPuntos: Decepcionante...
   fadeInDuration: 0.2
   conteoDuration: 0.8
   holdAfterConteo: 2
@@ -3235,23 +3238,31 @@ MonoBehaviour:
   players:
   - happyBySkin:
     - {fileID: -9142250121294296064, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+    - {fileID: 870481604244116201, guid: 1166e3db79bf41e45b884dd66e5316ab, type: 3}
     sadBySkin:
     - {fileID: 4613267395866423043, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+    - {fileID: 5725222864545908163, guid: f845f931f98d1e74497807179f770325, type: 3}
   - happyBySkin:
     - {fileID: 6022938833314608076, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+    - {fileID: 5725222864545908163, guid: 8dc4996b5d0d7f647adbb84391cd86ca, type: 3}
     sadBySkin:
     - {fileID: -5587926677601744592, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+    - {fileID: -2187630146815580952, guid: 6baa85fcab9b4dc4cb455de43d597e0d, type: 3}
   - happyBySkin:
     - {fileID: 2952744490144450112, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
+    - {fileID: -2187630146815580952, guid: 30331a1751d2ec74fbfd878dd6e1f3cc, type: 3}
     sadBySkin:
     - {fileID: -6235709884887125464, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+    - {fileID: 870481604244116201, guid: 07072ced41c639447930578289cccd92, type: 3}
   - happyBySkin:
     - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: -2187630146815580952, guid: 2f976cded6d5c994487de9ffb59d0a3a, type: 3}
     sadBySkin:
     - {fileID: -8531155124128328185, guid: c0698d7dcf82ab14cb71a480f82a2ace, type: 3}
+    - {fileID: -2187630146815580952, guid: b7fa2e2ab5fad3a418f166dae23c407b, type: 3}
   defaultHappy:
   - {fileID: -1836012908756554960, guid: e24c55b9925cecb4fb20370024bd5299, type: 3}
-  - {fileID: -7311780853768740580, guid: 06361e385833e734ba21b2aa66c1032e, type: 3}
+  - {fileID: -7311780853768740580, guid: e24c55b9925cecb4fb20370024bd5299, type: 3}
   - {fileID: -6617828489231529575, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
   - {fileID: 307226126855071095, guid: d393d05b502cff84b8532ca6e55e63a7, type: 3}
   defaultSad:
@@ -6608,6 +6619,7 @@ MonoBehaviour:
   useVirtualZ: 1
   gravedadVirtualZ: -9.81
   dragZ: 3
+  movementSpeedFactor: 0.5
   limitDescentSpeed: 1
   maxDescentSpeed: 3.16
   dragOnlyOnDescent: 1

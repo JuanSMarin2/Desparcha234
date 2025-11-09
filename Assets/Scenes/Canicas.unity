@@ -1616,11 +1616,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7594105671051905764, guid: daf78e2557e9e3a4aacc67d7a3d73cc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.36
+      value: 0.342
       objectReference: {fileID: 0}
     - target: {fileID: 7594105671051905764, guid: daf78e2557e9e3a4aacc67d7a3d73cc6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.018
+      value: 0.013
       objectReference: {fileID: 0}
     - target: {fileID: 7594105671051905764, guid: daf78e2557e9e3a4aacc67d7a3d73cc6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2221,7 +2221,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &391822591
 Transform:
   m_ObjectHideFlags: 0
@@ -2803,7 +2803,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &437377216
 Transform:
   m_ObjectHideFlags: 0
@@ -7203,7 +7203,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1070937514
 Transform:
   m_ObjectHideFlags: 0
@@ -11878,21 +11878,25 @@ MonoBehaviour:
     skinSprites:
     - {fileID: 3232231290688778859, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: -9142250121294296064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 870481604244116201, guid: 1166e3db79bf41e45b884dd66e5316ab, type: 3}
     sadSkinSprites: []
   - icon: {fileID: 891918640}
     skinSprites:
     - {fileID: 478838189770312867, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: 6022938833314608076, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 8952457009782794762, guid: 12e1537463d6b5f4eaad9ac23c19e969, type: 3}
     sadSkinSprites: []
   - icon: {fileID: 764751264}
     skinSprites:
     - {fileID: -6617828489231529575, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: 2952744490144450112, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 5725222864545908163, guid: df430b0671e64a14193eb4f3f46254d4, type: 3}
     sadSkinSprites: []
   - icon: {fileID: 1273445353}
     skinSprites:
     - {fileID: 307226126855071095, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
     - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 8246290640631596057, guid: 85cad1b79775c3049abb27cb5cc1c142, type: 3}
     sadSkinSprites: []
   useRoundResultsForSad: 0
   isFinalResultsScene: 0

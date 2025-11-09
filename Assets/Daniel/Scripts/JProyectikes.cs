@@ -446,7 +446,10 @@ public class JProyectikes : MonoBehaviour
 
         active.Add(p);
         spawnedSoFar++;
+            // Congelar el Tempo solo durante este frame de finalización para evitar avance mientras se procesa transición
+            if (Tempo.instance != null) Tempo.instance.PushExternalFreeze("Proyectiles:Finish");
 
+            if (Tempo.instance != null) Tempo.instance.PopExternalFreeze();
         // Sonido de aparición del proyectil (estilo JOrden/JReduce)
         PlaySfx(spawnSfxKey);
         return true;

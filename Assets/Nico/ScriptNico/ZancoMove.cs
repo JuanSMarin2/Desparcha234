@@ -29,7 +29,9 @@ public class ZancoMove : MonoBehaviour
 
     [SerializeField] private Image statusImage;
     [SerializeField] private Sprite caidoImagen;
-    [SerializeField] private Sprite ganaImagen;
+    [SerializeField] private GameObject imagen;
+
+
 
 
     public float numPer;
@@ -41,6 +43,7 @@ public class ZancoMove : MonoBehaviour
 
     void Start()
     {
+        imagen.SetActive(false);
         posicion = gameObject.GetComponent<Transform>();
         acc = GetComponent<animatorControllerCharacter>();
     }
@@ -88,8 +91,9 @@ public class ZancoMove : MonoBehaviour
         } else if (llegoMeta)
         {
    
-            statusImage.sprite = ganaImagen;
-            statusImage.gameObject.SetActive(true);
+       
+            statusImage.gameObject.SetActive(false);
+            imagen.SetActive(true);
 
         }
         else

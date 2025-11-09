@@ -218,6 +218,8 @@ public class CircleGameManagerUI : MonoBehaviour
                 // Pequeña pausa para que el jugador vea el verde antes de limpiar y pasar al siguiente
                 CancelInvoke(nameof(ClearAllCircles));
                 CancelInvoke(nameof(FinishSuccess));
+                // Congelar el Tempo durante el breve feedback de éxito
+                if (Tempo.instance != null) Tempo.instance.PushExternalFreeze("Circulos:SuccessDelay");
                 Invoke(nameof(FinishSuccess), successCleanupDelay);
             }
         }
@@ -332,6 +334,8 @@ public class CircleGameManagerUI : MonoBehaviour
     // 🔹 Envuelve la limpieza y notifica finalización tras el delay de éxito
     void FinishSuccess()
     {
+        // Liberar el freeze aplicado durante el feedback de éxito
+        if (Tempo.instance != null) Tempo.instance.PopExternalFreeze();
         ClearAllCircles();
         onGameFinished?.Invoke();
     }

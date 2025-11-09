@@ -83,6 +83,11 @@ public class RecordarInsame : MonoBehaviour
     private bool running = false;
     private bool stopping = false;
     private int startedPlayerIndex = -1;
+    // Control de congelamiento del Tempo durante la reproducción del patrón
+    private bool timerFrozenForShow = false;
+    // Solo congelar la primera vez por turno de jugador
+    private int freezePlayerIndex = -1;
+    private bool frozeOnceThisTurn = false;
 
     private struct Cell
     {
@@ -117,6 +122,12 @@ public class RecordarInsame : MonoBehaviour
         pattern.Clear();
         inputProgress = 0;
         SetInputBlockerVisible(false);
+        // Asegurar descongelado de Tempo si estaba congelado por reproducción
+        if (timerFrozenForShow && Tempo.instance != null)
+        {
+            Tempo.instance.PopExternalFreeze();
+            timerFrozenForShow = false;
+        }
     }
 
     private void OnDisable()
@@ -136,7 +147,10 @@ public class RecordarInsame : MonoBehaviour
 
         stopping = false;
         running = true;
-    startedPlayerIndex = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        startedPlayerIndex = TurnManager.instance != null ? TurnManager.instance.GetCurrentPlayerIndex() : -1;
+        // Resetear siempre al iniciar un nuevo turno/minijuego, incluso si es el mismo jugador que antes
+        freezePlayerIndex = startedPlayerIndex;
+        frozeOnceThisTurn = false;
         BuildGridsByDifficulty();
         // Asegurar bloqueador preparado y oculto antes de mostrar
         EnsureInputBlocker();
@@ -378,6 +392,12 @@ public class RecordarInsame : MonoBehaviour
     {
         if (!running || stopping) yield break;
         isShowing = true;
+        // Congelar el temporizador mientras se reproduce el patrón SOLO la primera vez del turno
+        if (!timerFrozenForShow && Tempo.instance != null && !frozeOnceThisTurn)
+        {
+            Tempo.instance.PushExternalFreeze(nameof(RecordarInsame) + ":ShowPattern");
+            timerFrozenForShow = true;
+        }
         // Desactivar interacción mientras se muestra
         SetInputInteractable(false);
         // Activar bloqueador de clics
@@ -401,6 +421,14 @@ public class RecordarInsame : MonoBehaviour
         SetInputInteractable(true);
         // Desactivar bloqueador de clics: turno del jugador
         SetInputBlockerVisible(false);
+        // Reanudar el temporizador ahora que el jugador debe repetir (si fue congelado)
+        if (timerFrozenForShow && Tempo.instance != null)
+        {
+            Tempo.instance.PopExternalFreeze();
+            timerFrozenForShow = false;
+            // Marcar que ya se congeló una vez en este turno
+            frozeOnceThisTurn = true;
+        }
     }
 
     private IEnumerator BlinkCell(List<Cell> cells, int index, float onTime)
@@ -553,7 +581,10 @@ public class RecordarInsame : MonoBehaviour
 
     private IEnumerator FinishAfterDelay(float delay)
     {
+        // Congelar el Tempo durante el pequeño delay final para que el tiempo del turno no avance
+        if (Tempo.instance != null) Tempo.instance.PushExternalFreeze("RecordarInsame:FinishDelay");
         yield return new WaitForSeconds(delay);
+        if (Tempo.instance != null) Tempo.instance.PopExternalFreeze();
         CleanupGrids();
         onGameFinished?.Invoke();
     }
@@ -562,11 +593,13 @@ public class RecordarInsame : MonoBehaviour
     private IEnumerator FinishAfterPatternSequence()
     {
         // Pausa breve para que se "sienta" el cierre del patrón
+        if (Tempo.instance != null) Tempo.instance.PushExternalFreeze("RecordarInsame:PatternFinish");
         yield return new WaitForSeconds(0.5f);
         // Tocar acorde con todas las teclas previas
         PlayAllNotesSimultaneously();
         // Dejar que se vea/escuche el acorde
         yield return new WaitForSeconds(0.5f);
+        if (Tempo.instance != null) Tempo.instance.PopExternalFreeze();
         CleanupGrids();
         onGameFinished?.Invoke();
     }

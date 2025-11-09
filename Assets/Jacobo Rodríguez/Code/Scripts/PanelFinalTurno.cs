@@ -15,6 +15,8 @@ public class PanelFinalTurno : MonoBehaviour
     [Header("Textos")]
     [SerializeField] private string textoGanar;
     [SerializeField] private string textoPerder;
+    [SerializeField, Tooltip("Mensaje al fallar por no atrapar la bola")] private string textoPerderNoAtrapar = "No atrapaste la bola";
+    [SerializeField, Tooltip("Mensaje al fallar por perder puntos")] private string textoPerderPorPuntos = "Decepcionante...";
 
     // Sprites por jugador ahora se inyectan en runtime (no serializados aquí)
     private Sprite[] _iconosFelices = new Sprite[4];
@@ -102,9 +104,17 @@ public class PanelFinalTurno : MonoBehaviour
         if (textoResultado != null)
         {
             if (_success)
-                textoResultado.text = (_puntos < 0) ? textoPerder : textoGanar;
+            {
+                // Caso raro: si viene success pero puntos < 0, tratamos como fallo por puntos
+                textoResultado.text = (_puntos < 0) ? textoPerderPorPuntos : textoGanar;
+            }
             else
-                textoResultado.text = textoPerder;
+            {
+                // Fallo: diferenciar por razón
+                // - Pérdida de puntos: mostrar "Decepcionante..."
+                // - No atrapó la bola (sin pérdida): mostrar "No atrapaste la bola"
+                textoResultado.text = (_puntos < 0) ? textoPerderPorPuntos : textoPerderNoAtrapar;
+            }
         }
 
         // Texto puntos inicial

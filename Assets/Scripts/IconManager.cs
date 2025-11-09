@@ -86,9 +86,15 @@ public class IconManager : MonoBehaviour
         if (GameData.instance != null)
             equipped = Mathf.Clamp(GameData.instance.GetEquipped(playerIndex), 0, 9999);
 
+        // Fallback robusto: si falta el sprite para la skin equipada, usar la skin 0
         var baseSprite = GetSafeSprite(set.skinSprites, equipped);
-        if (baseSprite != null) { set.icon.sprite = baseSprite; set.icon.enabled = true; }
-        else { set.icon.enabled = false; }
+        if (baseSprite == null)
+            baseSprite = GetSafeSprite(set.skinSprites, 0);
+        if (baseSprite != null)
+        {
+            set.icon.sprite = baseSprite;
+            set.icon.enabled = true;
+        }
 
         var anim = FindAnimator(set.icon);
 
@@ -124,8 +130,9 @@ public class IconManager : MonoBehaviour
             showSad = IsLastPlace(playerIndex, rd.currentPoints, n);
         }
 
-        Sprite spriteToUse = showSad ? GetSafeSprite(set.sadSkinSprites, equipped)
-                                     : GetSafeSprite(set.skinSprites, equipped);
+    // Al elegir sprite para modo normal, también aplicar fallback a skin 0 si falta el índice
+    Sprite spriteToUse = showSad ? (GetSafeSprite(set.sadSkinSprites, equipped) ?? GetSafeSprite(set.sadSkinSprites, 0))
+                     : (GetSafeSprite(set.skinSprites, equipped)     ?? GetSafeSprite(set.skinSprites, 0));
 
         if (spriteToUse != null)
         {
@@ -134,9 +141,8 @@ public class IconManager : MonoBehaviour
         }
         else
         {
-            // fallback: dejamos el base que ya pusimos
-            if (baseSprite != null) set.icon.enabled = true;
-            else set.icon.enabled = false;
+            // fallback: dejamos el base que ya pusimos (y mantener habilitado si había base)
+            if (baseSprite != null) set.icon.enabled = true; else set.icon.enabled = set.icon.enabled;
         }
     }
 
@@ -160,6 +166,9 @@ public class IconManager : MonoBehaviour
         anim.ResetTrigger("Happy2");
         anim.ResetTrigger("Sad2");
         anim.ResetTrigger("Neutral2");
+    anim.ResetTrigger("Happy3");
+    anim.ResetTrigger("Sad3");
+    anim.ResetTrigger("Neutral3");
 
         string finalTrigger = logicalTrigger;
         if (equipped == 1) // skin variante 2
@@ -169,6 +178,15 @@ public class IconManager : MonoBehaviour
                 case "Happy": finalTrigger = "Happy2"; break;
                 case "Sad": finalTrigger = "Sad2"; break;
                 case "Neutral": finalTrigger = "Neutral2"; break;
+            }
+        }
+        else if (equipped == 2) // skin variante 3
+        {
+            switch (logicalTrigger)
+            {
+                case "Happy": finalTrigger = "Happy3"; break;
+                case "Sad": finalTrigger = "Sad3"; break;
+                case "Neutral": finalTrigger = "Neutral3"; break;
             }
         }
 

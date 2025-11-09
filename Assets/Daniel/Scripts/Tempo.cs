@@ -49,6 +49,8 @@ public class Tempo : MonoBehaviour
     // Hitos de log (múltiplos de 10s)
     private int nextLogMilestone = -1;
     private int lastTickPlayerIndex = -1;
+    // Congelamiento externo (p. ej., durante reproducción de patrón en minijuegos)
+    private int externalFreezeCount = 0;
 
     [Header("UI de sliders por jugador")]
     [SerializeField, Tooltip("Contenedor donde se instancian los sliders (uno por jugador).")]
@@ -224,8 +226,11 @@ public class Tempo : MonoBehaviour
         limit = pt.maxSeconds;
         remaining = pt.remainingSeconds;
 
-        // Decrementar tiempo restante
-        remaining -= Time.deltaTime;
+        // Decrementar tiempo restante solo si no está congelado externamente
+        if (externalFreezeCount <= 0)
+        {
+            remaining -= Time.deltaTime;
+        }
         if (remaining < 0f) remaining = 0f;
         UpdateText();
 
@@ -607,7 +612,7 @@ public class Tempo : MonoBehaviour
     private float GetInitialSecondsByDifficulty()
     {
         int players = Dificultad.GetActivePlayersCount();
-        if (players >= 4) return 25f;
+        if (players >= 4) return 15f;
         if (players == 3 || players == 2) return 20f;
         return 20f;
     }
@@ -810,5 +815,35 @@ public class Tempo : MonoBehaviour
         if (timerText != null)
             timerText.color = timerTextOriginalColor;
         urgentBlinkPhase = 0f;
+    }
+
+    // ===== API de congelamiento externo =====
+    public void PushExternalFreeze(string reason = null)
+    {
+        externalFreezeCount = Mathf.Max(0, externalFreezeCount) + 1;
+        if (!string.IsNullOrEmpty(reason))
+            Debug.Log($"[Tempo] Freeze++ ({externalFreezeCount}) por: {reason}");
+    }
+
+    public void PopExternalFreeze()
+    {
+        if (externalFreezeCount > 0)
+        {
+            externalFreezeCount--;
+            Debug.Log($"[Tempo] Freeze-- ({externalFreezeCount})");
+        }
+        else
+        {
+            Debug.LogWarning("[Tempo] PopExternalFreeze sin freeze activo.");
+        }
+    }
+
+    public void ClearExternalFreeze()
+    {
+        if (externalFreezeCount != 0)
+        {
+            externalFreezeCount = 0;
+            Debug.Log("[Tempo] Freeze limpiado (ClearExternalFreeze)");
+        }
     }
 }

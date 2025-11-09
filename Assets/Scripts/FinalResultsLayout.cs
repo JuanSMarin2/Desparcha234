@@ -235,6 +235,9 @@ public class FinalResultsLayout : MonoBehaviour
         anim.ResetTrigger("Happy2");
         anim.ResetTrigger("Sad2");
         anim.ResetTrigger("Neutral2");
+    anim.ResetTrigger("Happy3");
+    anim.ResetTrigger("Sad3");
+    anim.ResetTrigger("Neutral3");
 
         int equipped = 0;
         if (GameData.instance != null)
@@ -243,7 +246,15 @@ public class FinalResultsLayout : MonoBehaviour
         }
 
         string logical = isHappy ? "Happy" : "Sad";
-        string finalTrigger = (equipped == 1) ? logical + "2" : logical;
+        string finalTrigger = logical;
+        if (equipped == 1)
+        {
+            finalTrigger = logical + "2";
+        }
+        else if (equipped == 2)
+        {
+            finalTrigger = logical + "3";
+        }
         anim.SetTrigger(finalTrigger);
     }
 }

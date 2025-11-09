@@ -59,6 +59,8 @@ public class GameSequenceController : MonoBehaviour
     [SerializeField] private bool pauseWithTimeScale = true;
     private Coroutine _nextTurnRoutine;
     private float _prevTimeScale = 1f;
+    // Control de freeze del Tempo durante el panel de siguiente jugador
+    private int _nextTurnFreezeDepth = 0;
 
     void Awake()
     {
@@ -443,6 +445,8 @@ public class GameSequenceController : MonoBehaviour
 
         if (_nextTurnRoutine != null)
         {
+            // Asegurar que cualquier freeze anterior se libere antes de reiniciar la rutina
+            PopAllNextTurnFreezes();
             StopCoroutine(_nextTurnRoutine);
             _nextTurnRoutine = null;
         }
@@ -520,6 +524,9 @@ public class GameSequenceController : MonoBehaviour
         // Activar panel y bloquear interacción
         nextTurnPanel.SetActive(true);
 
+        // Congelar el Tempo durante la espera, independientemente de timeScale
+        PushNextTurnFreeze();
+
         // Pausar juego con timeScale (y así detener el cronómetro) si está habilitado
         if (pauseWithTimeScale)
         {
@@ -548,6 +555,8 @@ public class GameSequenceController : MonoBehaviour
         {
             Time.timeScale = _prevTimeScale;
         }
+        // Liberar el freeze aplicado por el panel
+        PopNextTurnFreeze();
         _nextTurnRoutine = null;
         onCompleted?.Invoke();
     }
@@ -695,6 +704,33 @@ public class GameSequenceController : MonoBehaviour
         if (passDeviceText != null)
         {
             passDeviceText.text = "Pasa el celular rapido";
+        }
+    }
+
+    // ================ Freeze helpers (Tempo) ================
+    private void PushNextTurnFreeze()
+    {
+        if (Tempo.instance != null)
+        {
+            Tempo.instance.PushExternalFreeze("NextTurnPanel");
+            _nextTurnFreezeDepth++;
+        }
+    }
+
+    private void PopNextTurnFreeze()
+    {
+        if (_nextTurnFreezeDepth > 0 && Tempo.instance != null)
+        {
+            Tempo.instance.PopExternalFreeze();
+            _nextTurnFreezeDepth--;
+        }
+    }
+
+    private void PopAllNextTurnFreezes()
+    {
+        while (_nextTurnFreezeDepth > 0)
+        {
+            PopNextTurnFreeze();
         }
     }
 }

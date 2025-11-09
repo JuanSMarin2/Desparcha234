@@ -8444,26 +8444,42 @@ MonoBehaviour:
   - {fileID: 8363339302457135625, guid: dafd76315a502d74681468be225ccb77, type: 3}
   - {fileID: 3043520109606637705, guid: e86274630cab42d4ca4a2c912ab35153, type: 3}
   players:
-  - happyBySkin: []
+  - happyBySkin:
+    - {fileID: 6972369364780417379, guid: 50637cd34162c1142b25be9225ba6811, type: 3}
+    - {fileID: 6228012575137123791, guid: 4f78fbfc0328d8f4ea8310e185f486fe, type: 3}
     neutralBySkin:
     - {fileID: -9142250121294296064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 5725222864545908163, guid: bb04dd70f3f969b429660af7a1e513de, type: 3}
     sadBySkin:
     - {fileID: 4613267395866423043, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  - happyBySkin: []
+    - {fileID: 5725222864545908163, guid: f845f931f98d1e74497807179f770325, type: 3}
+  - happyBySkin:
+    - {fileID: 8363339302457135625, guid: 223303777ff1ed646b9ca3554aafd60d, type: 3}
+    - {fileID: 870481604244116201, guid: a87b06a8354377e46b4479131ef382d4, type: 3}
     neutralBySkin:
     - {fileID: 6022938833314608076, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 870481604244116201, guid: a275ac954c9a413418bca86491256549, type: 3}
     sadBySkin:
     - {fileID: -5587926677601744592, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  - happyBySkin: []
+    - {fileID: -2187630146815580952, guid: 6baa85fcab9b4dc4cb455de43d597e0d, type: 3}
+  - happyBySkin:
+    - {fileID: 870481604244116201, guid: d65576dc909756f44bab48414b536ce8, type: 3}
+    - {fileID: 870481604244116201, guid: 2d15214f7b5f5074f9c3156bea4bdc3d, type: 3}
     neutralBySkin:
     - {fileID: 2952744490144450112, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 6972369364780417379, guid: 3b6df50e8e9d7564599260f74533b24d, type: 3}
     sadBySkin:
     - {fileID: -6235709884887125464, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
-  - happyBySkin: []
+    - {fileID: 5725222864545908163, guid: 80475673c45da064395b9f2894582cab, type: 3}
+  - happyBySkin:
+    - {fileID: 870481604244116201, guid: 9e84cbb773ea738428f8f7057869b05c, type: 3}
+    - {fileID: 870481604244116201, guid: 6349a6563faf26a4f986eb08e675cbca, type: 3}
     neutralBySkin:
     - {fileID: 4290692724191206064, guid: 444227c3521e1dc4fb7663ce9cb5e7f4, type: 3}
+    - {fileID: 5725222864545908163, guid: 8668ac0b254b8a3419a70cccdbcc9f0a, type: 3}
     sadBySkin:
     - {fileID: -8531155124128328185, guid: 397a841b309066241ba1e4e4fd335d0d, type: 3}
+    - {fileID: 870481604244116201, guid: 0b66ae3116c60444fb1f171591353d8c, type: 3}
   debugLogs: 0
 --- !u!1 &1610698176
 GameObject:

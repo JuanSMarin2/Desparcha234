@@ -6,6 +6,7 @@ public class UiManager : MonoBehaviour
 {
     [Header("Referencias")]
     [SerializeField] private Bolita bolita;        // Arrastra la Bolita desde la escena
+    [SerializeField] private Progression progression; // Referencia opcional para leer intentos por jugador
     
 
     [Header("Puntajes (Jugadores 1-4)")]
@@ -64,6 +65,7 @@ public class UiManager : MonoBehaviour
         SetAdvertenciaAtrapaText(textoAdvertenciaNatural);
 
         if (bolita == null) bolita = FindAnyObjectByType<Bolita>();
+        if (progression == null) progression = FindAnyObjectByType<Progression>();
         if (bolita != null)
         {
             bolita.OnEstadoCambio += OnBolitaEstadoCambio;
@@ -180,8 +182,21 @@ public class UiManager : MonoBehaviour
     {
         if (rondaTexto != null)
         {
-            rondaTexto.text = "Ronda " + Mathf.Max(1, ronda) + "/3";
+            int totalTurns = ResolveTotalTurns();
+            rondaTexto.text = "Ronda " + Mathf.Max(1, ronda) + "/" + Mathf.Max(1, totalTurns);
         }
+    }
+
+    private int ResolveTotalTurns()
+    {
+        // Preferir Progression si está disponible para reflejar cualquier override en runtime
+        if (progression != null)
+        {
+            return Mathf.Max(1, progression.AttemptsPerPlayer);
+        }
+        // Fallback: calcular por número de jugadores desde RoundData (sin tocar RoundData)
+        int n = (RoundData.instance != null) ? Mathf.Max(0, RoundData.instance.numPlayers) : 0;
+        return (n == 2) ? 3 : 2;
     }
 
     // Mostrar/ocultar advertencia de recoger la bola

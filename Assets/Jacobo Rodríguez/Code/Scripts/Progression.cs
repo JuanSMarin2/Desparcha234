@@ -19,6 +19,7 @@ public class Progression : MonoBehaviour
 
     [Header("Configuración Etapas / Intentos")]
     [SerializeField] private int attemptsPerPlayer = 2;
+    public int AttemptsPerPlayer => attemptsPerPlayer; // Exponer solo lectura para UI
     private int[] _attemptsLeft;
 
     [Header("Referencias")]
@@ -122,7 +123,10 @@ public class Progression : MonoBehaviour
         if (stage < 1) stage = 1;
         if (stage > MaxStage) stage = MaxStage;
 
+        // Determinar número de jugadores y ajustar intentos por jugador
         int n = RoundData.instance != null ? Mathf.Max(0, RoundData.instance.numPlayers) : 0;
+        attemptsPerPlayer = (n == 2) ? 3 : 2; // 2 jugadores => 3; 3 o 4 => 2
+
         if (n > 0)
         {
             _attemptsLeft = new int[n];

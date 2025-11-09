@@ -180,7 +180,10 @@ public class JOrden: MonoBehaviour
             if (nextExpected > buttonCount)
             {
                 ClearExisting();
+                // Congelar durante el breve feedback antes de finalizar, si hubiera alguno (aquí terminamos inmediatamente, así que pop inmediato tras invoke)
+                if (Tempo.instance != null) Tempo.instance.PushExternalFreeze("Orden:Finish");
                 onGameFinished?.Invoke();
+                if (Tempo.instance != null) Tempo.instance.PopExternalFreeze();
             }
             pulsePhase = 0f; // reiniciar animación para el siguiente esperado
         }

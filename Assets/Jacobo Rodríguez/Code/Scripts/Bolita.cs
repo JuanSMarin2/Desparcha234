@@ -76,12 +76,14 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     [SerializeField] private float gravedadVirtualZ = -9.81f;
     [Tooltip("Arrastre lineal en Z (0 = sin arrastre). Valores 0.2–1 dan caída más suave")]
     [SerializeField, Range(0f, 3f)] private float dragZ = 0.6f;
+    [Header("Multiplicador de velocidad (solo caída)")]
+    [SerializeField, Tooltip("Factor para hacer más lenta la CAÍDA. 0.5 = la mitad de rápido al DESCENDER. No afecta el ascenso ni la fuerza inicial.")] [Range(0.05f,2f)] private float movementSpeedFactor = 0.5f;
 
     [Header("Descenso controlado (Z virtual)")]
     [Tooltip("Si está activo, limita la velocidad cuando la bola desciende en Z virtual (velocidad terminal)")]
     [SerializeField] private bool limitDescentSpeed = true;
     [Tooltip("Velocidad máxima de descenso (unidades/seg) en Z virtual. Solo se aplica al bajar")]
-    [SerializeField, Min(0f)] private float maxDescentSpeed = 6f;
+    [SerializeField, Min(0f)] private float maxDescentSpeed = 3f;
     [Tooltip("Aplicar el dragZ solo cuando la bola está descendiendo")]
     [SerializeField] private bool dragOnlyOnDescent = true;
 
@@ -96,6 +98,10 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
     [Header("Interacción (UI)")]
     [Tooltip("Imagen de UI que captura taps para lanzar o atrapar (sobre la bola o pantalla)")]
     [SerializeField] private Image inputImage;
+    [Tooltip("Segundo Image opcional que también dispara la interacción y se puede arrastrar.")]
+    [SerializeField] private Image inputImageDraggable;
+    [Tooltip("Habilitar arrastre en el segundo Image (si está asignado).")]
+    [SerializeField] private bool enableDragOnSecond = true;
 
     [Header("Animación")]
     [SerializeField] private Animator _animator;
@@ -188,17 +194,43 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         }
     }
 
-    private void SetupInputImage()
+    private void SetupInputImage(Image img, bool allowDrag)
     {
-        if (inputImage == null) return;
-        inputImage.raycastTarget = true; // asegurar interacción incluso si se desactiva/activa en runtime
-        var btn = inputImage.GetComponent<Button>();
-        if (btn == null)
-        {
-            btn = inputImage.gameObject.AddComponent<Button>();
-        }
+        if (img == null) return;
+        img.raycastTarget = true;
+        var btn = img.GetComponent<Button>();
+        if (btn == null) btn = img.gameObject.AddComponent<Button>();
         btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(OnInputImageClicked);
+
+        if (allowDrag)
+        {
+            var relay = img.GetComponent<DraggableTapRelay>();
+            if (relay == null) relay = img.gameObject.AddComponent<DraggableTapRelay>();
+            relay.Init(this);
+        }
+    }
+
+    private void SetupInputImage()
+    {
+        // Backwards compatibility: configure primary image
+        SetupInputImage(inputImage, false);
+        // Configure secondary (draggable) if present
+        if (inputImageDraggable != null)
+            SetupInputImage(inputImageDraggable, enableDragOnSecond);
+    }
+
+    // Permitir que otros scripts activen/desactiven ambas imágenes fácilmente
+    public void SetInputImagesActive(bool value)
+    {
+        if (inputImage != null) inputImage.gameObject.SetActive(value);
+        if (inputImageDraggable != null) inputImageDraggable.gameObject.SetActive(value);
+    }
+
+    // Exponer interacción para relays externos
+    public void TriggerTapFromRelay()
+    {
+        HandleTapInteraction();
     }
 
     private void OnInputImageClicked()
@@ -277,7 +309,10 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         // Simulación Z virtual: integrar solo cuando está en el aire (siempre Z virtual)
         if (_estado == EstadoLanzamiento.EnElAire)
         {
-            _vz += gravedadVirtualZ * Time.deltaTime;
+            // Aplicar gravedad: ascenso normal, descenso más lento según factor
+            float dt = Time.deltaTime;
+            bool estabaDescendiendo = _vz <= 0f;
+            _vz += gravedadVirtualZ * dt * (estabaDescendiendo ? movementSpeedFactor : 1f);
             if (dragZ > 0f)
             {
                 if (!dragOnlyOnDescent || _vz < 0f)
@@ -291,7 +326,8 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
                 if (_vz < minVz) _vz = minVz;
             }
 
-            _z += _vz * Time.deltaTime;
+            // Integrar altura con dt normal (el frenado ya se aplica solo al descender)
+            _z += _vz * dt;
 
             if (_rb != null)
             {
@@ -406,6 +442,7 @@ public class Bolita : MonoBehaviour, IPointerDownHandler
         _rb.gravityScale = 0f;
         Vector2 v2 = _rb.linearVelocity; v2.y = 0f; _rb.linearVelocity = v2;
         _z = 0f;                       // partimos del suelo virtual
+        // Velocidad inicial original (no reducir el ascenso)
         _vz = Mathf.Abs(fuerza);       // velocidad inicial en Z virtual
 
         // Base para "altura visual" y fuerza
