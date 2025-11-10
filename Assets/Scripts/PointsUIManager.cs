@@ -46,10 +46,17 @@ public class PointsUIManager : MonoBehaviour
     [Header("Flujo siguiente escena")]
     [SerializeField] private MinigameChooser minigameChooser;
 
+    [Header("Animators por jugador (Winner/Loser)")]
+    [Tooltip("Animator que contiene triggers Winner y Loser para el jugador 1")] [SerializeField] private Animator player1Animator;
+    [Tooltip("Animator que contiene triggers Winner y Loser para el jugador 2")] [SerializeField] private Animator player2Animator;
+    [Tooltip("Animator que contiene triggers Winner y Loser para el jugador 3")] [SerializeField] private Animator player3Animator;
+    [Tooltip("Animator que contiene triggers Winner y Loser para el jugador 4")] [SerializeField] private Animator player4Animator;
+
     private TextMeshProUGUI[] playerTexts;
     private TextMeshProUGUI[] gainTexts;
     private RectTransform[] quads;
     private Image[] quadImages;
+    private Animator[] playerAnimators;
 
     private Vector3 one = Vector3.one;
     private int[] originalSiblings;
@@ -61,6 +68,7 @@ public class PointsUIManager : MonoBehaviour
         gainTexts = new[] { gain1Text, gain2Text, gain3Text, gain4Text };
         quads = new[] { quadP1, quadP2, quadP3, quadP4 };
         quadImages = new[] { quadP1Img, quadP2Img, quadP3Img, quadP4Img };
+    playerAnimators = new[] { player1Animator, player2Animator, player3Animator, player4Animator };
 
        
     }
@@ -118,6 +126,7 @@ public class PointsUIManager : MonoBehaviour
             bool active = (i < numPlayers);
             if (playerTexts[i]) playerTexts[i].gameObject.SetActive(active);
             if (gainTexts[i]) gainTexts[i].gameObject.SetActive(false);
+            // Si el animator está fuera de rango de jugadores activos lo dejamos sin cambiar
         }
 
         // Copias locales
@@ -130,6 +139,26 @@ public class PointsUIManager : MonoBehaviour
             baseTotals[i] = rd.totalPoints[i];
             gains[i] = rd.currentPoints[i];
             targetTotals[i] = baseTotals[i] + gains[i];
+        }
+
+        // Determinar quién ganó más puntos (puede haber empate)
+        int maxGain = gains.Take(numPlayers).Max();
+        for (int i = 0; i < numPlayers; i++)
+        {
+            var anim = playerAnimators[i];
+            if (!anim) continue;
+            // Reset sencillo por si el controller conserva estado previo
+            SafeResetTrigger(anim, "Winner");
+            SafeResetTrigger(anim, "Loser");
+        }
+        for (int i = 0; i < numPlayers; i++)
+        {
+            var anim = playerAnimators[i];
+            if (!anim) continue;
+            if (gains[i] == maxGain)
+                SafeSetTrigger(anim, "Winner");
+            else
+                SafeSetTrigger(anim, "Loser");
         }
 
         // Estado base
@@ -312,5 +341,32 @@ public class PointsUIManager : MonoBehaviour
         }
 
         rt.localScale = end;
+    }
+
+    // ---- Safe Animator trigger helpers ----
+    private void SafeSetTrigger(Animator anim, string triggerName)
+    {
+        if (!anim || string.IsNullOrEmpty(triggerName)) return;
+        // Comprobar que el parámetro existe para evitar warnings
+        if (HasAnimatorParameter(anim, triggerName, AnimatorControllerParameterType.Trigger))
+            anim.SetTrigger(triggerName);
+    }
+
+    private void SafeResetTrigger(Animator anim, string triggerName)
+    {
+        if (!anim || string.IsNullOrEmpty(triggerName)) return;
+        if (HasAnimatorParameter(anim, triggerName, AnimatorControllerParameterType.Trigger))
+            anim.ResetTrigger(triggerName);
+    }
+
+    private bool HasAnimatorParameter(Animator anim, string name, AnimatorControllerParameterType type)
+    {
+        if (!anim) return false;
+        foreach (var p in anim.parameters)
+        {
+            if (p.type == type && p.name == name)
+                return true;
+        }
+        return false;
     }
 }

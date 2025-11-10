@@ -183,7 +183,7 @@ public class UiManager : MonoBehaviour
         if (rondaTexto != null)
         {
             int totalTurns = ResolveTotalTurns();
-            rondaTexto.text = "Ronda " + Mathf.Max(1, ronda) + "/" + Mathf.Max(1, totalTurns);
+            rondaTexto.text = "Ronda " + Mathf.Max(1, ronda) + "/ 3";
         }
     }
 

@@ -154,6 +154,8 @@ public class FinalResultsLayout : MonoBehaviour
             {
                 bool isHappy = winnerSet.Contains(i);
                 SetIconMood(i, isHappy);
+                // Activar triggers Winner/Loser en el Animator de la barra
+                SetBarWinLose(i, isHappy);
             }
 
             // Medallas (una por ganador, hasta la cantidad disponible)
@@ -196,6 +198,7 @@ public class FinalResultsLayout : MonoBehaviour
             for (int i = 0; i < n; i++)
             {
                 SetIconMood(i, false);
+                SetBarWinLose(i, false);
             }
         }
     }
@@ -256,5 +259,22 @@ public class FinalResultsLayout : MonoBehaviour
             finalTrigger = logical + "3";
         }
         anim.SetTrigger(finalTrigger);
+    }
+
+    // Nuevo: activar triggers Winner/Loser en el Animator de la barra del jugador
+    private void SetBarWinLose(int playerIndex, bool isWinner)
+    {
+        if (playerBars == null || playerIndex < 0 || playerIndex >= playerBars.Length) return;
+        var bar = playerBars[playerIndex];
+        if (!bar) return;
+        var anim = bar.GetComponent<Animator>();
+        if (anim == null) anim = bar.GetComponentInChildren<Animator>(true);
+        if (anim == null) return;
+
+        // Limpiar triggers previos por seguridad
+        anim.ResetTrigger("Winner");
+        anim.ResetTrigger("Loser");
+
+        anim.SetTrigger(isWinner ? "Winner" : "Loser");
     }
 }
