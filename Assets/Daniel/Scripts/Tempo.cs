@@ -612,9 +612,9 @@ public class Tempo : MonoBehaviour
     private float GetInitialSecondsByDifficulty()
     {
         int players = Dificultad.GetActivePlayersCount();
-        if (players >= 4) return 15f;
-        if (players == 3 || players == 2) return 20f;
-        return 20f;
+        if (players >= 4) return 10f;
+        if (players == 3 || players == 2) return 15f;
+        return 13f;
     }
 
     private PlayerTimer CreatePlayerTimer(int playerIndex, float seconds)

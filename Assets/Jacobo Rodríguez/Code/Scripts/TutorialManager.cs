@@ -7,15 +7,26 @@ public class TutorialManager : MonoBehaviour
     [Header("Video")]
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private VideoClip[] clips;
-    [Tooltip("Reproducir automáticamente el primer clip en Start")] 
+    [Tooltip("Reproducir automáticamente el primer clip en Start")]
     [SerializeField] private bool autoPlayOnStart = true;
-    [Tooltip("Si es true, al terminar el último clip vuelve al primero")] 
+    [Tooltip("Si es true, al terminar el último clip vuelve al primero")]
     [SerializeField] private bool loopAtEnd = false;
+
+    [Header("Modo Animación (en vez de video)")]
+    [SerializeField] private bool modoAnimacion = false;
+    [Tooltip("GameObject que contiene la Image/Animator para el modo animación")]
+    [SerializeField] private GameObject animacionImageObject;
+    [Tooltip("Animator que tiene los estados de animación (Anim1/Anim2/Anim3 por defecto)")]
+    [SerializeField] private Animator animacionAnimator;
+    [Tooltip("Nombres de los estados de animator que mapean a los textos 0..2")]
+    [SerializeField] private string animStateName1 = "Anim1";
+    [SerializeField] private string animStateName2 = "Anim2";
+    [SerializeField] private string animStateName3 = "Anim3";
 
     [Header("Textos (3)")]
     [SerializeField] private TMP_Text[] textos = new TMP_Text[3];
-    [SerializeField] [Range(0f, 1f)] private float inactiveAlpha = 0.4f;
-    [SerializeField] [Range(0f, 1f)] private float activeAlpha = 1f;
+    [SerializeField][Range(0f, 1f)] private float inactiveAlpha = 0.4f;
+    [SerializeField][Range(0f, 1f)] private float activeAlpha = 1f;
     [Tooltip("Override por clip del índice de texto activo (>=0). Valores negativos se ignoran y se usa el índice del clip.")]
     [SerializeField] private int[] activeTextIndexPerClip;
 
@@ -29,28 +40,55 @@ public class TutorialManager : MonoBehaviour
 
     void OnEnable()
     {
-        if (videoPlayer && !_eventsHooked)
+        if (!modoAnimacion)
         {
-            videoPlayer.loopPointReached += OnClipFinished;
-            videoPlayer.prepareCompleted += OnPrepared;
-            _eventsHooked = true;
+            if (videoPlayer && !_eventsHooked)
+            {
+                videoPlayer.loopPointReached += OnClipFinished;
+                videoPlayer.prepareCompleted += OnPrepared;
+                _eventsHooked = true;
+            }
         }
     }
 
     void OnDisable()
     {
-        if (videoPlayer && _eventsHooked)
+        if (!modoAnimacion)
         {
-            videoPlayer.loopPointReached -= OnClipFinished;
-            videoPlayer.prepareCompleted -= OnPrepared;
-            _eventsHooked = false;
+            if (videoPlayer && _eventsHooked)
+            {
+                videoPlayer.loopPointReached -= OnClipFinished;
+                videoPlayer.prepareCompleted -= OnPrepared;
+                _eventsHooked = false;
+            }
         }
     }
 
     void Start()
     {
+        // modoAnimacion: usar Image+Animator en lugar de VideoPlayer
+        if (modoAnimacion)
+        {
+            if (videoPlayer && videoPlayer.gameObject.activeSelf)
+                videoPlayer.gameObject.SetActive(false);
+            if (animacionImageObject) animacionImageObject.SetActive(true);
+            // actualizar textos inmediatamente según estado actual
+            UpdateAnimacionText();
+            return;
+        }
+
+        if (animacionImageObject) animacionImageObject.SetActive(false);
+
         if (clips == null || clips.Length == 0 || !videoPlayer) return;
         if (autoPlayOnStart) PlayIndex(0); else UpdatePresentationForIndex(0);
+    }
+
+    void Update()
+    {
+        if (modoAnimacion)
+        {
+            UpdateAnimacionText();
+        }
     }
 
     private void PlayIndex(int idx)
@@ -96,6 +134,17 @@ public class TutorialManager : MonoBehaviour
                 : Mathf.Clamp(idx, 0, maxTexts - 1);
             SetActiveText(activeIdx);
         }
+    }
+
+    private void UpdateAnimacionText()
+    {
+        if (animacionAnimator == null || textos == null || textos.Length == 0) return;
+        var info = animacionAnimator.GetCurrentAnimatorStateInfo(0);
+        int activeIdx = -1;
+        if (!string.IsNullOrEmpty(animStateName1) && info.IsName(animStateName1)) activeIdx = 0;
+        else if (!string.IsNullOrEmpty(animStateName2) && info.IsName(animStateName2)) activeIdx = 1;
+        else if (!string.IsNullOrEmpty(animStateName3) && info.IsName(animStateName3)) activeIdx = 2;
+        SetActiveText(activeIdx);
     }
 
     private void SetActiveText(int activeIdx)

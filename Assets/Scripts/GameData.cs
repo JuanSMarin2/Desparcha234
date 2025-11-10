@@ -107,4 +107,31 @@ public class GameData : MonoBehaviour
         if (playerIndex < 0 || playerIndex >= 4) return -1;
         return equippedSkin[playerIndex];
     }
+
+    /// <summary>
+    /// Resetea toda la GameData: monedas a 0, skins no adquiridas, solo skin 0 disponible y equipada.
+    /// Útil para desarrolladores (llamar desde un botón en el editor o menú debug).
+    /// </summary>
+    public void ResetAllGameData()
+    {
+        money = 0;
+        for (int p = 0; p < 4; p++)
+        {
+            // Limpiar y asegurar al menos 1 skin
+            if (ownedPerPlayer[p] == null)
+                ownedPerPlayer[p] = new List<bool>();
+            ownedPerPlayer[p].Clear();
+            EnsureSkinSlots(p, 1);
+
+            // Solo skin 0 disponible
+            ownedPerPlayer[p][0] = true;
+            for (int s = 1; s < ownedPerPlayer[p].Count; s++)
+                ownedPerPlayer[p][s] = false;
+
+            // Equipar skin 0
+            equippedSkin[p] = 0;
+        }
+        Debug.LogWarning("[GameData] ¡Todos los datos han sido reseteados por el desarrollador!");
+    }
 }
+
