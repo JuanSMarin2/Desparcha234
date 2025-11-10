@@ -6626,6 +6626,8 @@ MonoBehaviour:
   distanciaAdvertenciaZ: 3.84
   permitirRecogerPorToque: 1
   inputImage: {fileID: 58468174}
+  inputImageDraggable: {fileID: 0}
+  enableDragOnSecond: 1
   _animator: {fileID: 1592149804}
   animatorBoolEnElAire: EnElAire
   highlight: {fileID: 907830083}
@@ -9424,6 +9426,22 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7266182581072098592, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.28125003
+      objectReference: {fileID: 0}
+    - target: {fileID: 7266182581072098592, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.101666674
+      objectReference: {fileID: 0}
+    - target: {fileID: 7266182581072098592, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.28125003
+      objectReference: {fileID: 0}
+    - target: {fileID: 7266182581072098592, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.101666674
+      objectReference: {fileID: 0}
+    - target: {fileID: 7266182581072098592, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.4032484
       objectReference: {fileID: 0}
@@ -9432,8 +9450,12 @@ PrefabInstance:
       value: 1.4032484
       objectReference: {fileID: 0}
     - target: {fileID: 7266182581072098592, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7266182581072098592, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -152.3
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 7535253175520332650, guid: a8354f3a3931c6e4ebeb35a1a1f5b5d6, type: 3}
       propertyPath: m_AnchorMax.y
